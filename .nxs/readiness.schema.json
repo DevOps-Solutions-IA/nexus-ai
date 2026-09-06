@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false, "required": ["schema_version", "phases"],
+  "properties": {"$schema": {"type": "string"}, "schema_version": {"const": "1.0.0"}, "phases": {"type": "array", "items": {"type": "object", "additionalProperties": false,
+    "required": ["phase", "branch", "implementation_commit", "closure_reference", "requirements", "gates", "evidence", "test_count", "security_status", "regression_status", "decision", "status", "timestamp"],
+    "properties": {
+      "phase": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"}, "branch": {"type": "string"}, "implementation_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "closure_reference": {"type": ["string", "null"]},
+      "requirements": {"type": "array", "uniqueItems": true, "items": {"type": "string"}}, "gates": {"type": "object", "additionalProperties": {"enum": ["PASS", "FAIL"]}}, "evidence": {"type": "array", "items": {"type": "string"}},
+      "test_count": {"type": "integer", "minimum": 0}, "security_status": {"enum": ["PASS", "FAIL"]}, "regression_status": {"enum": ["PASS", "FAIL"]}, "decision": {"enum": ["GO", "NO_GO"]}, "status": {"enum": ["READY", "FAILED", "BLOCKED"]}, "timestamp": {"type": "string", "format": "date-time"}
+    }
+  }}}
+}

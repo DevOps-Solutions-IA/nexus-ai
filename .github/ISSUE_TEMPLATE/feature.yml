@@ -1,0 +1,10 @@
+name: Feature
+description: Propose a requirement-aligned capability
+body:
+  - type: input
+    id: requirements
+    attributes: {label: NXS requirement IDs}
+  - type: textarea
+    id: outcome
+    attributes: {label: Desired outcome}
+    validations: {required: true}

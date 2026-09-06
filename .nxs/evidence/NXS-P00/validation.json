@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","captured_at":"2026-09-06T22:57:00Z","result":"PASS","commands":["uv run ruff format --check .","uv run ruff check .","uv run mypy","uv run python -m scripts.nxs_validate","uv run python -m scripts.nxs_guard --phase NXS-P00"],"formatting":"PASS","lint":"PASS","typing":"PASS","schemas":"PASS","repository_invariants":"PASS","guard":"PASS"}

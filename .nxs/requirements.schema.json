@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "requirements"],
+  "properties": {
+    "$schema": {"type": "string"}, "schema_version": {"const": "1.0.0"},
+    "requirements": {"type": "array", "minItems": 1, "items": {"type": "object", "additionalProperties": false,
+      "required": ["id", "category", "title", "description", "mandatory", "status", "target_phase", "dependencies", "implementation_evidence", "validation_evidence"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^NXS-[A-Z]+-[0-9]{3}$"}, "category": {"type": "string", "pattern": "^[A-Z][A-Z_]+$"},
+        "title": {"type": "string", "minLength": 3}, "description": {"type": "string", "minLength": 10}, "mandatory": {"type": "boolean"},
+        "status": {"enum": ["PLANNED", "IN_PROGRESS", "IMPLEMENTED", "VALIDATED", "BLOCKED", "DEFERRED"]},
+        "target_phase": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"},
+        "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^NXS-[A-Z]+-[0-9]{3}$"}},
+        "implementation_evidence": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "validation_evidence": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+      }
+    }}
+  }
+}

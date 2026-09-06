@@ -1,0 +1,94 @@
+{
+  "decision_eligibility": "GO",
+  "details": {
+    "dependency_security": {
+      "command": [
+        "uv",
+        "run",
+        "pip-audit"
+      ],
+      "exit_code": 0,
+      "output_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n"
+    },
+    "formatting": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "20 files already formatted\n"
+    },
+    "lint": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "All checks passed!\n"
+    },
+    "repository_integrity": {
+      "command": [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "scripts.nxs_validate"
+      ],
+      "exit_code": 0,
+      "output_tail": "{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\n"
+    },
+    "sast": {
+      "command": [
+        "uv",
+        "run",
+        "bandit",
+        "-q",
+        "-lll",
+        "-r",
+        "src",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "output_tail": "3.14/site-packages/bandit/core/context.py\", line 244, in check_call_arg_value\n    arg_value = self.get_call_arg_value(argument_name)\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/context.py\", line 231, in get_call_arg_value\n    kwd_values = self.call_keywords\n                 ^^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/context.py\", line 95, in call_keywords\n    return_dict[li.arg] = self._get_literal_value(li.value)\n                          ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/context.py\", line 181, in _get_literal_value\n    if isinstance(literal, ast.Num):\n                           ^^^^^^^\nAttributeError: module 'ast' has no attribute 'Num'\n\n[tester]\tERROR\tBandit internal error running: start_process_with_partial_path on file src/nexus_ai/main.py at line 15: module 'ast' has no attribute 'Num'Traceback (most recent call last):\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/tester.py\", line 51, in run_tests\n    result = test(context, test._config)\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/plugins/injection_shell.py\", line 678, in start_process_with_partial_path\n    if config and len(context.call_args):\n                      ^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/context.py\", line 51, in call_args\n    args.append(self._get_literal_value(arg))\n                ~~~~~~~~~~~~~~~~~~~~~~~^^^^^\n  File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/bandit/core/context.py\", line 181, in _get_literal_value\n    if isinstance(literal, ast.Num):\n                           ^^^^^^^\nAttributeError: module 'ast' has no attribute 'Num'\n\n[manager]\tERROR\tException occurred when executing tests against src/nexus_ai/main.py.\n[manager]\tERROR\tRun \"bandit --debug src/nexus_ai/main.py\" to see the full traceback.\n"
+    },
+    "tests": {
+      "command": [
+        "uv",
+        "run",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "output_tail": ".......................                                                  [100%]\n================================ tests coverage ================================\n_______________ coverage: platform linux, python 3.14.5-final-0 ________________\n\nName                              Stmts   Miss Branch BrPart  Cover   Missing\n-----------------------------------------------------------------------------\nscripts/nxs_control/__init__.py       0      0      0      0   100%\nscripts/nxs_control/core.py         152     18     80     15    85%   44, 58, 84-89, 123, 142, 146, 149, 156->155, 164, 167, 170, 175, 194, 196, 202, 240, 245->247\nsrc/nexus_ai/__init__.py              1      0      0      0   100%\nsrc/nexus_ai/main.py                 29      0      0      0   100%\n-----------------------------------------------------------------------------\nTOTAL                               182     18     80     15    87%\nRequired test coverage of 80% reached. Total coverage: 86.64%\n23 passed in 0.31s\n"
+    },
+    "typing": {
+      "command": [
+        "uv",
+        "run",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "output_tail": "Success: no issues found in 16 source files\n"
+    }
+  },
+  "executed_at": "2026-09-06T22:59:57Z",
+  "gates": {
+    "dependency_security": "PASS",
+    "formatting": "PASS",
+    "lint": "PASS",
+    "repository_integrity": "PASS",
+    "sast": "PASS",
+    "tests": "PASS",
+    "typing": "PASS"
+  },
+  "phase": "NXS-P00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

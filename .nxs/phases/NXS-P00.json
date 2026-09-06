@@ -1,0 +1,58 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p00-engineering-control-system",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [],
+  "evidence": [],
+  "id": "NXS-P00",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "environment_preflight",
+    "repository_integrity",
+    "git_governance",
+    "project_memory",
+    "schemas",
+    "requirements_ledger",
+    "execution_policy",
+    "execution_guard",
+    "execution_lock",
+    "readiness_registry",
+    "quality_gate",
+    "ci",
+    "security",
+    "tests",
+    "agent_handoff",
+    "docker",
+    "clean_room",
+    "documentation",
+    "regression"
+  ],
+  "non_scope": [
+    "Business domain features",
+    "Production deployment",
+    "Multi-tenant business logic",
+    "Provider integrations"
+  ],
+  "objective": "Establish the permanent, tested, agent-neutral engineering governance and deterministic runtime foundation.",
+  "requirements_implemented": [
+    "NXS-MEM-001",
+    "NXS-MEM-002",
+    "NXS-GUARD-001",
+    "NXS-GUARD-002",
+    "NXS-READY-001",
+    "NXS-READY-002",
+    "NXS-PLATFORM-001",
+    "NXS-SEC-001",
+    "NXS-AUDIT-001",
+    "NXS-OBS-001",
+    "NXS-RES-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "VALIDATING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-06T00:00:00Z"
+  },
+  "title": "Engineering Control System"
+}
