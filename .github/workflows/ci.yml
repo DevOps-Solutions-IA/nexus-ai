@@ -35,10 +35,10 @@ jobs:
       - name: Guard
         run: |
           if [ "$(jq -r '.current_phase.status' .nxs/project-state.json)" = READY ]; then
-            guard_output="$(uv run python -m scripts.nxs_guard --phase NXS-P00 --json || true)"
+            guard_output="$(uv run python -m scripts.nxs_guard --phase NXS-P00 --branch "${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}" --json || true)"
             test "$(jq -r .code <<<"$guard_output")" = ALREADY_READY
           else
-            uv run python -m scripts.nxs_guard --phase NXS-P00 --json
+            uv run python -m scripts.nxs_guard --phase NXS-P00 --branch "${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}" --json
           fi
       - name: Build production image
         run: docker build --pull --tag nexus-ai:${{ github.sha }} .
