@@ -3,10 +3,10 @@
   "phases": [
     {
       "branch": "feat/nxs-p00-engineering-control-system",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [],
       "id": "NXS-P00",
-      "status": "VALIDATING",
+      "status": "READY",
       "title": "Engineering Control System"
     },
     {

@@ -24,6 +24,22 @@ def control_repo(tmp_path: Path) -> Path:
     source = Path(__file__).parents[2]
     shutil.copytree(source / ".nxs", tmp_path / ".nxs")
     (tmp_path / ".git").mkdir()
+    set_phase(tmp_path, "NXS-P00", "BUILDING", "PENDING")
+    state_path = tmp_path / ".nxs/project-state.json"
+    state = load_json(state_path)
+    state["current_phase"]["status"] = "BUILDING"
+    state["current_phase"]["decision"] = "PENDING"
+    state["completed_phases"] = []
+    state["active_phase"] = "NXS-P00"
+    write(state_path, state)
+    manifest_path = tmp_path / ".nxs/phases/NXS-P00.json"
+    manifest = load_json(manifest_path)
+    manifest["status"] = "BUILDING"
+    manifest["decision"] = "PENDING"
+    write(manifest_path, manifest)
+    readiness = load_json(tmp_path / ".nxs/readiness.json")
+    readiness["phases"] = []
+    write(tmp_path / ".nxs/readiness.json", readiness)
     return tmp_path
 
 

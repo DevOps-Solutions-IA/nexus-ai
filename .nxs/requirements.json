@@ -1,41 +1,567 @@
 {
-  "$schema":"./requirements.schema.json","schema_version":"1.0.0","requirements":[
-    {"id":"NXS-MEM-001","category":"MEMORY","title":"Canonical project state","description":"Machine-readable repository state preserves execution continuity without conversational memory.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":[],"implementation_evidence":[".nxs/project-state.json"],"validation_evidence":[]},
-    {"id":"NXS-MEM-002","category":"MEMORY","title":"Strict schema validation","description":"Critical control files are validated by strict JSON Schemas and consistency checks.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-MEM-001"],"implementation_evidence":[".nxs/project-state.schema.json"],"validation_evidence":[]},
-    {"id":"NXS-GUARD-001","category":"GUARD","title":"Execution policy and guard","description":"A blocking executable guard validates phase authorization, dependencies, Git state and policy.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-MEM-001"],"implementation_evidence":["scripts/nxs_guard/__main__.py"],"validation_evidence":[]},
-    {"id":"NXS-GUARD-002","category":"GUARD","title":"Controlled lock and transitions","description":"Safe locks and state transitions prevent conflicting or invalid phase execution.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-GUARD-001"],"implementation_evidence":["scripts/nxs_state/__main__.py"],"validation_evidence":[]},
-    {"id":"NXS-READY-001","category":"READINESS","title":"Evidence and readiness registry","description":"Durable evidence and readiness records prove every completed phase gate.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-MEM-002"],"implementation_evidence":[".nxs/readiness.json"],"validation_evidence":[]},
-    {"id":"NXS-READY-002","category":"READINESS","title":"Quality and closure engines","description":"Automated quality aggregation and guarded two-commit closure enforce GO decisions.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-READY-001"],"implementation_evidence":["scripts/nxs_close/__main__.py"],"validation_evidence":[]},
-    {"id":"NXS-PLATFORM-001","category":"PLATFORM","title":"Deterministic platform foundation","description":"Locked Python toolchain, minimal ASGI runtime and local infrastructure are reproducible.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":[],"implementation_evidence":["pyproject.toml","Dockerfile"],"validation_evidence":[]},
-    {"id":"NXS-SEC-001","category":"SECURITY","title":"Security automation baseline","description":"Secrets, dependencies, source and container are subject to documented blocking scans.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":[],"implementation_evidence":[".github/workflows/security.yml"],"validation_evidence":[]},
-    {"id":"NXS-AUDIT-001","category":"AUDIT","title":"Traceable engineering changes","description":"Requirements, commits, branches, decisions and evidence remain auditable in Git.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-MEM-001"],"implementation_evidence":["docs/engineering/branch-contract.md"],"validation_evidence":[]},
-    {"id":"NXS-OBS-001","category":"OBSERVABILITY","title":"Structured runtime visibility","description":"The minimal runtime emits structured logs and provides health and version endpoints.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-PLATFORM-001"],"implementation_evidence":["src/nexus_ai/main.py"],"validation_evidence":[]},
-    {"id":"NXS-RES-001","category":"RESILIENCE","title":"Graceful runtime lifecycle","description":"The runtime handles process signals cleanly and dependencies expose health checks.","mandatory":true,"status":"IN_PROGRESS","target_phase":"NXS-P00","dependencies":["NXS-PLATFORM-001"],"implementation_evidence":["Dockerfile","compose.yaml"],"validation_evidence":[]},
-    {"id":"NXS-PLATFORM-002","category":"PLATFORM","title":"Backend domain foundation","description":"Establish production backend boundaries, configuration and shared platform primitives.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P01","dependencies":["NXS-PLATFORM-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-TENANT-001","category":"MULTI_TENANCY","title":"Strict tenant isolation","description":"Every tenant-scoped operation enforces organization isolation across data and compute.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P02","dependencies":["NXS-PLATFORM-002"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-ORG-001","category":"ORGANIZATION","title":"Organization provisioning","description":"Organizations are customer-facing tenants with automated, idempotent provisioning.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P05","dependencies":["NXS-TENANT-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-DASH-001","category":"DASHBOARD","title":"Dynamic organization dashboards","description":"Validated organization configuration generates tenant-specific dashboard schemas.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P05","dependencies":["NXS-ORG-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-CUSTOMER-001","category":"CUSTOMER","title":"Omnichannel customer identity","description":"Customer identity and conversation context resolve safely across all supported channels.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P06","dependencies":["NXS-TENANT-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-INT-001","category":"INTEGRATION","title":"CRM ERP and API hub","description":"Provider-neutral REST, OpenAPI, GraphQL, CRM, ERP and calendar integrations are governed.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P07","dependencies":["NXS-PLATFORM-002"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-TOOL-001","category":"TOOL_ENGINE","title":"Controlled AI tools and actions","description":"AI-requested tools execute through policy, scoped credentials, audit and idempotency controls.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P08","dependencies":["NXS-INT-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-WA-001","category":"WHATSAPP","title":"WhatsApp channel","description":"WhatsApp messaging participates in the governed omnichannel conversation model.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P09","dependencies":["NXS-CUSTOMER-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-EMAIL-001","category":"EMAIL","title":"Email channel","description":"Inbound and outbound email use provider abstractions and shared conversation context.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P09","dependencies":["NXS-CUSTOMER-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-SMS-001","category":"SMS","title":"SMS channel","description":"Inbound and outbound SMS use provider abstractions and shared conversation context.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P09","dependencies":["NXS-CUSTOMER-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-OTP-001","category":"OTP","title":"One-time passwords","description":"OTP issuance and verification enforce expiry, replay resistance, throttling and audit.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P10","dependencies":["NXS-SMS-001","NXS-EMAIL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-TEL-001","category":"TELEPHONY","title":"Asterisk telephony foundation","description":"Inbound and outbound calling uses Asterisk behind stable provider-neutral contracts.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P11","dependencies":["NXS-PLATFORM-002"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-VOICE-001","category":"VOICE","title":"Realtime AI voice","description":"Realtime voice sessions support inbound, outbound and controlled AI-human handoff.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P12","dependencies":["NXS-TEL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-EL-001","category":"ELEVENLABS","title":"ElevenLabs provider","description":"ElevenLabs is integrated as a strategic realtime voice provider behind abstraction boundaries.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P12","dependencies":["NXS-VOICE-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-WF-001","category":"WORKFLOW","title":"Durable workflow engine","description":"Versioned workflows coordinate idempotent tools, communication and recoverable long-running work.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P14","dependencies":["NXS-TOOL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-CAMP-001","category":"CAMPAIGN","title":"Omnichannel campaigns","description":"Campaigns schedule consent-aware, throttled omnichannel outreach with measurable outcomes.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P16","dependencies":["NXS-WF-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-HUMAN-001","category":"HUMAN_AGENT","title":"Human call-center operations","description":"Human operators receive queues, context, copilot support and controlled AI handoff.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P17","dependencies":["NXS-CUSTOMER-001","NXS-TEL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-SCALE-001","category":"SCALING","title":"Horizontal cells","description":"Stateless compute and explicit ownership permit adding another VPS or certified cell safely.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P18","dependencies":["NXS-PLATFORM-002"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-SCALE-002","category":"SCALING","title":"Kamailio SIP edge","description":"Kamailio provides the planned horizontally scalable SIP edge ahead of Asterisk cells.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P19","dependencies":["NXS-SCALE-001","NXS-TEL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-CAP-001","category":"CAPACITY","title":"Thirty organization cell target","description":"Each certified standard cell demonstrates capacity for approximately thirty standard organizations or more.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P28","dependencies":["NXS-SCALE-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-SRE-001","category":"SENTINEL","title":"NXS Sentinel","description":"NXS Sentinel autonomously monitors and assists governed SRE and engineering operations.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P20","dependencies":["NXS-SCALE-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-SEC-002","category":"SECURITY","title":"Credential broker isolation","description":"Language models never receive direct external service credentials or unrestricted secret access.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P27","dependencies":["NXS-TOOL-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-AUDIT-002","category":"AUDIT","title":"Immutable platform audit","description":"Security-sensitive tenant, human and AI actions produce tamper-evident auditable records.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P22","dependencies":["NXS-TENANT-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-OBS-002","category":"OBSERVABILITY","title":"End-to-end observability","description":"Metrics, traces, logs, SLOs and correlation span cells, channels and tenant operations.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P24","dependencies":["NXS-SCALE-001"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-RES-002","category":"RESILIENCE","title":"Failure resilience","description":"The platform tolerates dependency and cell failures with tested degradation and recovery.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P25","dependencies":["NXS-OBS-002"],"implementation_evidence":[],"validation_evidence":[]},
-    {"id":"NXS-DR-001","category":"DISASTER_RECOVERY","title":"Backup and restore","description":"Encrypted backups and regularly tested restores meet declared recovery objectives.","mandatory":true,"status":"PLANNED","target_phase":"NXS-P26","dependencies":["NXS-RES-002"],"implementation_evidence":[],"validation_evidence":[]}
-  ]
+  "$schema": "./requirements.schema.json",
+  "requirements": [
+    {
+      "category": "MEMORY",
+      "dependencies": [],
+      "description": "Machine-readable repository state preserves execution continuity without conversational memory.",
+      "id": "NXS-MEM-001",
+      "implementation_evidence": [
+        ".nxs/project-state.json"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Canonical project state",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "MEMORY",
+      "dependencies": [
+        "NXS-MEM-001"
+      ],
+      "description": "Critical control files are validated by strict JSON Schemas and consistency checks.",
+      "id": "NXS-MEM-002",
+      "implementation_evidence": [
+        ".nxs/project-state.schema.json"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Strict schema validation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "GUARD",
+      "dependencies": [
+        "NXS-MEM-001"
+      ],
+      "description": "A blocking executable guard validates phase authorization, dependencies, Git state and policy.",
+      "id": "NXS-GUARD-001",
+      "implementation_evidence": [
+        "scripts/nxs_guard/__main__.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Execution policy and guard",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "GUARD",
+      "dependencies": [
+        "NXS-GUARD-001"
+      ],
+      "description": "Safe locks and state transitions prevent conflicting or invalid phase execution.",
+      "id": "NXS-GUARD-002",
+      "implementation_evidence": [
+        "scripts/nxs_state/__main__.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Controlled lock and transitions",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "READINESS",
+      "dependencies": [
+        "NXS-MEM-002"
+      ],
+      "description": "Durable evidence and readiness records prove every completed phase gate.",
+      "id": "NXS-READY-001",
+      "implementation_evidence": [
+        ".nxs/readiness.json"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Evidence and readiness registry",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "READINESS",
+      "dependencies": [
+        "NXS-READY-001"
+      ],
+      "description": "Automated quality aggregation and guarded two-commit closure enforce GO decisions.",
+      "id": "NXS-READY-002",
+      "implementation_evidence": [
+        "scripts/nxs_close/__main__.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Quality and closure engines",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "PLATFORM",
+      "dependencies": [],
+      "description": "Locked Python toolchain, minimal ASGI runtime and local infrastructure are reproducible.",
+      "id": "NXS-PLATFORM-001",
+      "implementation_evidence": [
+        "pyproject.toml",
+        "Dockerfile"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Deterministic platform foundation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "SECURITY",
+      "dependencies": [],
+      "description": "Secrets, dependencies, source and container are subject to documented blocking scans.",
+      "id": "NXS-SEC-001",
+      "implementation_evidence": [
+        ".github/workflows/security.yml"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Security automation baseline",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUDIT",
+      "dependencies": [
+        "NXS-MEM-001"
+      ],
+      "description": "Requirements, commits, branches, decisions and evidence remain auditable in Git.",
+      "id": "NXS-AUDIT-001",
+      "implementation_evidence": [
+        "docs/engineering/branch-contract.md"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Traceable engineering changes",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "OBSERVABILITY",
+      "dependencies": [
+        "NXS-PLATFORM-001"
+      ],
+      "description": "The minimal runtime emits structured logs and provides health and version endpoints.",
+      "id": "NXS-OBS-001",
+      "implementation_evidence": [
+        "src/nexus_ai/main.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Structured runtime visibility",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "RESILIENCE",
+      "dependencies": [
+        "NXS-PLATFORM-001"
+      ],
+      "description": "The runtime handles process signals cleanly and dependencies expose health checks.",
+      "id": "NXS-RES-001",
+      "implementation_evidence": [
+        "Dockerfile",
+        "compose.yaml"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P00",
+      "title": "Graceful runtime lifecycle",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P00/quality-gates.json"
+      ]
+    },
+    {
+      "category": "PLATFORM",
+      "dependencies": [
+        "NXS-PLATFORM-001"
+      ],
+      "description": "Establish production backend boundaries, configuration and shared platform primitives.",
+      "id": "NXS-PLATFORM-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P01",
+      "title": "Backend domain foundation",
+      "validation_evidence": []
+    },
+    {
+      "category": "MULTI_TENANCY",
+      "dependencies": [
+        "NXS-PLATFORM-002"
+      ],
+      "description": "Every tenant-scoped operation enforces organization isolation across data and compute.",
+      "id": "NXS-TENANT-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P02",
+      "title": "Strict tenant isolation",
+      "validation_evidence": []
+    },
+    {
+      "category": "ORGANIZATION",
+      "dependencies": [
+        "NXS-TENANT-001"
+      ],
+      "description": "Organizations are customer-facing tenants with automated, idempotent provisioning.",
+      "id": "NXS-ORG-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P05",
+      "title": "Organization provisioning",
+      "validation_evidence": []
+    },
+    {
+      "category": "DASHBOARD",
+      "dependencies": [
+        "NXS-ORG-001"
+      ],
+      "description": "Validated organization configuration generates tenant-specific dashboard schemas.",
+      "id": "NXS-DASH-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P05",
+      "title": "Dynamic organization dashboards",
+      "validation_evidence": []
+    },
+    {
+      "category": "CUSTOMER",
+      "dependencies": [
+        "NXS-TENANT-001"
+      ],
+      "description": "Customer identity and conversation context resolve safely across all supported channels.",
+      "id": "NXS-CUSTOMER-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P06",
+      "title": "Omnichannel customer identity",
+      "validation_evidence": []
+    },
+    {
+      "category": "INTEGRATION",
+      "dependencies": [
+        "NXS-PLATFORM-002"
+      ],
+      "description": "Provider-neutral REST, OpenAPI, GraphQL, CRM, ERP and calendar integrations are governed.",
+      "id": "NXS-INT-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P07",
+      "title": "CRM ERP and API hub",
+      "validation_evidence": []
+    },
+    {
+      "category": "TOOL_ENGINE",
+      "dependencies": [
+        "NXS-INT-001"
+      ],
+      "description": "AI-requested tools execute through policy, scoped credentials, audit and idempotency controls.",
+      "id": "NXS-TOOL-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P08",
+      "title": "Controlled AI tools and actions",
+      "validation_evidence": []
+    },
+    {
+      "category": "WHATSAPP",
+      "dependencies": [
+        "NXS-CUSTOMER-001"
+      ],
+      "description": "WhatsApp messaging participates in the governed omnichannel conversation model.",
+      "id": "NXS-WA-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P09",
+      "title": "WhatsApp channel",
+      "validation_evidence": []
+    },
+    {
+      "category": "EMAIL",
+      "dependencies": [
+        "NXS-CUSTOMER-001"
+      ],
+      "description": "Inbound and outbound email use provider abstractions and shared conversation context.",
+      "id": "NXS-EMAIL-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P09",
+      "title": "Email channel",
+      "validation_evidence": []
+    },
+    {
+      "category": "SMS",
+      "dependencies": [
+        "NXS-CUSTOMER-001"
+      ],
+      "description": "Inbound and outbound SMS use provider abstractions and shared conversation context.",
+      "id": "NXS-SMS-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P09",
+      "title": "SMS channel",
+      "validation_evidence": []
+    },
+    {
+      "category": "OTP",
+      "dependencies": [
+        "NXS-SMS-001",
+        "NXS-EMAIL-001"
+      ],
+      "description": "OTP issuance and verification enforce expiry, replay resistance, throttling and audit.",
+      "id": "NXS-OTP-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P10",
+      "title": "One-time passwords",
+      "validation_evidence": []
+    },
+    {
+      "category": "TELEPHONY",
+      "dependencies": [
+        "NXS-PLATFORM-002"
+      ],
+      "description": "Inbound and outbound calling uses Asterisk behind stable provider-neutral contracts.",
+      "id": "NXS-TEL-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P11",
+      "title": "Asterisk telephony foundation",
+      "validation_evidence": []
+    },
+    {
+      "category": "VOICE",
+      "dependencies": [
+        "NXS-TEL-001"
+      ],
+      "description": "Realtime voice sessions support inbound, outbound and controlled AI-human handoff.",
+      "id": "NXS-VOICE-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P12",
+      "title": "Realtime AI voice",
+      "validation_evidence": []
+    },
+    {
+      "category": "ELEVENLABS",
+      "dependencies": [
+        "NXS-VOICE-001"
+      ],
+      "description": "ElevenLabs is integrated as a strategic realtime voice provider behind abstraction boundaries.",
+      "id": "NXS-EL-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P12",
+      "title": "ElevenLabs provider",
+      "validation_evidence": []
+    },
+    {
+      "category": "WORKFLOW",
+      "dependencies": [
+        "NXS-TOOL-001"
+      ],
+      "description": "Versioned workflows coordinate idempotent tools, communication and recoverable long-running work.",
+      "id": "NXS-WF-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P14",
+      "title": "Durable workflow engine",
+      "validation_evidence": []
+    },
+    {
+      "category": "CAMPAIGN",
+      "dependencies": [
+        "NXS-WF-001"
+      ],
+      "description": "Campaigns schedule consent-aware, throttled omnichannel outreach with measurable outcomes.",
+      "id": "NXS-CAMP-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P16",
+      "title": "Omnichannel campaigns",
+      "validation_evidence": []
+    },
+    {
+      "category": "HUMAN_AGENT",
+      "dependencies": [
+        "NXS-CUSTOMER-001",
+        "NXS-TEL-001"
+      ],
+      "description": "Human operators receive queues, context, copilot support and controlled AI handoff.",
+      "id": "NXS-HUMAN-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P17",
+      "title": "Human call-center operations",
+      "validation_evidence": []
+    },
+    {
+      "category": "SCALING",
+      "dependencies": [
+        "NXS-PLATFORM-002"
+      ],
+      "description": "Stateless compute and explicit ownership permit adding another VPS or certified cell safely.",
+      "id": "NXS-SCALE-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P18",
+      "title": "Horizontal cells",
+      "validation_evidence": []
+    },
+    {
+      "category": "SCALING",
+      "dependencies": [
+        "NXS-SCALE-001",
+        "NXS-TEL-001"
+      ],
+      "description": "Kamailio provides the planned horizontally scalable SIP edge ahead of Asterisk cells.",
+      "id": "NXS-SCALE-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P19",
+      "title": "Kamailio SIP edge",
+      "validation_evidence": []
+    },
+    {
+      "category": "CAPACITY",
+      "dependencies": [
+        "NXS-SCALE-001"
+      ],
+      "description": "Each certified standard cell demonstrates capacity for approximately thirty standard organizations or more.",
+      "id": "NXS-CAP-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P28",
+      "title": "Thirty organization cell target",
+      "validation_evidence": []
+    },
+    {
+      "category": "SENTINEL",
+      "dependencies": [
+        "NXS-SCALE-001"
+      ],
+      "description": "NXS Sentinel autonomously monitors and assists governed SRE and engineering operations.",
+      "id": "NXS-SRE-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P20",
+      "title": "NXS Sentinel",
+      "validation_evidence": []
+    },
+    {
+      "category": "SECURITY",
+      "dependencies": [
+        "NXS-TOOL-001"
+      ],
+      "description": "Language models never receive direct external service credentials or unrestricted secret access.",
+      "id": "NXS-SEC-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P27",
+      "title": "Credential broker isolation",
+      "validation_evidence": []
+    },
+    {
+      "category": "AUDIT",
+      "dependencies": [
+        "NXS-TENANT-001"
+      ],
+      "description": "Security-sensitive tenant, human and AI actions produce tamper-evident auditable records.",
+      "id": "NXS-AUDIT-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P22",
+      "title": "Immutable platform audit",
+      "validation_evidence": []
+    },
+    {
+      "category": "OBSERVABILITY",
+      "dependencies": [
+        "NXS-SCALE-001"
+      ],
+      "description": "Metrics, traces, logs, SLOs and correlation span cells, channels and tenant operations.",
+      "id": "NXS-OBS-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P24",
+      "title": "End-to-end observability",
+      "validation_evidence": []
+    },
+    {
+      "category": "RESILIENCE",
+      "dependencies": [
+        "NXS-OBS-002"
+      ],
+      "description": "The platform tolerates dependency and cell failures with tested degradation and recovery.",
+      "id": "NXS-RES-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "title": "Failure resilience",
+      "validation_evidence": []
+    },
+    {
+      "category": "DISASTER_RECOVERY",
+      "dependencies": [
+        "NXS-RES-002"
+      ],
+      "description": "Encrypted backups and regularly tested restores meet declared recovery objectives.",
+      "id": "NXS-DR-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P26",
+      "title": "Backup and restore",
+      "validation_evidence": []
+    }
+  ],
+  "schema_version": "1.0.0"
 }
