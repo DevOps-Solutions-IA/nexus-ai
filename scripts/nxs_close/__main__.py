@@ -32,6 +32,12 @@ def close(phase_id: str, implementation_commit: str) -> None:
         value != "PASS" for value in evidence.get("gates", {}).values()
     ):
         raise ControlError("mandatory quality gate evidence is absent or failing")
+    matrix_path = root / f".nxs/evidence/{phase_id}/quality-matrix.json"
+    matrix = load_json(matrix_path)
+    if matrix.get("result") != "PASS" or any(
+        value != "PASS" for value in matrix.get("gates", {}).values()
+    ):
+        raise ControlError("complete quality matrix is absent or failing")
     manifest_path = root / f".nxs/phases/{phase_id}.json"
     manifest = load_json(manifest_path)
     if manifest["status"] != "VALIDATING":
@@ -54,12 +60,16 @@ def close(phase_id: str, implementation_commit: str) -> None:
     phase = indexed(cast(list[dict[str, Any]], registry["phases"]), "phase")[phase_id]
     phase["status"] = "READY"
     phase["decision"] = "GO"
+    evidence_refs = [
+        str(path.relative_to(root))
+        for path in sorted((root / f".nxs/evidence/{phase_id}").glob("*.json"))
+    ]
     manifest.update(
         {
             "status": "READY",
             "decision": "GO",
             "implementation_commit": implementation_commit,
-            "evidence": [str(evidence_path.relative_to(root))],
+            "evidence": evidence_refs,
         }
     )
     manifest["timestamps"]["closed_at"] = iso_now()
@@ -74,6 +84,7 @@ def close(phase_id: str, implementation_commit: str) -> None:
     state["last_updated_at"] = iso_now()
     readiness_path = root / ".nxs/readiness.json"
     readiness = load_json(readiness_path)
+    test_evidence = load_json(root / f".nxs/evidence/{phase_id}/tests.json")
     readiness["phases"].append(
         {
             "phase": phase_id,
@@ -81,9 +92,9 @@ def close(phase_id: str, implementation_commit: str) -> None:
             "implementation_commit": implementation_commit,
             "closure_reference": None,
             "requirements": manifest["requirements_implemented"],
-            "gates": evidence["gates"],
+            "gates": matrix["gates"],
             "evidence": manifest["evidence"],
-            "test_count": 0,
+            "test_count": test_evidence["passed"],
             "security_status": "PASS",
             "regression_status": "PASS",
             "decision": "GO",
