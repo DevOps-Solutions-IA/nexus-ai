@@ -29,6 +29,8 @@ from nexus_ai.domain.auth.rbac import AuthorizationService
 from nexus_ai.domain.auth.service import AuthService
 from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
+from nexus_ai.domain.customers import events as customer_events  # noqa: F401 - payload registration
+from nexus_ai.domain.customers.service import ConversationService, CustomerService
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
@@ -62,6 +64,8 @@ class Resources:
     principal_validator: PrincipalStateValidator
     event_platform: EventPlatform
     provisioner: OrganizationProvisioner
+    customers: CustomerService
+    conversations: ConversationService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -166,6 +170,8 @@ class ApplicationLifespan:
             principal_validator=principal_validator,
             event_platform=event_platform,
             provisioner=OrganizationProvisioner(settings, database, event_platform.publisher),
+            customers=CustomerService(settings, database, event_platform.publisher),
+            conversations=ConversationService(settings, database, event_platform.publisher),
         )
         await logger.ainfo(
             "runtime_started",

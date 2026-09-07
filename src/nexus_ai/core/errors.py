@@ -275,6 +275,52 @@ class ProvisioningStateConflictError(NxsError):
     title = "Provisioning State Conflict"
 
 
+class IdentityConflictError(NxsError):
+    """A canonical identity already belongs to a different Customer in this Organization."""
+
+    code = "NXS_CUSTOMER_IDENTITY_CONFLICT"
+    status = 409
+    title = "Customer Identity Conflict"
+
+
+class IdentityNormalizationError(NxsError):
+    """An identity value failed deterministic normalization/validation."""
+
+    code = "NXS_CUSTOMER_IDENTITY_INVALID"
+    status = 422
+    title = "Invalid Customer Identity"
+
+
+class UnsupportedIdentityTypeError(NxsError):
+    code = "NXS_CUSTOMER_IDENTITY_UNSUPPORTED"
+    status = 422
+    title = "Unsupported Identity Type"
+
+
+class CustomerNotFoundError(NxsError):
+    code = "NXS_CUSTOMER_NOT_FOUND"
+    status = 404
+    title = "Customer Not Found"
+
+
+class ConversationNotFoundError(NxsError):
+    code = "NXS_CONVERSATION_NOT_FOUND"
+    status = 404
+    title = "Conversation Not Found"
+
+
+class ConversationStateConflictError(NxsError):
+    code = "NXS_CONVERSATION_STATE_CONFLICT"
+    status = 409
+    title = "Conversation State Conflict"
+
+
+class ConversationExternalKeyConflictError(NxsError):
+    code = "NXS_CONVERSATION_EXTERNAL_CONFLICT"
+    status = 409
+    title = "Conversation External Key Conflict"
+
+
 class DashboardSchemaError(NxsError):
     """Base for deterministic dashboard schema failures."""
 
@@ -333,4 +379,11 @@ PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     DashboardSchemaError,
     UnknownWidgetError,
     UnsupportedDashboardVersionError,
+    IdentityConflictError,
+    IdentityNormalizationError,
+    UnsupportedIdentityTypeError,
+    CustomerNotFoundError,
+    ConversationNotFoundError,
+    ConversationStateConflictError,
+    ConversationExternalKeyConflictError,
 )

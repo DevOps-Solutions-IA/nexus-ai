@@ -42,3 +42,25 @@ OrgSettingsReadDep = Annotated[
 DashboardReadDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.DASHBOARD_READ))
 ]
+CustomerReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_READ))]
+CustomerCreateDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_CREATE))
+]
+CustomerUpdateDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_UPDATE))
+]
+CustomerIdentityLinkDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_IDENTITY_LINK))
+]
+ConversationReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CONVERSATION_READ))
+]
+ConversationCreateDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CONVERSATION_CREATE))
+]
+ConversationCloseDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CONVERSATION_CLOSE))
+]
+TimelineReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_TIMELINE_READ))
+]
