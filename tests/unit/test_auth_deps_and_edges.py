@@ -9,7 +9,11 @@ import pytest
 from starlette.requests import Request
 
 from nexus_ai.api.auth_deps import _bearer_token
-from nexus_ai.core.errors import AuthenticationRequiredError, ConfigurationError, TokenValidationError
+from nexus_ai.core.errors import (
+    AuthenticationRequiredError,
+    ConfigurationError,
+    TokenValidationError,
+)
 from nexus_ai.domain.auth.keys import LocalEd25519KeyProvider
 from nexus_ai.domain.auth.tokens import TokenService, parse_refresh_token
 from nexus_ai.infrastructure.database import Database
@@ -80,8 +84,12 @@ class TestTokenServiceEdges:
         payload = jwt.utils.base64url_encode(
             json.dumps(
                 {
-                    "iss": "i", "aud": "a", "sub": str(uuid.uuid7()), "org": str(uuid.uuid7()),
-                    "sid": str(uuid.uuid7()), "jti": str(uuid.uuid7()),
+                    "iss": "i",
+                    "aud": "a",
+                    "sub": str(uuid.uuid7()),
+                    "org": str(uuid.uuid7()),
+                    "sid": str(uuid.uuid7()),
+                    "jti": str(uuid.uuid7()),
                     "iat": int(now.timestamp()),
                     "nbf": int(now.timestamp()),
                     "exp": int((now + dt.timedelta(seconds=900)).timestamp()),
@@ -103,8 +111,12 @@ class TestTokenServiceEdges:
         signing = keys.signing_key()
         forged = jwt.encode(
             {
-                "iss": "i", "aud": "a", "sub": str(uuid.uuid7()), "org": str(uuid.uuid7()),
-                "sid": str(uuid.uuid7()), "jti": str(uuid.uuid7()),
+                "iss": "i",
+                "aud": "a",
+                "sub": str(uuid.uuid7()),
+                "org": str(uuid.uuid7()),
+                "sid": str(uuid.uuid7()),
+                "jti": str(uuid.uuid7()),
                 "iat": "not-a-number",
                 "nbf": "not-a-number",
                 "exp": "not-a-number",

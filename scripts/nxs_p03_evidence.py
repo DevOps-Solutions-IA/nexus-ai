@@ -26,7 +26,9 @@ def now() -> str:
     return dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def run(*args: str, env_extra: dict[str, str] | None = None, capture: bool = True) -> subprocess.CompletedProcess[str]:
+def run(
+    *args: str, env_extra: dict[str, str] | None = None, capture: bool = True
+) -> subprocess.CompletedProcess[str]:
     import os
 
     env = dict(os.environ)
@@ -205,7 +207,10 @@ def main() -> int:
     )
     pytest_evidence(
         "runtime-role-security",
-        ["tests/integration/test_runtime_role_security.py", "tests/integration/test_migration_roles.py"],
+        [
+            "tests/integration/test_runtime_role_security.py",
+            "tests/integration/test_migration_roles.py",
+        ],
     )
 
     # 8. Concurrency
