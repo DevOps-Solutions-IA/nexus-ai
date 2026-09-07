@@ -1197,10 +1197,12 @@
       "id": "NXS-EVENT-002",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Canonical event envelope and subject taxonomy",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1213,10 +1215,12 @@
       "id": "NXS-EVENT-003",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Transactional outbox for atomic state and event intent",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1228,10 +1232,12 @@
       "id": "NXS-EVENT-004",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Reliable JetStream publisher with deterministic semantics",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1242,10 +1248,12 @@
       "id": "NXS-EVENT-005",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Durable consumer framework with explicit acknowledgement",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1257,10 +1265,12 @@
       "id": "NXS-EVENT-006",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Consumer idempotency and duplicate protection",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1271,10 +1281,12 @@
       "id": "NXS-EVENT-007",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Retry, backoff and terminal failure handling",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1287,10 +1299,12 @@
       "id": "NXS-EVENT-008",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Tenant-safe event propagation and isolation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -1301,10 +1315,12 @@
       "id": "NXS-EVENT-009",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Event schema and version compatibility validation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     },
     {
       "category": "DATA",
@@ -1316,10 +1332,12 @@
       "id": "NXS-DATA-002",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P04",
       "title": "Event persistence and query primitives",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P04/quality-gates.json"
+      ]
     }
   ],
   "schema_version": "1.0.0"

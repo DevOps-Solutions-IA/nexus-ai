@@ -1,11 +1,24 @@
 {
-  "note": "awaiting NXS CI + NXS Security on the pushed implementation head; finalized in a follow-up evidence commit at the closure head",
+  "implementation_commit": "e00275f55cda26adcf3bc2df1246338ac112e71a",
+  "jobs": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "note": "NXS CI (push trigger, canonical) all 7 jobs success; NXS Security success on push and pull_request. Finalized at the closure head in a follow-up commit.",
+  "nxs_ci": "success",
+  "nxs_security": "success",
   "phase": "NXS-P04",
-  "recorded_at": "2026-09-07T17:59:46Z",
-  "result": "PENDING",
-  "schema_version": "1.0.0",
-  "workflows": [
-    "NXS CI (state, quality, integration, docker, multiarch)",
-    "NXS Security (source-and-dependencies, image)"
-  ]
+  "recorded_at": "2026-09-07T18:05:52Z",
+  "result": "PASS",
+  "runs": {
+    "nxs_ci_push": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149894306",
+    "nxs_security_pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149897878",
+    "nxs_security_push": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149894336"
+  },
+  "schema_version": "1.0.0"
 }

@@ -2,13 +2,39 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p04-data-events",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P03"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P04/agent-handoff.json",
+    ".nxs/evidence/NXS-P04/clean-room.json",
+    ".nxs/evidence/NXS-P04/concurrency.json",
+    ".nxs/evidence/NXS-P04/consumer-and-idempotency.json",
+    ".nxs/evidence/NXS-P04/contracts.json",
+    ".nxs/evidence/NXS-P04/coverage.json",
+    ".nxs/evidence/NXS-P04/database-roles.json",
+    ".nxs/evidence/NXS-P04/docker.json",
+    ".nxs/evidence/NXS-P04/event-envelope-and-subjects.json",
+    ".nxs/evidence/NXS-P04/git.json",
+    ".nxs/evidence/NXS-P04/github-ci.json",
+    ".nxs/evidence/NXS-P04/migration.json",
+    ".nxs/evidence/NXS-P04/multiarch.json",
+    ".nxs/evidence/NXS-P04/platform-lifecycle-and-replay.json",
+    ".nxs/evidence/NXS-P04/preflight.json",
+    ".nxs/evidence/NXS-P04/quality-gates.json",
+    ".nxs/evidence/NXS-P04/quality-matrix.json",
+    ".nxs/evidence/NXS-P04/regression.json",
+    ".nxs/evidence/NXS-P04/requirements.json",
+    ".nxs/evidence/NXS-P04/resilience.json",
+    ".nxs/evidence/NXS-P04/schema-validator.json",
+    ".nxs/evidence/NXS-P04/security.json",
+    ".nxs/evidence/NXS-P04/tenant-security.json",
+    ".nxs/evidence/NXS-P04/tests.json",
+    ".nxs/evidence/NXS-P04/transactional-outbox.json"
+  ],
   "id": "NXS-P04",
-  "implementation_commit": null,
+  "implementation_commit": "e00275f55cda26adcf3bc2df1246338ac112e71a",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -70,9 +96,9 @@
     "NXS-EVENT-009"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-07T18:05:52Z",
     "started_at": "2026-09-07T16:52:49Z"
   },
   "title": "Data and Event Platform"
