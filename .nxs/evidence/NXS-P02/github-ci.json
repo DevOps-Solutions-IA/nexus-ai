@@ -1,25 +1,12 @@
 {
-  "commit": "f2e5290c20870150324bf99243245c0dbb51694a",
-  "jobs": {
-    "docker": "PASS",
-    "image": "PASS",
-    "integration": "PASS",
-    "multiarch": "PASS",
-    "quality": "PASS",
-    "source-and-dependencies": "PASS",
-    "state": "PASS"
-  },
+  "note": "awaiting green CI on the corrective implementation candidate and its closure commit",
   "phase": "NXS-P02",
-  "pull_request": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/11",
-  "recorded_at": "2026-09-07T07:21:58Z",
-  "result": "PASS",
-  "schema_version": "1.0.0",
-  "triggers": [
-    "pull_request",
-    "push"
-  ],
-  "workflows": {
-    "NXS CI": "success",
-    "NXS Security": "success"
-  }
+  "previous_closure": {
+    "closure_commit": "7195d01c614ca25dbd49d83bbfa20aefdad58827",
+    "implementation_commit": "f2e5290c20870150324bf99243245c0dbb51694a",
+    "superseded_by": "audit corrective (fail-closed runtime-role verification)"
+  },
+  "recorded_at": "2026-09-07T07:44:32Z",
+  "result": "PENDING_CI",
+  "schema_version": "1.0.0"
 }

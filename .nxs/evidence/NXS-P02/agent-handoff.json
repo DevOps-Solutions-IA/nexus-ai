@@ -17,8 +17,9 @@
     "condition": "DEPENDENCIES_READY",
     "phase": "NXS-P03"
   },
+  "note": "re-run after audit corrective; unchanged conclusion",
   "phase": "NXS-P02",
-  "recorded_at": "2026-09-07T07:22:28Z",
+  "recorded_at": "2026-09-07T07:47:07Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "simulation": "Agent A closed NXS-P02; Agent B with zero conversation memory reads only .nxs/*"

@@ -322,3 +322,52 @@ def test_repo_is_reachable_by_subprocess(lifecycle_repo: Path) -> None:
         ).stdout.strip()
         == "true"
     )
+
+
+def test_reopen_closed_phase_for_corrective_delta(
+    lifecycle_repo: Path,
+    seed_evidence: Callable[..., None],
+    commit_all: Callable[[str], str],
+) -> None:
+    # Close NXS-P01.
+    start("NXS-P01", "codex", root=lifecycle_repo)
+    seed_evidence("NXS-P01")
+    transition("NXS-P01", "VALIDATING", root=lifecycle_repo)
+    close("NXS-P01", commit_all("impl NXS-P01"), root=lifecycle_repo)
+    assert _registry(lifecycle_repo)["NXS-P01"]["status"] == "READY"
+
+    # Reopen it (audit finding) — READY -> VALIDATING clears the closure state.
+    transition("NXS-P01", "VALIDATING", root=lifecycle_repo)
+    state = _state(lifecycle_repo)
+    registry = _registry(lifecycle_repo)
+    assert registry["NXS-P01"]["status"] == "VALIDATING"
+    assert registry["NXS-P01"]["decision"] == "PENDING"
+    assert state["current_phase"]["id"] == "NXS-P01"
+    assert state["current_phase"]["status"] == "VALIDATING"
+    assert state["current_phase"]["implementation_commit"] is None
+    assert "NXS-P01" not in state["completed_phases"]
+    assert state["active_phase"] == "NXS-P01"
+    assert state["next_allowed_execution"] == {
+        "phase": "NXS-P01",
+        "condition": "ACTIVE_PHASE_ONLY",
+    }
+    readiness = {e["phase"] for e in load_json(lifecycle_repo / ".nxs/readiness.json")["phases"]}
+    assert "NXS-P01" not in readiness
+    validate_invariants(lifecycle_repo)
+
+    # Re-close with a corrective commit.
+    seed_evidence("NXS-P01", passed=99)
+    close("NXS-P01", commit_all("corrective NXS-P01"), root=lifecycle_repo)
+    reclosed = _registry(lifecycle_repo)["NXS-P01"]
+    assert reclosed["status"] == "READY"
+    assert reclosed["decision"] == "GO"
+    assert _state(lifecycle_repo)["next_allowed_execution"]["phase"] == "NXS-P02"
+
+
+def test_reopen_is_the_only_transition_out_of_ready() -> None:
+    from scripts.nxs_control.core import REOPEN_TRANSITION, transition_allowed
+
+    assert REOPEN_TRANSITION == ("READY", "VALIDATING")
+    assert transition_allowed("READY", "VALIDATING")
+    for target in ("READY", "BUILDING", "FAILED", "BLOCKED", "READY_TO_EXECUTE"):
+        assert not transition_allowed("READY", target)

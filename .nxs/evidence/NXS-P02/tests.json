@@ -8,11 +8,11 @@
     "integration"
   ],
   "failed": 0,
-  "integration": 66,
-  "non_integration": 204,
-  "passed": 270,
+  "integration": 67,
+  "non_integration": 215,
+  "passed": 282,
   "phase": "NXS-P02",
-  "recorded_at": "2026-09-07T06:59:42Z",
+  "recorded_at": "2026-09-07T07:44:32Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "warnings_as_errors": true

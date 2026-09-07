@@ -82,7 +82,9 @@ class ApplicationLifespan:
         await self._open("valkey", cache.connect, settings.cache.required)
         await self._open("nats", messaging.connect, settings.messaging.required)
 
-        if database.is_connected and settings.database.verify_runtime_role:
+        if settings.database.verify_runtime_role and (
+            database.is_connected or settings.is_hardened_environment
+        ):
             await self._verify_runtime_role(database)
 
         probe_timeout = settings.health.probe_timeout_seconds
@@ -114,19 +116,32 @@ class ApplicationLifespan:
         return self._resources
 
     async def _verify_runtime_role(self, database: Database) -> None:
+        """Confirm the runtime database role cannot bypass tenant RLS (NXS-SEC-003).
+
+        In staging/production this is fail-closed: an inability to complete the check is
+        itself a security failure, exactly like finding a superuser / BYPASSRLS role.
+        Local/test may log a warning and continue. No raw database exception detail is
+        put into the raised message or the logs — only a safe error type.
+        """
         logger = get_logger("nexus_ai.lifecycle")
+        hardened = self._settings.is_hardened_environment
         try:
             report = await database.runtime_role_report()
         except Exception as exc:
-            await logger.awarning("runtime_role_check_skipped", error_code=type(exc).__name__)
+            if hardened:
+                raise ConfigurationError(
+                    "unable to verify the runtime database role cannot bypass tenant RLS; "
+                    "refusing to start"
+                ) from None
+            await logger.awarning("runtime_role_check_skipped", error_type=type(exc).__name__)
             return
         await logger.ainfo("runtime_role", **{k: str(v) for k, v in report.as_payload().items()})
-        if report.can_bypass_tenancy and self._settings.is_hardened_environment:
-            raise ConfigurationError(
-                f"runtime database role {report.role!r} can bypass tenant RLS "
-                "(superuser or BYPASSRLS); refusing to start"
-            )
         if report.can_bypass_tenancy:
+            if hardened:
+                raise ConfigurationError(
+                    f"runtime database role {report.role!r} can bypass tenant RLS "
+                    "(superuser or BYPASSRLS); refusing to start"
+                )
             await logger.awarning(
                 "runtime_role_can_bypass_rls",
                 role=report.role,

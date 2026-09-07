@@ -89,3 +89,27 @@ async def test_startup_fails_closed_when_role_can_bypass_rls(
     with pytest.raises(ConfigurationError, match="bypass tenant RLS"):
         await lifespan.startup()
     await lifespan.shutdown()
+
+
+async def test_startup_fails_closed_when_role_cannot_be_verified(
+    migrated_database: str, integration_env
+) -> None:
+    from nexus_ai.core.errors import ConfigurationError
+    from nexus_ai.core.lifecycle import ApplicationLifespan
+
+    # Staging with an unreachable database: the runtime-role check cannot complete, which
+    # is itself a security failure — startup must refuse (no raw connection detail leaks).
+    settings = integration_env(
+        NXS_ENVIRONMENT="staging",
+        NXS_DATABASE__DSN="postgresql+asyncpg://nexus_runtime:x@127.0.0.1:5999/none",
+        NXS_DATABASE__CONNECT_TIMEOUT_SECONDS="2",
+        NXS_CACHE__REQUIRED="false",
+        NXS_MESSAGING__REQUIRED="false",
+        NXS_TENANCY__HEADER_RESOLVER_ENABLED="false",
+        NXS_TELEMETRY__MODE="local",
+        NXS_HTTP__ALLOWED_HOSTS='["staging.nexus-ai.dev"]',
+    )
+    lifespan = ApplicationLifespan(settings)
+    with pytest.raises(ConfigurationError, match="unable to verify the runtime database role"):
+        await lifespan.startup()
+    await lifespan.shutdown()

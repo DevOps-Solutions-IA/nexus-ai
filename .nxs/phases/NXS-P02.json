@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p02-tenancy",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P01"
   ],
@@ -38,7 +38,7 @@
     ".nxs/evidence/NXS-P02/tests.json"
   ],
   "id": "NXS-P02",
-  "implementation_commit": "f2e5290c20870150324bf99243245c0dbb51694a",
+  "implementation_commit": null,
   "mandatory_gates": [
     "p01_dependency",
     "git_synchronization",
@@ -128,9 +128,9 @@
     "NXS-CICD-002"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-07T07:22:03Z",
+    "closed_at": null,
     "started_at": "2026-09-07T06:02:42Z"
   },
   "title": "Multi-tenancy and Organizations Core"

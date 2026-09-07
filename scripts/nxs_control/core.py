@@ -25,8 +25,12 @@ TRANSITIONS: Final = {
     "VALIDATING": {"READY", "FAILED", "BLOCKED"},
     "FAILED": {"READY_TO_EXECUTE", "BLOCKED"},
     "BLOCKED": {"READY_TO_EXECUTE"},
-    "READY": set(),
+    # READY is terminal for normal execution. A closed phase may be reopened to
+    # VALIDATING only for a corrective delta (e.g. an audit finding); the reopen path
+    # clears the phase's READY/GO closure state and makes it the active phase again.
+    "READY": {"VALIDATING"},
 }
+REOPEN_TRANSITION: Final = ("READY", "VALIDATING")
 
 
 class ControlError(RuntimeError):

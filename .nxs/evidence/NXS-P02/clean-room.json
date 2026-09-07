@@ -1,8 +1,9 @@
 {
   "duration_seconds": 82,
   "fresh_postgres_volume": true,
+  "note": "re-run after the audit corrective (fail-closed runtime-role verification); 282 tests",
   "phase": "NXS-P02",
-  "recorded_at": "2026-09-07T07:02:51Z",
+  "recorded_at": "2026-09-07T07:47:07Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "script": "scripts/clean-room.sh",

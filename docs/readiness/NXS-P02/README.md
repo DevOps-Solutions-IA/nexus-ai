@@ -31,7 +31,9 @@ permanent CI gate.
 - `nexus_runtime` — the application. `NOSUPERUSER NOBYPASSRLS NOCREATEROLE NOCREATEDB`,
   no ownership, per-table `SELECT/INSERT/UPDATE` only (no `DELETE` on `organizations`),
   no DDL. Startup in staging/production **fails closed** if the connected role reports
-  `rolsuper` or `rolbypassrls`.
+  `rolsuper` or `rolbypassrls`, **and** if the check cannot complete at all (an
+  unverifiable runtime role is a security failure). Raised errors carry only a safe
+  error type, never raw connection detail. Local/test may warn and continue.
 
 ## Attack matrix (real PostgreSQL, runtime role)
 
@@ -49,10 +51,21 @@ permanent CI gate.
 | stale optimistic update | `409 NXS_ORG_VERSION_CONFLICT`, no lost update |
 | suspended / archived Organization operation | `403 NXS_ORG_INACTIVE` |
 
+## Independent audit corrective (2026-09-07)
+
+An independent audit of the first closure found a fail-closed defect in
+`ApplicationLifespan._verify_runtime_role`: an inability to complete the runtime-role
+check was silently skipped in every environment. Fixed — staging/production now raise
+`ConfigurationError` when the check cannot complete, with no raw database detail in the
+message or logs. P02 was reopened `READY → VALIDATING` through the controlled lifecycle,
+corrected, re-validated and re-closed. New tests: `tests/unit/test_runtime_role_verification.py`
+(hardened fails closed on unverifiable role, safe message, superuser/BYPASSRLS still fails
+closed, non-bypass role passes, local/test warns and continues) and
+`tests/integration/test_runtime_role_security.py::test_startup_fails_closed_when_role_cannot_be_verified`.
+
 ## Verification
 
-- 270 tests (unit, contract, security, concurrency, resilience, integration); branch-aware
-  coverage 91.1%.
+- 282 tests (unit, contract, security, concurrency, resilience, integration); branch-aware coverage 91.32%.
 - Migration: `alembic upgrade head` + `alembic check` clean; `downgrade base` → `upgrade
   head` reversible in an isolated database.
 - Multi-arch: production image builds for `linux/amd64` and `linux/arm64`; the emulated
