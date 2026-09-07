@@ -27,7 +27,6 @@ from nexus_ai.events.envelope import EventEnvelope, EventScope
 from nexus_ai.events.errors import (
     EventContractError,
     EventPlatformError,
-    EventPublishError,
     EventTenantScopeError,
     FailureClass,
     classify_failure,
@@ -168,11 +167,14 @@ class OutboxRelay:
                 headers=envelope.nats_headers(),
                 timeout=self._settings.publish_timeout_seconds,
             )
-        except EventPublishError as exc:
-            await self._handle_transient(item, envelope, exc)
-            return
         except EventPlatformError as exc:
-            await self._dead_letter(item, exc, exc)
+            # A transient transport failure (no ack, timeout, JetStream unavailable) is
+            # retried under bounded backoff and only dead-lettered after the budget is
+            # spent. A terminal contract failure is dead-lettered immediately.
+            if classify_failure(exc) is FailureClass.RETRYABLE:
+                await self._handle_transient(item, envelope, exc)
+            else:
+                await self._dead_letter(item, exc, exc, envelope=envelope)
             return
         async with self._db.transaction() as session:
             await self._outbox.mark_published(session, item.id)
@@ -185,7 +187,7 @@ class OutboxRelay:
         )
 
     async def _handle_transient(
-        self, item: OutboxItem, envelope: EventEnvelope, exc: EventPublishError
+        self, item: OutboxItem, envelope: EventEnvelope, exc: EventPlatformError
     ) -> None:
         if should_dead_letter(
             attempt=item.attempt_count, max_attempts=self._settings.max_publish_attempts
@@ -253,7 +255,3 @@ class OutboxRelay:
             if processed == 0:
                 break
         return total
-
-
-def relay_failure_class(exc: BaseException) -> FailureClass:
-    return classify_failure(exc)

@@ -19,7 +19,7 @@ import contextlib
 import datetime as dt
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import TYPE_CHECKING
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -168,7 +168,9 @@ class DurableConsumer:
             with contextlib.suppress(Exception):
                 await sub.unsubscribe()  # type: ignore[attr-defined]
             self._subscription = None
-        await self._log.ainfo("consumer_stopped", **vars(self.stats))
+        await self._log.ainfo(
+            "consumer_stopped", **{k: str(v) for k, v in asdict(self.stats).items()}
+        )
 
     async def _run(self) -> None:
         subscription = self._subscription

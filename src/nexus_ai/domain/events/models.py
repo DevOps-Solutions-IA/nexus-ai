@@ -35,9 +35,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from nexus_ai.infrastructure.orm import Base, TenantOwnedMixin
 
-OUTBOX_STATUSES = ("PENDING", "PUBLISHING", "PUBLISHED", "FAILED", "DEAD")
-RECEIPT_STATUSES = ("PROCESSING", "PROCESSED", "FAILED", "DEAD")
-
 
 def _utcnow() -> dt.datetime:
     return dt.datetime.now(dt.UTC)

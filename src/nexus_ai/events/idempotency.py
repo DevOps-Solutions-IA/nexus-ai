@@ -111,40 +111,6 @@ class ConsumerReceiptStore:
             .values(status="PROCESSED", processed_at=now, last_error_code=None, updated_at=now)
         )
 
-    async def mark_failed(
-        self,
-        session: AsyncSession,
-        *,
-        consumer_name: str,
-        event_id: object,
-        error_code: str,
-    ) -> None:
-        await session.execute(
-            update(ConsumerReceiptRecord)
-            .where(
-                ConsumerReceiptRecord.consumer_name == consumer_name,
-                ConsumerReceiptRecord.event_id == event_id,
-            )
-            .values(status="FAILED", last_error_code=error_code[:64], updated_at=_utcnow())
-        )
-
-    async def mark_dead(
-        self,
-        session: AsyncSession,
-        *,
-        consumer_name: str,
-        event_id: object,
-        error_code: str,
-    ) -> None:
-        await session.execute(
-            update(ConsumerReceiptRecord)
-            .where(
-                ConsumerReceiptRecord.consumer_name == consumer_name,
-                ConsumerReceiptRecord.event_id == event_id,
-            )
-            .values(status="DEAD", last_error_code=error_code[:64], updated_at=_utcnow())
-        )
-
     async def record_terminal(
         self,
         session: AsyncSession,
