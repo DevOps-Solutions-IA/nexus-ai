@@ -23,9 +23,7 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
         "/api/v1/auth/memberships",
     } <= paths
     assert not any(
-        segment in path
-        for path in paths
-        for segment in ("/conversations", "/agents", "/users")
+        segment in path for path in paths for segment in ("/conversations", "/agents", "/users")
     )
     # Organization administration (list / arbitrary id) is not exposed.
     assert "/api/v1/organizations" not in paths

@@ -28,6 +28,12 @@ from nexus_ai.domain.auth.repository import MembershipRepository, RoleAssignment
 from nexus_ai.infrastructure.database import Database
 
 
+def _role_value(role: RoleKey) -> str:
+    """Extract the role key robustly — a caller-supplied non-enum value must land in
+    the catalog lookup and be denied, never crash on attribute access."""
+    return role.value if isinstance(role, RoleKey) else str(role)
+
+
 class MembershipService:
     """Authorized membership and role assignment operations for one Organization."""
 
@@ -56,9 +62,9 @@ class MembershipService:
             membership = await MembershipRepository(tenant).insert(
                 membership_id=uuid.uuid7(), organization_id=organization_id, user_id=user_id
             )
-            role_id = await RoleAssignmentRepository(tenant).role_id_by_key(role.value)
+            role_id = await RoleAssignmentRepository(tenant).role_id_by_key(_role_value(role))
             if role_id is None:
-                raise PermissionDeniedError(f"Unknown role {role.value!r}.")
+                raise PermissionDeniedError(f"Unknown role {_role_value(role)!r}.")
             await RoleAssignmentRepository(tenant).assign(
                 assignment_id=uuid.uuid7(),
                 organization_id=organization_id,
@@ -102,9 +108,9 @@ class MembershipService:
             )
             if membership is None or not membership.is_active:
                 raise MembershipInactiveError("The user has no active membership here.")
-            role_id = await RoleAssignmentRepository(tenant).role_id_by_key(role.value)
+            role_id = await RoleAssignmentRepository(tenant).role_id_by_key(_role_value(role))
             if role_id is None:
-                raise PermissionDeniedError(f"Unknown role {role.value!r}.")
+                raise PermissionDeniedError(f"Unknown role {_role_value(role)!r}.")
             await RoleAssignmentRepository(tenant).assign(
                 assignment_id=uuid.uuid7(),
                 organization_id=organization_id,

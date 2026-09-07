@@ -150,6 +150,10 @@ class TokenService:
         kid = unverified.get("kid")
         if not isinstance(kid, str) or not kid:
             raise TokenValidationError("Invalid token.")
+        if unverified.get("typ") != TOKEN_TYPE_ACCESS:
+            # Explicit token-type binding: an access token may only ever be an access
+            # token, whatever the library's per-version typ semantics happen to be.
+            raise TokenValidationError("Invalid token.")
         try:
             verification_key = self._keys.verification_key(kid)
         except KeyNotFoundError as exc:
@@ -161,27 +165,29 @@ class TokenService:
                 algorithms=["EdDSA"],
                 issuer=self._issuer,
                 audience=self._audience,
-                leeway=self._skew,
                 options={
                     "require": ["exp", "iat", "nbf", "sub", "org", "sid", "jti"],
                     "verify_iss": True,
                     "verify_aud": True,
-                    "verify_exp": True,
-                    "verify_iat": True,
-                    "verify_nbf": True,
+                    # Time claims are validated explicitly below against the injected
+                    # clock with the bounded skew policy — PyJWT offers no clock
+                    # injection, and an explicit policy is the requirement anyway.
+                    "verify_exp": False,
+                    "verify_iat": False,
+                    "verify_nbf": False,
                     "verify_signature": True,
-                    "verify_typ": TOKEN_TYPE_ACCESS,
                 },
             )
         except PyJwtInvalidTokenError as exc:
             raise TokenValidationError("Invalid token.") from exc
         try:
+            issued_at = self._require_time_claim(payload, "iat", now)
+            expires_at = self._require_time_claim(payload, "exp", now)
+            self._require_time_claim(payload, "nbf", now)
             subject = uuid.UUID(str(payload["sub"]))
             organization_id = uuid.UUID(str(payload["org"]))
             session_id = uuid.UUID(str(payload["sid"]))
             jti = uuid.UUID(str(payload["jti"]))
-            issued_at = payload["iat"]
-            expires_at = payload["exp"]
         except (KeyError, ValueError, AttributeError, TypeError) as exc:
             raise TokenValidationError("Invalid token.") from exc
         return AccessClaims(
@@ -192,3 +198,22 @@ class TokenService:
             issued_at=issued_at,
             expires_at=expires_at,
         )
+
+    def _require_time_claim(
+        self, payload: dict[str, Any], name: str, now: dt.datetime
+    ) -> dt.datetime:
+        """Bounded clock-skew time validation (NXS-AUTH-004).
+
+        ``exp``: now must not exceed exp + skew. ``nbf``/``iat``: now must not
+        precede the bound minus skew. Fail closed on any non-numeric value.
+        """
+        raw = payload.get(name)
+        if not isinstance(raw, (int, float)):
+            raise TokenValidationError("Invalid token.")
+        bound = dt.datetime.fromtimestamp(float(raw), dt.UTC)
+        skew = dt.timedelta(seconds=self._skew)
+        if name == "exp" and now.astimezone(dt.UTC) > bound + skew:
+            raise TokenValidationError("Invalid token.")
+        if name in {"nbf", "iat"} and now.astimezone(dt.UTC) < bound - skew:
+            raise TokenValidationError("Invalid token.")
+        return bound

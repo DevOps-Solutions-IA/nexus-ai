@@ -137,12 +137,14 @@ class AuthService:
         rate_key = login_rate_key(email, client_ip)
         await self._rate_gate.check(rate_key)
 
-        user_id = await self._authenticate(email, request.password)
         try:
+            user_id = await self._authenticate(email, request.password)
             memberships = await self._active_memberships(user_id)
             organization_id = self._select_organization(memberships, request.organization_id)
             session = await self._establish_session(user_id, organization_id)
         except AuthenticationFailedError, MembershipInactiveError:
+            # Every failed authentication attempt feeds the abuse-control counter —
+            # including credential verification failures and foreign-org hints.
             await self._rate_gate.record_failure(rate_key)
             raise
         await self._rate_gate.reset(rate_key)
@@ -302,9 +304,8 @@ class AuthService:
                             )
         if failure is not None:
             raise failure
-        assert issued_user_id is not None  # pragma: no cover - every path sets one
-        assert issued_session_id is not None  # pragma: no cover - every path sets one
-        assert issued_refresh_token is not None  # pragma: no cover - every path sets one
+        if issued_user_id is None or issued_session_id is None or issued_refresh_token is None:
+            raise AuthenticationFailedError("The session could not be refreshed.")
         access_token = self._tokens.issue_access_token(
             subject=issued_user_id,
             organization_id=parts.organization_id,
@@ -327,7 +328,9 @@ class AuthService:
 
     async def logout(self, raw_token: str) -> None:
         """Idempotent revocation. Unknown or malformed tokens revoke nothing and reveal
-        nothing — the response is identical in every case."""
+        nothing — the response is identical in every case. A token that was already
+        rotated (it matches the previous hash) still revokes the session family: the
+        logout request itself proves the caller held a valid credential for it."""
         try:
             parts = parse_refresh_token(raw_token)
         except TokenValidationError:
@@ -335,6 +338,8 @@ class AuthService:
         async with self._db.tenant_transaction(parts.organization_id) as tenant:
             sessions = RefreshSessionRepository(tenant)
             row = await sessions.by_token_hash(parts.token_hash)
+            if row is None:
+                row = await sessions.by_previous_token_hash(parts.token_hash)
             if row is not None and row.revoked_at is None:
                 await sessions.revoke(row.id)
                 await self._logger.ainfo("auth_session_revoked", session_id=str(row.id))
