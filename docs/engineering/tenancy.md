@@ -73,8 +73,10 @@ The P01 `DbSessionDep` remains for SYSTEM/infrastructure use and is NOT tenant-s
 
 ## P03 seam
 
-P03 replaces `NullTenantContextResolver` with an authenticated resolver: principal →
-allowed Organization → `TenantContext`. No other P02 tenancy code changes.
+IMPLEMENTED (NXS-P03): `BearerTokenTenantContextResolver` derives `organization_id`
+only from a verified access token minted after server-side membership verification.
+No other P02 tenancy code changed. See `docs/engineering/authentication.md` and
+ADR-0044.
 
 ## P05 seam
 
