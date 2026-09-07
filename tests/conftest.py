@@ -286,19 +286,20 @@ def normalize_nxs_baseline(nxs: Path) -> None:
         ]
     _write(nxs / "readiness.json", readiness)
 
-    p01_manifest = nxs / "phases/NXS-P01.json"
-    if p01_manifest.exists():
-        manifest = _read(p01_manifest)
+    for manifest_path in (nxs / "phases").glob("NXS-P*.json"):
+        if manifest_path.stem == "NXS-P00":
+            continue
+        manifest = _read(manifest_path)
         manifest["status"], manifest["decision"] = "PLANNED", "PENDING"
         manifest["implementation_commit"] = None
         manifest["closure_commit"] = None
         manifest["evidence"] = []
         manifest["timestamps"] = {"started_at": None, "closed_at": None}
-        _write(p01_manifest, manifest)
+        _write(manifest_path, manifest)
 
-    evidence_p01 = nxs / "evidence/NXS-P01"
-    if evidence_p01.exists():
-        shutil.rmtree(evidence_p01)
+    for evidence_dir in (nxs / "evidence").glob("NXS-P*"):
+        if evidence_dir.name != "NXS-P00":
+            shutil.rmtree(evidence_dir)
 
 
 @pytest.fixture

@@ -3,8 +3,9 @@
 Startup loads settings, configures logging and telemetry, constructs dependency managers
 and opens connections. A transient dependency outage does NOT crash the process — the
 instance stays live and reports ``NOT_READY`` until the dependency recovers. Invalid or
-missing mandatory configuration DOES fail startup. Shutdown drains resources in reverse
-order and is safe to run more than once.
+missing mandatory configuration DOES fail startup, and in staging/production a runtime
+database role that can bypass tenant RLS fails startup closed (NXS-SEC-003). Shutdown
+drains resources in reverse order and is safe to run more than once.
 """
 
 from __future__ import annotations
@@ -13,12 +14,14 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Protocol
 
+from nexus_ai.api.tenancy import TenantContextResolver, build_resolver
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import ConfigurationError
 from nexus_ai.core.health import DependencyHealth, Probe, ReadinessEvaluator
 from nexus_ai.core.logging import configure_logging, get_logger
 from nexus_ai.core.metadata import ServiceMetadata
 from nexus_ai.core.telemetry import configure_telemetry, shutdown_telemetry
+from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.messaging import Messaging
@@ -38,6 +41,8 @@ class Resources:
     cache: Cache
     messaging: Messaging
     readiness: ReadinessEvaluator
+    tenant_resolver: TenantContextResolver
+    organizations: OrganizationService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -65,13 +70,18 @@ class ApplicationLifespan:
         configure_telemetry(settings)
         logger = get_logger("nexus_ai.lifecycle")
 
-        database = Database(settings.database)
+        database = Database(
+            settings.database, context_setting=settings.tenancy.context_setting_name
+        )
         cache = Cache(settings.cache)
         messaging = Messaging(settings.messaging)
 
         await self._open("postgresql", database.connect, settings.database.required)
         await self._open("valkey", cache.connect, settings.cache.required)
         await self._open("nats", messaging.connect, settings.messaging.required)
+
+        if database.is_connected and settings.database.verify_runtime_role:
+            await self._verify_runtime_role(database)
 
         probe_timeout = settings.health.probe_timeout_seconds
         probes: list[Probe] = [
@@ -91,6 +101,8 @@ class ApplicationLifespan:
             cache=cache,
             messaging=messaging,
             readiness=readiness,
+            tenant_resolver=build_resolver(settings.tenancy),
+            organizations=OrganizationService(database),
         )
         await logger.ainfo(
             "runtime_started",
@@ -98,6 +110,26 @@ class ApplicationLifespan:
             build_sha=settings.build.commit,
         )
         return self._resources
+
+    async def _verify_runtime_role(self, database: Database) -> None:
+        logger = get_logger("nexus_ai.lifecycle")
+        try:
+            report = await database.runtime_role_report()
+        except Exception as exc:
+            await logger.awarning("runtime_role_check_skipped", error_code=type(exc).__name__)
+            return
+        await logger.ainfo("runtime_role", **{k: str(v) for k, v in report.as_payload().items()})
+        if report.can_bypass_tenancy and self._settings.is_hardened_environment:
+            raise ConfigurationError(
+                f"runtime database role {report.role!r} can bypass tenant RLS "
+                "(superuser or BYPASSRLS); refusing to start"
+            )
+        if report.can_bypass_tenancy:
+            await logger.awarning(
+                "runtime_role_can_bypass_rls",
+                role=report.role,
+                environment=str(self._settings.environment),
+            )
 
     async def _open(self, name: str, connect: _Connector, required: bool) -> None:
         logger = get_logger("nexus_ai.lifecycle")

@@ -77,6 +77,9 @@ class DatabaseSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     dsn: SecretStr | None = None
+    migration_dsn: SecretStr | None = None
+    runtime_role: str = Field(default="nexus_runtime", min_length=1, max_length=63)
+    verify_runtime_role: bool = True
     pool_size: int = Field(default=5, ge=1, le=100)
     max_overflow: int = Field(default=5, ge=0, le=100)
     pool_timeout_seconds: float = Field(default=10.0, gt=0, le=120)
@@ -85,7 +88,7 @@ class DatabaseSettings(BaseModel):
     command_timeout_seconds: float = Field(default=30.0, gt=0, le=300)
     required: bool = True
 
-    @field_validator("dsn")
+    @field_validator("dsn", "migration_dsn")
     @classmethod
     def _validate_dsn(cls, value: SecretStr | None) -> SecretStr | None:
         if value is None:
@@ -107,13 +110,29 @@ class DatabaseSettings(BaseModel):
             raw = raw.replace("postgresql://", "postgresql+asyncpg://", 1)
         return redact_url(raw)
 
+    @staticmethod
+    def _as_async(raw: str) -> str:
+        if raw.startswith("postgresql://"):
+            return raw.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return raw
+
     def async_dsn(self) -> str:
         if self.dsn is None:
             raise ValueError("database DSN is not configured")
-        raw = self.dsn.get_secret_value()
-        if raw.startswith("postgresql://"):
-            raw = raw.replace("postgresql://", "postgresql+asyncpg://", 1)
-        return raw
+        return self._as_async(self.dsn.get_secret_value())
+
+    def migration_async_dsn(self) -> str:
+        source = self.migration_dsn or self.dsn
+        if source is None:
+            raise ValueError("no database DSN is configured for migrations")
+        return self._as_async(source.get_secret_value())
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def safe_migration_dsn(self) -> str | None:
+        if self.migration_dsn is None:
+            return None
+        return redact_url(self._as_async(self.migration_dsn.get_secret_value()))
 
 
 class CacheSettings(BaseModel):
@@ -213,6 +232,22 @@ class BuildMetadata(BaseModel):
     built_at: str | None = None
 
 
+class TenancySettings(BaseModel):
+    """Multi-tenant boundary configuration (NXS-TENANT-002, NXS-SEC-003).
+
+    ``header_resolver_enabled`` allows a request header to establish tenant scope. It is
+    a TEST/LOCAL convenience only — production configuration rejects it, because P03 has
+    not implemented authenticated identity and a spoofed header must never grant scope.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    header_resolver_enabled: bool = False
+    context_header: str = "X-NXS-Organization-ID"
+    require_active_organization: bool = True
+    context_setting_name: str = Field(default="nxs.organization_id", pattern=r"^[a-z_]+\.[a-z_]+$")
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="NXS_",
@@ -236,6 +271,7 @@ class Settings(BaseSettings):
     logging: LoggingSettings = Field(default_factory=LoggingSettings)
     telemetry: TelemetrySettings = Field(default_factory=TelemetrySettings)
     health: HealthSettings = Field(default_factory=HealthSettings)
+    tenancy: TenancySettings = Field(default_factory=TenancySettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
@@ -249,6 +285,24 @@ class Settings(BaseSettings):
     @property
     def openapi_url(self) -> str | None:
         return "/openapi.json" if self.http.docs_enabled else None
+
+    @property
+    def is_hardened_environment(self) -> bool:
+        """staging and production share the fail-closed security rules."""
+        return self.environment in {Environment.STAGING, Environment.PRODUCTION}
+
+    @model_validator(mode="after")
+    def _hardened_environment_safety(self) -> Self:
+        if not self.is_hardened_environment:
+            return self
+        problems: list[str] = []
+        if self.tenancy.header_resolver_enabled:
+            problems.append("NXS_TENANCY__HEADER_RESOLVER_ENABLED must be false outside local/test")
+        if self.database.required and not self.database.verify_runtime_role:
+            problems.append("NXS_DATABASE__VERIFY_RUNTIME_ROLE must be true outside local/test")
+        if problems:
+            raise ValueError("unsafe tenancy configuration: " + "; ".join(sorted(problems)))
+        return self
 
     @model_validator(mode="after")
     def _production_safety(self) -> Self:

@@ -1,13 +1,18 @@
-"""Declarative ORM base and constraint naming convention (NXS-DATA-001, NXS-MIGRATE-001).
+"""Declarative ORM base, naming convention and the tenant-owned model primitive.
 
-P01 defines only the base and its metadata. Business tables are introduced by later
-phases; there are deliberately no models here.
+``TenantOwnedMixin`` is the reusable contract for every future tenant-scoped table
+(NXS-TENANT-003): a non-nullable ``organization_id`` UUID foreign key to
+``organizations.id`` plus a ``tenant_scoped`` table marker the schema guard and RLS
+tooling rely on. The ``organizations`` table itself is self-scoped (RLS on ``id``).
 """
 
 from __future__ import annotations
 
-from sqlalchemy import MetaData
-from sqlalchemy.orm import DeclarativeBase
+import uuid
+
+from sqlalchemy import ForeignKey, MetaData
+from sqlalchemy.dialects.postgresql import UUID as PgUUID
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column
 
 NAMING_CONVENTION = {
     "ix": "ix_%(column_0_label)s",
@@ -19,6 +24,29 @@ NAMING_CONVENTION = {
 
 metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
+TENANT_SCOPED_KEY = "tenant_scoped"
+TENANT_SELF = "self"
+TENANT_OWNED = "owned"
+
 
 class Base(DeclarativeBase):
     metadata = metadata
+
+
+class TenantOwnedMixin:
+    """Adds the mandatory tenant column + marker to a future tenant-owned model."""
+
+    __abstract__ = True
+
+    @declared_attr.directive
+    def __table_args__(cls) -> dict[str, object]:
+        return {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}}
+
+    @declared_attr
+    def organization_id(cls) -> Mapped[uuid.UUID]:
+        return mapped_column(
+            PgUUID(as_uuid=True),
+            ForeignKey("organizations.id", ondelete="RESTRICT"),
+            nullable=False,
+            index=True,
+        )

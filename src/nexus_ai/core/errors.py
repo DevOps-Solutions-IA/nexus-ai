@@ -110,6 +110,61 @@ class InternalError(NxsError):
     title = "Internal Server Error"
 
 
+class TenantContextRequiredError(NxsError):
+    code = "NXS_TENANT_CONTEXT_REQUIRED"
+    status = 403
+    title = "Tenant Context Required"
+
+
+class TenantContextInvalidError(NxsError):
+    code = "NXS_TENANT_CONTEXT_INVALID"
+    status = 400
+    title = "Invalid Tenant Context"
+
+
+class TenantScopeMismatchError(NxsError):
+    code = "NXS_TENANT_SCOPE_MISMATCH"
+    status = 403
+    title = "Tenant Scope Mismatch"
+
+
+class TenantAccessDeniedError(NxsError):
+    code = "NXS_TENANT_ACCESS_DENIED"
+    status = 403
+    title = "Tenant Access Denied"
+
+
+class OrganizationNotFoundError(NxsError):
+    code = "NXS_ORG_NOT_FOUND"
+    status = 404
+    title = "Organization Not Found"
+
+
+class OrganizationConflictError(NxsError):
+    code = "NXS_ORG_CONFLICT"
+    status = 409
+    title = "Organization Conflict"
+
+
+class OrganizationInvalidStateError(NxsError):
+    code = "NXS_ORG_INVALID_STATE"
+    status = 409
+    title = "Invalid Organization State Transition"
+
+
+class OrganizationInactiveError(NxsError):
+    code = "NXS_ORG_INACTIVE"
+    status = 403
+    title = "Organization Not Active"
+
+
+class OrganizationVersionConflictError(NxsError):
+    code = "NXS_ORG_VERSION_CONFLICT"
+    status = 409
+    title = "Organization Version Conflict"
+    retryable = True
+
+
 PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     InvalidRequestError,
     ValidationFailedError,
@@ -122,4 +177,13 @@ PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     DependencyUnavailableError,
     ConfigurationError,
     InternalError,
+    TenantContextRequiredError,
+    TenantContextInvalidError,
+    TenantScopeMismatchError,
+    TenantAccessDeniedError,
+    OrganizationNotFoundError,
+    OrganizationConflictError,
+    OrganizationInvalidStateError,
+    OrganizationInactiveError,
+    OrganizationVersionConflictError,
 )
