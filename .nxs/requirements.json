@@ -488,10 +488,12 @@
         "tests/integration/test_rls_isolation.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Strict tenant isolation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",
@@ -506,10 +508,12 @@
         "src/nexus_ai/core/tenancy.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Trusted tenant context and propagation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",
@@ -525,10 +529,12 @@
         "src/nexus_ai/infrastructure/schema_guard.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "PostgreSQL Row-Level Security enforcement",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",
@@ -543,10 +549,12 @@
         "src/nexus_ai/infrastructure/tenant_session.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Tenant-safe pooled database transactions",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",
@@ -559,10 +567,12 @@
         "src/nexus_ai/core/tenancy.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Tenant namespace isolation for compute and resources",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "ORGANIZATION",
@@ -579,10 +589,12 @@
         "src/nexus_ai/domain/organizations/repository.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Organization core domain identity and persistence",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "ORGANIZATION",
@@ -596,10 +608,12 @@
         "src/nexus_ai/domain/organizations/status.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Organization lifecycle state machine",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "SECURITY",
@@ -616,10 +630,12 @@
         "src/nexus_ai/infrastructure/database.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "Non-bypass tenant database runtime role",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "CICD",
@@ -635,10 +651,12 @@
         "docs/runbooks/oracle-a1-host.md"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P02",
       "title": "AMD64 and ARM64 backend and container compatibility",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P02/quality-gates.json"
+      ]
     },
     {
       "category": "ORGANIZATION",

@@ -1,9 +1,9 @@
 {
   "closure_engine": "scripts.nxs_close (generic, no hardcoded phase ids)",
   "decision": "GO",
-  "github_ci": "PASS (NXS CI + NXS Security green on f2e5290)",
+  "github_ci": "PASS (NXS CI + NXS Security green on dda5e95, pull_request + push)",
   "guard": "PASS",
-  "implementation_commit": "f2e5290c20870150324bf99243245c0dbb51694a",
+  "implementation_commit": "dda5e950728ea4f94d939ddcdd5533216c035de6",
   "implementation_sha_in_git": true,
   "lock": "RELEASED",
   "merged_to_main": false,
@@ -15,7 +15,7 @@
   "phase_status": "READY",
   "quality_gates": "PASS",
   "quality_matrix": "PASS",
-  "recorded_at": "2026-09-07T07:44:32Z",
+  "recorded_at": "2026-09-07T07:54:27Z",
   "registry_status": "READY",
   "requirements_still_planned": {
     "NXS-ORG-001": "NXS-P05"
@@ -31,7 +31,11 @@
     "NXS-SEC-003",
     "NXS-CICD-002"
   ],
-  "result": "SUPERSEDED",
+  "result": "PASS",
   "schema_version": "1.0.0",
-  "superseded_reason": "independent audit found a fail-closed defect in _verify_runtime_role; phase reopened and corrected"
+  "supersedes": {
+    "closure_commit": "7195d01c614ca25dbd49d83bbfa20aefdad58827",
+    "implementation_commit": "f2e5290c20870150324bf99243245c0dbb51694a",
+    "reason": "independent audit found a fail-closed defect in _verify_runtime_role; phase reopened READY->VALIDATING, corrected, re-validated and re-closed"
+  }
 }
