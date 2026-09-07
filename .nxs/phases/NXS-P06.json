@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p06-customer-conversations",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P04"
   ],
@@ -37,7 +37,7 @@
     ".nxs/evidence/NXS-P06/tests.json"
   ],
   "id": "NXS-P06",
-  "implementation_commit": null,
+  "implementation_commit": "09acb319e6bd80570f1ab55f405b20ce0b269466",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -86,9 +86,9 @@
     "NXS-CUSTOMER-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-07T23:12:09Z",
     "started_at": "2026-09-07T21:52:32Z"
   },
   "title": "Customer Identity and Conversations"

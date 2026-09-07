@@ -913,10 +913,12 @@
         "tests/integration/test_customer_conversations.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P06",
       "title": "Omnichannel customer identity",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P06/quality-gates.json"
+      ]
     },
     {
       "category": "INTEGRATION",
