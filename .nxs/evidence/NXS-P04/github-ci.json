@@ -1,4 +1,6 @@
 {
+  "closure_commit": "900c40bcb8668b4982afa91f8116fd510afb6e65",
+  "closure_lineage_head": "fca215aeb4c3747531ba100fb99e01070d712adb",
   "implementation_commit": "e00275f55cda26adcf3bc2df1246338ac112e71a",
   "jobs": {
     "docker": "PASS",
@@ -9,16 +11,26 @@
     "source-and-dependencies": "PASS",
     "state": "PASS"
   },
-  "note": "NXS CI (push trigger, canonical) all 7 jobs success; NXS Security success on push and pull_request. Finalized at the closure head in a follow-up commit.",
+  "note": "Implementation head e00275f green. Closure commit 900c40b's CI caught a stale per-phase assertion in test_agent_handoff (assert 'NXS-P05' == 'NXS-P04' once P04 closed); fixed test-only in fca215a, which is green on NXS CI (all 7 jobs) and NXS Security on push and pull_request.",
   "nxs_ci": "success",
   "nxs_security": "success",
   "phase": "NXS-P04",
-  "recorded_at": "2026-09-07T18:05:52Z",
+  "recorded_at": "2026-09-07T18:12:12Z",
   "result": "PASS",
   "runs": {
     "nxs_ci_push": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149894306",
     "nxs_security_pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149897878",
     "nxs_security_push": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34149894336"
   },
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "verified_heads": {
+    "closure_lineage_fca215a": {
+      "nxs_ci": "success (push + pull_request, all 7 jobs)",
+      "nxs_security": "success (push + pull_request)"
+    },
+    "implementation_e00275f": {
+      "nxs_ci": "success (push + pull_request, all 7 jobs)",
+      "nxs_security": "success (push + pull_request)"
+    }
+  }
 }
