@@ -47,3 +47,21 @@ async def get_principal(request: Request) -> Principal:
 
 
 PrincipalDep = Annotated[Principal, Depends(get_principal)]
+
+
+async def get_live_principal(request: Request, principal: PrincipalDep) -> Principal:
+    """Principal + canonical live-state validation (session not revoked/expired, user
+    ACTIVE, membership ACTIVE, Organization operational). Platform control-plane
+    operations use this: a stale or revoked token is blocked BEFORE business logic."""
+    from nexus_ai.api.dependencies import get_resources
+
+    resources = get_resources(request)
+    await resources.principal_validator.require_valid(
+        user_id=principal.user_id,
+        session_id=principal.session_id,
+        organization_id=principal.organization_id,
+    )
+    return principal
+
+
+LivePrincipalDep = Annotated[Principal, Depends(get_live_principal)]

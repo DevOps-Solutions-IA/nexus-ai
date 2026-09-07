@@ -224,6 +224,77 @@ class MultipleOrganizationsError(NxsError):
     title = "Organization Selection Required"
 
 
+# --- Provisioning and dashboard (NXS-P05) ---------------------------------------------
+
+
+class IdempotencyKeyConflictError(NxsError):
+    """The same idempotency key was replayed with a different request payload."""
+
+    code = "NXS_PROV_IDEMPOTENCY_CONFLICT"
+    status = 409
+    title = "Idempotency Conflict"
+
+
+class ProvisioningInProgressError(NxsError):
+    """An idempotent provisioning request is still executing elsewhere."""
+
+    code = "NXS_PROV_IN_PROGRESS"
+    status = 409
+    title = "Provisioning In Progress"
+    retryable = True
+
+
+class ProvisioningFailedError(NxsError):
+    """Replay of a terminally failed provisioning request. Carries the original,
+    sanitized error code — the caller must use a new idempotency key to retry."""
+
+    code = "NXS_PROV_FAILED"
+    status = 409
+    title = "Provisioning Failed"
+
+    def __init__(self, detail: str | None = None, *, original_error_code: str) -> None:
+        super().__init__(
+            detail or self.title, extensions={"original_error_code": original_error_code}
+        )
+
+
+class ProvisioningOwnerUnavailableError(NxsError):
+    """The requested initial owner does not exist or is not an ACTIVE user."""
+
+    code = "NXS_PROV_OWNER_UNAVAILABLE"
+    status = 422
+    title = "Initial Owner Unavailable"
+
+
+class ProvisioningStateConflictError(NxsError):
+    """A provisioning invariant is violated (e.g. an already-provisioned Organization
+    receiving a destructive re-provision attempt)."""
+
+    code = "NXS_PROV_STATE_CONFLICT"
+    status = 409
+    title = "Provisioning State Conflict"
+
+
+class DashboardSchemaError(NxsError):
+    """Base for deterministic dashboard schema failures."""
+
+    code = "NXS_DASH_SCHEMA_INVALID"
+    status = 422
+    title = "Invalid Dashboard Schema"
+
+
+class UnknownWidgetError(NxsError):
+    code = "NXS_DASH_UNKNOWN_WIDGET"
+    status = 409
+    title = "Unknown Dashboard Widget"
+
+
+class UnsupportedDashboardVersionError(NxsError):
+    code = "NXS_DASH_UNSUPPORTED_VERSION"
+    status = 409
+    title = "Unsupported Dashboard Schema Version"
+
+
 PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     InvalidRequestError,
     ValidationFailedError,
@@ -254,4 +325,12 @@ PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     UserConflictError,
     UserInactiveError,
     MultipleOrganizationsError,
+    IdempotencyKeyConflictError,
+    ProvisioningInProgressError,
+    ProvisioningFailedError,
+    ProvisioningOwnerUnavailableError,
+    ProvisioningStateConflictError,
+    DashboardSchemaError,
+    UnknownWidgetError,
+    UnsupportedDashboardVersionError,
 )

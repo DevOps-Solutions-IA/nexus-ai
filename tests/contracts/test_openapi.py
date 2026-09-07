@@ -25,8 +25,11 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
     assert not any(
         segment in path for path in paths for segment in ("/conversations", "/agents", "/users")
     )
-    # Organization administration (list / arbitrary id) is not exposed.
-    assert "/api/v1/organizations" not in paths
+    # The P05 provisioning surface is advertised; arbitrary-id administration is not.
+    assert "/api/v1/organizations" in paths
+    assert "/api/v1/organizations/current/provisioning" in paths
+    assert "/api/v1/organizations/current/settings" in paths
+    assert "/api/v1/organizations/current/dashboard-schema" in paths
     assert not any(path.rstrip("/").endswith("/organizations/{organization_id}") for path in paths)
 
 

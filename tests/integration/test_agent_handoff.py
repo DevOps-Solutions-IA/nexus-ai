@@ -50,9 +50,13 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
     ledger_by_id = {r["id"]: r for r in requirements["requirements"]}
     for preserved in ("NXS-CAP-001", "NXS-ORG-001", "NXS-VOICE-001", "NXS-DR-001", "NXS-SRE-001"):
         assert preserved in ledger_by_id
-    # Organization provisioning stays future work for P05 — P02 must not claim it.
+    # Organization provisioning belongs to P05 — no earlier phase claims it. While P05
+    # is active or closed the requirement follows its lifecycle; otherwise PLANNED.
     assert ledger_by_id["NXS-ORG-001"]["target_phase"] == "NXS-P05"
-    assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
+    if registry["NXS-P05"]["status"] == "PLANNED":
+        assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
+    else:
+        assert ledger_by_id["NXS-ORG-001"]["status"] in {"IN_PROGRESS", "IMPLEMENTED", "VALIDATED"}
 
     # The next eligible phase is generic: the first non-READY, non-blocked phase in
     # registry order whose dependencies are all READY/GO. Asserted generically so

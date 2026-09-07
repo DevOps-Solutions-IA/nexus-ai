@@ -28,6 +28,11 @@ class PermissionKey(StrEnum):
     MEMBERSHIP_MANAGE = "membership:manage"
     ROLE_ASSIGN = "role:assign"
     SESSION_READ = "auth:session:read"
+    # P05 additions (seeded by the P05 migration):
+    ORGANIZATION_CREATE = "organization:create"  # PLATFORM capability (platform_grants)
+    PROVISION_READ = "organization:provision:read"
+    SETTINGS_READ = "organization:settings:read"
+    DASHBOARD_READ = "dashboard:read"
 
 
 class RoleKey(StrEnum):
@@ -36,8 +41,14 @@ class RoleKey(StrEnum):
     ORG_MEMBER = "org_member"
 
 
-#: Permission sets granted by each built-in role. Seeded into the global catalog by the
-#: P03 migration; the database catalog is the runtime authority.
+#: Permission sets granted by each built-in role, seeded into the global catalog by the
+#: P03 migration — FROZEN at the P03-era mapping: the migration reads this constant at
+#: runtime, so extending it here would retroactively change P03's historical seed. The
+#: P05 migration (04a4640c5b95) seeds the extended grants as explicit delta rows:
+#: org_owner/org_admin/org_member additionally hold organization:provision:read,
+#: organization:settings:read and dashboard:read. ``organization:create`` is
+#: deliberately a PLATFORM capability granted through ``platform_grants`` — no
+#: Organization role ever grants it.
 ROLE_PERMISSIONS: Final[dict[RoleKey, tuple[PermissionKey, ...]]] = {
     RoleKey.ORG_OWNER: (
         PermissionKey.ORGANIZATION_READ,
@@ -70,6 +81,10 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.MEMBERSHIP_MANAGE: UUID("b2000000-0000-7000-8000-000000000003"),
     PermissionKey.ROLE_ASSIGN: UUID("b2000000-0000-7000-8000-000000000004"),
     PermissionKey.SESSION_READ: UUID("b2000000-0000-7000-8000-000000000005"),
+    PermissionKey.ORGANIZATION_CREATE: UUID("b2000000-0000-7000-8000-000000000006"),
+    PermissionKey.PROVISION_READ: UUID("b2000000-0000-7000-8000-000000000007"),
+    PermissionKey.SETTINGS_READ: UUID("b2000000-0000-7000-8000-000000000008"),
+    PermissionKey.DASHBOARD_READ: UUID("b2000000-0000-7000-8000-000000000009"),
 }
 
 _CATALOG_SQL = """
