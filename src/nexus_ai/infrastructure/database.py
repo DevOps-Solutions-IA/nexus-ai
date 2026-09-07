@@ -30,6 +30,7 @@ from nexus_ai.core.health import DependencyHealth, HealthStatus, timed_probe
 from nexus_ai.infrastructure.tenant_session import TenantSession
 
 DEFAULT_CONTEXT_SETTING = "nxs.organization_id"
+PRINCIPAL_CONTEXT_SETTING = "nxs.principal_id"
 
 
 @dataclass(frozen=True, slots=True)
@@ -149,6 +150,25 @@ class Database:
             if bound != str(organization_id):
                 raise TenantContextInvalidError("failed to bind transaction-local tenant context")
             yield TenantSession(organization_id=organization_id, session=session)
+
+    @asynccontextmanager
+    async def principal_session(self, principal_id: UUID) -> AsyncIterator[AsyncSession]:
+        """An identity-plane unit of work for an authenticated principal (NXS-AUTH-002).
+
+        Binds the transaction-local ``nxs.principal_id`` GUC WITHOUT binding any
+        Organization scope. Under the memberships self-visibility policy this exposes
+        exactly the caller's own membership rows across Organizations — the login and
+        membership-listing path — and nothing else. The scope dies with the
+        transaction, so pooled connections carry no principal into the next use.
+        """
+        if not isinstance(principal_id, UUID):
+            raise TenantContextInvalidError("principal_session requires a UUID principal_id")
+        async with self.session() as session, session.begin():
+            await session.execute(
+                text("SELECT set_config(:name, :value, true)"),
+                {"name": PRINCIPAL_CONTEXT_SETTING, "value": str(principal_id)},
+            )
+            yield session
 
     async def runtime_role_report(self) -> RuntimeRoleReport:
         """Inspect the connected role's ability to bypass tenancy (NXS-SEC-003)."""

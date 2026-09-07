@@ -68,6 +68,11 @@ async def test_production_wildcard_cors_is_rejected(build_settings) -> None:
             NXS_MESSAGING__URL="nats://n:4222",
             NXS_TELEMETRY__MODE="local",
             NXS_HTTP__CORS_ALLOW_ORIGINS='["*"]',
+            NXS_AUTH__ISSUER="nexus-ai",
+            NXS_AUTH__AUDIENCE="nexus-ai-backend",
+            NXS_AUTH__SIGNING_KEY="0" * 64,
+            NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY="false",
+            NXS_AUTH__RATE_LIMIT_BACKEND="auto",
         )
 
 

@@ -32,6 +32,11 @@ def test_valid_production_configuration(build_settings: Build) -> None:
         NXS_CACHE__URL="rediss://cache.internal:6379/0",
         NXS_MESSAGING__URL="tls://nats.internal:4222",
         NXS_TELEMETRY__MODE="local",
+        NXS_AUTH__ISSUER="nexus-ai",
+        NXS_AUTH__AUDIENCE="nexus-ai-backend",
+        NXS_AUTH__SIGNING_KEY="0" * 64,
+        NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY="false",
+        NXS_AUTH__RATE_LIMIT_BACKEND="auto",
     )
     assert settings.is_production
     assert settings.docs_url is None

@@ -84,6 +84,11 @@ async def test_startup_fails_closed_when_role_can_bypass_rls(
         NXS_TENANCY__HEADER_RESOLVER_ENABLED="false",
         NXS_TELEMETRY__MODE="local",
         NXS_HTTP__ALLOWED_HOSTS='["staging.nexus-ai.dev"]',
+        NXS_AUTH__ISSUER="nexus-ai",
+        NXS_AUTH__AUDIENCE="nexus-ai-backend",
+        NXS_AUTH__SIGNING_KEY="0" * 64,
+        NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY="false",
+        NXS_AUTH__RATE_LIMIT_BACKEND="auto",
     )
     lifespan = ApplicationLifespan(settings)
     with pytest.raises(ConfigurationError, match="bypass tenant RLS"):
@@ -108,6 +113,11 @@ async def test_startup_fails_closed_when_role_cannot_be_verified(
         NXS_TENANCY__HEADER_RESOLVER_ENABLED="false",
         NXS_TELEMETRY__MODE="local",
         NXS_HTTP__ALLOWED_HOSTS='["staging.nexus-ai.dev"]',
+        NXS_AUTH__ISSUER="nexus-ai",
+        NXS_AUTH__AUDIENCE="nexus-ai-backend",
+        NXS_AUTH__SIGNING_KEY="0" * 64,
+        NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY="false",
+        NXS_AUTH__RATE_LIMIT_BACKEND="auto",
     )
     lifespan = ApplicationLifespan(settings)
     with pytest.raises(ConfigurationError, match="unable to verify the runtime database role"):

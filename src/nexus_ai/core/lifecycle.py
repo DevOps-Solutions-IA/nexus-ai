@@ -21,6 +21,13 @@ from nexus_ai.core.health import DependencyHealth, Probe, ReadinessEvaluator
 from nexus_ai.core.logging import configure_logging, get_logger
 from nexus_ai.core.metadata import ServiceMetadata
 from nexus_ai.core.telemetry import configure_telemetry, shutdown_telemetry
+from nexus_ai.domain.auth.administration import MembershipService
+from nexus_ai.domain.auth.keys import SigningKeyProvider, build_key_provider
+from nexus_ai.domain.auth.passwords import build_password_hasher
+from nexus_ai.domain.auth.ratelimit import RateLimitGate
+from nexus_ai.domain.auth.rbac import AuthorizationService
+from nexus_ai.domain.auth.service import AuthService
+from nexus_ai.domain.auth.tokens import TokenService
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
@@ -43,6 +50,11 @@ class Resources:
     readiness: ReadinessEvaluator
     tenant_resolver: TenantContextResolver
     organizations: OrganizationService
+    signing_keys: SigningKeyProvider
+    token_service: TokenService
+    auth: AuthService
+    authorizer: AuthorizationService
+    memberships: MembershipService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -98,6 +110,27 @@ class ApplicationLifespan:
             ttl_seconds=settings.health.cache_ttl_seconds,
             probe_timeout=probe_timeout,
         )
+        # Authentication foundation (NXS-AUTH-004/005): signing configuration is
+        # fail-closed by the settings validators and by build_key_provider itself, so a
+        # startup that reaches this point holds a trusted key configuration.
+        signing_keys = build_key_provider(settings.auth)
+        token_service = TokenService(
+            signing_keys,
+            issuer=settings.auth.issuer or settings.service_name,
+            audience=settings.auth.audience or settings.product,
+            access_token_ttl_seconds=settings.auth.access_token_ttl_seconds,
+            clock_skew_seconds=settings.auth.clock_skew_seconds,
+        )
+        password_hasher = build_password_hasher(settings.auth)
+        rate_gate = RateLimitGate(settings.auth, cache)
+        authorizer = AuthorizationService(database)
+        auth_service = AuthService(
+            settings,
+            database,
+            token_service,
+            password_hasher,
+            rate_gate,
+        )
         self._resources = Resources(
             settings=settings,
             metadata=ServiceMetadata.from_settings(settings),
@@ -105,8 +138,13 @@ class ApplicationLifespan:
             cache=cache,
             messaging=messaging,
             readiness=readiness,
-            tenant_resolver=build_resolver(settings.tenancy),
+            tenant_resolver=build_resolver(settings.tenancy, token_service),
             organizations=OrganizationService(database),
+            signing_keys=signing_keys,
+            token_service=token_service,
+            auth=auth_service,
+            authorizer=authorizer,
+            memberships=MembershipService(database, authorizer),
         )
         await logger.ainfo(
             "runtime_started",

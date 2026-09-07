@@ -33,6 +33,8 @@ _TEST_ENV = {
     "NXS_CACHE__REQUIRED": "false",
     "NXS_MESSAGING__REQUIRED": "false",
     "NXS_LOGGING__FORMAT": "json",
+    "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY": "true",
+    "NXS_AUTH__RATE_LIMIT_BACKEND": "local",
 }
 
 

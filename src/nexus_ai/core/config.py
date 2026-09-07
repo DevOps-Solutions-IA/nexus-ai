@@ -236,8 +236,8 @@ class TenancySettings(BaseModel):
     """Multi-tenant boundary configuration (NXS-TENANT-002, NXS-SEC-003).
 
     ``header_resolver_enabled`` allows a request header to establish tenant scope. It is
-    a TEST/LOCAL convenience only — production configuration rejects it, because P03 has
-    not implemented authenticated identity and a spoofed header must never grant scope.
+    a TEST/LOCAL convenience only — production configuration rejects it. Authenticated
+    identity resolves tenant scope through the P03 bearer-token resolver.
     """
 
     model_config = ConfigDict(frozen=True)
@@ -246,6 +246,80 @@ class TenancySettings(BaseModel):
     context_header: str = "X-NXS-Organization-ID"
     require_active_organization: bool = True
     context_setting_name: str = Field(default="nxs.organization_id", pattern=r"^[a-z_]+\.[a-z_]+$")
+
+
+class AuthSettings(BaseModel):
+    """Authentication foundation configuration (NXS-AUTH-001..009).
+
+    Signing key material is a secret: it never appears in ``repr`` or logs. Key
+    configuration is fail-closed — no signing key and no explicit ephemeral flag is a
+    startup error in every environment, and staging/production additionally reject
+    ephemeral development keys, insecure Argon2 work factors and local-only rate
+    limiting.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    issuer: str | None = None
+    audience: str | None = None
+    access_token_ttl_seconds: int = Field(default=900, ge=60, le=3600)
+    refresh_token_ttl_seconds: int = Field(default=1_209_600, ge=3600, le=2_592_000)
+    clock_skew_seconds: int = Field(default=30, ge=0, le=120)
+    allowed_algorithms: tuple[str, ...] = ("EdDSA",)
+
+    signing_key: SecretStr | None = None
+    signing_key_file: str | None = None
+    verification_key_seeds: str = ""
+    allow_ephemeral_signing_key: bool = False
+
+    argon2_time_cost: int = Field(default=3, ge=1, le=32)
+    argon2_memory_cost: int = Field(default=65_536, ge=8_192, le=1_048_576)
+    argon2_parallelism: int = Field(default=1, ge=1, le=16)
+    min_password_length: int = Field(default=12, ge=8, le=256)
+    max_password_length: int = Field(default=128, ge=16, le=1024)
+
+    login_max_failures: int = Field(default=5, ge=1, le=100)
+    login_failure_window_seconds: int = Field(default=300, ge=10, le=86_400)
+    rate_limit_backend: Literal["auto", "cache", "local"] = "auto"
+
+    @field_validator("allowed_algorithms")
+    @classmethod
+    def _algorithms(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if value != ("EdDSA",):
+            raise ValueError("only the EdDSA algorithm is supported (NXS_AUTH__ALLOWED_ALGORITHMS)")
+        return value
+
+    @field_validator("signing_key")
+    @classmethod
+    def _signing_key(cls, value: SecretStr | None) -> SecretStr | None:
+        if value is None:
+            return None
+        raw = value.get_secret_value().strip()
+        if len(raw) != 64 or any(c not in "0123456789abcdefABCDEF" for c in raw):
+            raise ValueError("NXS_AUTH__SIGNING_KEY must be a 64-character hex Ed25519 seed")
+        return SecretStr(raw.lower())
+
+    @model_validator(mode="after")
+    def _password_policy_bounds(self) -> Self:
+        if self.min_password_length > self.max_password_length:
+            raise ValueError("min_password_length must not exceed max_password_length")
+        return self
+
+    @model_validator(mode="after")
+    def _ephemeral_key_environment(self) -> Self:
+        # Validated against Settings.environment in the outer hardened validator; here we
+        # only make sure the flag is not combined with real key material.
+        if self.allow_ephemeral_signing_key and (
+            self.signing_key is not None or self.signing_key_file is not None
+        ):
+            raise ValueError(
+                "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY cannot be combined "
+                "with configured key material"
+            )
+        return self
+
+    def verification_seed_list(self) -> list[str]:
+        return [item.strip() for item in self.verification_key_seeds.split(",") if item.strip()]
 
 
 class Settings(BaseSettings):
@@ -272,6 +346,7 @@ class Settings(BaseSettings):
     telemetry: TelemetrySettings = Field(default_factory=TelemetrySettings)
     health: HealthSettings = Field(default_factory=HealthSettings)
     tenancy: TenancySettings = Field(default_factory=TenancySettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
@@ -300,8 +375,24 @@ class Settings(BaseSettings):
             problems.append("NXS_TENANCY__HEADER_RESOLVER_ENABLED must be false outside local/test")
         if self.database.required and not self.database.verify_runtime_role:
             problems.append("NXS_DATABASE__VERIFY_RUNTIME_ROLE must be true outside local/test")
+        if self.auth.allow_ephemeral_signing_key:
+            problems.append(
+                "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY must be false outside local/test"
+            )
+        if self.auth.signing_key is None and self.auth.signing_key_file is None:
+            problems.append(
+                "NXS_AUTH__SIGNING_KEY or NXS_AUTH__SIGNING_KEY_FILE is required outside local/test"
+            )
+        if self.auth.issuer is None or self.auth.audience is None:
+            problems.append(
+                "NXS_AUTH__ISSUER and NXS_AUTH__AUDIENCE must be explicit outside local/test"
+            )
+        if self.auth.argon2_time_cost < 3 or self.auth.argon2_memory_cost < 65_536:
+            problems.append("Argon2id work factors are below the hardened minimum")
+        if self.auth.rate_limit_backend == "local":
+            problems.append("NXS_AUTH__RATE_LIMIT_BACKEND must not be 'local' outside local/test")
         if problems:
-            raise ValueError("unsafe tenancy configuration: " + "; ".join(sorted(problems)))
+            raise ValueError("unsafe security configuration: " + "; ".join(sorted(problems)))
         return self
 
     @model_validator(mode="after")

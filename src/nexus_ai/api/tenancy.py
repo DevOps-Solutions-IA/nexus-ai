@@ -1,9 +1,11 @@
-"""Tenant context resolution boundary (NXS-TENANT-002, section 34/35).
+"""Tenant context resolution boundary (NXS-TENANT-002, NXS-AUTH-007).
 
-``TenantContextResolver`` is the seam P03 will implement with authenticated identity and
-RBAC claims. Until then the production default resolves NO trusted context: a caller
-cannot become an Organization by asserting a header. The header resolver exists only for
-local and test environments and configuration refuses it in staging/production.
+``TenantContextResolver`` is the seam P03 completes. The authenticated resolver derives
+``organization_id`` ONLY from a cryptographically verified access token whose ``org``
+claim was minted server-side after membership verification — never from an
+``X-Organization-ID`` header, a request body or any other caller-controlled input. The
+header resolver exists only for local and test environments and configuration refuses
+it in staging/production.
 """
 
 from __future__ import annotations
@@ -15,8 +17,12 @@ from starlette.requests import Request
 
 from nexus_ai.core.config import TenancySettings
 from nexus_ai.core.context import current_context
-from nexus_ai.core.errors import TenantContextInvalidError
+from nexus_ai.core.errors import TenantContextInvalidError, TokenValidationError
 from nexus_ai.core.tenancy import TenantContext, TenantContextSource
+from nexus_ai.domain.auth.tokens import TokenService
+
+_AUTH_HEADER = "Authorization"
+_BEARER_PREFIX = "Bearer "
 
 
 class TenantContextResolver(Protocol):
@@ -24,10 +30,39 @@ class TenantContextResolver(Protocol):
 
 
 class NullTenantContextResolver:
-    """Production/staging default: no authenticated identity means no trusted tenant scope."""
+    """Explicit no-trust resolver: no authenticated identity means no tenant scope."""
 
     async def resolve(self, request: Request) -> TenantContext | None:
         return None
+
+
+class BearerTokenTenantContextResolver:
+    """Authenticated production resolver (NXS-AUTH-007).
+
+    No Authorization header → no scope (tenant endpoints answer 403 as in P02). An
+    invalid or expired token fails closed with 401. A valid token's ``org`` claim is the
+    only tenant authority; the token was minted by :class:`AuthService` strictly after
+    server-side membership verification, so a forged, cross-tenant or stale scope cannot
+    be constructed by the caller.
+    """
+
+    def __init__(self, tokens: TokenService) -> None:
+        self._tokens = tokens
+
+    async def resolve(self, request: Request) -> TenantContext | None:
+        raw = request.headers.get(_AUTH_HEADER)
+        if raw is None or not raw.strip():
+            return None
+        if not raw.startswith(_BEARER_PREFIX):
+            raise TokenValidationError("Invalid token.")
+        token = raw[len(_BEARER_PREFIX) :].strip()
+        claims = self._tokens.verify_access_token(token)
+        request_context = current_context()
+        return TenantContext(
+            organization_id=claims.organization_id,
+            source=TenantContextSource.RESOLVED_IDENTITY,
+            correlation_id=None if request_context is None else request_context.correlation_id,
+        )
 
 
 class HeaderTenantContextResolver:
@@ -54,7 +89,7 @@ class HeaderTenantContextResolver:
         )
 
 
-def build_resolver(settings: TenancySettings) -> TenantContextResolver:
+def build_resolver(settings: TenancySettings, tokens: TokenService) -> TenantContextResolver:
     if settings.header_resolver_enabled:
         return HeaderTenantContextResolver(settings.context_header)
-    return NullTenantContextResolver()
+    return BearerTokenTenantContextResolver(tokens)
