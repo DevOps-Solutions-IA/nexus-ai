@@ -209,7 +209,7 @@ class TestConversationLifecycle:
     ) -> None:
         org = await make_auth_org()
         resources = _resources(auth_client)
-        customer, _ = await resources.customers.resolve_or_create(org.id, _create_request())
+        _customer, _ = await resources.customers.resolve_or_create(org.id, _create_request())
         async with tenant_database.tenant_transaction(org.id) as tenant:
             rows = (
                 await tenant.session.execute(
@@ -230,7 +230,7 @@ class TestNormalizationPipeline:
         resources = _resources(auth_client)
         raw = "  Customer+Tag@Example.COM "
         normalized = normalize_identity_value(IdentityType.EMAIL, raw)
-        customer, _ = await resources.customers.resolve_or_create(
+        _customer, _ = await resources.customers.resolve_or_create(
             org.id, _create_request(identity_value=raw)
         )
         async with resources.database.tenant_transaction(org.id) as tenant:

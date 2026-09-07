@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "............                                                             [100%]\n12 passed in 1.29s",
+  "passed": 12,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-07T22:37:21Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_customer_conversations.py"
+  ]
+}

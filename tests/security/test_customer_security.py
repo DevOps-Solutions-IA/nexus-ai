@@ -11,6 +11,7 @@ from typing import Any
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import DBAPIError
 
 from nexus_ai.core.errors import (
     ConversationNotFoundError,
@@ -69,7 +70,7 @@ class TestRlsAndCrossTenant:
         # Scoped to org A, attaching org B's customer via the composite FK fails at
         # the database: (A, customer_b.id) does not exist in customers.
         async with tenant_database.tenant_transaction(org_a.id) as tenant:
-            with pytest.raises(Exception):
+            with pytest.raises(DBAPIError):
                 await tenant.session.execute(
                     text(
                         "INSERT INTO conversations "
@@ -91,7 +92,7 @@ class TestRlsAndCrossTenant:
         resources = _resources(auth_client)
         customer_b, _ = await resources.customers.resolve_or_create(org_b.id, _create_request())
         async with tenant_database.tenant_transaction(org_a.id) as tenant:
-            with pytest.raises(Exception):
+            with pytest.raises(DBAPIError):
                 await tenant.session.execute(
                     text(
                         "INSERT INTO customer_identities "

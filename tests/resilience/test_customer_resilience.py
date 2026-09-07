@@ -87,7 +87,7 @@ class TestCustomerResilience:
         resources = _resources(auth_client)
         await nats_messaging.disconnect()
         try:
-            customer, created = await resources.customers.resolve_or_create(
+            _customer, created = await resources.customers.resolve_or_create(
                 org.id, _create_request()
             )
             assert created is True

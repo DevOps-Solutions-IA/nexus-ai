@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "........                                                                 [100%]\n8 passed in 2.79s",
+  "passed": 8,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-07T22:37:28Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_auth_rbac_api.py"
+  ]
+}

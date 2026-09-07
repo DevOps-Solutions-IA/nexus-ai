@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "......                                                                   [100%]\n6 passed in 2.47s",
+  "passed": 6,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-07T22:37:24Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_auth_state_validation.py"
+  ]
+}

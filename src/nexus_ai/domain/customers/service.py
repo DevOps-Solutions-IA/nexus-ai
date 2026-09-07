@@ -347,9 +347,12 @@ class ConversationService:
         limit: int,
     ) -> list[Conversation]:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            return await ConversationRepository(tenant).for_customer(
+            conversations = await ConversationRepository(tenant).for_customer(
                 customer_id, after_id=after_id, limit=limit
             )
+        # The repository fetches limit+1 to detect a next page; the service returns
+        # exactly the requested page.
+        return conversations[:limit]
 
     async def close(self, organization_id: UUID, conversation_id: UUID) -> Conversation:
         """Idempotent close: closing an already-closed conversation is a no-op."""
