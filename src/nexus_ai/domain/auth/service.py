@@ -245,46 +245,80 @@ class AuthService:
         except TokenValidationError:
             raise AuthenticationFailedError("The session could not be refreshed.") from None
         now = self._now()
+        issued_user_id: UUID | None = None
+        issued_session_id: UUID | None = None
+        issued_refresh_token: str | None = None
+        failure: AuthenticationFailedError | None = None
+        # Revocations must COMMIT: every failure leaves this block without raising, so
+        # the transaction commits before the error is raised to the caller. Raising
+        # inside would roll the revocation back with the transaction.
         async with self._db.tenant_transaction(parts.organization_id) as tenant:
             sessions = RefreshSessionRepository(tenant)
             row = await sessions.by_token_hash(parts.token_hash)
-            if row is None or row.revoked_at is not None or row.expires_at <= now:
-                raise AuthenticationFailedError("The session could not be refreshed.")
-            user = await UserRepository(tenant.session).by_id(row.user_id)
-            if user is None or user.status is not UserStatus.ACTIVE:
-                await sessions.revoke(row.id)
-                raise AuthenticationFailedError("The session could not be refreshed.")
-            membership = await MembershipRepository(tenant).for_user_in_organization(
-                row.user_id, parts.organization_id
-            )
-            if membership is None or not membership.is_active:
-                raise AuthenticationFailedError("The session could not be refreshed.")
-            next_refresh_token = new_refresh_token(parts.organization_id)
-            rotated = await sessions.rotate(
-                session_id=row.id,
-                expected_token_hash=parts.token_hash,
-                new_token_hash=hash_refresh_token(next_refresh_token),
-                now=now,
-            )
-            if not rotated:
-                # The presented token lost a rotation race: reuse. Revoke the family.
-                await sessions.revoke(row.id)
-                await self._logger.awarning("auth_refresh_reuse_detected", session_id=str(row.id))
-                raise AuthenticationFailedError("The session could not be refreshed.")
+            if row is None:
+                # No current hash matches. A match on the PREVIOUS hash of a live
+                # session is reuse of an already-rotated token — theft or an unsafe
+                # client. Revoke the whole session family.
+                previous = await sessions.by_previous_token_hash(parts.token_hash)
+                if previous is not None:
+                    await sessions.revoke(previous.id)
+                    await self._logger.awarning(
+                        "auth_refresh_reuse_detected", session_id=str(previous.id)
+                    )
+                failure = AuthenticationFailedError("The session could not be refreshed.")
+            elif row.revoked_at is not None or row.expires_at <= now:
+                failure = AuthenticationFailedError("The session could not be refreshed.")
+            else:
+                user = await UserRepository(tenant.session).by_id(row.user_id)
+                if user is None or user.status is not UserStatus.ACTIVE:
+                    await sessions.revoke(row.id)
+                    failure = AuthenticationFailedError("The session could not be refreshed.")
+                else:
+                    membership = await MembershipRepository(tenant).for_user_in_organization(
+                        row.user_id, parts.organization_id
+                    )
+                    if membership is None or not membership.is_active:
+                        failure = AuthenticationFailedError("The session could not be refreshed.")
+                    else:
+                        next_refresh_token = new_refresh_token(parts.organization_id)
+                        rotated = await sessions.rotate(
+                            session_id=row.id,
+                            expected_token_hash=parts.token_hash,
+                            new_token_hash=hash_refresh_token(next_refresh_token),
+                            now=now,
+                        )
+                        if rotated:
+                            issued_user_id = row.user_id
+                            issued_session_id = row.id
+                            issued_refresh_token = next_refresh_token
+                        else:
+                            # Lost a rotation race: reuse. Revoke the family.
+                            await sessions.revoke(row.id)
+                            await self._logger.awarning(
+                                "auth_refresh_reuse_detected", session_id=str(row.id)
+                            )
+                            failure = AuthenticationFailedError(
+                                "The session could not be refreshed."
+                            )
+        if failure is not None:
+            raise failure
+        assert issued_user_id is not None  # pragma: no cover - every path sets one
+        assert issued_session_id is not None  # pragma: no cover - every path sets one
+        assert issued_refresh_token is not None  # pragma: no cover - every path sets one
         access_token = self._tokens.issue_access_token(
-            subject=row.user_id,
+            subject=issued_user_id,
             organization_id=parts.organization_id,
-            session_id=row.id,
+            session_id=issued_session_id,
             now=now,
         )
-        await self._logger.ainfo("auth_refresh_rotated", session_id=str(row.id))
+        await self._logger.ainfo("auth_refresh_rotated", session_id=str(issued_session_id))
         return AuthSession(
-            user_id=row.user_id,
+            user_id=issued_user_id,
             organization_id=parts.organization_id,
-            session_id=row.id,
+            session_id=issued_session_id,
             tokens=TokenPair(
                 access_token=access_token,
-                refresh_token=next_refresh_token,
+                refresh_token=issued_refresh_token,
                 expires_in=self._settings.auth.access_token_ttl_seconds,
             ),
         )

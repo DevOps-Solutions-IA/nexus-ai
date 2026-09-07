@@ -29,6 +29,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from nexus_ai.core.errors import (
     MembershipConflictError,
     OrganizationNotFoundError,
+    TenantScopeMismatchError,
     UserConflictError,
 )
 from nexus_ai.domain.auth.entities import (
@@ -180,7 +181,12 @@ class MembershipRepository:
     """
 
     def __init__(self, session: AsyncSession | TenantSession) -> None:
-        self._session = session.session if isinstance(session, TenantSession) else session
+        if isinstance(session, TenantSession):
+            self._tenant_org: uuid.UUID | None = session.organization_id
+            self._session = session.session
+        else:
+            self._tenant_org = None
+            self._session = session
 
     async def for_user(self, user_id: uuid.UUID) -> list[Membership]:
         rows = (
@@ -218,6 +224,8 @@ class MembershipRepository:
     ) -> Membership:
         """Create an ACTIVE membership row. RLS's WITH CHECK binds the insert to the
         transaction-local Organization — a cross-tenant insert fails at the database."""
+        if self._tenant_org is not None and organization_id != self._tenant_org:
+            raise TenantScopeMismatchError("Membership id does not match the bound tenant scope.")
         now = dt.datetime.now(dt.UTC)
         record = MembershipRecord(
             id=membership_id,
@@ -276,6 +284,19 @@ class RefreshSessionRepository:
             .one_or_none()
         )
 
+    async def by_previous_token_hash(self, token_hash: str) -> RefreshSessionRecord | None:
+        return (
+            (
+                await self._session.execute(
+                    select(RefreshSessionRecord).where(
+                        RefreshSessionRecord.previous_token_hash == token_hash
+                    )
+                )
+            )
+            .scalars()
+            .one_or_none()
+        )
+
     async def by_id(self, session_id: uuid.UUID) -> RefreshSessionRecord | None:
         return await self._session.get(RefreshSessionRecord, session_id)
 
@@ -290,6 +311,7 @@ class RefreshSessionRepository:
         self._session.add(
             RefreshSessionRecord(
                 id=session_id,
+                organization_id=self._tenant.organization_id,
                 user_id=user_id,
                 token_hash=token_hash,
                 generation=1,
@@ -317,6 +339,7 @@ class RefreshSessionRepository:
             )
             .values(
                 token_hash=new_token_hash,
+                previous_token_hash=expected_token_hash,
                 generation=RefreshSessionRecord.generation + 1,
                 last_used_at=now,
                 updated_at=now,

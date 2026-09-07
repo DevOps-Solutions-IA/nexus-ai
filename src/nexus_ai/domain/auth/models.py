@@ -147,6 +147,7 @@ class RefreshSessionRecord(TenantOwnedMixin, Base):
         PgUUID(as_uuid=True), ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
     )
     token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    previous_token_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     generation: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     expires_at: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     revoked_at: Mapped[dt.datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

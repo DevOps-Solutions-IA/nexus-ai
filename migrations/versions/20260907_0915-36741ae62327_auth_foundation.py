@@ -277,6 +277,7 @@ def upgrade() -> None:
         sa.Column("organization_id", sa.UUID(), nullable=False),
         sa.Column("user_id", sa.UUID(), nullable=False),
         sa.Column("token_hash", sa.String(length=64), nullable=False),
+        sa.Column("previous_token_hash", sa.String(length=64), nullable=True),
         sa.Column("generation", sa.Integer(), nullable=False),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
