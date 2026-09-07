@@ -1,0 +1,3 @@
+# ADR-0037: AMD64 and ARM64 backend compatibility
+
+Status: Accepted. Context: the first NXS LAB targets Oracle Ampere A1 (ARM64). Decision: base images are pinned to multi-arch **index** digests (uv, `python:3.14.7-slim-trixie`, Chainguard `python`), no architecture-specific binary is committed, and CI builds the production image for `linux/amd64` and `linux/arm64` via Buildx + QEMU with a non-root + liveness/readiness smoke of the emulated ARM64 image. Native wheels (asyncpg, pydantic-core, uvloop) build per-platform. Images are not pushed in P02. Consequences: architecture lock-in is prevented before the LAB exists; `docs/runbooks/oracle-a1-host.md` records host prerequisites (including `vm.overcommit_memory=1` for Valkey).

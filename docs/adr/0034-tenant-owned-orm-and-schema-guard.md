@@ -1,0 +1,3 @@
+# ADR-0034: Tenant-owned ORM convention and schema guard
+
+Status: Accepted. Decision: future tenant tables use `TenantOwnedMixin` (non-nullable `organization_id` UUID FK to `organizations.id`, indexed) and are marked `info["tenant_scoped"]`. `scripts.nxs_schema_guard` runs in CI after migrations: statically it checks the column, FK and index; against the live database it checks RLS is enabled, forced and has a policy for every marked table. A future engineer who declares a table tenant-scoped but forgets RLS fails CI. The `organizations` table itself is `tenant_scoped = "self"` (policy on the primary key). Consequences: tenancy is explicit and reviewable; the safety property is enforced mechanically, not by discipline.

@@ -1,0 +1,3 @@
+# ADR-0035: Organization lifecycle state machine
+
+Status: Accepted. Decision: `PROVISIONING → ACTIVE | ARCHIVED`, `ACTIVE → SUSPENDED | ARCHIVED`, `SUSPENDED → ACTIVE | ARCHIVED`, `ARCHIVED` terminal. Only `ACTIVE` permits normal tenant traffic; `PROVISIONING` is reserved for the P05 provisioner. Invalid transitions and operations on non-active Organizations raise stable `NXS_ORG_INVALID_STATE` / `NXS_ORG_INACTIVE`. Optimistic concurrency uses a `version` column (`UPDATE ... WHERE version = :expected`); a stale write returns `NXS_ORG_VERSION_CONFLICT` with no lost update. There is no hard delete through runtime repositories — archive instead. Consequences: P05 extends this state machine (adds provisioning orchestration) without replacing it.
