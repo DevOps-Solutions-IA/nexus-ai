@@ -1,0 +1,12 @@
+{
+  "context_leaks": 0,
+  "cross_tenant_reads": 0,
+  "cross_tenant_writes": 0,
+  "operations": 240,
+  "organizations": 3,
+  "phase": "NXS-P02",
+  "pool_contamination": 0,
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

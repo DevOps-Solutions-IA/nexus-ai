@@ -1,0 +1,24 @@
+{
+  "identity": "uuid7 server-generated immutable",
+  "key": "reserved-safe lowercase normalised",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "representations": {
+    "internal": "Organization",
+    "public": "OrganizationView (no legal_name/tax_identifier)"
+  },
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_organization_domain.py",
+    "tests/integration/test_organization_lifecycle.py"
+  ],
+  "validation": {
+    "country_code": "ISO-3166-1 alpha-2",
+    "display_name": "unicode+bounded+no-control",
+    "industry_code": "bounded",
+    "legal_name": "unicode+bounded+no-control",
+    "tax_identifier": "bounded, internal-only, not logged",
+    "timezone": "IANA/ZoneInfo"
+  }
+}

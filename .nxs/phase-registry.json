@@ -21,12 +21,12 @@
     },
     {
       "branch": "feat/nxs-p02-tenancy",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P01"
       ],
       "id": "NXS-P02",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Multi-tenancy and Organizations"
     },
     {

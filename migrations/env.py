@@ -8,6 +8,7 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+import nexus_ai.domain.registry  # noqa: F401 - registers every ORM model on Base.metadata
 from nexus_ai.core.config import Settings
 from nexus_ai.infrastructure.orm import Base
 
@@ -23,7 +24,7 @@ def _database_url() -> str:
     override = context.get_x_argument(as_dictionary=True).get("dsn")
     if override:
         return override
-    return Settings().database.async_dsn()
+    return Settings().database.migration_async_dsn()
 
 
 def run_migrations_offline() -> None:

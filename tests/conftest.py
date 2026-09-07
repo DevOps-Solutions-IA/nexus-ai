@@ -100,19 +100,32 @@ def make_client(build_settings: Callable[..., Settings]):
     return _make
 
 
+_PG_HOST = os.environ.get("NXS_IT_PG_HOSTPORT", "127.0.0.1:15432")
+RUNTIME_DSN = os.environ.get(
+    "NXS_IT_RUNTIME_DSN",
+    f"postgresql+asyncpg://nexus_runtime:local-runtime-only@{_PG_HOST}/nexus_local",
+)
+MIGRATION_DSN = os.environ.get(
+    "NXS_IT_MIGRATION_DSN",
+    f"postgresql+asyncpg://nexus_migration:local-migration-only@{_PG_HOST}/nexus_local",
+)
+SUPERUSER_DSN = os.environ.get(
+    "NXS_IT_SUPERUSER_DSN",
+    f"postgresql://nexus_local:local-development-only@{_PG_HOST}/nexus_local",
+)
+
 _IT_DEFAULTS = {
     "NXS_ENVIRONMENT": "test",
     "NXS_LOGGING__FORMAT": "json",
     "NXS_DATABASE__REQUIRED": "true",
     "NXS_CACHE__REQUIRED": "true",
     "NXS_MESSAGING__REQUIRED": "true",
-    "NXS_DATABASE__DSN": os.environ.get(
-        "NXS_IT_DATABASE_DSN",
-        "postgresql+asyncpg://nexus_local:local-development-only@127.0.0.1:15432/nexus_local",
-    ),
+    "NXS_DATABASE__DSN": RUNTIME_DSN,
+    "NXS_DATABASE__MIGRATION_DSN": MIGRATION_DSN,
     "NXS_CACHE__URL": os.environ.get("NXS_IT_CACHE_URL", "redis://127.0.0.1:16379/0"),
     "NXS_MESSAGING__URL": os.environ.get("NXS_IT_MESSAGING_URL", "nats://127.0.0.1:14222"),
     "NXS_HEALTH__CACHE_TTL_SECONDS": "0",
+    "NXS_TENANCY__HEADER_RESOLVER_ENABLED": "true",
 }
 
 
@@ -286,19 +299,20 @@ def normalize_nxs_baseline(nxs: Path) -> None:
         ]
     _write(nxs / "readiness.json", readiness)
 
-    p01_manifest = nxs / "phases/NXS-P01.json"
-    if p01_manifest.exists():
-        manifest = _read(p01_manifest)
+    for manifest_path in (nxs / "phases").glob("NXS-P*.json"):
+        if manifest_path.stem == "NXS-P00":
+            continue
+        manifest = _read(manifest_path)
         manifest["status"], manifest["decision"] = "PLANNED", "PENDING"
         manifest["implementation_commit"] = None
         manifest["closure_commit"] = None
         manifest["evidence"] = []
         manifest["timestamps"] = {"started_at": None, "closed_at": None}
-        _write(p01_manifest, manifest)
+        _write(manifest_path, manifest)
 
-    evidence_p01 = nxs / "evidence/NXS-P01"
-    if evidence_p01.exists():
-        shutil.rmtree(evidence_p01)
+    for evidence_dir in (nxs / "evidence").glob("NXS-P*"):
+        if evidence_dir.name != "NXS-P00":
+            shutil.rmtree(evidence_dir)
 
 
 @pytest.fixture
@@ -363,3 +377,126 @@ def commit_all(lifecycle_repo: Path) -> Callable[[str], str]:
         return _git(lifecycle_repo, "rev-parse", "HEAD")
 
     return _commit
+
+
+# --- Tenancy integration fixtures (NXS-P02) ---
+
+
+def _run_async(coro: Any) -> Any:
+    import asyncio
+
+    return asyncio.run(coro)
+
+
+@pytest.fixture(scope="session")
+def migrated_database() -> str:
+    """Bootstrap the DB roles and run migrations once per test session (runs as migration role)."""
+    from scripts.nxs_dbadmin.__main__ import _bootstrap
+
+    _run_async(_bootstrap(SUPERUSER_DSN))
+    from alembic import command
+    from alembic.config import Config
+
+    os.environ["NXS_ENVIRONMENT"] = "test"
+    os.environ["NXS_DATABASE__DSN"] = RUNTIME_DSN
+    os.environ["NXS_DATABASE__MIGRATION_DSN"] = MIGRATION_DSN
+    config = Config(str(REPO_ROOT / "alembic.ini"))
+    command.upgrade(config, "head")
+    return MIGRATION_DSN
+
+
+@pytest.fixture
+async def tenant_database(
+    migrated_database: str, integration_env: Callable[..., Settings]
+) -> AsyncIterator[Any]:
+    from nexus_ai.infrastructure.database import Database
+
+    settings = integration_env()
+    database = Database(settings.database, context_setting=settings.tenancy.context_setting_name)
+    await database.connect()
+    try:
+        yield database
+    finally:
+        await database.disconnect()
+
+
+@pytest.fixture
+async def pool1_database(
+    migrated_database: str, integration_env: Callable[..., Settings]
+) -> AsyncIterator[Any]:
+    from nexus_ai.infrastructure.database import Database
+
+    settings = integration_env(NXS_DATABASE__POOL_SIZE="1", NXS_DATABASE__MAX_OVERFLOW="0")
+    database = Database(settings.database, context_setting=settings.tenancy.context_setting_name)
+    await database.connect()
+    try:
+        yield database
+    finally:
+        await database.disconnect()
+
+
+@pytest.fixture
+async def organization_service(tenant_database: Any) -> Any:
+    from nexus_ai.domain.organizations.service import OrganizationService
+
+    return OrganizationService(tenant_database)
+
+
+@pytest.fixture
+async def make_organization(organization_service: Any) -> Callable[..., Any]:
+    counter = {"n": 0}
+
+    async def _make(*, activate: bool = True, key: str | None = None) -> Any:
+        from nexus_ai.domain.organizations.entities import OrganizationDraft
+        from nexus_ai.domain.organizations.status import OrganizationStatus
+
+        counter["n"] += 1
+        suffix = f"{counter['n']:04d}-{uuid_hex()}"
+        draft = OrganizationDraft(
+            organization_key=key or f"synthetic-org-{suffix}",
+            display_name=f"Synthetic Org {counter['n']}",
+            legal_name=f"Synthetic Org {counter['n']} S.A.",
+            country_code="cr",
+            timezone="America/Costa_Rica",
+        )
+        organization = await organization_service.create_core_record(draft)
+        if activate:
+            organization = await organization_service.transition(
+                organization.id, OrganizationStatus.ACTIVE
+            )
+        return organization
+
+    return _make
+
+
+def uuid_hex() -> str:
+    import uuid
+
+    return uuid.uuid4().hex[:8]
+
+
+@pytest.fixture
+async def raw_runtime_connection() -> AsyncIterator[Any]:
+    import asyncpg
+
+    connection = await asyncpg.connect(
+        RUNTIME_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        yield connection
+    finally:
+        await connection.close()
+
+
+@pytest.fixture
+async def tenant_header_client(
+    migrated_database: str, integration_env: Callable[..., Settings]
+) -> AsyncIterator[httpx.AsyncClient]:
+    settings = integration_env()
+    app = create_app(settings)
+    async with LifespanManager(app) as manager:
+        transport = httpx.ASGITransport(app=manager.app, raise_app_exceptions=False)
+        async with httpx.AsyncClient(transport=transport, base_url="http://nexus.test") as client:
+            client.nexus_app = app  # type: ignore[attr-defined]
+            client.nexus_settings = settings  # type: ignore[attr-defined]
+            yield client

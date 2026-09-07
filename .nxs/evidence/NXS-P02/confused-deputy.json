@@ -1,0 +1,10 @@
+{
+  "body_organization_id_mismatch": "422, scope unchanged",
+  "malformed_uuid_header": "400 NXS_TENANT_CONTEXT_INVALID",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "spoofed_header_unknown_org": "404 NXS_ORG_NOT_FOUND (own empty scope)",
+  "user_submitted_org_id_never_chooses_scope": true
+}

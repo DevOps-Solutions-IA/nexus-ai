@@ -1,0 +1,3 @@
+# ADR-0030: UUIDv7 Organization identity
+
+Status: Accepted. Decision: `organizations.id` is a server-generated `uuid.uuid7()` (native in Python 3.14): globally unique, time-ordered for index locality, not guessable by integer sequencing, immutable, and never reused after archival. Auto-increment ids are never external tenant identity. The `organization_key` (`clinica-san-jose`) is a human handle with reserved-word and normalisation rules — it is NOT a security boundary. Consequences: enumeration attacks against sequential ids are impossible; the key can change policy later without touching identity.

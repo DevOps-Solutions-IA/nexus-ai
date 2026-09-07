@@ -1,0 +1,21 @@
+{
+  "p02_mandatory": [
+    "NXS-TENANT-001",
+    "NXS-TENANT-002",
+    "NXS-TENANT-003",
+    "NXS-TENANT-004",
+    "NXS-TENANT-005",
+    "NXS-ORG-002",
+    "NXS-ORG-003",
+    "NXS-SEC-003",
+    "NXS-CICD-002"
+  ],
+  "phase": "NXS-P02",
+  "preserved_planned": {
+    "NXS-ORG-001": "NXS-P05"
+  },
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "reused_ids": 0,
+  "schema_version": "1.0.0"
+}

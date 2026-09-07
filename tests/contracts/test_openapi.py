@@ -17,8 +17,11 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
     assert not any(
         segment in path
         for path in paths
-        for segment in ("/organizations", "/conversations", "/auth", "/agents")
+        for segment in ("/conversations", "/auth", "/agents", "/users", "/memberships")
     )
+    # Organization administration (list / arbitrary id) is not exposed before P03.
+    assert "/api/v1/organizations" not in paths
+    assert not any(path.rstrip("/").endswith("/organizations/{organization_id}") for path in paths)
 
 
 async def test_operation_ids_are_deterministic_and_unique(app_client) -> None:

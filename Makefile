@@ -11,9 +11,15 @@ define require_phase
 endef
 
 .PHONY: help bootstrap up down logs format lint type test test-integration security \
-        test-all nxs-preflight nxs-validate-repo nxs-start nxs-gate nxs-close nxs-phase \
-        nxs-lock-status nxs-lock-acquire nxs-lock-release nxs-lock-recover \
-        docker-build migrate migrate-check clean-room validate
+        test-all db-bootstrap nxs-schema-guard nxs-preflight nxs-validate-repo nxs-start \
+        nxs-gate nxs-close nxs-phase nxs-lock-status nxs-lock-acquire nxs-lock-release \
+        nxs-lock-recover docker-build docker-buildx-multiarch migrate migrate-check \
+        clean-room validate
+
+# Local database DSNs (roles created by `make db-bootstrap`). Override for other envs.
+LOCAL_RUNTIME_DSN ?= postgresql+asyncpg://nexus_runtime:local-runtime-only@127.0.0.1:15432/nexus_local
+LOCAL_MIGRATION_DSN ?= postgresql+asyncpg://nexus_migration:local-migration-only@127.0.0.1:15432/nexus_local
+DB_ENV := NXS_ENVIRONMENT=test NXS_DATABASE__DSN=$(LOCAL_RUNTIME_DSN) NXS_DATABASE__MIGRATION_DSN=$(LOCAL_MIGRATION_DSN)
 
 help:
 	@echo "Nexus AI engineering commands:"
@@ -55,21 +61,30 @@ test:
 	uv run pytest -m "not integration" --cov-fail-under=0
 
 test-integration:
-	uv run pytest -m integration --cov-fail-under=0
+	$(DB_ENV) uv run pytest -m integration --cov-fail-under=0
 
 test-all:
-	uv run pytest
+	$(DB_ENV) uv run pytest
 
 security:
 	uv run bandit -q -lll -c pyproject.toml -r src scripts
 	uv run pip-audit
 
+db-bootstrap:
+	uv run python -m scripts.nxs_dbadmin bootstrap
+
 migrate:
-	uv run alembic upgrade head
+	$(DB_ENV) uv run alembic upgrade head
 
 migrate-check:
-	uv run alembic upgrade head
-	uv run alembic check
+	$(DB_ENV) uv run alembic upgrade head
+	$(DB_ENV) uv run alembic check
+
+nxs-schema-guard:
+	$(DB_ENV) uv run python -m scripts.nxs_schema_guard
+
+docker-buildx-multiarch:
+	docker buildx build --platform linux/amd64,linux/arm64 --pull --tag "$(IMAGE_TAG)" .
 
 nxs-phase:
 	@uv run python -m scripts.nxs_guard current-phase

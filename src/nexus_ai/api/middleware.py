@@ -58,6 +58,7 @@ class RequestContextMiddleware:
             await send(message)
 
         started = time.perf_counter()
+        structlog.contextvars.clear_contextvars()
         with (
             request_context(
                 request_id=request_id, correlation_id=correlation_id, trace_id=trace_id
@@ -72,11 +73,11 @@ class RequestContextMiddleware:
             else:
                 try:
                     await self._app(scope, receive, send_wrapper)
-                except Exception:
+                except Exception as exc:
                     if response_started:
                         raise
                     status_code = 500
-                    await _emit_unexpected(send_wrapper, scope["path"])
+                    await _emit_unexpected(send_wrapper, scope["path"], exc)
             duration_ms = round((time.perf_counter() - started) * 1000, 2)
             await logger.ainfo(
                 "http_request",
@@ -87,10 +88,12 @@ class RequestContextMiddleware:
             )
 
 
-async def _emit_unexpected(send: _SEND, path: str) -> None:
+async def _emit_unexpected(send: _SEND, path: str, exc: BaseException | None = None) -> None:
     from nexus_ai.core.problem_details import PROBLEM_MEDIA_TYPE, unexpected
 
-    await get_logger("nexus_ai.error").aerror("unhandled_exception")
+    await get_logger("nexus_ai.error").aerror(
+        "unhandled_exception", error_type="unknown" if exc is None else type(exc).__name__
+    )
     problem = unexpected(instance=path)
     body = problem.model_dump_json(exclude_none=True).encode()
     await send(

@@ -1,0 +1,9 @@
+{
+  "baseline": "< 40 ms/op ceiling (well under on local)",
+  "note": "regression detector, not capacity certification (P28)",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scoped_reads": 200
+}

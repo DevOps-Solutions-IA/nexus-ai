@@ -1,0 +1,10 @@
+{
+  "background_without_context": "fails safe (0 rows)",
+  "cross_task_leak": false,
+  "mechanism": "contextvars per task; bind_tenant on request path",
+  "middleware_clears_contextvars_per_request": true,
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

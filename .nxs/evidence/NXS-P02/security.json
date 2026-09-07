@@ -1,0 +1,23 @@
+{
+  "audit_corrective": "_verify_runtime_role fail-closed defect fixed; P02 reopened READY->VALIDATING, corrected, re-closed",
+  "bandit": "PASS",
+  "checks": {
+    "header_resolver_rejected_staging_prod": "PASS",
+    "no_stack_traces": "PASS",
+    "organization_id_logged_only_after_resolution": "PASS",
+    "runtime_role_check_error_message_has_no_raw_db_detail": "PASS",
+    "runtime_role_non_bypass": "PASS",
+    "runtime_role_unverifiable_fails_closed_staging_production": "PASS",
+    "tax_identifier_not_in_view_repr_logs": "PASS"
+  },
+  "gitleaks": "no leaks (local + delegated to NXS Security workflow)",
+  "new_sql_reviewed": "infrastructure/postgres/roles.sql \u2014 no BYPASSRLS/SUPERUSER, local-only passwords, no trust auth",
+  "phase": "NXS-P02",
+  "pip_audit": "no known vulnerabilities",
+  "recorded_at": "2026-09-07T07:44:32Z",
+  "result": "PASS",
+  "ruff_S": "PASS",
+  "schema_version": "1.0.0",
+  "trivy": "delegated to NXS Security workflow",
+  "unresolved_critical_or_high": 0
+}

@@ -34,6 +34,18 @@ Keep the phase VALIDATING or move it to FAILED with `python -m scripts.nxs_state
 Preserve the failing evidence, fix the root cause, rerun the complete gate, and never
 overwrite evidence with invented results or a lowered threshold.
 
+## Reopen a closed phase for a corrective delta
+
+`READY` is terminal for normal execution. When an audit or a proven regression requires a
+change to an already-closed phase, reopen it with `python -m scripts.nxs_state <phase>
+VALIDATING` (the only transition out of `READY`). The reopen clears the phase's READY/GO
+closure state: it drops the phase from `completed_phases`, clears the recorded
+implementation commit, removes the stale readiness entry, and makes the phase the active
+phase again — re-acquire the execution lock (`make nxs-lock-acquire`). Fix the defect, add
+tests that would have caught it, update the affected evidence, then re-run Stage A (fresh
+implementation candidate + green GitHub CI) and Stage B closure with the new implementation
+commit.
+
 ## Close and verify
 
 Stage A — implementation candidate: complete the work, run the full local gate, create

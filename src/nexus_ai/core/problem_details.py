@@ -30,13 +30,22 @@ class ProblemDetails(BaseModel):
     request_id: str | None = None
 
 
+_RESERVED_MEMBERS = frozenset(
+    {"type", "title", "status", "detail", "instance", "code", "request_id"}
+)
+
+
 def _truncate(text: str, limit: int = _MAX_DETAIL) -> str:
     return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
+def _safe_extensions(raw: dict[str, Any]) -> dict[str, Any]:
+    return {key: value for key, value in raw.items() if key not in _RESERVED_MEMBERS}
+
+
 def from_error(error: NxsError, *, instance: str | None = None) -> ProblemDetails:
     context = current_context()
-    extra: dict[str, Any] = dict(error.extensions)
+    extra: dict[str, Any] = _safe_extensions(error.extensions)
     if error.retryable:
         extra.setdefault("retryable", True)
     return ProblemDetails(
@@ -69,7 +78,7 @@ def generic(
         instance=instance,
         code=code,
         request_id=None if context is None else context.request_id,
-        **(extra or {}),
+        **_safe_extensions(extra or {}),
     )
 
 

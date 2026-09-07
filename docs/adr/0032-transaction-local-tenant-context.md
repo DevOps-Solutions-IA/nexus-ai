@@ -1,0 +1,3 @@
+# ADR-0032: Transaction-local tenant context
+
+Status: Accepted. Decision: `Database.tenant_transaction(organization_id)` opens a transaction, sets `set_config('nxs.organization_id', <uuid>, is_local => true)`, verifies the binding, and yields a typed `TenantSession`. The `is_local` flag scopes the GUC to that transaction only, so a pooled connection returned to the pool carries no tenant scope into the next transaction — on commit or rollback the scope disappears. Session-level `SET` is never used for pooled tenant context. Consequences: connection-pool reuse cannot leak scope across commit, rollback or exception paths (`tests/integration/test_pool_isolation.py`, forced `pool_size=1`).

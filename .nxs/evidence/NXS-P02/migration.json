@@ -1,0 +1,13 @@
+{
+  "alembic_check": "clean",
+  "credentials_committed": false,
+  "downgrade_base_then_upgrade": "PASS",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "revision": "ea956f004f7a organizations core",
+  "runtime_grants": "SELECT,INSERT,UPDATE (no DELETE)",
+  "schema_version": "1.0.0",
+  "self_scoped_rls": true,
+  "upgrade_head": "PASS"
+}

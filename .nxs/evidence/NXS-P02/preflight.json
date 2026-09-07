@@ -1,0 +1,8 @@
+{
+  "branch": "feat/nxs-p02-tenancy",
+  "guard_code": "AUTHORIZED",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

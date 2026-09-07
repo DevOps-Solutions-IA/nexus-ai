@@ -1,0 +1,11 @@
+{
+  "commit_reuse": "no leak",
+  "exception_reuse": "no leak",
+  "guc_survives_transaction": false,
+  "phase": "NXS-P02",
+  "pool_size": 1,
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "rollback_reuse": "no leak",
+  "schema_version": "1.0.0"
+}

@@ -17,7 +17,11 @@ pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 @pytest.fixture
 async def database(integration_env: Callable[..., Settings]):
-    settings = integration_env()
+    from tests.conftest import MIGRATION_DSN
+
+    # The P01 Database primitive is exercised here as a SYSTEM session (schema DDL),
+    # so it connects with the migration role rather than the non-DDL runtime role.
+    settings = integration_env(NXS_DATABASE__DSN=MIGRATION_DSN, NXS_DATABASE__POOL_SIZE="1")
     db = Database(settings.database)
     await db.connect()
     try:

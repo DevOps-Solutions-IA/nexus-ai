@@ -1,0 +1,23 @@
+{
+  "nexus_migration": {
+    "bypassrls": false,
+    "owns_schema": true,
+    "runs_alembic": true,
+    "superuser": false
+  },
+  "nexus_runtime": {
+    "bypassrls": false,
+    "createdb": false,
+    "createrole": false,
+    "ddl": false,
+    "delete_on_organizations": false,
+    "dml": "SELECT/INSERT/UPDATE per table",
+    "owns_tenant_tables": false,
+    "superuser": false
+  },
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T07:44:32Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "startup_fail_closed_staging_prod": "PASS (ConfigurationError on superuser/BYPASSRLS AND on inability to verify)"
+}
