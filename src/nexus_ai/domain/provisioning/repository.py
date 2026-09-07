@@ -70,25 +70,6 @@ class ProvisioningRequestRepository:
             .one_or_none()
         )
 
-    async def by_organization_key(self, organization_key: str) -> ProvisioningRequestRecord | None:
-        # Prefer a request that actually completed an Organization (crash-resume
-        # prefers the committed work over a bare PENDING claim), newest first.
-        return (
-            (
-                await self._session.execute(
-                    select(ProvisioningRequestRecord)
-                    .where(ProvisioningRequestRecord.organization_key == organization_key)
-                    .order_by(
-                        ProvisioningRequestRecord.organization_id.is_(None),
-                        ProvisioningRequestRecord.created_at.desc(),
-                    )
-                    .limit(1)
-                )
-            )
-            .scalars()
-            .one_or_none()
-        )
-
     async def insert_pending(
         self,
         *,
@@ -123,6 +104,16 @@ class ProvisioningRequestRepository:
             raise _KeyHashConflict() from exc
         await self._session.refresh(record)
         return record
+
+    async def link_organization(self, request_id: uuid.UUID, *, organization_id: uuid.UUID) -> None:
+        """Record the EXACT durable link request → Organization inside the SAME
+        transaction that creates the Organization (audit Finding A): crash-resume
+        attribution never relies on a slug — the FK makes the link DB-enforced."""
+        await self._session.execute(
+            update(ProvisioningRequestRecord)
+            .where(ProvisioningRequestRecord.id == request_id)
+            .values(organization_id=organization_id, updated_at=dt.datetime.now(dt.UTC))
+        )
 
     async def complete(self, request_id: uuid.UUID, *, organization_id: uuid.UUID) -> None:
         await self._session.execute(

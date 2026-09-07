@@ -7,11 +7,11 @@
     "Dashboard schema: versioned, deterministic, permission-filtered; allow-listed widget/data-source registry (organization.profile, organization.provisioning_status, organization.settings_summary); persisted snapshots MUST revalidate (unknown widget / unregistered data source / permission tampering / unsupported version fail closed); config values bounded flat primitives with a conservative key denylist.",
     "P04 integration: organizations.provisioned v1 registered in the payload registry; outbox intent commits atomically with provisioning; NATS outage cannot corrupt provisioning (verified with real JetStream).",
     "Migration 04a4640c5b95 reversible (upgrade/downgrade/upgrade verified); RLS on organization_settings and dashboard_configurations; provisioning_requests and platform_grants are GLOBAL by conscious classification (ADR-0050); P05 permission catalog delta seeded.",
-    "690 tests, 92.2% branch coverage; failure matrix documented in docs/runbooks/provisioning-failure-matrix.md; clean-room PASS; amd64+arm64 PASS; non-root PASS.",
-    "Preserved: NXS-P06..P32 untouched; no frontend, CRM, credentials, channels, telephony, agents, workflows, campaigns, Sentinel, compliance, audit, billing, cell assignment, email delivery."
+    "Preserved: NXS-P06..P32 untouched; no frontend, CRM, credentials, channels, telephony, agents, workflows, campaigns, Sentinel, compliance, audit, billing, cell assignment, email delivery.",
+    "AUDIT CORRECTIVE (independent audit): Finding A fixed \u2014 crash-resume attribution is now EXACT: the request\u2192Organization link is written inside the SAME Phase-2 transaction (FK-enforced) and resume finalizes only the request's own linked Organization; the slug lookup was removed (a slug can never adopt another request's work). 8 regression tests pin every audit scenario (tests/integration/test_provisioning_crash_resume.py). Finding B fixed \u2014 the canonical final validated execution reports 90.78% branch coverage with 698 tests (previous figures were from an earlier code state)."
   ],
   "phase": "NXS-P05",
-  "recorded_at": "2026-09-07T20:44:50Z",
+  "recorded_at": "2026-09-07T21:21:10Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

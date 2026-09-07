@@ -8,6 +8,7 @@
     "concurrency_tests": "PASS",
     "contract_tests": "PASS",
     "coverage": "PASS",
+    "crash_resume_attribution": "PASS",
     "crash_resume_semantics": "PASS",
     "dashboard_determinism": "PASS",
     "dashboard_permission_filtering": "PASS",
@@ -15,6 +16,7 @@
     "docker_non_root": "PASS",
     "documentation": "PASS",
     "event_delivery": "PASS",
+    "evidence_consistency": "PASS",
     "execution_guard": "PASS",
     "failure_matrix": "PASS",
     "formatting": "PASS",
@@ -31,6 +33,7 @@
     "migration_validation": "PASS",
     "nats_outage_survival": "PASS",
     "no_duplicate_organization": "PASS",
+    "no_slug_adoption": "PASS",
     "onboarding_validation": "PASS",
     "p02_p03_p04_regression": "PASS",
     "platform_capability": "PASS",
@@ -56,7 +59,7 @@
     "widget_allowlist": "PASS"
   },
   "phase": "NXS-P05",
-  "recorded_at": "2026-09-07T20:57:25Z",
+  "recorded_at": "2026-09-07T21:21:10Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

@@ -170,6 +170,13 @@ class OrganizationProvisioner:
                     )
                     tenant = TenantSession(organization_id=organization_id, session=session)
                     organization = await self._create_organization(tenant, request)
+                    # The exact durable attribution link (audit Finding A): this
+                    # UPDATE commits atomically with the Organization, so a crash
+                    # between Phase 2 and Phase 3 can never be confused with another
+                    # request's work — the FK enforces it.
+                    await ProvisioningRequestRepository(session).link_organization(
+                        request_id, organization_id=organization.id
+                    )
                     await self._bind_owner(tenant, organization, owner_user_id)
                     await OrganizationSettingsRepository(tenant).insert(
                         settings_id=uuid.uuid7(),
@@ -346,28 +353,25 @@ class OrganizationProvisioner:
         return await self._resume_pending(existing)
 
     async def _resume_pending(self, existing: Any) -> ProvisioningResult:
-        organization_key = existing.organization_key
-        async with self._db.transaction() as session:
-            by_slug = await ProvisioningRequestRepository(session).by_organization_key(
-                organization_key
-            )
-        if by_slug is not None and by_slug.organization_id is not None:
-            # Phase 2 committed before the crash: finalize deterministically.
+        # Attribution is EXACT (audit Finding A): the Organization link was written
+        # inside the SAME Phase-2 transaction and is FK-enforced. Only THIS request's
+        # own link may be finalized — a slug can never adopt another request's work.
+        if existing.organization_id is not None:
+            # Phase 2 committed before the crash: finalize THIS request.
             async with self._db.transaction() as session:
                 await ProvisioningRequestRepository(session).complete(
-                    by_slug.id, organization_id=by_slug.organization_id
+                    existing.id, organization_id=existing.organization_id
                 )
             return ProvisioningResult(
-                organization_id=by_slug.organization_id,
-                organization_key=by_slug.organization_key,
+                organization_id=existing.organization_id,
+                organization_key=existing.organization_key,
                 organization_status=OrganizationStatus.ACTIVE.value,
                 provisioning_status=ProvisioningRequestStatus.COMPLETED,
                 dashboard_revision=1,
             )
-        # No Organization yet: either the request is genuinely in-flight right now,
-        # or a crash abandoned the claim. A stale claim resumes deterministically —
-        # the unique slug keeps a concurrent re-run safe — a fresh one reports
-        # in-progress (retryable).
+        # No Organization linked yet: either the request is genuinely in-flight right
+        # now, or a crash abandoned the claim. A stale claim resumes deterministically
+        # under the ORIGINAL request; a fresh one reports in-progress (retryable).
         stale_before = dt.datetime.now(dt.UTC) - dt.timedelta(seconds=self._pending_stale_seconds)
         if existing.updated_at <= stale_before:
             # Reconstruct the request from the VALIDATED canonical snapshot (the
