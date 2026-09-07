@@ -8,8 +8,8 @@
     "integration"
   ],
   "failed": 0,
-  "integration": 67,
-  "non_integration": 410,
+  "integration": 110,
+  "non_integration": 367,
   "passed": 477,
   "phase": "NXS-P03",
   "recorded_at": "2026-09-07T09:55:00Z",
