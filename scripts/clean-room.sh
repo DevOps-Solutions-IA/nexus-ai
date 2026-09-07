@@ -37,11 +37,18 @@ test "$(docker image inspect nexus-ai:clean-room --format '{{.Config.User}}')" =
 
 # Multi-architecture build (no push). Needs a container-driver builder + arm64 emulation.
 docker run --privileged --rm tonistiigi/binfmt --install arm64 >/dev/null 2>&1 || true
-docker buildx rm nxs-cleanroom >/dev/null 2>&1 || true
-docker buildx create --name nxs-cleanroom --driver docker-container --bootstrap >/dev/null
-docker buildx build --builder nxs-cleanroom --platform linux/amd64,linux/arm64 --pull \
+if docker buildx version >/dev/null 2>&1; then
+  buildx() { docker buildx "$@"; }
+else
+  # Docker CLI plugin discovery can fail (e.g. after a Docker Desktop remount) while
+  # the plugin binary itself is intact — use it directly as a deterministic fallback.
+  buildx() { /usr/libexec/docker/cli-plugins/docker-buildx "$@"; }
+fi
+buildx rm nxs-cleanroom >/dev/null 2>&1 || true
+buildx create --name nxs-cleanroom --driver docker-container --bootstrap >/dev/null
+buildx build --builder nxs-cleanroom --platform linux/amd64,linux/arm64 --pull \
   --tag nexus-ai:clean-room-multiarch .
-docker buildx rm nxs-cleanroom >/dev/null 2>&1 || true
+buildx rm nxs-cleanroom >/dev/null 2>&1 || true
 
 container_id="$(docker run --detach --network host \
   --env NXS_ENVIRONMENT=local \
