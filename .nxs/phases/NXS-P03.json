@@ -6,7 +6,36 @@
   "dependencies": [
     "NXS-P02"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P03/agent-handoff.json",
+    ".nxs/evidence/NXS-P03/auth-flows.json",
+    ".nxs/evidence/NXS-P03/clean-room.json",
+    ".nxs/evidence/NXS-P03/concurrency.json",
+    ".nxs/evidence/NXS-P03/config-hardening.json",
+    ".nxs/evidence/NXS-P03/context-isolation.json",
+    ".nxs/evidence/NXS-P03/coverage.json",
+    ".nxs/evidence/NXS-P03/cross-tenant-security.json",
+    ".nxs/evidence/NXS-P03/database-roles.json",
+    ".nxs/evidence/NXS-P03/docker.json",
+    ".nxs/evidence/NXS-P03/git.json",
+    ".nxs/evidence/NXS-P03/identity-primitives.json",
+    ".nxs/evidence/NXS-P03/key-management.json",
+    ".nxs/evidence/NXS-P03/migration.json",
+    ".nxs/evidence/NXS-P03/multiarch.json",
+    ".nxs/evidence/NXS-P03/preflight.json",
+    ".nxs/evidence/NXS-P03/quality-gates.json",
+    ".nxs/evidence/NXS-P03/quality-matrix.json",
+    ".nxs/evidence/NXS-P03/rate-limiting.json",
+    ".nxs/evidence/NXS-P03/rbac.json",
+    ".nxs/evidence/NXS-P03/requirements.json",
+    ".nxs/evidence/NXS-P03/rls.json",
+    ".nxs/evidence/NXS-P03/runtime-role-security.json",
+    ".nxs/evidence/NXS-P03/schema-validator.json",
+    ".nxs/evidence/NXS-P03/secret-leakage.json",
+    ".nxs/evidence/NXS-P03/security.json",
+    ".nxs/evidence/NXS-P03/tests.json",
+    ".nxs/evidence/NXS-P03/token-attacks.json"
+  ],
   "id": "NXS-P03",
   "implementation_commit": null,
   "mandatory_gates": [
@@ -55,7 +84,7 @@
     "Production deployment and capacity certification (NXS-P28 / NXS-P32)",
     "Frontend"
   ],
-  "objective": "Establish the permanent enterprise authentication and authorization foundation: a canonical global user identity plane with normalized email and lifecycle status, an Organization membership boundary enforced in PostgreSQL, Argon2id password credentials with versioning, short-lived EdDSA access tokens with rotating server-side refresh sessions, revocation and replay detection, a provider-neutral signing-key abstraction with kid rotation and a KMS/HSM seam, organization-scoped RBAC with deny-by-default authorization, the authenticated production TenantContextResolver that completes the P02 seam, a minimal login/refresh/logout/session API with generic failures and a bounded brute-force defense seam — proven by an adversarial security test matrix, concurrency tests, hardened-environment fail-closed rules, migrations with tenant RLS, multi-architecture builds and a clean-room validation, on linux/amd64 and linux/arm64.",
+  "objective": "Establish the permanent enterprise authentication and authorization foundation: a canonical global user identity plane with normalized email and lifecycle status, an Organization membership boundary enforced in PostgreSQL, Argon2id password credentials with versioning, short-lived EdDSA access tokens with rotating server-side refresh sessions, revocation and replay detection, a provider-neutral signing-key abstraction with kid rotation and a KMS/HSM seam, organization-scoped RBAC with deny-by-default authorization, the authenticated production TenantContextResolver that completes the P02 seam, a minimal login/refresh/logout/session API with generic failures and a bounded brute-force defense seam \u2014 proven by an adversarial security test matrix, concurrency tests, hardened-environment fail-closed rules, migrations with tenant RLS, multi-architecture builds and a clean-room validation, on linux/amd64 and linux/arm64.",
   "requirements_implemented": [
     "NXS-AUTH-001",
     "NXS-AUTH-002",

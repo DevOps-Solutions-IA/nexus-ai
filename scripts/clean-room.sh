@@ -48,6 +48,7 @@ container_id="$(docker run --detach --network host \
   --env "NXS_DATABASE__DSN=$runtime_dsn" \
   --env 'NXS_CACHE__URL=redis://127.0.0.1:16379/0' \
   --env 'NXS_MESSAGING__URL=nats://127.0.0.1:14222' \
+  --env 'NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY=true' \
   nexus-ai:clean-room)"
 cleanup() {
   docker rm --force "$container_id" >/dev/null 2>&1 || true

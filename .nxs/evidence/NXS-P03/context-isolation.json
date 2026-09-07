@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...                                                                      [100%]\n3 passed in 0.57s",
+  "passed": 3,
+  "phase": "NXS-P03",
+  "recorded_at": "2026-09-07T09:43:10Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/concurrency/test_tenant_concurrency.py"
+  ]
+}

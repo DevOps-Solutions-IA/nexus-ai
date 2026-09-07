@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "........                                                                 [100%]\n8 passed in 4.81s",
+  "passed": 8,
+  "phase": "NXS-P03",
+  "recorded_at": "2026-09-07T09:43:09Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/concurrency/test_auth_concurrency.py"
+  ]
+}
