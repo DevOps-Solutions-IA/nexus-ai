@@ -35,8 +35,13 @@ docker build --pull -t nexus-ai:clean-room . \
   || DOCKER_BUILDKIT=0 docker build --pull -t nexus-ai:clean-room .
 test "$(docker image inspect nexus-ai:clean-room --format '{{.Config.User}}')" = "65532:65532"
 
-# Multi-architecture build (no push).
-docker buildx build --platform linux/amd64,linux/arm64 --pull --tag nexus-ai:clean-room-multiarch .
+# Multi-architecture build (no push). Needs a container-driver builder + arm64 emulation.
+docker run --privileged --rm tonistiigi/binfmt --install arm64 >/dev/null 2>&1 || true
+docker buildx rm nxs-cleanroom >/dev/null 2>&1 || true
+docker buildx create --name nxs-cleanroom --driver docker-container --bootstrap >/dev/null
+docker buildx build --builder nxs-cleanroom --platform linux/amd64,linux/arm64 --pull \
+  --tag nexus-ai:clean-room-multiarch .
+docker buildx rm nxs-cleanroom >/dev/null 2>&1 || true
 
 container_id="$(docker run --detach --network host \
   --env NXS_ENVIRONMENT=local \

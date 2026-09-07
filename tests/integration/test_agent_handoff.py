@@ -47,11 +47,20 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
                 assert registry[dependency]["decision"] == "GO"
 
     # Future capabilities must never be dropped from the ledger.
-    ledger_ids = {r["id"] for r in requirements["requirements"]}
+    ledger_by_id = {r["id"]: r for r in requirements["requirements"]}
     for preserved in ("NXS-CAP-001", "NXS-ORG-001", "NXS-VOICE-001", "NXS-DR-001", "NXS-SRE-001"):
-        assert preserved in ledger_ids
+        assert preserved in ledger_by_id
+    # Organization provisioning stays future work for P05 — P02 must not claim it.
+    assert ledger_by_id["NXS-ORG-001"]["target_phase"] == "NXS-P05"
+    assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
 
     # Once P01 is READY, the next phase is deterministically P02.
-    if registry["NXS-P01"]["status"] == "READY" and active is None:
-        assert next_eligible_phase(ROOT) == "NXS-P02"
+    if registry["NXS-P01"]["status"] == "READY" and registry["NXS-P02"]["status"] != "READY":
+        if active is None:
+            assert next_eligible_phase(ROOT) == "NXS-P02"
         assert registry["NXS-P02"]["branch"] == "feat/nxs-p02-tenancy"
+
+    # Once P02 is READY, the next phase is deterministically P03.
+    if registry["NXS-P02"]["status"] == "READY" and active is None:
+        assert next_eligible_phase(ROOT) == "NXS-P03"
+        assert registry["NXS-P03"]["branch"] == "feat/nxs-p03-security-auth"

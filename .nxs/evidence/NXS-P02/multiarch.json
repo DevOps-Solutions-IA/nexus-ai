@@ -1,0 +1,21 @@
+{
+  "arch_specific_binary_committed": false,
+  "arm64_emulated_smoke": {
+    "arch": "arm64",
+    "health_live": 200,
+    "health_ready": 503,
+    "non_root": "65532:65532",
+    "version": 200
+  },
+  "base_images": "multi-arch index digests (uv, python:3.14.7-slim-trixie, chainguard/python)",
+  "buildx_build": "PASS both platforms",
+  "phase": "NXS-P02",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "registry_push": false,
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

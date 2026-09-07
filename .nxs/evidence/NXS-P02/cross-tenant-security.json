@@ -1,0 +1,13 @@
+{
+  "cross_tenant_delete": "unavailable (no privilege)",
+  "cross_tenant_insert": "blocked (WITH CHECK)",
+  "cross_tenant_select": "blocked (0 rows)",
+  "cross_tenant_update": "blocked (rowcount 0)",
+  "method": "raw SQL as nexus_runtime",
+  "no_scope_insert": "blocked",
+  "no_scope_select": "0 rows",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

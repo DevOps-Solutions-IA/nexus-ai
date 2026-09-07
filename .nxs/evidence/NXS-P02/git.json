@@ -1,0 +1,11 @@
+{
+  "base_main_sha": "1cc4e28ad74a908bfb0c36e746967e54c19d65b2",
+  "branch": "feat/nxs-p02-tenancy",
+  "head": "4ee3fe42eafc14d171da7fda362a2fc42fc0e9f2",
+  "history_rewritten": false,
+  "merged_to_main": false,
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

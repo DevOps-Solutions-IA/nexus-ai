@@ -1,0 +1,30 @@
+{
+  "duration_seconds": 82,
+  "fresh_postgres_volume": true,
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T07:02:51Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh",
+  "steps": {
+    "agent_handoff": "PASS",
+    "alembic_check": "PASS",
+    "alembic_upgrade_head": "PASS",
+    "amd64_build": "PASS",
+    "compose_fresh_volume": "PASS",
+    "container_ready_200": "PASS",
+    "coverage_90": "PASS",
+    "db_role_bootstrap": "PASS",
+    "format": "PASS",
+    "full_suite_runtime_role": "PASS",
+    "graceful_shutdown": "PASS",
+    "lint": "PASS",
+    "lock_check": "PASS",
+    "locked_install": "PASS",
+    "multiarch_amd64_arm64_build": "PASS",
+    "non_root_runtime": "PASS",
+    "repo_validation": "PASS",
+    "schema_guard": "PASS",
+    "typing": "PASS"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "ci_gate": "scripts.nxs_schema_guard after alembic upgrade",
+  "live_checks": [
+    "RLS enabled",
+    "RLS forced",
+    "policy present"
+  ],
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "static_branches": [
+    "missing org id",
+    "nullable",
+    "wrong type",
+    "missing FK",
+    "missing index",
+    "self-scoped without id"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "bundled_alembic": "runs from image WORKDIR",
+  "healthcheck": "/health/live",
+  "non_root": "65532:65532",
+  "phase": "NXS-P02",
+  "python": "3.14.7",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "runtime_role": "nexus_runtime",
+  "schema_version": "1.0.0",
+  "with_dependencies": {
+    "health_ready": 200
+  },
+  "without_dependencies": {
+    "health_live": 200,
+    "health_ready": 503
+  }
+}

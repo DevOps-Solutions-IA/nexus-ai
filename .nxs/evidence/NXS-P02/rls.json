@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "forced": true,
+  "no_scope": "zero rows, no global fallback",
+  "phase": "NXS-P02",
+  "policy": "nxs_tenant_isolation USING+WITH CHECK on nullif(current_setting('nxs.organization_id',true),'')::uuid",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_guard": "static + live, CI gate",
+  "schema_version": "1.0.0",
+  "self_scoped_table": "organizations (policy on id)",
+  "tests": [
+    "tests/integration/test_rls_isolation.py",
+    "tests/integration/test_tenant_schema_guard.py",
+    "tests/unit/test_schema_guard_static.py"
+  ]
+}

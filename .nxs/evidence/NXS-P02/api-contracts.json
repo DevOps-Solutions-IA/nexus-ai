@@ -1,0 +1,21 @@
+{
+  "codes": [
+    "NXS_TENANT_CONTEXT_REQUIRED",
+    "NXS_TENANT_CONTEXT_INVALID",
+    "NXS_TENANT_SCOPE_MISMATCH",
+    "NXS_ORG_NOT_FOUND",
+    "NXS_ORG_CONFLICT",
+    "NXS_ORG_INVALID_STATE",
+    "NXS_ORG_INACTIVE",
+    "NXS_ORG_VERSION_CONFLICT"
+  ],
+  "current_org_api": "GET+PATCH /api/v1/organizations/current (trusted resolver only)",
+  "media_type": "application/problem+json",
+  "no_raw_db_error_leak": true,
+  "organization_admin_api_exposed": false,
+  "p01_endpoints_regression": "PASS",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

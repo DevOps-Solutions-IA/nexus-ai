@@ -482,9 +482,13 @@
       ],
       "description": "No Organization can read, write, mutate, cache, execute against or inherit another Organization's context \u2014 enforced in PostgreSQL by forced Row-Level Security and a non-bypass runtime role, not by application WHERE clauses \u2014 across data and compute, under raw SQL, connection-pool reuse, concurrency, rollback and spoofed identifiers.",
       "id": "NXS-TENANT-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "migrations/versions/20260907_0612-ea956f004f7a_organizations_core.py",
+        "src/nexus_ai/infrastructure/rls.py",
+        "tests/integration/test_rls_isolation.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Strict tenant isolation",
       "validation_evidence": []
@@ -497,9 +501,12 @@
       ],
       "description": "A typed, immutable TenantContext resolved only from a trusted resolver boundary propagates organization_id through contextvars without leaking between concurrent async tasks and remains serializable for future cross-process work.",
       "id": "NXS-TENANT-002",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/api/tenancy.py",
+        "src/nexus_ai/core/tenancy.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Trusted tenant context and propagation",
       "validation_evidence": []
@@ -512,9 +519,13 @@
       ],
       "description": "Every tenant-scoped table has RLS ENABLED and FORCED with USING and WITH CHECK policies bound to the transaction-local organization_id; a missing tenant context yields zero visibility, never a global fallback.",
       "id": "NXS-TENANT-003",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "scripts/nxs_schema_guard/__main__.py",
+        "src/nexus_ai/infrastructure/rls.py",
+        "src/nexus_ai/infrastructure/schema_guard.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "PostgreSQL Row-Level Security enforcement",
       "validation_evidence": []
@@ -527,9 +538,12 @@
       ],
       "description": "A first-class tenant unit-of-work sets the transaction-local tenant context, so pooled connection reuse across commit, rollback and exception paths cannot leak one Organization's scope into another's transaction.",
       "id": "NXS-TENANT-004",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/infrastructure/database.py",
+        "src/nexus_ai/infrastructure/tenant_session.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Tenant-safe pooled database transactions",
       "validation_evidence": []
@@ -541,9 +555,11 @@
       ],
       "description": "A deterministic namespace primitive prefixes every tenant-scoped resource name with organization_id (cache keys, locks, storage prefixes, job identity) with no implicit global fallback and bounded, safely encoded identifiers.",
       "id": "NXS-TENANT-005",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/core/tenancy.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Tenant namespace isolation for compute and resources",
       "validation_evidence": []
@@ -556,9 +572,14 @@
       ],
       "description": "The Organization aggregate \u2014 server-generated immutable UUIDv7 identity, normalized reserved-safe organization_key, validated profile fields, timezone-aware timestamps and optimistic-concurrency version \u2014 is persisted through the first real domain migration.",
       "id": "NXS-ORG-002",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/domain/organizations/entities.py",
+        "src/nexus_ai/domain/organizations/keys.py",
+        "src/nexus_ai/domain/organizations/models.py",
+        "src/nexus_ai/domain/organizations/repository.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Organization core domain identity and persistence",
       "validation_evidence": []
@@ -570,9 +591,12 @@
       ],
       "description": "Organization status transitions (PROVISIONING, ACTIVE, SUSPENDED, ARCHIVED) are an explicit state machine enforced by the domain service; invalid transitions and operations on non-active Organizations return stable NXS errors and there is no hard delete through runtime repositories.",
       "id": "NXS-ORG-003",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/domain/organizations/service.py",
+        "src/nexus_ai/domain/organizations/status.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Organization lifecycle state machine",
       "validation_evidence": []
@@ -585,9 +609,14 @@
       ],
       "description": "The application runtime connects to PostgreSQL as a role that is not superuser and cannot bypass RLS (NOSUPERUSER, NOBYPASSRLS, no schema ownership of tenant tables, least DML); a separate migration role owns schema changes; staging and production fail closed if the runtime role can bypass tenancy.",
       "id": "NXS-SEC-003",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "infrastructure/postgres/roles.sql",
+        "scripts/nxs_dbadmin/__main__.py",
+        "src/nexus_ai/core/lifecycle.py",
+        "src/nexus_ai/infrastructure/database.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "Non-bypass tenant database runtime role",
       "validation_evidence": []
@@ -599,9 +628,14 @@
       ],
       "description": "The backend and its production container build for linux/amd64 and linux/arm64 with no architecture-specific committed binaries, gated in CI, ahead of the ARM64 NXS LAB environment.",
       "id": "NXS-CICD-002",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        ".github/workflows/ci.yml",
+        "Dockerfile",
+        "docs/adr/0037-multi-architecture.md",
+        "docs/runbooks/oracle-a1-host.md"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P02",
       "title": "AMD64 and ARM64 backend and container compatibility",
       "validation_evidence": []

@@ -1,0 +1,8 @@
+{
+  "concurrent_update_test": "one succeeds, stale returns NXS_ORG_VERSION_CONFLICT, no lost update",
+  "mechanism": "version column",
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

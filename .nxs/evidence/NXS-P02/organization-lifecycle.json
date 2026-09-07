@@ -1,0 +1,23 @@
+{
+  "checks": {
+    "active_to_suspended": "PASS",
+    "any_to_archived": "PASS",
+    "archived_operations_blocked": "PASS",
+    "archived_terminal": "PASS",
+    "invalid_transition_blocked": "PASS",
+    "no_hard_delete_runtime": "PASS",
+    "provisioning_to_active": "PASS",
+    "suspended_operations_blocked": "PASS",
+    "suspended_to_active": "PASS"
+  },
+  "phase": "NXS-P02",
+  "recorded_at": "2026-09-07T06:59:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "states": [
+    "PROVISIONING",
+    "ACTIVE",
+    "SUSPENDED",
+    "ARCHIVED"
+  ]
+}

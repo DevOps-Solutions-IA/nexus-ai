@@ -16,7 +16,7 @@ canonical identifier is `organization_id` (UUIDv7). No other tenancy key exists.
 | Mass-assignment of `organization_id` | tenant repositories operate on the current Organization only; no `get(arbitrary_id)` | `domain/organizations/repository.py` |
 | Cross-tenant resource id probing | RLS returns not-found, never another tenant's row | `test_spoofed_but_unknown_org_is_not_found` |
 | Cache namespace collision | `tenant_namespace(organization_id, ...)` — no global fallback | `tests/unit/test_tenancy_primitives.py` |
-| Future message/job context loss | `TenantContext.to_portable()` / `from_portable()` | ADR-0036, ADR-0040-seam |
+| Future message/job context loss | `TenantContext.to_portable()` / `from_portable()` | ADR-0036; `docs/engineering/tenancy.md` P04 seam |
 | Suspended/archived Organization access | `require_operational` / `update_profile` raise `NXS_ORG_INACTIVE` | `tests/integration/test_organization_lifecycle.py` |
 | Unsafe future tenant table | `scripts.nxs_schema_guard` CI gate | `tests/unit/test_schema_guard_static.py` |
 
@@ -37,15 +37,18 @@ class Widget(TenantOwnedMixin, Base):
     __tablename__ = "widgets"
     id: Mapped[int] = mapped_column(primary_key=True)
     external_id: Mapped[str] = mapped_column(String(64))
-    __table_args__ = (UniqueConstraint("organization_id", "external_id"),)  # tenant-local uniqueness
+    __table_args__ = (
+        UniqueConstraint("organization_id", "external_id"),
+    )  # tenant-local uniqueness
 ```
 
 In the migration:
 
 ```python
 from nexus_ai.infrastructure.rls import apply_tenant_rls
+
 op.create_table("widgets", ...)
-apply_tenant_rls(op, "widgets")            # ENABLE + FORCE RLS, policy, runtime grants
+apply_tenant_rls(op, "widgets")  # ENABLE + FORCE RLS, policy, runtime grants
 ```
 
 Rules for every tenant table: `organization_id NOT NULL` FK to `organizations.id`, no
@@ -56,8 +59,10 @@ cross-tenant FK (both sides same Organization), tenant-aware uniqueness
 ## Tenant code paths
 
 ```python
-async def handler(context: TenantContextDep, session: TenantSessionDep) -> ...:
-    ...                          # session.session is RLS-scoped to context.organization_id
+@router.get("/widgets")
+async def list_widgets(context: TenantContextDep, session: TenantSessionDep) -> list[Widget]:
+    # session.session is RLS-scoped to context.organization_id
+    return await WidgetRepository(session).all()
 ```
 
 - `TenantContextDep` — resolves the trusted context, binds `organization_id` into the log context.
