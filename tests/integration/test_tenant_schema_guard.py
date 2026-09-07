@@ -21,7 +21,17 @@ async def test_live_guard_passes_for_migrated_schema(tenant_database: Any) -> No
     async with tenant_database.engine.connect() as connection:
         result = await check_live(connection)
     assert result.ok, result.violations
-    assert result.tables_checked == ["organizations"]
+    # Every tenant-owned table (self-scoped and mixin-based) is covered, not just
+    # ``organizations`` — the guard reads the ORM class hierarchy, not only table.info.
+    assert set(result.tables_checked) >= {
+        "organizations",
+        "memberships",
+        "refresh_sessions",
+        "role_assignments",
+        "event_outbox",
+        "event_dead_letters",
+    }
+    assert "consumer_receipts" not in result.tables_checked
 
 
 def test_static_guard_flags_unsafe_tenant_table() -> None:

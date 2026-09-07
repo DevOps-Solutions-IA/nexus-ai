@@ -13,7 +13,13 @@ from dataclasses import dataclass, field
 from sqlalchemy import Table, text
 from sqlalchemy.ext.asyncio import AsyncConnection
 
-from nexus_ai.infrastructure.orm import TENANT_OWNED, TENANT_SCOPED_KEY, TENANT_SELF, Base
+from nexus_ai.infrastructure.orm import (
+    TENANT_OWNED,
+    TENANT_SCOPED_KEY,
+    TENANT_SELF,
+    Base,
+    TenantOwnedMixin,
+)
 
 
 @dataclass(slots=True)
@@ -33,12 +39,21 @@ class SchemaGuardResult:
 def tenant_tables() -> list[tuple[Table, str]]:
     import nexus_ai.domain.registry  # noqa: F401 - populate Base.metadata with every model
 
-    result: list[tuple[Table, str]] = []
+    result: dict[str, tuple[Table, str]] = {}
+    # Authoritative source: any mapped class inheriting TenantOwnedMixin is tenant-owned,
+    # whether or not it also carries an explicit ``info`` marker on ``__table_args__``.
+    for mapper in Base.registry.mappers:
+        klass = mapper.class_
+        if isinstance(klass, type) and issubclass(klass, TenantOwnedMixin):
+            table = mapper.local_table
+            if isinstance(table, Table):
+                result[table.name] = (table, TENANT_OWNED)
+    # Explicit markers cover self-scoped tables (organizations) and raw Table() probes.
     for table in Base.metadata.sorted_tables:
         marker = table.info.get(TENANT_SCOPED_KEY)
         if marker in {TENANT_OWNED, TENANT_SELF}:
-            result.append((table, str(marker)))
-    return result
+            result.setdefault(table.name, (table, str(marker)))
+    return [result[name] for name in sorted(result)]
 
 
 def _static_violations(table: Table, marker: str) -> list[str]:

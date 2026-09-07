@@ -16,9 +16,17 @@ from nexus_ai.domain.auth.models import (
     UserCredentialRecord,
     UserRecord,
 )
+from nexus_ai.domain.events.models import (
+    ConsumerReceiptRecord,
+    EventDeadLetterRecord,
+    EventOutboxRecord,
+)
 from nexus_ai.domain.organizations.models import OrganizationRecord
 
 __all__ = [
+    "ConsumerReceiptRecord",
+    "EventDeadLetterRecord",
+    "EventOutboxRecord",
     "MembershipRecord",
     "OrganizationRecord",
     "PermissionRecord",

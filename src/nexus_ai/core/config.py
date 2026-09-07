@@ -195,6 +195,74 @@ class MessagingSettings(BaseModel):
         return [item.strip() for item in self.url.get_secret_value().split(",") if item.strip()]
 
 
+class EventsSettings(BaseModel):
+    """Data and event platform configuration (NXS-EVENT-002..009, NXS-DATA-002).
+
+    Nexus AI guarantees at-least-once event transport. Exactly-once transport is not
+    claimed — duplicate-safe business effects come from idempotent consumers. Every
+    bound below is explicit and validated; hardened environments additionally require
+    durable JetStream and refuse an unsafe polling cadence.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    subject_prefix: str = Field(default="nxs", pattern=r"^[a-z][a-z0-9]{1,15}$")
+    stream_name: str = Field(default="NXS_EVENTS", pattern=r"^[A-Z][A-Z0-9_]{2,31}$")
+    dead_letter_stream_name: str = Field(
+        default="NXS_EVENTS_DLQ", pattern=r"^[A-Z][A-Z0-9_]{2,31}$"
+    )
+    stream_max_age_seconds: int = Field(default=1_209_600, ge=3600, le=31_536_000)
+    stream_replicas: int = Field(default=1, ge=1, le=5)
+
+    require_jetstream: bool = True
+    bootstrap_topology: bool = True
+
+    publisher_enabled: bool = True
+    publisher_poll_interval_seconds: float = Field(default=1.0, ge=0.05, le=60)
+    publisher_batch_size: int = Field(default=100, ge=1, le=1000)
+    publisher_lease_seconds: int = Field(default=30, ge=5, le=600)
+    publish_timeout_seconds: float = Field(default=5.0, gt=0, le=60)
+    max_publish_attempts: int = Field(default=8, ge=1, le=50)
+
+    consumers_enabled: bool = False
+    consumer_batch_size: int = Field(default=16, ge=1, le=256)
+    consumer_concurrency: int = Field(default=8, ge=1, le=64)
+    consumer_ack_wait_seconds: int = Field(default=30, ge=1, le=600)
+    consumer_poll_timeout_seconds: float = Field(default=5.0, gt=0, le=60)
+    handler_timeout_seconds: float = Field(default=20.0, gt=0, le=300)
+    max_delivery_attempts: int = Field(default=8, ge=1, le=50)
+
+    retry_base_delay_seconds: float = Field(default=1.0, gt=0, le=60)
+    retry_max_delay_seconds: float = Field(default=300.0, gt=0, le=3600)
+    dedupe_window_seconds: int = Field(default=120, ge=1, le=86_400)
+
+    @model_validator(mode="after")
+    def _bounds(self) -> Self:
+        if self.retry_base_delay_seconds > self.retry_max_delay_seconds:
+            raise ValueError("retry_base_delay_seconds must not exceed retry_max_delay_seconds")
+        if self.publisher_batch_size < 1:
+            raise ValueError("publisher_batch_size must be positive")
+        return self
+
+    def environment_segment(self, environment: Environment) -> str:
+        return environment.value
+
+    def tenant_subject_filter(self, environment: Environment) -> str:
+        return f"{self.subject_prefix}.{environment.value}.tenant.>"
+
+    def global_subject_filter(self, environment: Environment) -> str:
+        return f"{self.subject_prefix}.{environment.value}.global.>"
+
+    def main_stream_subjects(self, environment: Environment) -> list[str]:
+        return [
+            self.tenant_subject_filter(environment),
+            self.global_subject_filter(environment),
+        ]
+
+    def dead_letter_subject_filter(self, environment: Environment) -> str:
+        return f"{self.subject_prefix}.{environment.value}.dlq.>"
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -347,6 +415,7 @@ class Settings(BaseSettings):
     health: HealthSettings = Field(default_factory=HealthSettings)
     tenancy: TenancySettings = Field(default_factory=TenancySettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
+    events: EventsSettings = Field(default_factory=EventsSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
@@ -391,6 +460,15 @@ class Settings(BaseSettings):
             problems.append("Argon2id work factors are below the hardened minimum")
         if self.auth.rate_limit_backend == "local":
             problems.append("NXS_AUTH__RATE_LIMIT_BACKEND must not be 'local' outside local/test")
+        if self.messaging.required and not self.events.require_jetstream:
+            problems.append(
+                "NXS_EVENTS__REQUIRE_JETSTREAM must be true outside local/test "
+                "(durable business events must not fall back to core NATS)"
+            )
+        if self.events.publisher_poll_interval_seconds < 0.2:
+            problems.append(
+                "NXS_EVENTS__PUBLISHER_POLL_INTERVAL_SECONDS is below the hardened minimum (0.2s)"
+            )
         if problems:
             raise ValueError("unsafe security configuration: " + "; ".join(sorted(problems)))
         return self

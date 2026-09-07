@@ -39,6 +39,16 @@ class Messaging:
             raise ConfigurationError("messaging client is not initialised")
         return self._client
 
+    def jetstream(self) -> object:
+        """The JetStream context for durable publishing/consuming (NXS-EVENT-004).
+
+        P04 owns application subjects and business event contracts; it builds on this
+        boundary rather than opening its own NATS clients.
+        """
+        if self._client is None:
+            raise ConfigurationError("messaging client is not initialised")
+        return self._client.jetstream()
+
     async def connect(self) -> None:
         if self._client is not None:
             return
