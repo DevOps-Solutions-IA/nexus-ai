@@ -150,3 +150,11 @@ def safe_error_code(exc: BaseException) -> str:
     if isinstance(exc, NxsError):
         return exc.code
     return type(exc).__name__[:64]
+
+
+def safe_error_summary(exc: BaseException) -> str:
+    """A safe human descriptor for durable records: the stable title / type, NEVER the
+    exception message (handler messages are developer-controlled and may hold secrets)."""
+    if isinstance(exc, NxsError):
+        return exc.title
+    return type(exc).__name__[:120]

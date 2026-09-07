@@ -37,6 +37,7 @@ from nexus_ai.events.errors import (
     HandlerTerminalError,
     classify_failure,
     safe_error_code,
+    safe_error_summary,
 )
 from nexus_ai.events.idempotency import ConsumerReceiptStore
 from nexus_ai.events.registry import EVENT_REGISTRY, EventPayload, EventRegistry
@@ -110,7 +111,9 @@ class DurableConsumer:
 
     # --- lifecycle ---------------------------------------------------------------
 
-    async def start(self) -> None:
+    async def ensure_subscription(self) -> object:
+        if self._subscription is not None:
+            return self._subscription
         from nats.js.api import AckPolicy, ConsumerConfig
 
         config = ConsumerConfig(
@@ -124,9 +127,33 @@ class DurableConsumer:
         self._subscription = await self._transport.pull_subscribe(
             self._spec.subject_filter, durable=self._spec.name, config=config
         )
+        return self._subscription
+
+    async def start(self) -> None:
+        await self.ensure_subscription()
         self._stop.clear()
         self._task = asyncio.create_task(self._run(), name=f"consumer-{self._spec.name}")
         await self._log.ainfo("consumer_started", subject_filter=self._spec.subject_filter)
+
+    async def run_pending(self, *, max_messages: int | None = None, timeout: float = 3.0) -> int:
+        """Fetch and process one batch synchronously. Used by drains and tests."""
+        subscription = await self.ensure_subscription()
+        batch = max_messages or self._settings.consumer_batch_size
+        try:
+            messages = await subscription.fetch(batch, timeout=timeout)  # type: ignore[attr-defined]
+        except TimeoutError:
+            return 0
+        await asyncio.gather(*(self._guarded(message) for message in messages))
+        return len(messages)
+
+    async def drain_pending(self, *, max_cycles: int = 50, timeout: float = 2.0) -> int:
+        total = 0
+        for _ in range(max_cycles):
+            handled = await self.run_pending(timeout=timeout)
+            total += handled
+            if handled == 0:
+                break
+        return total
 
     async def stop(self, *, timeout: float = 20.0) -> None:
         self._stop.set()
@@ -309,7 +336,7 @@ class DurableConsumer:
                     error_code=error_code,
                     attempt_count=delivery,
                     consumer_name=self._spec.name,
-                    error_summary=str(exc),
+                    error_summary=safe_error_summary(exc),
                 )
         except Exception as store_exc:
             await self._log.aerror(

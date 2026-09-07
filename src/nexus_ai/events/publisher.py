@@ -32,6 +32,7 @@ from nexus_ai.events.errors import (
     FailureClass,
     classify_failure,
     safe_error_code,
+    safe_error_summary,
 )
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.event_dead_letter import DeadLetterRepository
@@ -231,7 +232,7 @@ class OutboxRelay:
                     failure_class=failure_class,
                     error_code=error_code,
                     attempt_count=item.attempt_count,
-                    error_summary=str(cause),
+                    error_summary=safe_error_summary(cause),
                 )
         await self._log.aerror(
             "event_dead_lettered",
