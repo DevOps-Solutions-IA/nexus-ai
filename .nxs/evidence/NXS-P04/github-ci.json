@@ -1,0 +1,11 @@
+{
+  "note": "awaiting NXS CI + NXS Security on the pushed implementation head; finalized in a follow-up evidence commit at the closure head",
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:59:46Z",
+  "result": "PENDING",
+  "schema_version": "1.0.0",
+  "workflows": [
+    "NXS CI (state, quality, integration, docker, multiarch)",
+    "NXS Security (source-and-dependencies, image)"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P04",
+  "result": "PASS",
+  "actor": "claude-code-p04",
+  "branch": "feat/nxs-p04-data-events",
+  "recorded_at": "2026-09-07T18:00:00Z",
+  "handoff": [
+    "Data and Event Platform implemented and tested: canonical versioned EventEnvelope (UUIDv7, UTC, trusted organization_id / explicit global scope, correlation/causation, strict typed payload), deterministic injection-safe subject taxonomy nxs.<env>.<scope>.<domain>.<event>, event schema/version decoder registry with fail-closed unknown-type and unsupported-version handling.",
+    "PostgreSQL transactional outbox (event_outbox, TENANT-OWNED, forced RLS + nxs_system_relay unscoped policy): the outbox row and the business mutation commit atomically; WITH CHECK makes a forged organization_id impossible; the relay claims rows with FOR UPDATE SKIP LOCKED, takes a crash-recovering lease, publishes to JetStream, checks the ack, then marks PUBLISHED.",
+    "JetStream transport extends the P01 messaging boundary: every publish ack checked under a bounded timeout, event_id is the broker dedup identity, no silent fallback to core NATS, hardened environments fail closed without durable JetStream. Global platform events publish directly through the same confirmed path.",
+    "Durable pull-consumer framework: explicit ack only after the handler effect and the PostgreSQL idempotency receipt commit; retryable failures NAK with bounded exponential backoff; terminal failures are recorded (event_dead_letters + dead-letter subject), TERMed and never hot-looped; bounded concurrency/ack-wait/handler-timeout; graceful drain.",
+    "Consumer idempotency (consumer_receipts, PLATFORM-INTERNAL): (consumer_name, event_id) claim in the same transaction as the handler effect. Duplicate delivery, lost ACK, redelivery and two concurrent deliveries all resolve to exactly one business effect (proven with real PostgreSQL + JetStream).",
+    "Delivery semantics documented precisely: Nexus AI guarantees at-least-once transport; exactly-once transport is NOT claimed; idempotent consumers are required for duplicate-safe business effects. ADR-0047 / ADR-0048 / ADR-0049 + docs/engineering/events.md.",
+    "Migration 9387c6f0c917 (event_platform) verified: alembic upgrade head + alembic check + downgrade/upgrade + tenant schema guard on fresh volumes. The schema guard now derives tenancy from the ORM class hierarchy (TenantOwnedMixin), closing a latent gap where the P03 tenant tables (memberships / refresh_sessions / role_assignments) carried organization_id + RLS but were not enumerated by the guard.",
+    "Runtime role has SELECT/INSERT/UPDATE only on the three new tables (never DELETE). Controlled, audited dead-letter replay via python -m scripts.nxs_events.",
+    "615 tests passing; 90.57% branch-aware coverage. Failure / concurrency / security / resilience / contract matrices in tests/unit, tests/integration, tests/security, tests/concurrency, tests/resilience, tests/contracts.",
+    "Preserved: NXS-ORG-001 PLANNED / NXS-P05; no provisioner, dashboards, customers, Integration Hub, Tool Engine, channels, telephony, agent runtime, workflows, Sentinel, compliance, audit platform, billing or full observability; external webhooks remain an untrusted P07+ ingestion boundary (provenance seam only).",
+    "Remaining for closure: Stage A implementation commit + push + PR; NXS CI + NXS Security green on the implementation head; then Stage B closure commit; then record green CI evidence at the closure head."
+  ]
+}

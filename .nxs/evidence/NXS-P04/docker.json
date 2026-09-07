@@ -1,0 +1,12 @@
+{
+  "architecture": "amd64",
+  "container_smoke": "liveness UP, readiness 200 with real PostgreSQL + Valkey + NATS/JetStream (event platform topology bootstrapped)",
+  "entrypoint": "/opt/venv/bin/uvicorn nexus_ai.main:app",
+  "healthcheck": "/health/live",
+  "image": "nexus-ai:clean-room",
+  "non_root_user": "65532:65532",
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:59:46Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

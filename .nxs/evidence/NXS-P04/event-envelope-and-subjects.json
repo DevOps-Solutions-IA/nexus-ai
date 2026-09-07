@@ -1,0 +1,18 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".......................................................................  [100%]\n71 passed in 0.05s",
+  "passed": 71,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:45:30Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "targets": [
+    "tests/unit/test_event_envelope.py",
+    "tests/unit/test_event_subjects.py",
+    "tests/unit/test_event_registry.py",
+    "tests/unit/test_event_backoff_and_errors.py",
+    "tests/unit/test_events_config.py",
+    "tests/unit/test_jetstream_helpers.py"
+  ]
+}

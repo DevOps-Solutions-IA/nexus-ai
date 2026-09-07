@@ -137,9 +137,10 @@ async def test_synthetic_scale_no_collisions(organization_service: Any) -> None:
 
     keys: set[str] = set()
     ids: set[uuid.UUID] = set()
+    run = uuid.uuid4().hex[:8]
     for index in range(60):
         draft = OrganizationDraft(
-            organization_key=f"scale-org-{index:04d}",
+            organization_key=f"scale-org-{run}-{index:04d}",
             display_name=f"Scale {index}",
             legal_name=f"Scale {index} SA",
             country_code="us",

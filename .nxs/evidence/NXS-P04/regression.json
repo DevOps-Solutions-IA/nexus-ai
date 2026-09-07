@@ -1,0 +1,17 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".................................                                        [100%]\n33 passed in 3.18s",
+  "passed": 33,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:46:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "targets": [
+    "tests/integration/test_tenant_schema_guard.py",
+    "tests/integration/test_auth_rls.py",
+    "tests/integration/test_rls_isolation.py",
+    "tests/integration/test_runtime_role_security.py",
+    "tests/integration/test_agent_handoff.py"
+  ]
+}

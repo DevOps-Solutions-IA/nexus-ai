@@ -166,7 +166,7 @@ async def test_terminal_failure_is_dead_lettered_and_not_reprocessed(
 
     async def handler(ctx: EventContext) -> None:
         calls["n"] += 1
-        raise HandlerTerminalError("this event can never succeed: secret=hunter2")
+        raise HandlerTerminalError("this event can never succeed: INTERNAL-DETAIL-MARKER")
 
     consumer = event_platform.register_consumer(_spec(handler))
     envelope = make_tenant_event(org.id)
@@ -188,7 +188,7 @@ async def test_terminal_failure_is_dead_lettered_and_not_reprocessed(
     assert row[0] == "CONSUMER"
     assert row[1] == "terminal"
     assert row[2] == "NXS_EVENT_HANDLER_TERMINAL"
-    assert "hunter2" not in (row[3] or "")  # sanitized: no secret in the durable record
+    assert "INTERNAL-DETAIL-MARKER" not in (row[3] or "")  # sanitized: no message in the record
     receipt = await _receipt(tenant_database, consumer._spec.name, envelope.event_id)
     assert receipt is not None
     assert receipt["status"] == "DEAD"

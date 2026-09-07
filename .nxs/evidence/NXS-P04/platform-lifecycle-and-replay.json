@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "............                                                             [100%]\n12 passed in 12.88s",
+  "passed": 12,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:46:29Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "targets": [
+    "tests/integration/test_event_platform_lifecycle.py",
+    "tests/integration/test_nxs_events_cli.py"
+  ]
+}

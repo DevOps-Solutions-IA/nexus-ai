@@ -1,0 +1,9 @@
+{
+  "failed": 0,
+  "output_tail": "src/nexus_ai/infrastructure/tenant_session.py         11      1      0      0    91%   25\nsrc/nexus_ai/main.py                                   3      0      0      0   100%\n----------------------------------------------------------------------------------------------\nTOTAL                                               4748    275    892    153    92%\nRequired test coverage of 90% reached. Total coverage: 92.13%\n615 passed in 85.60s (0:01:25)",
+  "passed": 615,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:56:05Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

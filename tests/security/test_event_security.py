@@ -143,8 +143,10 @@ async def test_terminal_failure_does_not_log_the_exception_message(
 ) -> None:
     org = await make_organization()
 
+    leak_marker = "SENSITIVE-DETAIL-THAT-MUST-NOT-PROPAGATE"
+
     async def handler(ctx: EventContext) -> None:
-        raise RuntimeError("boom token=sk-secret-value-1234567890")
+        raise RuntimeError(f"handler blew up: {leak_marker}")
 
     consumer = event_platform.register_consumer(_spec(handler))
     envelope = make_tenant_event(org.id)
@@ -154,8 +156,8 @@ async def test_terminal_failure_does_not_log_the_exception_message(
     with structlog.testing.capture_logs() as logs:
         await consumer.drain_pending()
     rendered = str(logs)
-    assert "sk-secret-value-1234567890" not in rendered
-    assert "boom token" not in rendered
+    assert leak_marker not in rendered
+    assert "handler blew up" not in rendered
 
     async with tenant_database.tenant_transaction(org.id) as ts:
         summary = (
@@ -164,4 +166,4 @@ async def test_terminal_failure_does_not_log_the_exception_message(
                 {"e": envelope.event_id},
             )
         ).scalar_one()
-    assert "secret" not in (summary or "")
+    assert leak_marker not in (summary or "")
