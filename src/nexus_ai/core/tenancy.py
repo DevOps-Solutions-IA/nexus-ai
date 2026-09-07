@@ -78,12 +78,26 @@ def require_tenant() -> TenantContext:
 
 @contextmanager
 def tenant_scope(context: TenantContext) -> Iterator[TenantContext]:
-    """Bind a trusted tenant context for the duration of the block (per-task isolated)."""
+    """Bind a trusted tenant context for the duration of the block (per-task isolated).
+
+    Use this when enter and exit run in the same frame (tests, workers). On a FastAPI
+    request path use :func:`bind_tenant` instead — a ``ContextVar`` token cannot be reset
+    across the async-exit-stack boundary of a yield-dependency.
+    """
     token = _current.set(context)
     try:
         yield context
     finally:
         _current.reset(token)
+
+
+def bind_tenant(context: TenantContext) -> None:
+    """Bind the tenant context for the current task without a resettable token.
+
+    Safe on the request path: Starlette runs each request in its own copied context, so
+    the binding is discarded when the request task ends and never leaks to other requests.
+    """
+    _current.set(context)
 
 
 def tenant_log_fields() -> dict[str, str]:

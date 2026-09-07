@@ -56,6 +56,7 @@ class ApplicationLifespan:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
         self._resources: Resources | None = None
+        self._adapters: tuple[Messaging, Cache, Database] | None = None
         self._shut_down = False
 
     @property
@@ -75,6 +76,7 @@ class ApplicationLifespan:
         )
         cache = Cache(settings.cache)
         messaging = Messaging(settings.messaging)
+        self._adapters = (messaging, cache, database)
 
         await self._open("postgresql", database.connect, settings.database.required)
         await self._open("valkey", cache.connect, settings.cache.required)
@@ -143,14 +145,15 @@ class ApplicationLifespan:
             await logger.awarning(event, resource=name, error_code=type(exc).__name__)
 
     async def shutdown(self) -> None:
-        if self._shut_down or self._resources is None:
+        if self._shut_down or self._adapters is None:
             return
         self._shut_down = True
         logger = get_logger("nexus_ai.lifecycle")
+        messaging, cache, database = self._adapters
         for name, closer in (
-            ("nats", self._resources.messaging.disconnect),
-            ("valkey", self._resources.cache.disconnect),
-            ("postgresql", self._resources.database.disconnect),
+            ("nats", messaging.disconnect),
+            ("valkey", cache.disconnect),
+            ("postgresql", database.disconnect),
         ):
             try:
                 await closer()

@@ -21,7 +21,7 @@ from nexus_ai.core.errors import InternalError, TenantContextRequiredError
 from nexus_ai.core.health import HealthReport
 from nexus_ai.core.lifecycle import ApplicationLifespan, Resources
 from nexus_ai.core.metadata import ServiceMetadata
-from nexus_ai.core.tenancy import TenantContext, tenant_scope
+from nexus_ai.core.tenancy import TenantContext, bind_tenant
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.messaging import Messaging
@@ -80,7 +80,7 @@ def get_organization_service(request: Request) -> OrganizationService:
     return get_resources(request).organizations
 
 
-async def get_tenant_context(request: Request) -> AsyncIterator[TenantContext]:
+async def get_tenant_context(request: Request) -> TenantContext:
     """Resolve a trusted tenant context and bind it for the rest of the request.
 
     Production/staging resolve nothing until P03 supplies authenticated identity, so this
@@ -90,24 +90,16 @@ async def get_tenant_context(request: Request) -> AsyncIterator[TenantContext]:
     context = await get_resources(request).tenant_resolver.resolve(request)
     if context is None:
         raise TenantContextRequiredError("This endpoint requires a trusted tenant context.")
-    with (
-        tenant_scope(context),
-        structlog.contextvars.bound_contextvars(organization_id=str(context.organization_id)),
-    ):
-        yield context
+    bind_tenant(context)
+    structlog.contextvars.bind_contextvars(organization_id=str(context.organization_id))
+    return context
 
 
 async def get_tenant_session(request: Request) -> AsyncIterator[TenantSession]:
-    context = await get_resources(request).tenant_resolver.resolve(request)
-    if context is None:
-        raise TenantContextRequiredError("This endpoint requires a trusted tenant context.")
+    context = await get_tenant_context(request)
     database = get_resources(request).database
-    with (
-        tenant_scope(context),
-        structlog.contextvars.bound_contextvars(organization_id=str(context.organization_id)),
-    ):
-        async with database.tenant_transaction(context.organization_id) as tenant_session:
-            yield tenant_session
+    async with database.tenant_transaction(context.organization_id) as tenant_session:
+        yield tenant_session
 
 
 def get_request_metadata(request: Request) -> RequestMetadata:

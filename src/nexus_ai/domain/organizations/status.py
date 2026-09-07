@@ -48,12 +48,12 @@ def assert_transition(current: OrganizationStatus, target: OrganizationStatus) -
     if current == target:
         raise OrganizationInvalidStateError(
             f"Organization is already {current.value}.",
-            extensions={"from": current.value, "to": target.value},
+            extensions={"from_status": current.value, "to_status": target.value},
         )
     if not can_transition(current, target):
         raise OrganizationInvalidStateError(
             f"Cannot transition Organization from {current.value} to {target.value}.",
-            extensions={"from": current.value, "to": target.value},
+            extensions={"from_status": current.value, "to_status": target.value},
         )
 
 

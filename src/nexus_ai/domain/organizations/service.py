@@ -54,7 +54,7 @@ class OrganizationService:
         if not is_operational(organization.status):
             raise OrganizationInactiveError(
                 "The Organization is not accepting normal operations.",
-                extensions={"status": organization.status.value},
+                extensions={"organization_status": organization.status.value},
             )
         return organization
 
@@ -67,7 +67,7 @@ class OrganizationService:
             if not is_operational(current.status):
                 raise OrganizationInactiveError(
                     "Profile changes require an ACTIVE Organization.",
-                    extensions={"status": current.status.value},
+                    extensions={"organization_status": current.status.value},
                 )
             return await repository.apply(
                 expected_version=payload.expected_version, changes=payload.changes()
