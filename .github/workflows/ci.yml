@@ -116,6 +116,7 @@ jobs:
         run: |
           docker run --detach --name nxs-nodeps --publish 127.0.0.1:18080:8080 \
             --env NXS_ENVIRONMENT=local \
+            --env NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY=true \
             --env 'NXS_DATABASE__DSN=postgresql+asyncpg://x:y@127.0.0.1:5999/none' \
             --env 'NXS_CACHE__URL=redis://127.0.0.1:6399/0' \
             --env 'NXS_MESSAGING__URL=nats://127.0.0.1:4299' \
@@ -142,6 +143,7 @@ jobs:
             "nexus-ai:${GITHUB_SHA}" upgrade head
           docker run --detach --name nxs-deps --network host \
             --env NXS_ENVIRONMENT=local \
+            --env NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY=true \
             --env 'NXS_DATABASE__DSN=postgresql+asyncpg://nexus_runtime:local-runtime-only@127.0.0.1:15432/nexus_local' \
             --env 'NXS_CACHE__URL=redis://127.0.0.1:16379/0' \
             --env 'NXS_MESSAGING__URL=nats://127.0.0.1:14222' \
@@ -192,6 +194,7 @@ jobs:
           test "$(docker image inspect nexus-ai:arm64-smoke --format '{{.Config.User}}')" = "65532:65532"
           docker run --detach --name nxs-arm --platform linux/arm64 --publish 127.0.0.1:18090:8080 \
             --env NXS_ENVIRONMENT=local \
+            --env NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY=true \
             --env 'NXS_DATABASE__DSN=postgresql+asyncpg://x:y@127.0.0.1:5999/none' \
             --env 'NXS_CACHE__URL=redis://127.0.0.1:6399/0' \
             --env 'NXS_MESSAGING__URL=nats://127.0.0.1:4299' \

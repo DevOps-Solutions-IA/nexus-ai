@@ -1,0 +1,10 @@
+# Gitleaks configuration for the NXS Security workflow.
+# The default ruleset is fully enforced; this file ONLY allowlists documented
+# false positives from library type names that look like secret material.
+
+[allowlist]
+  description = "NXS documented false positives"
+  regexes = [
+    "Ed25519PrivateKey",
+    "Ed25519PublicKey",
+  ]
