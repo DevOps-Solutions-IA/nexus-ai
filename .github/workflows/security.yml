@@ -30,7 +30,7 @@ jobs:
           "$(go env GOPATH)/bin/gitleaks" git --redact --no-banner --exit-code 1
       - name: SAST and dependency audit
         run: |
-          uv run bandit -q -lll -r src scripts
+          uv run bandit -q -lll -c pyproject.toml -r src scripts
           uv run pip-audit
   image:
     runs-on: ubuntu-24.04

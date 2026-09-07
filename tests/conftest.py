@@ -11,9 +11,13 @@ from typing import Any
 import httpx
 import pytest
 from asgi_lifespan import LifespanManager
+from fastapi import HTTPException
+from pydantic import BaseModel
 
+from nexus_ai.api.dependencies import RequestMetadataDep
 from nexus_ai.application import create_app
 from nexus_ai.core.config import Settings, get_settings
+from nexus_ai.core.errors import NotFoundError
 
 REPO_ROOT = Path(__file__).parents[1]
 
@@ -96,12 +100,82 @@ def make_client(build_settings: Callable[..., Settings]):
     return _make
 
 
+_IT_DEFAULTS = {
+    "NXS_ENVIRONMENT": "test",
+    "NXS_LOGGING__FORMAT": "json",
+    "NXS_DATABASE__REQUIRED": "true",
+    "NXS_CACHE__REQUIRED": "true",
+    "NXS_MESSAGING__REQUIRED": "true",
+    "NXS_DATABASE__DSN": os.environ.get(
+        "NXS_IT_DATABASE_DSN",
+        "postgresql+asyncpg://nexus_local:local-development-only@127.0.0.1:15432/nexus_local",
+    ),
+    "NXS_CACHE__URL": os.environ.get("NXS_IT_CACHE_URL", "redis://127.0.0.1:16379/0"),
+    "NXS_MESSAGING__URL": os.environ.get("NXS_IT_MESSAGING_URL", "nats://127.0.0.1:14222"),
+    "NXS_HEALTH__CACHE_TTL_SECONDS": "0",
+}
+
+
+@pytest.fixture
+def integration_env(test_env: Callable[..., None]) -> Callable[..., Settings]:
+    def _build(**overrides: str) -> Settings:
+        test_env(**{**_IT_DEFAULTS, **overrides})
+        return Settings()
+
+    return _build
+
+
+@pytest.fixture
+async def integration_client(
+    integration_env: Callable[..., Settings],
+) -> AsyncIterator[httpx.AsyncClient]:
+    settings = integration_env()
+    app = create_app(settings)
+    async with LifespanManager(app) as manager:
+        transport = httpx.ASGITransport(app=manager.app, raise_app_exceptions=False)
+        async with httpx.AsyncClient(transport=transport, base_url="http://nexus.test") as client:
+            client.nexus_app = app  # type: ignore[attr-defined]
+            yield client
+
+
 @pytest.fixture
 def add_boom_route() -> Callable[[Any], None]:
     def _add(app: Any) -> None:
         @app.get("/_diagnostics/boom")
         async def _boom() -> None:  # pragma: no cover - body never returns
             raise RuntimeError("connect failed postgresql://u:hunter2@10.0.0.9:5432/nx")
+
+    return _add
+
+
+class DiagBody(BaseModel):
+    name: str
+    count: int
+
+
+async def _diag_echo(body: DiagBody) -> dict[str, object]:
+    return {"name": body.name, "count": body.count}
+
+
+async def _diag_nxs_error() -> None:
+    raise NotFoundError("The requested diagnostic resource is absent.")
+
+
+async def _diag_teapot() -> None:
+    raise HTTPException(status_code=418, detail="I am a teapot")
+
+
+async def _diag_meta(meta: RequestMetadataDep) -> dict[str, object]:
+    return meta.model_dump()
+
+
+@pytest.fixture
+def add_diag_routes() -> Callable[[Any], None]:
+    def _add(app: Any) -> None:
+        app.post("/_diagnostics/echo")(_diag_echo)
+        app.get("/_diagnostics/nxs-error")(_diag_nxs_error)
+        app.get("/_diagnostics/teapot")(_diag_teapot)
+        app.get("/_diagnostics/meta")(_diag_meta)
 
     return _add
 

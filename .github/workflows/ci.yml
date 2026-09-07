@@ -59,8 +59,12 @@ jobs:
           uv run ruff format --check .
           uv run ruff check .
           uv run mypy
-      - name: Unit, contract, concurrency, and resilience tests
-        run: uv run pytest -m "not integration"
+      - name: Unit, contract, security, concurrency, and resilience tests
+        run: uv run pytest -m "not integration" --cov-fail-under=0
+      - name: Control-system security scan
+        run: |
+          uv run bandit -q -lll -c pyproject.toml -r src scripts
+          uv run pip-audit
 
   integration:
     runs-on: ubuntu-24.04
@@ -75,11 +79,13 @@ jobs:
       - name: Start real PostgreSQL, Valkey, and NATS/JetStream
         run: docker compose up -d --wait
       - name: Database migrations
+        env:
+          NXS_DATABASE__DSN: postgresql+asyncpg://nexus_local:local-development-only@127.0.0.1:15432/nexus_local
         run: |
           uv run alembic upgrade head
           uv run alembic check
-      - name: Integration and dependency-failure tests
-        run: uv run pytest -m integration
+      - name: Full suite with coverage gate (real PostgreSQL, Valkey, NATS)
+        run: uv run pytest
       - if: always()
         run: docker compose logs --no-color | tail -n 200
       - if: always()
@@ -97,10 +103,15 @@ jobs:
         run: |
           user="$(docker image inspect "nexus-ai:${GITHUB_SHA}" --format '{{.Config.User}}')"
           test "$user" = "65532:65532"
-      - name: Liveness stays up and readiness reports 503 without dependencies
+      - name: Liveness stays up and readiness reports 503 when dependencies are unavailable
         run: |
           docker run --detach --name nxs-nodeps --publish 127.0.0.1:18080:8080 \
-            --env NXS_ENVIRONMENT=local "nexus-ai:${GITHUB_SHA}"
+            --env NXS_ENVIRONMENT=local \
+            --env 'NXS_DATABASE__DSN=postgresql+asyncpg://x:y@127.0.0.1:5999/none' \
+            --env 'NXS_CACHE__URL=redis://127.0.0.1:6399/0' \
+            --env 'NXS_MESSAGING__URL=nats://127.0.0.1:4299' \
+            --env NXS_MESSAGING__CONNECT_TIMEOUT_SECONDS=1 \
+            "nexus-ai:${GITHUB_SHA}"
           for attempt in {1..30}; do
             curl --fail --silent http://127.0.0.1:18080/health/live && break || sleep 1
           done
@@ -108,6 +119,7 @@ jobs:
           code="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18080/health/ready)"
           test "$code" = "503"
           curl --fail --silent http://127.0.0.1:18080/version
+          docker logs nxs-nodeps | tail -n 30
           docker rm --force nxs-nodeps
       - name: Readiness reports 200 with dependencies
         run: |

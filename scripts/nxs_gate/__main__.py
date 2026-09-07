@@ -15,7 +15,7 @@ COMMANDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("lint", ("uv", "run", "ruff", "check", ".")),
     ("typing", ("uv", "run", "mypy")),
     ("tests", ("uv", "run", "pytest", "-q")),
-    ("sast", ("uv", "run", "bandit", "-q", "-lll", "-r", "src", "scripts")),
+    ("sast", ("uv", "run", "bandit", "-q", "-lll", "-c", "pyproject.toml", "-r", "src", "scripts")),
     ("dependency_security", ("uv", "run", "pip-audit")),
 )
 

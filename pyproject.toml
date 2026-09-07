@@ -30,7 +30,7 @@ dependencies = [
 dev = [
   "anyio==4.15.1",
   "asgi-lifespan==2.1.0",
-  "bandit==1.8.6",
+  "bandit==1.9.2",
   "httpx==0.28.1",
   "mypy==1.17.1",
   "pip-audit==2.9.0",
@@ -71,7 +71,7 @@ module = ["nats.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-addopts = "--strict-config --strict-markers --cov=nexus_ai --cov=scripts --cov-report=term-missing --cov-branch --cov-fail-under=80"
+addopts = "--strict-config --strict-markers --cov=nexus_ai --cov=scripts --cov-report=term-missing --cov-branch --cov-fail-under=90"
 testpaths = ["tests"]
 markers = ["integration: exercises real PostgreSQL, Valkey or NATS dependencies"]
 filterwarnings = ["error"]

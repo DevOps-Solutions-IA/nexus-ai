@@ -11,7 +11,7 @@ define require_phase
 endef
 
 .PHONY: help bootstrap up down logs format lint type test test-integration security \
-        nxs-preflight nxs-validate-repo nxs-start nxs-gate nxs-close nxs-phase \
+        test-all nxs-preflight nxs-validate-repo nxs-start nxs-gate nxs-close nxs-phase \
         nxs-lock-status nxs-lock-acquire nxs-lock-release nxs-lock-recover \
         docker-build migrate migrate-check clean-room validate
 
@@ -52,13 +52,16 @@ type:
 	uv run mypy
 
 test:
-	uv run pytest -m "not integration"
+	uv run pytest -m "not integration" --cov-fail-under=0
 
 test-integration:
-	uv run pytest -m integration
+	uv run pytest -m integration --cov-fail-under=0
+
+test-all:
+	uv run pytest
 
 security:
-	uv run bandit -q -lll -r src scripts
+	uv run bandit -q -lll -c pyproject.toml -r src scripts
 	uv run pip-audit
 
 migrate:
