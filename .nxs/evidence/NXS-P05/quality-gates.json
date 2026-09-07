@@ -20,7 +20,7 @@
         "."
       ],
       "exit_code": 0,
-      "output_tail": "273 files already formatted\n"
+      "output_tail": "274 files already formatted\n"
     },
     "lint": {
       "command": [
@@ -68,7 +68,7 @@
         "-q"
       ],
       "exit_code": 0,
-      "output_tail": "rc/nexus_ai/events/idempotency.py                    38      2      8      2    91%   82, 99\nsrc/nexus_ai/events/publisher.py                     117     11     24      5    89%   77, 113, 122-123, 130-134, 160-162, 177, 229->239, 252->257\nsrc/nexus_ai/events/registry.py                       52      0      4      0   100%\nsrc/nexus_ai/events/service.py                        77      8     16      2    87%   81-86, 93, 130, 137-138\nsrc/nexus_ai/events/subjects.py                       66      2     18      2    95%   90, 92\nsrc/nexus_ai/infrastructure/__init__.py                0      0      0      0   100%\nsrc/nexus_ai/infrastructure/cache.py                  34      2     10      2    91%   32, 37\nsrc/nexus_ai/infrastructure/database.py               98      6     20      3    91%   80, 110, 151, 205-207\nsrc/nexus_ai/infrastructure/event_dead_letter.py      30      3      6      3    83%   31, 52, 68\nsrc/nexus_ai/infrastructure/event_outbox.py           64      2      6      2    94%   72, 78\nsrc/nexus_ai/infrastructure/jetstream.py              83     10      8      2    87%   46, 50, 65, 110-111, 121, 125-126, 145, 152\nsrc/nexus_ai/infrastructure/messaging.py              72     10     16      5    83%   39, 49, 54, 65, 92, 95-96, 104-105, 123\nsrc/nexus_ai/infrastructure/orm.py                    20      1      0      0    95%   43\nsrc/nexus_ai/infrastructure/rls.py                    19      0      0      0   100%\nsrc/nexus_ai/infrastructure/schema_guard.py           69      3     36      4    93%   49->45, 114, 116, 118\nsrc/nexus_ai/infrastructure/tenant_session.py         11      1      0      0    91%   25\nsrc/nexus_ai/main.py                                   3      0      0      0   100%\n----------------------------------------------------------------------------------------------\nTOTAL                                               5421    385    978    164    91%\nRequired test coverage of 90% reached. Total coverage: 90.83%\n690 passed in 96.90s (0:01:36)\n"
+      "output_tail": "exus_ai/events/idempotency.py                    38      2      8      2    91%   82, 99\nsrc/nexus_ai/events/publisher.py                     117     11     24      5    89%   77, 113, 122-123, 130-134, 160-162, 177, 229->239, 252->257\nsrc/nexus_ai/events/registry.py                       52      0      4      0   100%\nsrc/nexus_ai/events/service.py                        77      8     16      2    87%   81-86, 93, 130, 137-138\nsrc/nexus_ai/events/subjects.py                       66      2     18      2    95%   90, 92\nsrc/nexus_ai/infrastructure/__init__.py                0      0      0      0   100%\nsrc/nexus_ai/infrastructure/cache.py                  34      2     10      2    91%   32, 37\nsrc/nexus_ai/infrastructure/database.py               98      6     20      3    91%   80, 110, 151, 205-207\nsrc/nexus_ai/infrastructure/event_dead_letter.py      30      3      6      3    83%   31, 52, 68\nsrc/nexus_ai/infrastructure/event_outbox.py           64      2      6      2    94%   72, 78\nsrc/nexus_ai/infrastructure/jetstream.py              83     13      8      2    84%   46, 50, 65, 110-111, 121, 125-126, 144-147, 152\nsrc/nexus_ai/infrastructure/messaging.py              72     10     16      5    83%   39, 49, 54, 65, 92, 95-96, 104-105, 123\nsrc/nexus_ai/infrastructure/orm.py                    20      1      0      0    95%   43\nsrc/nexus_ai/infrastructure/rls.py                    19      0      0      0   100%\nsrc/nexus_ai/infrastructure/schema_guard.py           69      3     36      4    93%   49->45, 114, 116, 118\nsrc/nexus_ai/infrastructure/tenant_session.py         11      1      0      0    91%   25\nsrc/nexus_ai/main.py                                   3      0      0      0   100%\n----------------------------------------------------------------------------------------------\nTOTAL                                               5419    388    978    164    91%\nRequired test coverage of 90% reached. Total coverage: 90.78%\n698 passed in 97.36s (0:01:37)\n"
     },
     "typing": {
       "command": [
@@ -80,7 +80,7 @@
       "output_tail": "Success: no issues found in 108 source files\n"
     }
   },
-  "executed_at": "2026-09-07T20:56:45Z",
+  "executed_at": "2026-09-07T21:30:09Z",
   "gates": {
     "dependency_security": "PASS",
     "formatting": "PASS",

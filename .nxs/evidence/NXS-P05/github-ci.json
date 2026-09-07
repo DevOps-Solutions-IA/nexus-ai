@@ -9,11 +9,21 @@
     "state": "PASS"
   },
   "closure_lineage_head_sha": "598113d",
+  "corrective_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "corrective_implementation_sha": "116669a",
   "implementation_sha": "dc29c84",
   "note": "closure_lineage_head_sha is the green head of the first closure; final_head_sha will be recorded only after CI/Security are green on the corrective final head",
   "phase": "NXS-P05",
   "pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/14",
-  "recorded_at": "2026-09-07T21:21:10Z",
+  "recorded_at": "2026-09-07T21:30:29Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "workflows": [
