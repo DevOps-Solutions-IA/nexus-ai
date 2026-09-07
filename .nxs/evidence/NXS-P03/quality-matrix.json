@@ -39,8 +39,8 @@
     "password_security": "PASS",
     "rate_limiting": "PASS",
     "refresh_rotation": "PASS",
-    "replay_detection": "PASS",
     "regression": "PASS",
+    "replay_detection": "PASS",
     "requirements_ledger": "PASS",
     "resilience_tests": "PASS",
     "rls_enabled": "PASS",
@@ -62,7 +62,7 @@
     "user_enumeration_defense": "PASS"
   },
   "phase": "NXS-P03",
-  "recorded_at": "2026-09-07T10:00:00Z",
+  "recorded_at": "2026-09-07T10:16:15Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

@@ -31,12 +31,12 @@
     },
     {
       "branch": "feat/nxs-p03-security-auth",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P02"
       ],
       "id": "NXS-P03",
-      "status": "BUILDING",
+      "status": "READY",
       "title": "Security and Authentication"
     },
     {

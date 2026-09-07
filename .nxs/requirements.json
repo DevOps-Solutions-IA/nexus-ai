@@ -431,10 +431,12 @@
         "tests/unit/test_auth_identity.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "User identity core",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -453,10 +455,12 @@
         "tests/integration/test_auth_rls.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Organization membership boundary",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -471,10 +475,12 @@
         "tests/unit/test_auth_passwords.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Password credentials",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -493,10 +499,12 @@
         "tests/concurrency/test_auth_concurrency.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Token and session architecture",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -509,10 +517,12 @@
         "tests/unit/test_auth_keys.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Signing key management",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -527,10 +537,12 @@
         "tests/integration/test_auth_rbac.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Organization-scoped RBAC",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -546,10 +558,12 @@
         "tests/security/test_auth_security.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Authenticated tenant resolution",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -565,10 +579,12 @@
         "tests/integration/test_auth_integration.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Authentication API surface",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "AUTH",
@@ -584,10 +600,12 @@
         "tests/integration/test_auth_integration.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P03",
       "title": "Authentication abuse control",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
     },
     {
       "category": "CACHE",
