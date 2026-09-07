@@ -78,13 +78,22 @@ jobs:
       - run: uv sync --frozen --all-groups
       - name: Start real PostgreSQL, Valkey, and NATS/JetStream
         run: docker compose up -d --wait
-      - name: Database migrations
+      - name: Bootstrap non-bypass database roles
+        run: uv run python -m scripts.nxs_dbadmin bootstrap
+      - name: Migrations (migration role) and tenant schema guard
         env:
-          NXS_DATABASE__DSN: postgresql+asyncpg://nexus_local:local-development-only@127.0.0.1:15432/nexus_local
+          NXS_ENVIRONMENT: test
+          NXS_DATABASE__DSN: postgresql+asyncpg://nexus_runtime:local-runtime-only@127.0.0.1:15432/nexus_local
+          NXS_DATABASE__MIGRATION_DSN: postgresql+asyncpg://nexus_migration:local-migration-only@127.0.0.1:15432/nexus_local
         run: |
           uv run alembic upgrade head
           uv run alembic check
-      - name: Full suite with coverage gate (real PostgreSQL, Valkey, NATS)
+          uv run python -m scripts.nxs_schema_guard
+      - name: Full suite with coverage gate (runtime role, RLS enforced)
+        env:
+          NXS_ENVIRONMENT: test
+          NXS_DATABASE__DSN: postgresql+asyncpg://nexus_runtime:local-runtime-only@127.0.0.1:15432/nexus_local
+          NXS_DATABASE__MIGRATION_DSN: postgresql+asyncpg://nexus_migration:local-migration-only@127.0.0.1:15432/nexus_local
         run: uv run pytest
       - if: always()
         run: docker compose logs --no-color | tail -n 200
@@ -121,12 +130,19 @@ jobs:
           curl --fail --silent http://127.0.0.1:18080/version
           docker logs nxs-nodeps | tail -n 30
           docker rm --force nxs-nodeps
-      - name: Readiness reports 200 with dependencies
+      - name: Readiness reports 200 with dependencies, using the non-bypass runtime role
         run: |
+          # A fresh compose volume runs infrastructure/postgres/roles.sql via initdb,
+          # so nexus_migration / nexus_runtime already exist. Migrate with the image's
+          # own bundled Alembic (migration role) — no host toolchain needed.
           docker compose up -d --wait
+          docker run --rm --network host --entrypoint /opt/venv/bin/alembic \
+            --env NXS_ENVIRONMENT=local \
+            --env 'NXS_DATABASE__MIGRATION_DSN=postgresql+asyncpg://nexus_migration:local-migration-only@127.0.0.1:15432/nexus_local' \
+            "nexus-ai:${GITHUB_SHA}" upgrade head
           docker run --detach --name nxs-deps --network host \
             --env NXS_ENVIRONMENT=local \
-            --env 'NXS_DATABASE__DSN=postgresql+asyncpg://nexus_local:local-development-only@127.0.0.1:15432/nexus_local' \
+            --env 'NXS_DATABASE__DSN=postgresql+asyncpg://nexus_runtime:local-runtime-only@127.0.0.1:15432/nexus_local' \
             --env 'NXS_CACHE__URL=redis://127.0.0.1:16379/0' \
             --env 'NXS_MESSAGING__URL=nats://127.0.0.1:14222' \
             "nexus-ai:${GITHUB_SHA}"
@@ -142,3 +158,50 @@ jobs:
         run: |
           docker rm --force nxs-deps nxs-nodeps 2>/dev/null || true
           docker compose down --volumes 2>/dev/null || true
+
+  multiarch:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with: {persist-credentials: false}
+      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a  # v4.3.0
+        with: {platforms: arm64}
+      - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
+      - name: Build linux/amd64 and linux/arm64 (no push)
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          pull: true
+          push: false
+          load: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Load and health-smoke the linux/arm64 image under emulation
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a  # v7.3.0
+        with:
+          context: .
+          platforms: linux/arm64
+          load: true
+          tags: nexus-ai:arm64-smoke
+          cache-from: type=gha
+      - name: ARM64 non-root + liveness/readiness smoke
+        run: |
+          test "$(docker image inspect nexus-ai:arm64-smoke --format '{{.Architecture}}')" = "arm64"
+          test "$(docker image inspect nexus-ai:arm64-smoke --format '{{.Config.User}}')" = "65532:65532"
+          docker run --detach --name nxs-arm --platform linux/arm64 --publish 127.0.0.1:18090:8080 \
+            --env NXS_ENVIRONMENT=local \
+            --env 'NXS_DATABASE__DSN=postgresql+asyncpg://x:y@127.0.0.1:5999/none' \
+            --env 'NXS_CACHE__URL=redis://127.0.0.1:6399/0' \
+            --env 'NXS_MESSAGING__URL=nats://127.0.0.1:4299' \
+            --env NXS_MESSAGING__CONNECT_TIMEOUT_SECONDS=1 \
+            nexus-ai:arm64-smoke
+          for attempt in {1..60}; do
+            curl --fail --silent http://127.0.0.1:18090/health/live && break || sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:18090/health/live
+          code="$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:18090/health/ready)"
+          test "$code" = "503"
+          curl --fail --silent http://127.0.0.1:18090/api/v1/system/version
+          docker rm --force nxs-arm
