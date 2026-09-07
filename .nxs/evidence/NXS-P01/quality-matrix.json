@@ -7,7 +7,7 @@
     "clean_room": "PASS",
     "concurrency_tests": "PASS",
     "configuration": "PASS",
-    "container_scan": "PENDING_CI",
+    "container_scan": "PASS",
     "contract_tests": "PASS",
     "coverage": "PASS",
     "dependency_security": "PASS",
@@ -19,7 +19,7 @@
     "generic_phase_closure": "PASS",
     "generic_phase_start": "PASS",
     "git_synchronization": "PASS",
-    "github_ci": "PENDING_CI",
+    "github_ci": "PASS",
     "graceful_shutdown": "PASS",
     "integration_tests": "PASS",
     "liveness": "PASS",
@@ -35,7 +35,7 @@
     "request_context": "PASS",
     "resilience_tests": "PASS",
     "sast": "PASS",
-    "secret_scan": "PENDING_CI",
+    "secret_scan": "PASS",
     "security_baseline": "PASS",
     "structured_logging": "PASS",
     "telemetry_foundation": "PASS",
@@ -43,9 +43,8 @@
     "unit_tests": "PASS",
     "valkey_foundation": "PASS"
   },
-  "note": "local gates PASS; secret_scan, container_scan and github_ci resolve on green GitHub CI, after which this file is set to result PASS for Stage B closure",
   "phase": "NXS-P01",
-  "recorded_at": "2026-09-07T05:13:50Z",
-  "result": "PENDING_CI",
+  "recorded_at": "2026-09-07T05:18:58Z",
+  "result": "PASS",
   "schema_version": "1.0.0"
 }

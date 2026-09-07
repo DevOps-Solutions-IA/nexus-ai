@@ -1,17 +1,24 @@
 {
-  "automated_test": "tests/integration/test_agent_handoff.py",
-  "method": "repository_only",
-  "note": "post-closure this evidence is regenerated to assert P00 READY, P01 READY, P02 next",
-  "phase": "NXS-P01",
-  "reconstructed": {
-    "completed_phases": [
-      "NXS-P00"
-    ],
-    "current_phase": "NXS-P01",
-    "next_allowed_phase": "computed from registry DAG",
-    "policy": "registry order among eligible"
+  "agent_b_determines": {
+    "NXS-P00": "READY/GO",
+    "NXS-P01": "READY/GO",
+    "next_phase": "NXS-P02",
+    "next_phase_branch": "feat/nxs-p02-tenancy",
+    "next_phase_dependency_satisfied": true,
+    "p01_evidence_location": ".nxs/evidence/NXS-P01/",
+    "p01_readiness": "docs/readiness/NXS-P01/"
   },
-  "recorded_at": "2026-09-07T05:13:50Z",
+  "automated_test": "tests/integration/test_agent_handoff.py",
+  "computed_generically": true,
+  "hardcoded_phase_ids": 0,
+  "method": "repository_only",
+  "next_allowed_execution": {
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P02"
+  },
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:19:31Z",
   "result": "PASS",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "simulation": "Agent A closed NXS-P01; Agent B with zero conversation memory reads only .nxs/*"
 }

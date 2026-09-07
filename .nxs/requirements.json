@@ -208,10 +208,12 @@
         "src/nexus_ai/core/metadata.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Production backend core boundaries",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "PLATFORM",
@@ -228,10 +230,12 @@
         "scripts/nxs_start/__main__.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Generic engineering lifecycle continuation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "CICD",
@@ -249,10 +253,12 @@
         "pyproject.toml"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Phase-neutral CI and unified toolchain",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "CONFIG",
@@ -265,10 +271,12 @@
         "src/nexus_ai/core/config.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Validated runtime configuration",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "API",
@@ -285,10 +293,12 @@
         "src/nexus_ai/api/system.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Versioned production API foundation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "ERROR",
@@ -303,10 +313,12 @@
         "src/nexus_ai/core/problem_details.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Stable API error contract",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "CONTEXT",
@@ -321,10 +333,12 @@
         "src/nexus_ai/core/identifiers.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Request and correlation context isolation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "LOG",
@@ -339,10 +353,12 @@
         "src/nexus_ai/core/logging.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Structured correlated logging",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "TELEMETRY",
@@ -355,10 +371,12 @@
         "src/nexus_ai/core/telemetry.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Telemetry instrumentation boundary",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "HEALTH",
@@ -372,10 +390,12 @@
         "src/nexus_ai/core/lifecycle.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Liveness and readiness subsystem",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "DATA",
@@ -390,10 +410,12 @@
         "src/nexus_ai/infrastructure/orm.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "PostgreSQL connectivity foundation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "CACHE",
@@ -407,10 +429,12 @@
         "src/nexus_ai/infrastructure/cache.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Valkey connectivity foundation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "EVENT",
@@ -424,10 +448,12 @@
         "src/nexus_ai/infrastructure/messaging.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "NATS and JetStream connectivity foundation",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "MIGRATION",
@@ -442,10 +468,12 @@
         "migrations/script.py.mako"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
       "title": "Database migration framework",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",

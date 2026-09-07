@@ -2,13 +2,34 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p01-backend-core",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P00"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P01/agent-handoff.json",
+    ".nxs/evidence/NXS-P01/api-contracts.json",
+    ".nxs/evidence/NXS-P01/clean-room.json",
+    ".nxs/evidence/NXS-P01/concurrency.json",
+    ".nxs/evidence/NXS-P01/configuration.json",
+    ".nxs/evidence/NXS-P01/coverage.json",
+    ".nxs/evidence/NXS-P01/dependency-connectivity.json",
+    ".nxs/evidence/NXS-P01/docker.json",
+    ".nxs/evidence/NXS-P01/failure-recovery.json",
+    ".nxs/evidence/NXS-P01/git.json",
+    ".nxs/evidence/NXS-P01/github-ci.json",
+    ".nxs/evidence/NXS-P01/graceful-shutdown.json",
+    ".nxs/evidence/NXS-P01/lifecycle-remediation.json",
+    ".nxs/evidence/NXS-P01/p00-dependency.json",
+    ".nxs/evidence/NXS-P01/preflight.json",
+    ".nxs/evidence/NXS-P01/quality-gates.json",
+    ".nxs/evidence/NXS-P01/quality-matrix.json",
+    ".nxs/evidence/NXS-P01/security.json",
+    ".nxs/evidence/NXS-P01/tests.json",
+    ".nxs/evidence/NXS-P01/toolchain.json"
+  ],
   "id": "NXS-P01",
-  "implementation_commit": null,
+  "implementation_commit": "78ba02c25abaed275ed5254753bd3db696101e27",
   "mandatory_gates": [
     "p00_dependency",
     "git_synchronization",
@@ -86,9 +107,9 @@
     "NXS-MIGRATE-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-07T05:19:11Z",
     "started_at": "2026-09-07T04:34:39Z"
   },
   "title": "Production Backend Core"

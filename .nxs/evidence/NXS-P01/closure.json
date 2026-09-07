@@ -1,0 +1,22 @@
+{
+  "closure_engine": "scripts.nxs_close (generic, no hardcoded phase ids)",
+  "decision": "GO",
+  "guard": "PASS",
+  "implementation_commit": "78ba02c25abaed275ed5254753bd3db696101e27",
+  "implementation_sha_in_git": true,
+  "lock": "RELEASED",
+  "merged_to_main": false,
+  "next_allowed_execution": {
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P02"
+  },
+  "phase": "NXS-P01",
+  "phase_status": "READY",
+  "quality_gates": "PASS",
+  "quality_matrix": "PASS",
+  "recorded_at": "2026-09-07T05:19:31Z",
+  "registry_status": "READY",
+  "requirements_validated": true,
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}
