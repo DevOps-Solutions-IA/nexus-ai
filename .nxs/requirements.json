@@ -857,7 +857,7 @@
       "id": "NXS-ORG-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P05",
       "title": "Organization provisioning",
       "validation_evidence": []
@@ -871,7 +871,7 @@
       "id": "NXS-DASH-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P05",
       "title": "Dynamic organization dashboards",
       "validation_evidence": []

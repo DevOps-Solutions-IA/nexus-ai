@@ -1,0 +1,69 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p05-provisioner-dashboard",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P04"
+  ],
+  "evidence": [],
+  "id": "NXS-P05",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Frontend / visual dashboard UI (backend schema and API contracts only)",
+    "Customer identity and conversations (NXS-P06)",
+    "Integration Hub and external API credentials (NXS-P07)",
+    "Tool Engine (NXS-P08)",
+    "Messaging channels, OTP, telephony, ElevenLabs, agent runtime, workflows, campaigns (later phases)",
+    "CRM, billing, quotas, cell assignment, Sentinel, compliance, audit platform, metering (later phases)",
+    "Settings write API beyond provisioning-time defaults (no P05-owned mutating settings surface)",
+    "Dashboard configuration API (default baseline only; configuration surfaces belong to later phases)",
+    "Email delivery for owner invitations (owner user must already exist)",
+    "Production deployment (NXS-P32)"
+  ],
+  "objective": "Build the permanent enterprise Organization Provisioning foundation: a strongly validated onboarding contract, a durable idempotency ledger with canonical request fingerprints, a transactional OrganizationProvisioner that creates the Organization core record, the owner membership and org_owner assignment, P05-owned organization settings and the baseline dashboard configuration in explicit phases with crash-safe resume semantics, a platform-level organization:create capability, P04 transactional outbox events (organizations.provisioned), and a versioned, deterministic, permission-filtered dashboard schema backed by an allow-listed widget/data-source registry \u2014 all under P02 forced RLS, P03 live-state auth/RBAC and the P04 event platform, proven by the P05 unit/integration/security/concurrency/resilience/contract matrices and a clean-room validation on linux/amd64 and linux/arm64.",
+  "requirements_implemented": [
+    "NXS-DASH-001",
+    "NXS-ORG-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-07T19:32:10Z"
+  },
+  "title": "Provisioner and Dashboard Schema"
+}
