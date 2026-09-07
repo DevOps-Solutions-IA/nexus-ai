@@ -19,6 +19,7 @@ from nexus_ai.core.config import TenancySettings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import TenantContextInvalidError, TokenValidationError
 from nexus_ai.core.tenancy import TenantContext, TenantContextSource
+from nexus_ai.domain.auth.state import PrincipalStateGate
 from nexus_ai.domain.auth.tokens import TokenService
 
 _AUTH_HEADER = "Authorization"
@@ -37,17 +38,21 @@ class NullTenantContextResolver:
 
 
 class BearerTokenTenantContextResolver:
-    """Authenticated production resolver (NXS-AUTH-007).
+    """Authenticated production resolver (NXS-AUTH-007, audit corrective).
 
     No Authorization header → no scope (tenant endpoints answer 403 as in P02). An
-    invalid or expired token fails closed with 401. A valid token's ``org`` claim is the
-    only tenant authority; the token was minted by :class:`AuthService` strictly after
-    server-side membership verification, so a forged, cross-tenant or stale scope cannot
-    be constructed by the caller.
+    invalid or expired token fails closed with 401. A valid token's ``org`` claim is
+    the only tenant authority — and before that authority is granted, the canonical
+    ``PrincipalStateGate`` re-validates LIVE server-side security state (session not
+    revoked/expired, user ACTIVE, membership ACTIVE, Organization operational), so an
+    already-issued token stops authorizing tenant access the moment any of those
+    states changes. A forged, cross-tenant or stale scope cannot be constructed by the
+    caller.
     """
 
-    def __init__(self, tokens: TokenService) -> None:
+    def __init__(self, tokens: TokenService, state_gate: PrincipalStateGate) -> None:
         self._tokens = tokens
+        self._state_gate = state_gate
 
     async def resolve(self, request: Request) -> TenantContext | None:
         raw = request.headers.get(_AUTH_HEADER)
@@ -57,6 +62,13 @@ class BearerTokenTenantContextResolver:
             raise TokenValidationError("Invalid token.")
         token = raw[len(_BEARER_PREFIX) :].strip()
         claims = self._tokens.verify_access_token(token)
+        # Cryptographic validity is necessary but never sufficient: re-validate the
+        # live security state before any tenant scope is granted (audit Finding 1).
+        await self._state_gate.require_valid(
+            user_id=claims.subject,
+            session_id=claims.session_id,
+            organization_id=claims.organization_id,
+        )
         request_context = current_context()
         return TenantContext(
             organization_id=claims.organization_id,
@@ -89,7 +101,9 @@ class HeaderTenantContextResolver:
         )
 
 
-def build_resolver(settings: TenancySettings, tokens: TokenService) -> TenantContextResolver:
+def build_resolver(
+    settings: TenancySettings, tokens: TokenService, state_gate: PrincipalStateGate
+) -> TenantContextResolver:
     if settings.header_resolver_enabled:
         return HeaderTenantContextResolver(settings.context_header)
-    return BearerTokenTenantContextResolver(tokens)
+    return BearerTokenTenantContextResolver(tokens, state_gate)

@@ -30,6 +30,11 @@ login ──► verify credentials (global) ──► enumerate own ACTIVE membe
       ──► verify Organization ACTIVE through its tenant scope
       ──► insert refresh session (tenant RLS WITH CHECK) ──► mint access token (15 min)
 
+request (tenant endpoint)
+      ──► verify access token (signature/claims) ──► PrincipalStateValidator
+          (session not revoked/expired, user ACTIVE, membership ACTIVE,
+           Organization operational — inside the tenant scope) ──► TenantContext ──► RBAC
+
 refresh ─► parse org prefix ─► tenant scope ─► row by token_hash
         ─► revoked/expired → 401 │ previous-hash match → REVOKE family, 401
         ─► user ACTIVE + membership ACTIVE ─► conditional rotation
@@ -41,6 +46,12 @@ logout ─► revoke by current OR previous hash (idempotent, 204 always)
 Rotation is a conditional UPDATE (`token_hash → new`, `previous_token_hash → old`):
 concurrent refreshes yield exactly one winner; a loser is replay and revokes the
 family. Revocations always commit before any error is raised.
+
+**Live-state validation (audit corrective):** a cryptographically valid token is
+necessary but never sufficient — every tenant-scoped request re-validates the
+server-side security state through `PrincipalStateValidator` before scope is
+granted, so already-issued tokens stop working the moment a session is revoked or a
+user/membership/Organization is suspended, and recover when the state is restored.
 
 ## Key management
 
@@ -74,6 +85,8 @@ bootstrap seam, deliberately not an HTTP endpoint.
 | `POST /api/v1/auth/logout` | none | idempotent revocation, 204 |
 | `GET /api/v1/auth/me` | Bearer | identity + session state |
 | `GET /api/v1/auth/memberships` | Bearer | the caller's own memberships only |
+| `GET /api/v1/organizations/current` | Bearer + `organization:read` | live-state validated, RBAC-enforced |
+| `PATCH /api/v1/organizations/current` | Bearer + `organization:write` | live-state validated, RBAC-enforced |
 
 No registration endpoint, no user-admin CRUD, no OAuth/MFA claims.
 

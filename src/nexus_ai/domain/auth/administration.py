@@ -93,6 +93,17 @@ class MembershipService:
                 raise MembershipRequiredError("The user is not a member of this Organization.")
             await MembershipRepository(tenant).set_status(membership.id, MembershipStatus.REVOKED)
 
+    async def restore(self, *, actor: Principal, organization_id: UUID, user_id: UUID) -> None:
+        """Reactivate a SUSPENDED or REVOKED membership (explicit recovery semantics)."""
+        await self._require_manage(actor, organization_id)
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            membership = await MembershipRepository(tenant).for_user_in_organization(
+                user_id, organization_id
+            )
+            if membership is None:
+                raise MembershipRequiredError("The user is not a member of this Organization.")
+            await MembershipRepository(tenant).set_status(membership.id, MembershipStatus.ACTIVE)
+
     async def assign_role(
         self,
         *,

@@ -27,6 +27,7 @@ from nexus_ai.domain.auth.passwords import build_password_hasher
 from nexus_ai.domain.auth.ratelimit import RateLimitGate
 from nexus_ai.domain.auth.rbac import AuthorizationService
 from nexus_ai.domain.auth.service import AuthService
+from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.infrastructure.cache import Cache
@@ -55,6 +56,7 @@ class Resources:
     auth: AuthService
     authorizer: AuthorizationService
     memberships: MembershipService
+    principal_validator: PrincipalStateValidator
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -124,12 +126,14 @@ class ApplicationLifespan:
         password_hasher = build_password_hasher(settings.auth)
         rate_gate = RateLimitGate(settings.auth, cache)
         authorizer = AuthorizationService(database)
+        principal_validator = PrincipalStateValidator(database)
         auth_service = AuthService(
             settings,
             database,
             token_service,
             password_hasher,
             rate_gate,
+            state_validator=principal_validator,
         )
         self._resources = Resources(
             settings=settings,
@@ -138,13 +142,14 @@ class ApplicationLifespan:
             cache=cache,
             messaging=messaging,
             readiness=readiness,
-            tenant_resolver=build_resolver(settings.tenancy, token_service),
+            tenant_resolver=build_resolver(settings.tenancy, token_service, principal_validator),
             organizations=OrganizationService(database),
             signing_keys=signing_keys,
             token_service=token_service,
             auth=auth_service,
             authorizer=authorizer,
             memberships=MembershipService(database, authorizer),
+            principal_validator=principal_validator,
         )
         await logger.ainfo(
             "runtime_started",

@@ -41,8 +41,18 @@ def _tokens() -> TokenService:
     )
 
 
+class _AcceptingStateGate:
+    """Unit-test stub: the resolver's live-state gate always accepts (the state
+    validation itself is proven against real PostgreSQL in the integration suite)."""
+
+    async def require_valid(
+        self, *, user_id: object, session_id: object, organization_id: object
+    ) -> None:
+        return None
+
+
 def _resolver(tokens: TokenService | None = None) -> BearerTokenTenantContextResolver:
-    return BearerTokenTenantContextResolver(tokens or _tokens())
+    return BearerTokenTenantContextResolver(tokens or _tokens(), _AcceptingStateGate())
 
 
 def _request(headers: dict[str, str]) -> Request:

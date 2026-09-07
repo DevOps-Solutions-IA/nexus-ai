@@ -50,8 +50,9 @@ Tests use ephemeral keys plus the local limiter via `tests/conftest.py`.
 - Presenting an already-rotated refresh token revokes the whole session family.
 - Suspending a user revokes their session server-side; revoked memberships and
   suspended Organizations block refresh and login immediately.
-- Access tokens stay cryptographically valid until expiry (≤ 15 min default) — this
-  is the documented revocation latency bound.
+- Access tokens are live-state validated on every tenant request: revocation,
+  suspension and logout take effect IMMEDIATELY (the `PrincipalStateValidator`
+  boundary), not at token expiry.
 
 ## Rollback / recovery
 

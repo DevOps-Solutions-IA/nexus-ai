@@ -33,9 +33,7 @@ from nexus_ai.core.errors import (
     MembershipRequiredError,
     MultipleOrganizationsError,
     OrganizationInactiveError,
-    SessionRevokedError,
     TokenValidationError,
-    UserInactiveError,
     ValidationFailedError,
 )
 from nexus_ai.core.logging import get_logger
@@ -65,6 +63,7 @@ from nexus_ai.domain.auth.repository import (
     RefreshSessionRepository,
     UserRepository,
 )
+from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import (
     TokenService,
     hash_refresh_token,
@@ -85,6 +84,7 @@ class AuthService:
         rate_gate: RateLimitGate,
         *,
         now: Callable[[], dt.datetime] | None = None,
+        state_validator: PrincipalStateValidator | None = None,
     ) -> None:
         self._settings = settings
         self._db = database
@@ -92,6 +92,7 @@ class AuthService:
         self._hasher = hasher
         self._rate_gate = rate_gate
         self._now = now or (lambda: dt.datetime.now(dt.UTC))
+        self._validator = state_validator or PrincipalStateValidator(database)
         self._logger = get_logger("nexus_ai.auth")
 
     # -- identity creation -----------------------------------------------------------
@@ -347,23 +348,28 @@ class AuthService:
     # -- authenticated projections ---------------------------------------------------
 
     async def session_view(self, principal: Principal) -> SessionView:
-        async with self._db.tenant_transaction(principal.organization_id) as tenant:
-            row = await RefreshSessionRepository(tenant).by_id(principal.session_id)
-            if row is None or row.revoked_at is not None or row.expires_at <= self._now():
-                raise SessionRevokedError("The session is no longer active.")
-            user = await UserRepository(tenant.session).by_id(principal.user_id)
-            if user is None or user.status is not UserStatus.ACTIVE:
-                raise UserInactiveError("The user is not active.")
-            return SessionView(
-                user_id=user.id,
-                email=user.email,
-                email_verified=user.email_verified,
-                display_name=user.display_name,
-                organization_id=principal.organization_id,
-                session_id=principal.session_id,
-            )
+        # The canonical live-state boundary: session, user, membership and Organization
+        # are all re-validated here — never just the token claims (audit Finding 1).
+        user = await self._validator.require_valid(
+            user_id=principal.user_id,
+            session_id=principal.session_id,
+            organization_id=principal.organization_id,
+        )
+        return SessionView(
+            user_id=user.id,
+            email=user.email,
+            email_verified=user.email_verified,
+            display_name=user.display_name,
+            organization_id=principal.organization_id,
+            session_id=principal.session_id,
+        )
 
     async def list_memberships(self, principal: Principal) -> list[MembershipView]:
+        await self._validator.require_valid(
+            user_id=principal.user_id,
+            session_id=principal.session_id,
+            organization_id=principal.organization_id,
+        )
         async with self._db.principal_session(principal.user_id) as session:
             memberships = await MembershipRepository(session).for_user(principal.user_id)
         return [

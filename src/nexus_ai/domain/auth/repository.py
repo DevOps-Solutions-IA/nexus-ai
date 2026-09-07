@@ -254,6 +254,9 @@ class MembershipRepository:
         }
         if status is MembershipStatus.REVOKED:
             changes["revoked_at"] = dt.datetime.now(dt.UTC)
+        else:
+            # Restoring a suspended/revoked membership clears the revocation marker.
+            changes["revoked_at"] = None
         result = await self._session.execute(
             update(MembershipRecord)
             .where(MembershipRecord.id == membership_id)
