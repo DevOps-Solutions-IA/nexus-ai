@@ -4,7 +4,7 @@
   "output_tail": "........................................                                 [100%]\n40 passed in 0.03s",
   "passed": 40,
   "phase": "NXS-P03",
-  "recorded_at": "2026-09-07T09:42:39Z",
+  "recorded_at": "2026-09-07T16:07:16Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "tests": [

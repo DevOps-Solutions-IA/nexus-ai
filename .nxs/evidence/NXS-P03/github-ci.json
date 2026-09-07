@@ -9,10 +9,20 @@
     "state": "PASS"
   },
   "closure_head_sha": "a28d397",
+  "corrective_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "corrective_implementation_sha": "5c83e54",
   "implementation_head_sha": "f5b15ed",
   "phase": "NXS-P03",
   "pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/12",
-  "recorded_at": "2026-09-07T10:25:26Z",
+  "recorded_at": "2026-09-07T16:18:17Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "workflows": [

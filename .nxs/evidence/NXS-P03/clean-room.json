@@ -1,8 +1,8 @@
 {
   "fresh_postgres_volume": true,
-  "note": "run with NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY for the smoke container (local only)",
+  "note": "re-run on the audit-corrective implementation (live-state validation + RBAC); buildx fallback added for plugin-discovery failure",
   "phase": "NXS-P03",
-  "recorded_at": "2026-09-07T09:44:10Z",
+  "recorded_at": "2026-09-07T16:18:17Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "script": "scripts/clean-room.sh",

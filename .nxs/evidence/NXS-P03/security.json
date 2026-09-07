@@ -3,7 +3,7 @@
   "dependency_audit": "PASS",
   "phase": "NXS-P03",
   "pip_audit_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)",
-  "recorded_at": "2026-09-07T09:44:10Z",
+  "recorded_at": "2026-09-07T16:09:17Z",
   "result": "PASS",
   "sast": "PASS",
   "schema_version": "1.0.0"

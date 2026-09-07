@@ -198,6 +198,14 @@ def main() -> int:
         ["tests/integration/test_auth_integration.py"],
     )
     pytest_evidence(
+        "state-validation",
+        ["tests/integration/test_auth_state_validation.py"],
+    )
+    pytest_evidence(
+        "rbac-api",
+        ["tests/integration/test_auth_rbac_api.py"],
+    )
+    pytest_evidence(
         "rls",
         ["tests/integration/test_auth_rls.py"],
     )
