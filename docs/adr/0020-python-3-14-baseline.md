@@ -1,0 +1,3 @@
+# ADR-0020: Python 3.14 production baseline
+
+Status: Accepted. Context: P00 evidence carried conflicting Python expectations (docs 3.13, CI 3.13, `pyproject` 3.14, mypy 3.14, image 3.14.7). Decision: Python 3.14 is the single deliberate baseline; `requires-python`, Ruff `target-version`, mypy `python_version`, the CI matrix, `uv` interpreter and the container image all state 3.14. All production and development dependencies resolve and import on 3.14 (verified), and the lock is regenerated against it. Consequences: Ruff moves to 0.16.6 and Bandit to 1.9.2 for 3.14 support; any future baseline change is a reviewed ADR touching every declaration at once.

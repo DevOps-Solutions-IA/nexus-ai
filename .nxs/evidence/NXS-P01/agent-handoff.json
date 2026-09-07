@@ -1,0 +1,24 @@
+{
+  "agent_b_determines": {
+    "NXS-P00": "READY/GO",
+    "NXS-P01": "READY/GO",
+    "next_phase": "NXS-P02",
+    "next_phase_branch": "feat/nxs-p02-tenancy",
+    "next_phase_dependency_satisfied": true,
+    "p01_evidence_location": ".nxs/evidence/NXS-P01/",
+    "p01_readiness": "docs/readiness/NXS-P01/"
+  },
+  "automated_test": "tests/integration/test_agent_handoff.py",
+  "computed_generically": true,
+  "hardcoded_phase_ids": 0,
+  "method": "repository_only",
+  "next_allowed_execution": {
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P02"
+  },
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:19:31Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "simulation": "Agent A closed NXS-P01; Agent B with zero conversation memory reads only .nxs/*"
+}

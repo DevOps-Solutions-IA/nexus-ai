@@ -1,0 +1,25 @@
+{
+  "invalid_production_configuration": "startup_refused",
+  "nats_unavailable": {
+    "liveness": 200,
+    "readiness": 503
+  },
+  "phase": "NXS-P01",
+  "postgresql_unavailable": {
+    "liveness": 200,
+    "readiness": 503
+  },
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "recovery_without_restart": "PASS",
+  "result": "PASS",
+  "runtime_exception": "safe_problem_details_plus_correlated_log",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/resilience/test_resilience.py",
+    "tests/resilience/test_shutdown_and_leaks.py"
+  ],
+  "valkey_unavailable": {
+    "liveness": 200,
+    "readiness": 503
+  }
+}

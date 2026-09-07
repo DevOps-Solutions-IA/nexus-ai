@@ -1,0 +1,19 @@
+{
+  "categories": [
+    "unit",
+    "contracts",
+    "security",
+    "concurrency",
+    "resilience",
+    "integration"
+  ],
+  "failed": 0,
+  "integration": 12,
+  "non_integration": 147,
+  "passed": 159,
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "warnings_as_errors": true
+}

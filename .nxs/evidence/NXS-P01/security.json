@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "authorization_not_logged": "PASS",
+    "cookie_not_logged": "PASS",
+    "dsn_redacted": "PASS",
+    "invalid_host_rejected": "PASS",
+    "no_stack_trace_exposed": "PASS",
+    "production_wildcard_cors_rejected": "PASS",
+    "safe_unexpected_error": "PASS",
+    "secret_never_in_repr": "PASS"
+  },
+  "container_scan_trivy": "delegated to NXS Security workflow",
+  "dependency_audit_pip_audit": "no known vulnerabilities",
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "ruff_flake8_bandit_S_rules": "PASS",
+  "sast_bandit": "PASS",
+  "schema_version": "1.0.0",
+  "secret_scan_gitleaks": "delegated to NXS Security workflow",
+  "unresolved_critical_or_high": 0
+}

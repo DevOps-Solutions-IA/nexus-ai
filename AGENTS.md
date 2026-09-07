@@ -20,6 +20,8 @@ Do not trust conversational memory. GitHub, Git history, and machine-readable NX
 10. Inspect the branch, HEAD, remotes, history, and working tree.
 11. Implement only within the manifest and branch contract.
 
-Status changes must use `python -m scripts.nxs_state`; locks use `python -m scripts.nxs_guard lock`; closure uses `make nxs-close`. A mandatory failed gate prevents READY/GO. Never merge `main`, deploy production, rewrite history, expose secrets, or bypass a gate without explicit human authorization and documented risk acceptance.
+Begin an eligible phase with `make nxs-start PHASE=<phase> ACTOR=<agent>`; it validates the guard, maps the phase requirements, transitions to `BUILDING`, sets `active_phase`, and acquires the execution lock. The next eligible phase is computed generically from `.nxs/phase-registry.json` and dependency state — no phase identifier is hardcoded anywhere in the control system.
 
-Read `docs/runbooks/phase-lifecycle.md` before acquiring or recovering a lock. Future component directories marked `PLANNED / NOT IMPLEMENTED` are architectural reservations, not working software.
+Status changes must use `python -m scripts.nxs_state`; the execution lock is operated through `python -m scripts.nxs_guard lock {acquire|status|release|recover}` (or the `make nxs-lock-*` targets); closure uses `make nxs-close PHASE=<phase> IMPLEMENTATION_COMMIT=<sha>`. A mandatory failed gate prevents READY/GO. Never merge `main`, deploy production, rewrite history, expose secrets, or bypass a gate without explicit human authorization and documented risk acceptance.
+
+Read `docs/runbooks/phase-lifecycle.md` before starting a phase or acquiring or recovering a lock. Future component directories marked `PLANNED / NOT IMPLEMENTED` are architectural reservations, not working software.

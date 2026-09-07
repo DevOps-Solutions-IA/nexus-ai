@@ -1,25 +1,46 @@
-import asyncio
-import logging
+"""Application factory guarantees (NXS-PLATFORM-002, MASTER PROMPT 002 sections 17, 38)."""
 
-from nexus_ai.main import JsonFormatter, app, health, lifespan, version
+from __future__ import annotations
 
+import sys
 
-def test_health() -> None:
-    assert asyncio.run(health()) == {"status": "ok"}
+import pytest
 
+from nexus_ai.application import create_app
+from nexus_ai.core.config import Settings
+from nexus_ai.core.lifecycle import ApplicationLifespan
 
-def test_version() -> None:
-    assert asyncio.run(version())["product"] == "Nexus AI"
-
-
-def test_json_formatter() -> None:
-    record = logging.LogRecord("nexus", logging.INFO, __file__, 1, "hello", (), None)
-    assert JsonFormatter().format(record) == ('{"level":"INFO","logger":"nexus","message":"hello"}')
+pytestmark = pytest.mark.anyio
 
 
-def test_lifespan() -> None:
-    async def exercise() -> None:
-        async with lifespan(app):
-            pass
+def test_importing_main_opens_no_connections(build_settings) -> None:
+    build_settings()
+    sys.modules.pop("nexus_ai.main", None)
+    import nexus_ai.main as main
 
-    asyncio.run(exercise())
+    assert main.app is not None
+    lifespan: ApplicationLifespan = main.app.state.lifespan
+    assert lifespan._resources is None  # startup has not run
+
+
+def test_factory_produces_independent_apps(build_settings) -> None:
+    settings = build_settings()
+    first = create_app(settings)
+    second = create_app(settings)
+    assert first is not second
+    assert first.state.lifespan is not second.state.lifespan
+
+
+async def test_lifespan_startup_and_idempotent_shutdown(build_settings) -> None:
+    settings: Settings = build_settings()
+    lifespan = ApplicationLifespan(settings)
+    resources = await lifespan.startup()
+    assert resources.metadata.product == "Nexus AI"
+    await lifespan.shutdown()
+    await lifespan.shutdown()  # must not raise
+
+
+async def test_health_live_needs_no_resources(app_client) -> None:
+    response = await app_client.get("/health/live")
+    assert response.status_code == 200
+    assert response.json() == {"status": "alive"}

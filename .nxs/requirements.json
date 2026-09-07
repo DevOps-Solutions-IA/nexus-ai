@@ -200,14 +200,280 @@
       "dependencies": [
         "NXS-PLATFORM-001"
       ],
-      "description": "Establish production backend boundaries, configuration and shared platform primitives.",
+      "description": "A production application factory establishes permanent backend boundaries: modular structure, runtime lifecycle, service metadata, dependency injection and shared platform primitives with no import-time external connections.",
       "id": "NXS-PLATFORM-002",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/application.py",
+        "src/nexus_ai/core/lifecycle.py",
+        "src/nexus_ai/core/metadata.py"
+      ],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P01",
-      "title": "Backend domain foundation",
-      "validation_evidence": []
+      "title": "Production backend core boundaries",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "PLATFORM",
+      "dependencies": [
+        "NXS-READY-002",
+        "NXS-GUARD-002"
+      ],
+      "description": "Phase start, closure, next-phase selection and the execution lock work generically for every registry phase with no hardcoded phase identifiers.",
+      "id": "NXS-PLATFORM-003",
+      "implementation_evidence": [
+        "scripts/nxs_close/__main__.py",
+        "scripts/nxs_control/core.py",
+        "scripts/nxs_guard/lock.py",
+        "scripts/nxs_start/__main__.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Generic engineering lifecycle continuation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "CICD",
+      "dependencies": [
+        "NXS-PLATFORM-001",
+        "NXS-SEC-001"
+      ],
+      "description": "CI and developer tooling validate any feat/fix/release phase from repository state without workflow edits, on one deliberate Python baseline consistent across every declaration.",
+      "id": "NXS-CICD-001",
+      "implementation_evidence": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/security.yml",
+        "Makefile",
+        "docs/adr/0020-python-3-14-baseline.md",
+        "pyproject.toml"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Phase-neutral CI and unified toolchain",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "CONFIG",
+      "dependencies": [
+        "NXS-PLATFORM-002"
+      ],
+      "description": "Strongly typed, environment-aware configuration with secret redaction that fails fast on missing or unsafe production values.",
+      "id": "NXS-CONFIG-001",
+      "implementation_evidence": [
+        "src/nexus_ai/core/config.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Validated runtime configuration",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "API",
+      "dependencies": [
+        "NXS-PLATFORM-002",
+        "NXS-CONFIG-001"
+      ],
+      "description": "A production application factory serves a versioned /api/v1 surface with deterministic OpenAPI and preserved P00 compatibility endpoints.",
+      "id": "NXS-API-001",
+      "implementation_evidence": [
+        "src/nexus_ai/api/contracts.py",
+        "src/nexus_ai/api/dependencies.py",
+        "src/nexus_ai/api/router.py",
+        "src/nexus_ai/api/system.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Versioned production API foundation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "ERROR",
+      "dependencies": [
+        "NXS-API-001"
+      ],
+      "description": "All errors are normalized to an RFC 9457 Problem Details contract with stable NXS codes and no stack traces or internal identifiers exposed.",
+      "id": "NXS-ERROR-001",
+      "implementation_evidence": [
+        "src/nexus_ai/api/errors.py",
+        "src/nexus_ai/core/errors.py",
+        "src/nexus_ai/core/problem_details.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Stable API error contract",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "CONTEXT",
+      "dependencies": [
+        "NXS-API-001"
+      ],
+      "description": "Every request carries an isolated request id and correlation id using contextvars that never leak between concurrent tasks.",
+      "id": "NXS-CTX-001",
+      "implementation_evidence": [
+        "src/nexus_ai/api/middleware.py",
+        "src/nexus_ai/core/context.py",
+        "src/nexus_ai/core/identifiers.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Request and correlation context isolation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "LOG",
+      "dependencies": [
+        "NXS-CONFIG-001",
+        "NXS-CTX-001",
+        "NXS-OBS-001"
+      ],
+      "description": "Production logging emits structured JSON with severity, service metadata and request correlation, and redacts secrets, credentials and sensitive headers.",
+      "id": "NXS-LOG-001",
+      "implementation_evidence": [
+        "src/nexus_ai/core/logging.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Structured correlated logging",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "TELEMETRY",
+      "dependencies": [
+        "NXS-CTX-001"
+      ],
+      "description": "A vendor-neutral OpenTelemetry-ready boundary propagates trace context and correlates traces with logs in configurable no-op, local or export modes.",
+      "id": "NXS-TELEMETRY-001",
+      "implementation_evidence": [
+        "src/nexus_ai/core/telemetry.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Telemetry instrumentation boundary",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "HEALTH",
+      "dependencies": [
+        "NXS-CONFIG-001"
+      ],
+      "description": "Separate liveness and readiness semantics with a typed dependency health model that degrades and recovers without process restart and never leaks credentials.",
+      "id": "NXS-HEALTH-001",
+      "implementation_evidence": [
+        "src/nexus_ai/core/health.py",
+        "src/nexus_ai/core/lifecycle.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Liveness and readiness subsystem",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "DATA",
+      "dependencies": [
+        "NXS-CONFIG-001",
+        "NXS-HEALTH-001"
+      ],
+      "description": "Async pooled PostgreSQL engine and session factory with bounded timeouts, safe transaction primitives, health probe and graceful disposal, with no import-time connections.",
+      "id": "NXS-DATA-001",
+      "implementation_evidence": [
+        "src/nexus_ai/infrastructure/database.py",
+        "src/nexus_ai/infrastructure/orm.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "PostgreSQL connectivity foundation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "CACHE",
+      "dependencies": [
+        "NXS-CONFIG-001",
+        "NXS-HEALTH-001"
+      ],
+      "description": "Async Valkey client behind an internal abstraction with bounded connect and operation timeouts, health probe, lifecycle management and redacted URLs.",
+      "id": "NXS-CACHE-001",
+      "implementation_evidence": [
+        "src/nexus_ai/infrastructure/cache.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Valkey connectivity foundation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-CONFIG-001",
+        "NXS-HEALTH-001"
+      ],
+      "description": "Async NATS connection manager with bounded connect timeout, reconnect policy, lifecycle callbacks, JetStream capability detection, health state and graceful drain.",
+      "id": "NXS-EVENT-001",
+      "implementation_evidence": [
+        "src/nexus_ai/infrastructure/messaging.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "NATS and JetStream connectivity foundation",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
+    },
+    {
+      "category": "MIGRATION",
+      "dependencies": [
+        "NXS-DATA-001"
+      ],
+      "description": "Alembic is configured from validated database settings with an async-capable path, naming convention, deterministic execution and CI migration validation, committing no credentials.",
+      "id": "NXS-MIGRATE-001",
+      "implementation_evidence": [
+        "alembic.ini",
+        "migrations/env.py",
+        "migrations/script.py.mako"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P01",
+      "title": "Database migration framework",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P01/quality-gates.json"
+      ]
     },
     {
       "category": "MULTI_TENANCY",

@@ -249,3 +249,101 @@ def evaluate_guard(root: Path, phase_id: str, branch: str | None = None) -> Guar
         return GuardResult("PASS", "AUTHORIZED", (), phase_id)
     except ControlError as exc:
         return GuardResult("BLOCK", "MALFORMED_STATE", (str(exc),), phase_id)
+
+
+def registry_phase_list(root: Path) -> list[dict[str, Any]]:
+    return cast(list[dict[str, Any]], load_json(root / ".nxs/phase-registry.json")["phases"])
+
+
+def registry_phases(root: Path) -> dict[str, dict[str, Any]]:
+    return indexed(registry_phase_list(root), "phase")
+
+
+def phase_order(root: Path) -> list[str]:
+    return [cast(str, phase["id"]) for phase in registry_phase_list(root)]
+
+
+def dependencies_ready(phases: dict[str, dict[str, Any]], phase: dict[str, Any]) -> bool:
+    return all(
+        phases[dependency]["status"] == "READY" and phases[dependency]["decision"] == "GO"
+        for dependency in cast(list[str], phase["dependencies"])
+    )
+
+
+def eligible_phases(
+    root: Path,
+    *,
+    registry_list: list[dict[str, Any]] | None = None,
+    state: dict[str, Any] | None = None,
+) -> list[str]:
+    """Phases that may legally be started next, in deterministic registry order.
+
+    A phase is eligible only when it is not already READY, is not blocked, has every
+    dependency at READY/GO, and does not conflict with a different active phase. When
+    multiple phases qualify, registry order is the documented deterministic policy.
+
+    ``registry_list`` and ``state`` may be supplied to evaluate against in-memory data
+    that has not yet been persisted (used by the closure engine).
+    """
+    registry_list = registry_list if registry_list is not None else registry_phase_list(root)
+    phases = indexed(registry_list, "phase")
+    state = state if state is not None else load_json(root / ".nxs/project-state.json")
+    active = state["active_phase"]
+    blocked = set(cast(list[str], state.get("blocked_phases", [])))
+    result: list[str] = []
+    for phase in registry_list:
+        phase_id = cast(str, phase["id"])
+        if phase["status"] == "READY" or phase["status"] == "BLOCKED" or phase_id in blocked:
+            continue
+        if not dependencies_ready(phases, phase):
+            continue
+        if active not in (None, phase_id):
+            continue
+        result.append(phase_id)
+    return result
+
+
+def next_eligible_phase(
+    root: Path,
+    *,
+    registry_list: list[dict[str, Any]] | None = None,
+    state: dict[str, Any] | None = None,
+) -> str | None:
+    candidates = eligible_phases(root, registry_list=registry_list, state=state)
+    return candidates[0] if candidates else None
+
+
+def next_allowed_execution(
+    root: Path,
+    *,
+    registry_list: list[dict[str, Any]] | None = None,
+    state: dict[str, Any] | None = None,
+) -> dict[str, str | None]:
+    """Compute next_allowed_execution generically from active phase and the registry DAG."""
+    state = state if state is not None else load_json(root / ".nxs/project-state.json")
+    active = state["active_phase"]
+    if active is not None:
+        return {"phase": cast(str, active), "condition": "ACTIVE_PHASE_ONLY"}
+    candidate = next_eligible_phase(root, registry_list=registry_list, state=state)
+    if candidate is None:
+        return {"phase": None, "condition": "NONE"}
+    return {"phase": candidate, "condition": "DEPENDENCIES_READY"}
+
+
+def commit_exists(root: Path, sha: str) -> bool:
+    try:
+        git(root, "cat-file", "-e", f"{sha}^{{commit}}")
+    except ControlError:
+        return False
+    return True
+
+
+def mandatory_requirements_for(root: Path, phase_id: str) -> list[str]:
+    requirements = cast(
+        list[dict[str, Any]], load_json(root / ".nxs/requirements.json")["requirements"]
+    )
+    return sorted(
+        cast(str, item["id"])
+        for item in requirements
+        if item["target_phase"] == phase_id and item["mandatory"]
+    )

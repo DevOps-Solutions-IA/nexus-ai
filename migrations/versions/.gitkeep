@@ -1,0 +1,2 @@
+# Alembic revision scripts live here. P01 introduces the framework only; there are no
+# business tables yet (see docs/adr and .nxs/phases/NXS-P01.json non-scope).

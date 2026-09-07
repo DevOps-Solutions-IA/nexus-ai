@@ -1,0 +1,22 @@
+{
+  "checks": {
+    "environment_overrides": "PASS",
+    "invalid_dsn_scheme_rejected": "PASS",
+    "invalid_pool_bounds_rejected": "PASS",
+    "invalid_timeout_bounds_rejected": "PASS",
+    "missing_mandatory_production_value_fails": "PASS",
+    "secret_redaction": "PASS",
+    "valid_local": "PASS",
+    "valid_production": "PASS",
+    "valid_test": "PASS",
+    "wildcard_cors_production_rejected": "PASS"
+  },
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_config.py",
+    "tests/security/test_security.py"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "decision": "GO",
+  "dependency": "NXS-P00",
+  "merge_commit": "73b399f9e8f3871ef0242585dc79eb2fa10ce5ef",
+  "note": "origin/main contains the P00 merge commit; registry and readiness agree",
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "status": "READY"
+}

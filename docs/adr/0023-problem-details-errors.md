@@ -1,0 +1,3 @@
+# ADR-0023: RFC 9457 Problem Details error contract
+
+Status: Accepted. Decision: every error — application error, request-validation error, 404, 405 and unhandled exception — is rendered as `application/problem+json` with `type`, `title`, `status`, `detail`, `instance` and the NXS extensions `code` and `request_id`. Public errors carry a stable `NXS_*` code; Python class names are never part of the contract; stack traces and internal identifiers are never returned. Validation errors are normalised to bounded field-level entries. Consequences: clients integrate against stable codes and shapes; the taxonomy in `nexus_ai.core.errors` is the compatibility surface.

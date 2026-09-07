@@ -2,7 +2,7 @@
 
 ## Python and boundaries
 
-Python 3.13 is locked with `uv`; production and development dependencies remain separated. Ruff formatting/linting, strict mypy, warnings-as-errors pytest, and branch coverage are mandatory. Public functions and boundaries are typed. Async is reserved for real concurrent I/O; blocking work must not run on the event loop. Domain packages own their invariants and communicate through versioned contracts rather than database-table coupling.
+Python 3.14 is the single deliberate production baseline (`requires-python`, Ruff `target-version`, mypy `python_version`, the CI matrix and the container image all agree) and is locked with `uv`; production and development dependencies remain separated. Ruff formatting/linting, strict mypy, warnings-as-errors pytest, and branch coverage are mandatory. Public functions and boundaries are typed. Async is reserved for real concurrent I/O; blocking work must not run on the event loop. Domain packages own their invariants and communicate through versioned contracts rather than database-table coupling.
 
 APIs use explicit schemas, stable error codes, correlation IDs, bounded pagination, idempotency keys for retried mutations, and backward-compatible additive evolution. Errors preserve safe diagnostic context but never secrets. Configuration is validated at startup and supplied through environment or a future secret broker; no hidden defaults for security-sensitive settings.
 

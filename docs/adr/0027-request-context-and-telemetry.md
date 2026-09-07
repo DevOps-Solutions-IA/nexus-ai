@@ -1,0 +1,3 @@
+# ADR-0027: Request context, identifiers and telemetry boundary
+
+Status: Accepted. Decision: each request carries a request id and a separate correlation id, generated as 32-char hex UUIDv4 or accepted from a conservative allow-pattern, propagated through `contextvars` (isolated per task), echoed on the response and bound into structured logs. Telemetry is a vendor-neutral OpenTelemetry seam with `disabled` (no-op), `local` (console) and `export` (OTLP/HTTP) modes; trace context propagates and the active trace id correlates logs and spans. Consequences: future `organization_id`/`actor_id`/`conversation_id` fields are architecturally possible but absent until those domains exist; dashboards and collectors are P24.

@@ -1,0 +1,3 @@
+# ADR-0024: Async PostgreSQL foundation
+
+Status: Accepted. Decision: persistence uses SQLAlchemy 2.x async with `asyncpg`: a pooled engine (bounded pool, overflow, timeouts, recycle, pre-ping), an `async_sessionmaker`, an explicit `session()` context (rollback on error, always closes) and a `transaction()` unit of work (commit on success, rollback on exception, no hidden autocommit, no global session). A `SELECT 1` health probe reports `UP`/`DOWN` with latency and a safe error code. No engine is created at import. Consequences: P01 ships the reliable persistence boundary only; business tables and repositories are later phases. Alembic (ADR-0026) manages schema.

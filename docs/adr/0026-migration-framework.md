@@ -1,0 +1,3 @@
+# ADR-0026: Alembic migration framework
+
+Status: Accepted. Decision: Alembic is configured from the validated `NXS_DATABASE__DSN` through an async `env.py` with `compare_type` and `compare_server_default`, a constraint naming convention, a UTC timestamped revision file template and Ruff post-write formatting. `alembic check` runs in CI against the (currently empty) metadata. No credentials are committed and no migration files are created to produce artifacts. Consequences: the first real migration arrives with the first business table; every migration is forward-only, transaction-aware and paired with roll-forward/rollback notes per `docs/engineering/standards.md`.
