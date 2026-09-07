@@ -66,17 +66,26 @@ class EventPlatform:
     # --- lifecycle ---------------------------------------------------------------
 
     async def start(self) -> None:
-        durable_required = self._settings.messaging.required and self._events.require_jetstream
+        # Fail closed only in a hardened environment: staging/production refuse to start
+        # without durable JetStream, exactly like a bad runtime role. Local/test degrade
+        # (no relay, no consumers) and stay alive — a transient outage never crashes the
+        # process there.
+        durable_required = self._settings.is_hardened_environment and self._events.require_jetstream
         if durable_required and not self.transport.durable_available():
             raise ConfigurationError(
                 "durable JetStream transport is required but unavailable; refusing to start"
             )
         if self.transport.durable_available() and self._events.bootstrap_topology:
-            await self.transport.ensure_topology()
-        elif durable_required:
-            raise ConfigurationError(
-                "the event stream topology could not be established; refusing to start"
-            )
+            try:
+                await self.transport.ensure_topology()
+            except Exception as exc:
+                if durable_required:
+                    raise ConfigurationError(
+                        "the event stream topology could not be established; refusing to start"
+                    ) from None
+                await self._log.awarning(
+                    "event_topology_bootstrap_skipped", error_code=type(exc).__name__[:64]
+                )
 
         if self._events.publisher_enabled and self.transport.durable_available():
             await self.relay.start()

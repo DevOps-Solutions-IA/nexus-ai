@@ -65,6 +65,7 @@ async def handle(ctx: EventContext) -> None:
     # ctx.session is already bound to ctx.envelope's tenant scope (RLS enforced)
     ...
 
+
 consumer = event_platform.register_consumer(
     ConsumerSpec(
         name="p06-conversation-projector",

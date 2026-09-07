@@ -61,6 +61,30 @@ async def test_start_fails_closed_when_durable_transport_is_required_but_absent(
     await messaging.disconnect()
 
 
+async def test_local_environment_stays_alive_when_jetstream_is_down(
+    tenant_database: Any, integration_env: Any
+) -> None:
+    import contextlib
+
+    from nexus_ai.events.service import EventPlatform
+    from nexus_ai.infrastructure.messaging import Messaging
+
+    settings = integration_env(
+        NXS_ENVIRONMENT="local",
+        NXS_MESSAGING__URL="nats://127.0.0.1:5999",
+        NXS_MESSAGING__CONNECT_TIMEOUT_SECONDS="1",
+    )
+    messaging = Messaging(settings.messaging)
+    with contextlib.suppress(Exception):
+        await messaging.connect()
+    platform = EventPlatform(settings, tenant_database, messaging)
+    await platform.start()  # degrades, does NOT raise
+    health = await platform.probe(timeout=2)
+    assert health.status is HealthStatus.DOWN
+    await platform.stop()
+    await messaging.disconnect()
+
+
 async def test_application_startup_wires_the_event_platform(integration_client: Any) -> None:
     resources = integration_client.nexus_app.state.lifespan.resources
     assert resources.event_platform is not None
