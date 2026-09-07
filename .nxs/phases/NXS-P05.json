@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p05-provisioner-dashboard",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P04"
   ],
@@ -39,7 +39,7 @@
     ".nxs/evidence/NXS-P05/tests.json"
   ],
   "id": "NXS-P05",
-  "implementation_commit": "dc29c845db13ea245010f5fffb458a3447ed1399",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -91,9 +91,9 @@
     "NXS-ORG-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-07T20:57:25Z",
+    "closed_at": null,
     "started_at": "2026-09-07T19:32:10Z"
   },
   "title": "Provisioner and Dashboard Schema"

@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "claude-code-p05",
+  "branch": "feat/nxs-p05-provisioner-dashboard",
+  "expires_at": "2026-09-08T01:12:57Z",
+  "phase": "NXS-P05",
+  "repository_commit": "04b9462b3bb8a4fd721640ce1f37d32d1b598ae2",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-07T21:12:57Z",
+  "state": "ACTIVE"
 }

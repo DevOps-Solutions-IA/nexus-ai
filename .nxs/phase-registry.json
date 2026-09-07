@@ -51,12 +51,12 @@
     },
     {
       "branch": "feat/nxs-p05-provisioner-dashboard",
-      "decision": "GO",
+      "decision": "PENDING",
       "dependencies": [
         "NXS-P04"
       ],
       "id": "NXS-P05",
-      "status": "READY",
+      "status": "VALIDATING",
       "title": "Provisioner and Dashboard Schema"
     },
     {
