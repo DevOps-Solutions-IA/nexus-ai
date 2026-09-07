@@ -20,7 +20,7 @@
         "."
       ],
       "exit_code": 0,
-      "output_tail": "203 files already formatted\n"
+      "output_tail": "205 files already formatted\n"
     },
     "lint": {
       "command": [
@@ -68,7 +68,7 @@
         "-q"
       ],
       "exit_code": 0,
-      "output_tail": "3%   134-136, 218, 247-248, 265->270, 308, 336-337, 353, 356\nsrc/nexus_ai/domain/auth/tokens.py                  108      4     18      1    96%   46, 107, 111, 212\nsrc/nexus_ai/domain/organizations/__init__.py         0      0      0      0   100%\nsrc/nexus_ai/domain/organizations/entities.py        96      3      8      0    95%   98-102\nsrc/nexus_ai/domain/organizations/keys.py            31      1     10      1    95%   74\nsrc/nexus_ai/domain/organizations/models.py          27      1      0      0    96%   22\nsrc/nexus_ai/domain/organizations/repository.py      47      2      6      2    92%   68, 111\nsrc/nexus_ai/domain/organizations/service.py         44      0      6      1    98%   84->86\nsrc/nexus_ai/domain/organizations/status.py          19      0      4      0   100%\nsrc/nexus_ai/domain/registry.py                       4      0      0      0   100%\nsrc/nexus_ai/infrastructure/__init__.py               0      0      0      0   100%\nsrc/nexus_ai/infrastructure/cache.py                 34      2     10      2    91%   32, 37\nsrc/nexus_ai/infrastructure/database.py              98      9     20      6    86%   75, 80, 110, 138, 151, 165, 205-207\nsrc/nexus_ai/infrastructure/messaging.py             68      9     14      4    84%   39, 44, 55, 82, 85-86, 94-95, 113\nsrc/nexus_ai/infrastructure/orm.py                   20      1      0      0    95%   43\nsrc/nexus_ai/infrastructure/rls.py                   19      0      0      0   100%\nsrc/nexus_ai/infrastructure/schema_guard.py          63      3     30      3    94%   99, 101, 103\nsrc/nexus_ai/infrastructure/tenant_session.py        11      1      0      0    91%   25\nsrc/nexus_ai/main.py                                  3      0      0      0   100%\n---------------------------------------------------------------------------------------------\nTOTAL                                              3541    192    698    126    92%\nRequired test coverage of 90% reached. Total coverage: 92.26%\n467 passed in 26.69s\n"
+      "output_tail": "40      5    93%   134-136, 218, 247-248, 265->270, 308, 336-337, 353, 356\nsrc/nexus_ai/domain/auth/tokens.py                  108      4     18      1    96%   46, 107, 111, 212\nsrc/nexus_ai/domain/organizations/__init__.py         0      0      0      0   100%\nsrc/nexus_ai/domain/organizations/entities.py        96      3      8      0    95%   98-102\nsrc/nexus_ai/domain/organizations/keys.py            31      1     10      1    95%   74\nsrc/nexus_ai/domain/organizations/models.py          27      1      0      0    96%   22\nsrc/nexus_ai/domain/organizations/repository.py      47      2      6      2    92%   68, 111\nsrc/nexus_ai/domain/organizations/service.py         44      0      6      1    98%   84->86\nsrc/nexus_ai/domain/organizations/status.py          19      0      4      0   100%\nsrc/nexus_ai/domain/registry.py                       4      0      0      0   100%\nsrc/nexus_ai/infrastructure/__init__.py               0      0      0      0   100%\nsrc/nexus_ai/infrastructure/cache.py                 34      2     10      2    91%   32, 37\nsrc/nexus_ai/infrastructure/database.py              98      6     20      3    91%   80, 110, 151, 205-207\nsrc/nexus_ai/infrastructure/messaging.py             68      9     14      4    84%   39, 44, 55, 82, 85-86, 94-95, 113\nsrc/nexus_ai/infrastructure/orm.py                   20      1      0      0    95%   43\nsrc/nexus_ai/infrastructure/rls.py                   19      0      0      0   100%\nsrc/nexus_ai/infrastructure/schema_guard.py          63      3     30      3    94%   99, 101, 103\nsrc/nexus_ai/infrastructure/tenant_session.py        11      1      0      0    91%   25\nsrc/nexus_ai/main.py                                  3      0      0      0   100%\n---------------------------------------------------------------------------------------------\nTOTAL                                              3622    268    712    121    90%\nRequired test coverage of 90% reached. Total coverage: 90.47%\n477 passed in 26.57s\n"
     },
     "typing": {
       "command": [
@@ -77,10 +77,10 @@
         "mypy"
       ],
       "exit_code": 0,
-      "output_tail": "Success: no issues found in 75 source files\n"
+      "output_tail": "Success: no issues found in 76 source files\n"
     }
   },
-  "executed_at": "2026-09-07T09:26:23Z",
+  "executed_at": "2026-09-07T09:57:49Z",
   "gates": {
     "dependency_security": "PASS",
     "formatting": "PASS",

@@ -76,10 +76,6 @@ class TestTokenServiceEdges:
 
         import jwt
 
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-
-        keys = LocalEd25519KeyProvider(Ed25519PrivateKey.generate())
-        signing = keys.signing_key()
         now = dt.datetime.now(dt.UTC)
         payload = jwt.utils.base64url_encode(
             json.dumps(
@@ -104,7 +100,6 @@ class TestTokenServiceEdges:
 
     def test_verify_rejects_non_numeric_time_claims(self) -> None:
         import jwt
-
         from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
         keys = LocalEd25519KeyProvider(Ed25519PrivateKey.generate())

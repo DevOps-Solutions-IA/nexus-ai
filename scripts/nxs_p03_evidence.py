@@ -335,7 +335,10 @@ def main() -> int:
                 "health_live_ready": "PASS",
                 "graceful_shutdown": "PASS",
             },
-            "note": "run with NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY for the smoke container (local only)",
+            "note": (
+                "run with NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY "
+                "for the smoke container (local only)"
+            ),
             "recorded_at": now(),
         },
     )

@@ -61,6 +61,7 @@ ignore = ["ASYNC109"]
 "scripts/nxs_guard/__main__.py" = ["S603", "S607"]
 "scripts/nxs_gate/__main__.py" = ["S603"]
 "scripts/nxs_start/__main__.py" = ["S603", "S607"]
+"scripts/nxs_p03_evidence.py" = ["S603", "S607"]
 "migrations/env.py" = ["E402"]
 
 [tool.mypy]
