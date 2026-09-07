@@ -8,10 +8,22 @@
     "source-and-dependencies": "PASS",
     "state": "PASS"
   },
+  "closure_head_sha": "ccd9293",
+  "final_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "final_head_sha": "59d6cb6",
   "implementation_sha": "09acb31",
+  "note": "final_head_sha recorded after NXS CI (all seven jobs) and NXS Security were green on the final head",
   "phase": "NXS-P06",
   "pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/15",
-  "recorded_at": "2026-09-07T23:11:46Z",
+  "recorded_at": "2026-09-07T23:20:24Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "workflows": [
