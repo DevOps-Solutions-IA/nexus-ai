@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": null,
+  "active_phase": "NXS-P06",
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -11,20 +11,20 @@
     "NXS-P05"
   ],
   "current_phase": {
-    "branch": "feat/nxs-p05-provisioner-dashboard",
+    "branch": "feat/nxs-p06-customer-conversations",
     "closure_commit": null,
-    "decision": "GO",
-    "id": "NXS-P05",
-    "implementation_commit": "116669a172bf870eb485a440035205fd478b7f9d",
-    "status": "READY"
+    "decision": "PENDING",
+    "id": "NXS-P06",
+    "implementation_commit": null,
+    "status": "BUILDING"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-07T21:30:32Z",
+  "last_updated_at": "2026-09-07T21:52:32Z",
   "next_allowed_execution": {
-    "condition": "DEPENDENCIES_READY",
+    "condition": "ACTIVE_PHASE_ONLY",
     "phase": "NXS-P06"
   },
   "product": {

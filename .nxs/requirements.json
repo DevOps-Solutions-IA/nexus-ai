@@ -902,7 +902,7 @@
       "id": "NXS-CUSTOMER-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P06",
       "title": "Omnichannel customer identity",
       "validation_evidence": []
