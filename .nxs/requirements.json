@@ -864,10 +864,12 @@
         "tests/integration/test_provisioning.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P05",
       "title": "Organization provisioning",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P05/quality-gates.json"
+      ]
     },
     {
       "category": "DASHBOARD",
@@ -884,10 +886,12 @@
         "tests/unit/test_dashboard_schema.py"
       ],
       "mandatory": true,
-      "status": "IMPLEMENTED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P05",
       "title": "Dynamic organization dashboards",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P05/quality-gates.json"
+      ]
     },
     {
       "category": "CUSTOMER",
