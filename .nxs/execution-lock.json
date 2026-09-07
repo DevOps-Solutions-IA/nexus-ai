@@ -1,10 +1,10 @@
 {
-  "actor": "codex",
-  "branch": "feat/nxs-p02-tenancy",
-  "expires_at": "2026-09-07T10:02:42Z",
-  "phase": "NXS-P02",
-  "repository_commit": "1cc4e28ad74a908bfb0c36e746967e54c19d65b2",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-07T06:02:42Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

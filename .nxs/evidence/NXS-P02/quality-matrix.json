@@ -9,7 +9,7 @@
     "concurrency_tests": "PASS",
     "concurrent_tenant_isolation": "PASS",
     "confused_deputy_protection": "PASS",
-    "container_scan": "PENDING_CI",
+    "container_scan": "PASS",
     "contract_tests": "PASS",
     "coverage": "PASS",
     "cross_tenant_delete_protection": "PASS",
@@ -23,7 +23,7 @@
     "force_rls": "PASS",
     "formatting": "PASS",
     "git_synchronization": "PASS",
-    "github_ci": "PENDING_CI",
+    "github_ci": "PASS",
     "graceful_shutdown": "PASS",
     "integration_tests": "PASS",
     "lint": "PASS",
@@ -51,7 +51,7 @@
     "sast": "PASS",
     "schema_tenancy_validator": "PASS",
     "secret_data_redaction": "PASS",
-    "secret_scan": "PENDING_CI",
+    "secret_scan": "PASS",
     "security_tests": "PASS",
     "structured_logging": "PASS",
     "tenant_context": "PASS",
@@ -62,9 +62,8 @@
     "typing": "PASS",
     "unit_tests": "PASS"
   },
-  "note": "local gates PASS; secret_scan, container_scan and github_ci resolve on green GitHub CI",
   "phase": "NXS-P02",
-  "recorded_at": "2026-09-07T07:02:51Z",
-  "result": "PENDING_CI",
+  "recorded_at": "2026-09-07T07:21:58Z",
+  "result": "PASS",
   "schema_version": "1.0.0"
 }

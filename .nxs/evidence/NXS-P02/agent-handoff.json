@@ -2,15 +2,24 @@
   "agent_b_determines": {
     "NXS-P00": "READY/GO",
     "NXS-P01": "READY/GO",
-    "NXS-P02": "READY/GO after closure",
+    "NXS-P02": "READY/GO",
     "next_phase": "NXS-P03",
     "next_phase_branch": "feat/nxs-p03-security-auth",
-    "p05_provisioning": "NXS-ORG-001 still PLANNED / target NXS-P05"
+    "next_phase_dependency_satisfied": true,
+    "p02_evidence_location": ".nxs/evidence/NXS-P02/",
+    "p02_readiness": "docs/readiness/NXS-P02/",
+    "p05_organization_provisioning": "NXS-ORG-001 still PLANNED / target NXS-P05"
   },
   "automated_test": "tests/integration/test_agent_handoff.py",
+  "computed_generically": true,
   "method": "repository_only",
+  "next_allowed_execution": {
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P03"
+  },
   "phase": "NXS-P02",
-  "recorded_at": "2026-09-07T07:02:51Z",
+  "recorded_at": "2026-09-07T07:22:28Z",
   "result": "PASS",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "simulation": "Agent A closed NXS-P02; Agent B with zero conversation memory reads only .nxs/*"
 }
