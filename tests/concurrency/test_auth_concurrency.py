@@ -15,7 +15,7 @@ import pytest
 
 from nexus_ai.domain.auth.rbac import RoleKey
 
-pytestmark = pytest.mark.anyio
+pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 PASSWORD = "correct-horse-battery-staple"
 
