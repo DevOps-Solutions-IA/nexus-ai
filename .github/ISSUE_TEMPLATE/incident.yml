@@ -1,0 +1,10 @@
+name: Incident
+description: Record a sanitized operational incident; never include secrets or customer data
+body:
+  - type: textarea
+    id: impact
+    attributes: {label: Sanitized impact and timeline}
+    validations: {required: true}
+  - type: textarea
+    id: actions
+    attributes: {label: Containment and follow-up}

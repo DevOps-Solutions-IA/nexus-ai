@@ -1,0 +1,15 @@
+{
+  "$schema": "./execution-policy.schema.json", "schema_version": "1.0.0",
+  "policies": {
+    "read_state_before_execution": true, "validate_state_schema": true, "inspect_git_before_execution": true,
+    "inspect_dependencies": true, "inspect_previous_evidence": true, "inspect_relevant_adrs": true,
+    "never_repeat_ready_phase_without_delta": true, "never_skip_failed_dependency": true,
+    "never_mark_ready_with_failed_gate": true, "never_fabricate_evidence": true,
+    "never_merge_main_without_human_authorization": true, "never_deploy_production_without_human_authorization": true,
+    "never_expose_secrets": true, "update_state_after_success": true, "record_evidence_before_closure": true,
+    "require_feature_branch": true, "require_clean_closure_tree": true, "require_immutable_implementation_commit": true,
+    "require_dependency_ready_go": true
+  },
+  "lock": {"ttl_seconds": 14400, "stale_recovery_requires_clean_tree": true},
+  "security_severity": {"critical": "FAIL", "high": "FAIL", "medium": "REVIEW"}
+}

@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","captured_at":"2026-09-06T22:57:00Z","result":"PASS","image_build":"PASS","runtime_user":"65532:65532","non_root":"PASS","health":{"endpoint":"/health","response":{"status":"ok"}},"version":{"product":"Nexus AI","version":"0.1.0"},"graceful_stop":"PASS","local_dependencies":{"postgres":"healthy","valkey":"healthy","nats_jetstream":"healthy"}}

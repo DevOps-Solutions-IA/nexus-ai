@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "phases"], "properties": {
+    "$schema": {"type": "string"}, "schema_version": {"const": "1.0.0"},
+    "phases": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/phase"}}
+  },
+  "$defs": {"phase": {"type": "object", "additionalProperties": false, "required": ["id", "title", "status", "decision", "dependencies", "branch"], "properties": {
+    "id": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"}, "title": {"type": "string", "minLength": 3},
+    "status": {"enum": ["PLANNED", "READY_TO_EXECUTE", "BUILDING", "VALIDATING", "FAILED", "BLOCKED", "READY"]},
+    "decision": {"enum": ["PENDING", "GO", "NO_GO"]}, "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"}}, "branch": {"type": "string", "minLength": 1}
+  }}}
+}

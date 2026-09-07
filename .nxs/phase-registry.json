@@ -1,0 +1,346 @@
+{
+  "$schema": "./phase-registry.schema.json",
+  "phases": [
+    {
+      "branch": "feat/nxs-p00-engineering-control-system",
+      "decision": "GO",
+      "dependencies": [],
+      "id": "NXS-P00",
+      "status": "READY",
+      "title": "Engineering Control System"
+    },
+    {
+      "branch": "feat/nxs-p01-backend-core",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P00"
+      ],
+      "id": "NXS-P01",
+      "status": "PLANNED",
+      "title": "Backend Core"
+    },
+    {
+      "branch": "feat/nxs-p02-tenancy",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P01"
+      ],
+      "id": "NXS-P02",
+      "status": "PLANNED",
+      "title": "Multi-tenancy and Organizations"
+    },
+    {
+      "branch": "feat/nxs-p03-security-auth",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P02"
+      ],
+      "id": "NXS-P03",
+      "status": "PLANNED",
+      "title": "Security and Authentication"
+    },
+    {
+      "branch": "feat/nxs-p04-data-events",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P03"
+      ],
+      "id": "NXS-P04",
+      "status": "PLANNED",
+      "title": "Data and Event Platform"
+    },
+    {
+      "branch": "feat/nxs-p05-provisioner-dashboard",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P04"
+      ],
+      "id": "NXS-P05",
+      "status": "PLANNED",
+      "title": "Provisioner and Dashboard Schema"
+    },
+    {
+      "branch": "feat/nxs-p06-customer-conversations",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P04"
+      ],
+      "id": "NXS-P06",
+      "status": "PLANNED",
+      "title": "Customer Identity and Conversations"
+    },
+    {
+      "branch": "feat/nxs-p07-integration-hub",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P04"
+      ],
+      "id": "NXS-P07",
+      "status": "PLANNED",
+      "title": "Integration Hub"
+    },
+    {
+      "branch": "feat/nxs-p08-tool-engine",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P07"
+      ],
+      "id": "NXS-P08",
+      "status": "PLANNED",
+      "title": "Tool Engine"
+    },
+    {
+      "branch": "feat/nxs-p09-messaging",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P06",
+        "NXS-P07"
+      ],
+      "id": "NXS-P09",
+      "status": "PLANNED",
+      "title": "Messaging Channels"
+    },
+    {
+      "branch": "feat/nxs-p10-otp",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P09"
+      ],
+      "id": "NXS-P10",
+      "status": "PLANNED",
+      "title": "OTP Services"
+    },
+    {
+      "branch": "feat/nxs-p11-telephony",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P04"
+      ],
+      "id": "NXS-P11",
+      "status": "PLANNED",
+      "title": "Telephony Foundation"
+    },
+    {
+      "branch": "feat/nxs-p12-elevenlabs",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P11"
+      ],
+      "id": "NXS-P12",
+      "status": "PLANNED",
+      "title": "ElevenLabs Voice"
+    },
+    {
+      "branch": "feat/nxs-p13-agent-runtime",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P08",
+        "NXS-P12"
+      ],
+      "id": "NXS-P13",
+      "status": "PLANNED",
+      "title": "AI Agent Runtime"
+    },
+    {
+      "branch": "feat/nxs-p14-workflows",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P08"
+      ],
+      "id": "NXS-P14",
+      "status": "PLANNED",
+      "title": "Workflow Engine"
+    },
+    {
+      "branch": "feat/nxs-p15-scheduler",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P14"
+      ],
+      "id": "NXS-P15",
+      "status": "PLANNED",
+      "title": "Scheduler"
+    },
+    {
+      "branch": "feat/nxs-p16-campaigns",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P09",
+        "NXS-P15"
+      ],
+      "id": "NXS-P16",
+      "status": "PLANNED",
+      "title": "Campaigns"
+    },
+    {
+      "branch": "feat/nxs-p17-human-agents",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P06",
+        "NXS-P11"
+      ],
+      "id": "NXS-P17",
+      "status": "PLANNED",
+      "title": "Human Agent Operations"
+    },
+    {
+      "branch": "feat/nxs-p18-cell-scaling",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P13",
+        "NXS-P17"
+      ],
+      "id": "NXS-P18",
+      "status": "PLANNED",
+      "title": "Horizontal Cell Scaling"
+    },
+    {
+      "branch": "feat/nxs-p19-sip-scaling",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P11",
+        "NXS-P18"
+      ],
+      "id": "NXS-P19",
+      "status": "PLANNED",
+      "title": "SIP Edge Scaling"
+    },
+    {
+      "branch": "feat/nxs-p20-sentinel",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P18"
+      ],
+      "id": "NXS-P20",
+      "status": "PLANNED",
+      "title": "NXS Sentinel"
+    },
+    {
+      "branch": "feat/nxs-p21-compliance",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P03"
+      ],
+      "id": "NXS-P21",
+      "status": "PLANNED",
+      "title": "Compliance Controls"
+    },
+    {
+      "branch": "feat/nxs-p22-audit",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P04",
+        "NXS-P21"
+      ],
+      "id": "NXS-P22",
+      "status": "PLANNED",
+      "title": "Audit Platform"
+    },
+    {
+      "branch": "feat/nxs-p23-metering",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P18"
+      ],
+      "id": "NXS-P23",
+      "status": "PLANNED",
+      "title": "Metering and Cost"
+    },
+    {
+      "branch": "feat/nxs-p24-observability",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P18"
+      ],
+      "id": "NXS-P24",
+      "status": "PLANNED",
+      "title": "Observability"
+    },
+    {
+      "branch": "feat/nxs-p25-resilience",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P24"
+      ],
+      "id": "NXS-P25",
+      "status": "PLANNED",
+      "title": "Resilience"
+    },
+    {
+      "branch": "feat/nxs-p26-backup-dr",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P25"
+      ],
+      "id": "NXS-P26",
+      "status": "PLANNED",
+      "title": "Backup and Disaster Recovery"
+    },
+    {
+      "branch": "feat/nxs-p27-security-hardening",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P21",
+        "NXS-P25"
+      ],
+      "id": "NXS-P27",
+      "status": "PLANNED",
+      "title": "Security Hardening"
+    },
+    {
+      "branch": "feat/nxs-p28-capacity-certification",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P19",
+        "NXS-P23",
+        "NXS-P24"
+      ],
+      "id": "NXS-P28",
+      "status": "PLANNED",
+      "title": "Capacity Certification"
+    },
+    {
+      "branch": "feat/nxs-p29-chaos-failover",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P26",
+        "NXS-P28"
+      ],
+      "id": "NXS-P29",
+      "status": "PLANNED",
+      "title": "Chaos and Failover Certification"
+    },
+    {
+      "branch": "feat/nxs-p30-backend-certification",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P27",
+        "NXS-P29"
+      ],
+      "id": "NXS-P30",
+      "status": "PLANNED",
+      "title": "Backend Certification"
+    },
+    {
+      "branch": "release/nxs-backend",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P30"
+      ],
+      "id": "NXS-P31",
+      "status": "PLANNED",
+      "title": "GitHub Release"
+    },
+    {
+      "branch": "release/nxs-production",
+      "decision": "PENDING",
+      "dependencies": [
+        "NXS-P31"
+      ],
+      "id": "NXS-P32",
+      "status": "PLANNED",
+      "title": "Production Deployment"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

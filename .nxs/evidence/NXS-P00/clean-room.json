@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","captured_at":"2026-09-06T22:57:00Z","result":"PASS","command":"scripts/clean-room.sh","cache_removal":"PASS","frozen_install":"PASS","repository_validation":"PASS","tests":"23 passed","local_dependencies":"PASS","no_cache_image_build":"PASS","non_root_runtime":"PASS","health_probe":"PASS","clean_shutdown":"PASS"}

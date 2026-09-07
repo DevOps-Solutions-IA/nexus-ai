@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "state", "phase", "branch", "actor", "started_at", "expires_at", "repository_commit"],
+  "properties": {"schema_version": {"const": "1.0.0"}, "state": {"enum": ["RELEASED", "ACTIVE"]}, "phase": {"type": ["string", "null"], "pattern": "^NXS-P[0-9]{2}$"}, "branch": {"type": ["string", "null"]}, "actor": {"type": ["string", "null"]}, "started_at": {"type": ["string", "null"], "format": "date-time"}, "expires_at": {"type": ["string", "null"], "format": "date-time"}, "repository_commit": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"}}
+}

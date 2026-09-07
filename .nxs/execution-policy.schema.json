@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "policies", "lock", "security_severity"],
+  "properties": {
+    "$schema": {"type": "string"}, "schema_version": {"const": "1.0.0"},
+    "policies": {"type": "object", "minProperties": 15, "additionalProperties": {"type": "boolean"}},
+    "lock": {"type": "object", "additionalProperties": false, "required": ["ttl_seconds", "stale_recovery_requires_clean_tree"], "properties": {"ttl_seconds": {"type": "integer", "minimum": 300}, "stale_recovery_requires_clean_tree": {"type": "boolean"}}},
+    "security_severity": {"type": "object", "additionalProperties": false, "required": ["critical", "high", "medium"], "properties": {"critical": {"const": "FAIL"}, "high": {"enum": ["FAIL", "DOCUMENTED_RISK_ACCEPTANCE"]}, "medium": {"const": "REVIEW"}}}
+  }
+}

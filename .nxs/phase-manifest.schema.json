@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "id", "title", "objective", "branch", "dependencies", "requirements_implemented", "non_scope", "mandatory_gates", "status", "decision", "evidence", "implementation_commit", "closure_commit", "timestamps"],
+  "properties": {
+    "$schema": {"type": "string"}, "schema_version": {"const": "1.0.0"}, "id": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"},
+    "title": {"type": "string", "minLength": 3}, "objective": {"type": "string", "minLength": 10}, "branch": {"type": "string", "minLength": 1},
+    "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^NXS-P[0-9]{2}$"}},
+    "requirements_implemented": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^NXS-[A-Z]+-[0-9]{3}$"}},
+    "non_scope": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "mandatory_gates": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]+$"}},
+    "status": {"enum": ["PLANNED", "READY_TO_EXECUTE", "BUILDING", "VALIDATING", "FAILED", "BLOCKED", "READY"]}, "decision": {"enum": ["PENDING", "GO", "NO_GO"]},
+    "evidence": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "implementation_commit": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"}, "closure_commit": {"type": ["string", "null"], "pattern": "^[0-9a-f]{40}$"},
+    "timestamps": {"type": "object", "additionalProperties": false, "required": ["started_at", "closed_at"], "properties": {"started_at": {"type": ["string", "null"], "format": "date-time"}, "closed_at": {"type": ["string", "null"], "format": "date-time"}}}
+  }
+}

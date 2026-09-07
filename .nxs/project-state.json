@@ -1,0 +1,36 @@
+{
+  "$schema": "./project-state.schema.json",
+  "active_phase": null,
+  "blocked_phases": [],
+  "completed_phases": [
+    "NXS-P00"
+  ],
+  "current_phase": {
+    "branch": "feat/nxs-p00-engineering-control-system",
+    "closure_commit": null,
+    "decision": "GO",
+    "id": "NXS-P00",
+    "implementation_commit": "8453d7953e4ee6e4da21378c46820895b0347d18",
+    "status": "READY"
+  },
+  "execution": {
+    "mode": "CONTROLLED",
+    "protocol_version": "1.0.0"
+  },
+  "last_updated_at": "2026-09-06T23:08:40Z",
+  "next_allowed_execution": {
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P01"
+  },
+  "product": {
+    "name": "Nexus AI",
+    "prefix": "NXS",
+    "vendor": "DevOps Solutions IA"
+  },
+  "repository": {
+    "canonical_branch": "main",
+    "name": "nexus-ai",
+    "remote": "git@github.com:DevOps-Solutions-IA/nexus-ai.git"
+  },
+  "schema_version": "1.0.0"
+}

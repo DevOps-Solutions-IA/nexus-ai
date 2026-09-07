@@ -1,0 +1,1 @@
+{"schema_version":"1.0.0","captured_at":"2026-09-06T22:57:00Z","result":"PASS","os":"Kali GNU/Linux Rolling 2026.2 on WSL2","architecture":"x86_64","git":"2.53.0","host_python":"3.13.12","locked_python":"3.14.5","docker":"28.5.2","docker_compose":"2.40.3-desktop.1","github_cli":"2.46.0","uv":"0.11.32","filesystem":"ext4","secrets_recorded":false}
