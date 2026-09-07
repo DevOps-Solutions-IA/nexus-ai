@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p03-security-auth",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P02"
   ],
@@ -38,7 +38,7 @@
     ".nxs/evidence/NXS-P03/token-attacks.json"
   ],
   "id": "NXS-P03",
-  "implementation_commit": "f5b15ed8694916db645016a31733b11c7a432a1d",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -98,9 +98,9 @@
     "NXS-AUTH-009"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-07T10:18:01Z",
+    "closed_at": null,
     "started_at": "2026-09-07T08:18:35Z"
   },
   "title": "Security and Authentication"
