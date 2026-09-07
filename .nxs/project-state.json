@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": null,
+  "active_phase": "NXS-P04",
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -9,20 +9,20 @@
     "NXS-P03"
   ],
   "current_phase": {
-    "branch": "feat/nxs-p03-security-auth",
+    "branch": "feat/nxs-p04-data-events",
     "closure_commit": null,
-    "decision": "GO",
-    "id": "NXS-P03",
-    "implementation_commit": "5c83e5483698370a2f19e1bc644d5c7981387890",
-    "status": "READY"
+    "decision": "PENDING",
+    "id": "NXS-P04",
+    "implementation_commit": null,
+    "status": "BUILDING"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-07T16:19:24Z",
+  "last_updated_at": "2026-09-07T16:52:49Z",
   "next_allowed_execution": {
-    "condition": "DEPENDENCIES_READY",
+    "condition": "ACTIVE_PHASE_ONLY",
     "phase": "NXS-P04"
   },
   "product": {

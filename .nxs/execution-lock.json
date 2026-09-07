@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "DevOps SOLUTIONS IA",
+  "branch": "feat/nxs-p04-data-events",
+  "expires_at": "2026-09-07T20:52:49Z",
+  "phase": "NXS-P04",
+  "repository_commit": "d95e0356b897adf9cebf8b42765412e4b19e9b86",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-07T16:52:49Z",
+  "state": "ACTIVE"
 }

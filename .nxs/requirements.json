@@ -1186,6 +1186,140 @@
       "target_phase": "NXS-P26",
       "title": "Backup and restore",
       "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-CONFIG-001",
+        "NXS-EVENT-001"
+      ],
+      "description": "One immutable, versioned event envelope with globally unique UUIDv7 event_id, UTC occurred_at, stable namespaced event_type, explicit event_version, trusted organization_id or an explicitly classified global scope, aggregate identity, correlation and causation identifiers, producer identity and a strongly typed payload; plus a deterministic NATS subject builder and parser that rejects malformed, injection-like or secret-bearing subjects and controls wildcards.",
+      "id": "NXS-EVENT-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Canonical event envelope and subject taxonomy",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-DATA-002",
+        "NXS-EVENT-002",
+        "NXS-TENANT-003"
+      ],
+      "description": "A PostgreSQL transactional outbox so a business mutation and its event intent commit atomically in the same database transaction; no event is ever emitted from uncommitted state and no row is marked published before JetStream confirms the publication. Tenant-owned outbox rows follow forced Row-Level Security and the runtime role holds no unrestricted DELETE.",
+      "id": "NXS-EVENT-003",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Transactional outbox for atomic state and event intent",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-EVENT-001",
+        "NXS-EVENT-002"
+      ],
+      "description": "A JetStream publisher that extends the P01 messaging boundary, checks the publish acknowledgement under a bounded timeout, classifies transient versus permanent failure, uses event_id as the JetStream message identity for broker-side deduplication, never silently falls back to core NATS for durable business events, and fails closed in hardened environments when required durability is unavailable.",
+      "id": "NXS-EVENT-004",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Reliable JetStream publisher with deterministic semantics",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-EVENT-004"
+      ],
+      "description": "A reusable durable consumer abstraction with a stable consumer identity, an explicit acknowledgement policy, bounded ack-wait, a bounded handler timeout, controlled concurrency and graceful draining. A message is acknowledged only after successful processing; retryable failures are negatively acknowledged under bounded backoff and terminal failures take an explicit path.",
+      "id": "NXS-EVENT-005",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Durable consumer framework with explicit acknowledgement",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-DATA-002",
+        "NXS-EVENT-005"
+      ],
+      "description": "Durable PostgreSQL-backed consumer idempotency keyed by consumer name and event_id, applied in the same database transaction as the handler effect, so at-least-once delivery and lost acknowledgements never produce a duplicate business effect and concurrent duplicate deliveries resolve to exactly one effect.",
+      "id": "NXS-EVENT-006",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Consumer idempotency and duplicate protection",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-EVENT-005"
+      ],
+      "description": "Bounded exponential backoff with a maximum delay and a maximum attempt count for both outbox publication and consumer processing, and a deliberate terminal failure strategy (durable dead-letter records and a dead-letter subject) that retains event identity, failure classification, attempt count and sanitized error information without stack traces or secrets, with controlled replay tooling. Poison messages cannot cause an infinite hot loop.",
+      "id": "NXS-EVENT-007",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Retry, backoff and terminal failure handling",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-AUTH-007",
+        "NXS-EVENT-002",
+        "NXS-TENANT-003"
+      ],
+      "description": "Tenant authority for an internally produced event comes only from trusted server-side context written into the envelope and outbox, never from an untrusted payload field; consumers establish tenant database scope from the verified envelope and PostgreSQL Row-Level Security remains the final boundary. Forged organization_id, cross-tenant aggregate identifiers, scope confusion and cross-tenant reads or writes fail closed.",
+      "id": "NXS-EVENT-008",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Tenant-safe event propagation and isolation",
+      "validation_evidence": []
+    },
+    {
+      "category": "EVENT",
+      "dependencies": [
+        "NXS-EVENT-002"
+      ],
+      "description": "A decoder registry of typed Pydantic event payload models with an explicit envelope schema version and payload version, deterministic handling of unknown event types and unsupported future versions, documented backward-compatible evolution rules and explicit additional-field behaviour. No handler consumes an arbitrary unknown payload as a trusted structure.",
+      "id": "NXS-EVENT-009",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Event schema and version compatibility validation",
+      "validation_evidence": []
+    },
+    {
+      "category": "DATA",
+      "dependencies": [
+        "NXS-DATA-001",
+        "NXS-TENANT-003"
+      ],
+      "description": "Lifecycle-safe PostgreSQL persistence and query primitives for the event platform tables (outbox, consumer receipts, dead letters) with reversible Alembic migrations, explicit TENANT-OWNED classification, forced Row-Level Security, supporting indexes justified by real claim and lookup query paths, and no import-time connections.",
+      "id": "NXS-DATA-002",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "IN_PROGRESS",
+      "target_phase": "NXS-P04",
+      "title": "Event persistence and query primitives",
+      "validation_evidence": []
     }
   ],
   "schema_version": "1.0.0"
