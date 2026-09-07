@@ -1,1 +1,10 @@
-{"schema_version":"1.0.0","state":"RELEASED","phase":null,"branch":null,"actor":null,"started_at":null,"expires_at":null,"repository_commit":null}
+{
+  "actor": "codex",
+  "branch": "feat/nxs-p01-backend-core",
+  "expires_at": "2026-09-07T08:34:39Z",
+  "phase": "NXS-P01",
+  "repository_commit": "73b399f9e8f3871ef0242585dc79eb2fa10ce5ef",
+  "schema_version": "1.0.0",
+  "started_at": "2026-09-07T04:34:39Z",
+  "state": "ACTIVE"
+}

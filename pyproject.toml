@@ -5,24 +5,36 @@ build-backend = "hatchling.build"
 [project]
 name = "nexus-ai"
 version = "0.1.0"
-description = "Nexus AI engineering control system and backend foundation"
+description = "Nexus AI engineering control system and production backend core"
 requires-python = ">=3.14,<3.15"
 dependencies = [
   "fastapi==0.141.1",
-  "jsonschema[format]==4.25.1",
   "starlette==1.6.0",
   "uvicorn[standard]==0.35.0",
+  "jsonschema[format]==4.25.1",
+  "pydantic==2.13.5",
+  "pydantic-settings==2.15.0",
+  "sqlalchemy[asyncio]==2.0.52",
+  "asyncpg==0.31.0",
+  "redis==8.1.0",
+  "nats-py==2.15.0",
+  "alembic==1.19.2",
+  "structlog==26.1.0",
+  "opentelemetry-api==1.44.0",
+  "opentelemetry-sdk==1.44.0",
+  "opentelemetry-instrumentation-fastapi==0.65b0",
 ]
 
 [dependency-groups]
 dev = [
+  "anyio==4.15.1",
   "bandit==1.8.6",
   "httpx==0.28.1",
   "mypy==1.17.1",
   "pip-audit==2.9.0",
   "pytest==9.0.3",
   "pytest-cov==6.2.1",
-  "ruff==0.12.12",
+  "ruff==0.16.6",
   "types-jsonschema==4.25.1.20250822",
 ]
 
@@ -30,29 +42,40 @@ dev = [
 packages = ["src/nexus_ai", "scripts"]
 
 [tool.ruff]
-target-version = "py313"
+target-version = "py314"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF"]
+select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF", "ASYNC"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101"]
+"tests/**/*.py" = ["S101", "S105", "S106"]
 "scripts/nxs_control/core.py" = ["S603", "S607"]
+"scripts/nxs_guard/lock.py" = ["S603", "S607"]
+"scripts/nxs_guard/__main__.py" = ["S603", "S607"]
 "scripts/nxs_gate/__main__.py" = ["S603"]
+"scripts/nxs_start/__main__.py" = ["S603", "S607"]
+"migrations/env.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.14"
 strict = true
 packages = ["nexus_ai", "scripts"]
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["nats.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-addopts = "--strict-config --strict-markers --cov=nexus_ai --cov=scripts.nxs_control --cov-report=term-missing --cov-fail-under=80"
+addopts = "--strict-config --strict-markers --cov=nexus_ai --cov=scripts --cov-report=term-missing --cov-branch --cov-fail-under=80"
 testpaths = ["tests"]
+markers = ["integration: exercises real PostgreSQL, Valkey or NATS dependencies"]
 filterwarnings = ["error"]
 
 [tool.coverage.run]
 branch = true
+omit = ["migrations/*"]
 
 [tool.bandit]
 exclude_dirs = ["tests"]
