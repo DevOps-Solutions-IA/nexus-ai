@@ -1,0 +1,28 @@
+{
+  "duration_seconds": 54,
+  "fresh_venv": true,
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:13:50Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh",
+  "steps": {
+    "agent_handoff": "PASS",
+    "alembic_check": "PASS",
+    "alembic_upgrade_head": "PASS",
+    "compose_up": "PASS",
+    "coverage_90": "PASS",
+    "docker_build": "PASS",
+    "format": "PASS",
+    "full_test_suite": "PASS",
+    "graceful_shutdown": "PASS",
+    "lint": "PASS",
+    "liveness": 200,
+    "lock_check": "PASS",
+    "locked_install": "PASS",
+    "non_root_runtime": "PASS",
+    "readiness": 200,
+    "repository_validation": "PASS",
+    "typing": "PASS"
+  }
+}

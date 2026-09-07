@@ -1,0 +1,3 @@
+# ADR-0021: Application factory and typed lifespan
+
+Status: Accepted. Decision: the backend is constructed by `create_app(settings: Settings | None = None) -> FastAPI`; `nexus_ai.main:app` is only `create_app()` for ASGI. No external connection is opened at import; connections open in a typed `ApplicationLifespan` and close idempotently in reverse order on shutdown. Consequences: tests build isolated apps with explicit settings and drive the real lifespan; a transient dependency outage keeps the process live while readiness reports `NOT_READY`, but invalid or missing mandatory configuration fails startup.

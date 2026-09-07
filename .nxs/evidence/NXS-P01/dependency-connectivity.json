@@ -1,0 +1,37 @@
+{
+  "migrations": {
+    "check": "PASS",
+    "upgrade_head": "PASS"
+  },
+  "mode": "real",
+  "nats": {
+    "connect": "PASS",
+    "graceful_drain": "PASS",
+    "jetstream_detected": true,
+    "probe": "UP"
+  },
+  "phase": "NXS-P01",
+  "postgresql": {
+    "connect": "PASS",
+    "graceful_disposal": "PASS",
+    "probe": "UP",
+    "session": "PASS",
+    "transaction_commit": "PASS",
+    "transaction_rollback": "PASS"
+  },
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_database.py",
+    "tests/integration/test_cache_messaging.py",
+    "tests/integration/test_readiness_recovery.py"
+  ],
+  "valkey": {
+    "connect": "PASS",
+    "idempotent_close": "PASS",
+    "probe": "UP",
+    "redacted_url": "PASS",
+    "round_trip": "PASS"
+  }
+}

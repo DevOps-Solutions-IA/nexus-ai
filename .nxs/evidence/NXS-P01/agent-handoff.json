@@ -1,0 +1,17 @@
+{
+  "automated_test": "tests/integration/test_agent_handoff.py",
+  "method": "repository_only",
+  "note": "post-closure this evidence is regenerated to assert P00 READY, P01 READY, P02 next",
+  "phase": "NXS-P01",
+  "reconstructed": {
+    "completed_phases": [
+      "NXS-P00"
+    ],
+    "current_phase": "NXS-P01",
+    "next_allowed_phase": "computed from registry DAG",
+    "policy": "registry order among eligible"
+  },
+  "recorded_at": "2026-09-07T05:13:50Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

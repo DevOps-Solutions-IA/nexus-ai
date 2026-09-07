@@ -1,0 +1,35 @@
+{
+  "defects_remediated": {
+    "executable_lock_cli": "PASS",
+    "full_current_phase_identity_replacement": "PASS",
+    "generic_closure_engine": "PASS",
+    "generic_next_phase_selection": "PASS",
+    "generic_phase_start_command": "PASS",
+    "phase_neutral_ci": "PASS"
+  },
+  "hardcoded_phase_ids_in_control_system": 0,
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "state_machine_scenarios": {
+    "scenario_1": "PASS",
+    "scenario_10": "PASS",
+    "scenario_11": "PASS",
+    "scenario_12": "PASS",
+    "scenario_13": "PASS",
+    "scenario_2": "PASS",
+    "scenario_3": "PASS",
+    "scenario_4": "PASS",
+    "scenario_5": "PASS",
+    "scenario_6": "PASS",
+    "scenario_7": "PASS",
+    "scenario_8": "PASS",
+    "scenario_9": "PASS"
+  },
+  "tests": [
+    "tests/unit/test_lifecycle.py",
+    "tests/unit/test_control_core.py",
+    "tests/unit/test_control_cli.py"
+  ]
+}

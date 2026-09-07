@@ -1,0 +1,16 @@
+{
+  "checks": {
+    "correlation_context_no_leak": "PASS",
+    "db_sessions_independent": "PASS",
+    "errors_stay_correlated": "PASS",
+    "request_ids_never_bleed": "PASS"
+  },
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "requests": 200,
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/concurrency/test_concurrency.py"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "correlation_id": "PASS",
+    "cors_policy": "PASS",
+    "docs_exposure_configurable": "PASS",
+    "health_live": "PASS",
+    "health_ready": "PASS",
+    "legacy_health_version_preserved": "PASS",
+    "method_not_allowed_405": "PASS",
+    "not_found_404": "PASS",
+    "openapi_deterministic": "PASS",
+    "request_id": "PASS",
+    "security_headers": "PASS",
+    "unexpected_500_problem_details": "PASS",
+    "validation_422_normalized": "PASS",
+    "version": "PASS"
+  },
+  "media_type": "application/problem+json",
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/contracts/test_http_contract.py",
+    "tests/contracts/test_openapi.py",
+    "tests/contracts/test_error_contract.py"
+  ]
+}

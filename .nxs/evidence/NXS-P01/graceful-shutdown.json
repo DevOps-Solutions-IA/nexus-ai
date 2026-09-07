@@ -1,0 +1,17 @@
+{
+  "bounded_timeout_seconds": 15,
+  "drain_order": [
+    "nats",
+    "valkey",
+    "postgresql",
+    "telemetry"
+  ],
+  "idempotent_shutdown": "PASS",
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "runtime_stopped_logged": true,
+  "schema_version": "1.0.0",
+  "signal": "SIGTERM",
+  "stop_duration_ms": 324
+}

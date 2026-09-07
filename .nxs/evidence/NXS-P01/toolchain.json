@@ -1,0 +1,19 @@
+{
+  "adr": "docs/adr/0020-python-3-14-baseline.md",
+  "bandit": "1.9.2",
+  "baseline": "python-3.14",
+  "declarations": {
+    "ci_matrix": "3.14",
+    "docker_image": "python:3.14.7",
+    "mypy_python_version": "3.14",
+    "requires_python": ">=3.14,<3.15",
+    "ruff_target_version": "py314",
+    "uv_interpreter": "cpython-3.14.5"
+  },
+  "lock": "regenerated",
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "ruff": "0.16.6",
+  "schema_version": "1.0.0"
+}

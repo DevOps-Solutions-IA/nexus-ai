@@ -1,0 +1,13 @@
+{
+  "branch_aware": true,
+  "phase": "NXS-P01",
+  "recorded_at": "2026-09-07T05:07:34Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scope": [
+    "nexus_ai",
+    "scripts"
+  ],
+  "threshold": 90,
+  "total_percent": 90
+}

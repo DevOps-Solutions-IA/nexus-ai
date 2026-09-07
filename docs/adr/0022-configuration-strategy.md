@@ -1,0 +1,3 @@
+# ADR-0022: Validated configuration strategy
+
+Status: Accepted. Decision: configuration is `pydantic-settings` with the `NXS_` prefix and `__` nesting, frozen models, typed and bounded values (pool sizes, timeouts, ports), URL/DSN scheme validation, and secrets held in `SecretStr` with redacted `safe_*` accessors. Environments are `local`, `test`, `staging`, `production`. Production fails fast on wildcard hosts, wildcard CORS, enabled docs, a disabled telemetry mode, or any missing required DSN/URL. Consequences: no insecure production default can be reached silently; test overrides are deterministic through the environment.

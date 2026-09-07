@@ -1,0 +1,3 @@
+# ADR-0025: Valkey and NATS connectivity boundaries
+
+Status: Accepted. Decision: Valkey is reached through an internal `Cache` adapter over the async Redis-protocol client (bounded connect/op timeouts, pooled, redacted URL, health probe, idempotent close). NATS is reached through a `Messaging` adapter: bounded connect timeout wrapped in a hard deadline, reconnect policy, disconnect/reconnect/error/closed callbacks, JetStream capability detection, health state (`DEGRADED` when JetStream is absent) and graceful drain. No domain cache semantics or event subjects exist in P01; the Data/Event Platform is P04. Consequences: vendor clients never leak into domain code.
