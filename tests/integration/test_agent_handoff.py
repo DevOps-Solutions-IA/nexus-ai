@@ -54,13 +54,41 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
     assert ledger_by_id["NXS-ORG-001"]["target_phase"] == "NXS-P05"
     assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
 
-    # Once P01 is READY, the next phase is deterministically P02.
+    # The next eligible phase is generic: the first non-READY, non-blocked phase in
+    # registry order whose dependencies are all READY/GO. Asserted generically so
+    # closing ANY phase (P02 → P03 → P04 → ...) keeps this contract true without
+    # per-phase edits.
+    if active is None and candidate is not None:
+        blocked = set(state.get("blocked_phases", []))
+        phases_in_order = load_json(ROOT / ".nxs/phase-registry.json")["phases"]
+        expected: str | None = None
+        for entry in phases_in_order:
+            phase_id = entry["id"]
+            if registry[phase_id]["status"] == "READY" or phase_id in blocked:
+                continue
+            if all(
+                registry[dependency]["status"] == "READY"
+                and registry[dependency]["decision"] == "GO"
+                for dependency in entry["dependencies"]
+            ):
+                expected = phase_id
+                break
+        assert candidate == expected, (
+            "the first eligible phase must match the generic DAG computation"
+        )
+
+    # Phase-specific expectations, each guarded by the relevant closed predecessor.
     if registry["NXS-P01"]["status"] == "READY" and registry["NXS-P02"]["status"] != "READY":
         if active is None:
             assert next_eligible_phase(ROOT) == "NXS-P02"
         assert registry["NXS-P02"]["branch"] == "feat/nxs-p02-tenancy"
 
-    # Once P02 is READY, the next phase is deterministically P03.
-    if registry["NXS-P02"]["status"] == "READY" and active is None:
-        assert next_eligible_phase(ROOT) == "NXS-P03"
+    if registry["NXS-P02"]["status"] == "READY" and registry["NXS-P03"]["status"] != "READY":
+        if active is None:
+            assert next_eligible_phase(ROOT) == "NXS-P03"
         assert registry["NXS-P03"]["branch"] == "feat/nxs-p03-security-auth"
+
+    # Once P03 is READY, the next phase is deterministically P04.
+    if registry["NXS-P03"]["status"] == "READY" and active is None:
+        assert next_eligible_phase(ROOT) == "NXS-P04"
+        assert registry["NXS-P04"]["branch"] == "feat/nxs-p04-data-events"

@@ -27,7 +27,7 @@ jobs:
           go install github.com/zricethezav/gitleaks/v8@v8.28.0
       - name: Secret scan
         run: |
-          "$(go env GOPATH)/bin/gitleaks" git --redact --no-banner --exit-code 1
+          "$(go env GOPATH)/bin/gitleaks" git --redact --no-banner --exit-code 1 --config .gitleaks.toml
       - name: SAST and dependency audit
         run: |
           uv run bandit -q -lll -c pyproject.toml -r src scripts

@@ -165,6 +165,65 @@ class OrganizationVersionConflictError(NxsError):
     retryable = True
 
 
+class AuthenticationFailedError(NxsError):
+    """Generic login/refresh failure. Identical for unknown email, bad password, revoked
+    session and disabled identity — no caller-visible distinction, no enumeration."""
+
+    code = "NXS_AUTH_CREDENTIALS_REJECTED"
+    status = 401
+    title = "Authentication Failed"
+
+
+class TokenValidationError(NxsError):
+    """A presented access token failed cryptographic or claim validation (fail closed)."""
+
+    code = "NXS_AUTH_TOKEN_INVALID"
+    status = 401
+    title = "Invalid Token"
+
+
+class SessionRevokedError(NxsError):
+    code = "NXS_AUTH_SESSION_REVOKED"
+    status = 401
+    title = "Session Revoked"
+
+
+class MembershipRequiredError(NxsError):
+    code = "NXS_AUTH_MEMBERSHIP_REQUIRED"
+    status = 403
+    title = "Organization Membership Required"
+
+
+class MembershipInactiveError(NxsError):
+    code = "NXS_AUTH_MEMBERSHIP_INACTIVE"
+    status = 403
+    title = "Organization Membership Not Active"
+
+
+class MembershipConflictError(NxsError):
+    code = "NXS_AUTH_MEMBERSHIP_CONFLICT"
+    status = 409
+    title = "Membership Conflict"
+
+
+class UserConflictError(NxsError):
+    code = "NXS_AUTH_USER_CONFLICT"
+    status = 409
+    title = "User Conflict"
+
+
+class UserInactiveError(NxsError):
+    code = "NXS_AUTH_USER_INACTIVE"
+    status = 403
+    title = "User Not Active"
+
+
+class MultipleOrganizationsError(NxsError):
+    code = "NXS_AUTH_MULTIPLE_ORGS"
+    status = 400
+    title = "Organization Selection Required"
+
+
 PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     InvalidRequestError,
     ValidationFailedError,
@@ -186,4 +245,13 @@ PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     OrganizationInvalidStateError,
     OrganizationInactiveError,
     OrganizationVersionConflictError,
+    AuthenticationFailedError,
+    TokenValidationError,
+    SessionRevokedError,
+    MembershipRequiredError,
+    MembershipInactiveError,
+    MembershipConflictError,
+    UserConflictError,
+    UserInactiveError,
+    MultipleOrganizationsError,
 )

@@ -1,0 +1,8 @@
+{
+  "image": "nexus-ai:p03",
+  "non_root_user": "65532:65532",
+  "phase": "NXS-P03",
+  "recorded_at": "2026-09-07T16:09:17Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

@@ -33,6 +33,8 @@ _TEST_ENV = {
     "NXS_CACHE__REQUIRED": "false",
     "NXS_MESSAGING__REQUIRED": "false",
     "NXS_LOGGING__FORMAT": "json",
+    "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY": "true",
+    "NXS_AUTH__RATE_LIMIT_BACKEND": "local",
 }
 
 
@@ -500,3 +502,103 @@ async def tenant_header_client(
             client.nexus_app = app  # type: ignore[attr-defined]
             client.nexus_settings = settings  # type: ignore[attr-defined]
             yield client
+
+
+@pytest.fixture
+async def auth_client(
+    migrated_database: str, integration_env: Callable[..., Settings]
+) -> AsyncIterator[httpx.AsyncClient]:
+    """A full app whose tenant scope resolves ONLY from bearer tokens (NXS-P03)."""
+    settings = integration_env(NXS_TENANCY__HEADER_RESOLVER_ENABLED="false")
+    app = create_app(settings)
+    async with LifespanManager(app) as manager:
+        transport = httpx.ASGITransport(app=manager.app, raise_app_exceptions=False)
+        async with httpx.AsyncClient(transport=transport, base_url="http://nexus.test") as client:
+            client.nexus_app = app  # type: ignore[attr-defined]
+            client.nexus_settings = settings  # type: ignore[attr-defined]
+            yield client
+
+
+def _auth_resources(client: httpx.AsyncClient) -> Any:
+    return client.nexus_app.state.lifespan.resources  # type: ignore[attr-defined]
+
+
+@pytest.fixture
+def make_auth_org(auth_client: httpx.AsyncClient) -> Callable[..., Any]:
+    from nexus_ai.domain.organizations.entities import OrganizationDraft
+    from nexus_ai.domain.organizations.status import OrganizationStatus
+
+    counter = {"n": 0}
+
+    async def _make(*, activate: bool = True, key: str | None = None) -> Any:
+        resources = _auth_resources(auth_client)
+        counter["n"] += 1
+        draft = OrganizationDraft(
+            organization_key=key or f"auth-org-{counter['n']:04d}-{uuid_hex()}",
+            display_name=f"Auth Org {counter['n']}",
+            legal_name=f"Auth Org {counter['n']} S.A.",
+            country_code="cr",
+            timezone="America/Costa_Rica",
+        )
+        organization = await resources.organizations.create_core_record(draft)
+        if activate:
+            organization = await resources.organizations.transition(
+                organization.id, OrganizationStatus.ACTIVE
+            )
+        return organization
+
+    return _make
+
+
+@pytest.fixture
+def make_auth_user(auth_client: httpx.AsyncClient) -> Callable[..., Any]:
+    """Register a user; optionally create an org and attach them with a role."""
+    from nexus_ai.domain.auth.entities import RegistrationDraft
+    from nexus_ai.domain.auth.rbac import RoleKey
+
+    counter = {"n": 0}
+
+    async def _make(
+        *,
+        password: str = "correct-horse-battery-staple",  # noqa: S107 - test fixture default
+        email: str | None = None,
+        organization: Any | None = None,
+        role: RoleKey | None = RoleKey.ORG_OWNER,
+        email_verified: bool = False,
+    ) -> tuple[str, str, Any]:
+        resources = _auth_resources(auth_client)
+        counter["n"] += 1
+        normalized = email or f"user-{counter['n']:04d}-{uuid_hex()}@example.com"
+        registered = await resources.auth.register_user(
+            RegistrationDraft(
+                email=normalized,
+                password=password,
+                display_name=f"User {counter['n']}",
+            ),
+            verify_email=email_verified,
+        )
+        if organization is not None and role is not None:
+            await resources.memberships.create(
+                actor=None,
+                organization_id=organization.id,
+                user_id=registered.id,
+                role=role,
+            )
+        return normalized, password, registered
+
+    return _make
+
+
+@pytest.fixture
+def login_helper(auth_client: httpx.AsyncClient) -> Callable[..., Any]:
+    async def _login(
+        email: str, password: str, organization_id: Any | None = None
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {"email": email, "password": password}
+        if organization_id is not None:
+            payload["organization_id"] = str(organization_id)
+        response = await auth_client.post("/api/v1/auth/login", json=payload)
+        assert response.status_code == 200, response.text
+        return response.json()
+
+    return _login

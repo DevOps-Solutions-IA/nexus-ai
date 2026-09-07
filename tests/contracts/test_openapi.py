@@ -13,13 +13,19 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
     assert schema["info"]["version"] == "0.1.0"
     paths = set(schema["paths"])
     assert {"/health/live", "/health/ready", "/api/v1/system/version"} <= paths
-    # No future/unimplemented endpoints are advertised.
+    # The P03 authentication surface is advertised (login/refresh/logout/session/
+    # memberships); later-phase domains are not.
+    assert {
+        "/api/v1/auth/login",
+        "/api/v1/auth/refresh",
+        "/api/v1/auth/logout",
+        "/api/v1/auth/me",
+        "/api/v1/auth/memberships",
+    } <= paths
     assert not any(
-        segment in path
-        for path in paths
-        for segment in ("/conversations", "/auth", "/agents", "/users", "/memberships")
+        segment in path for path in paths for segment in ("/conversations", "/agents", "/users")
     )
-    # Organization administration (list / arbitrary id) is not exposed before P03.
+    # Organization administration (list / arbitrary id) is not exposed.
     assert "/api/v1/organizations" not in paths
     assert not any(path.rstrip("/").endswith("/organizations/{organization_id}") for path in paths)
 

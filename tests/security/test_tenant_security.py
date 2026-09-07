@@ -14,6 +14,7 @@ from nexus_ai.core.tenancy import TenantContext, TenantContextSource
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 _HEADER = "X-NXS-Organization-ID"
+PASSWORD = "correct-horse-battery-staple"
 
 
 async def test_production_rejects_header_resolver() -> None:
@@ -37,16 +38,14 @@ async def test_no_context_without_header(tenant_header_client: Any) -> None:
     assert response.json()["code"] == "NXS_TENANT_CONTEXT_REQUIRED"
 
 
-async def test_spoofed_but_unknown_org_is_not_found(
-    tenant_header_client: Any,
-) -> None:
-    response = await tenant_header_client.get(
+async def test_spoofed_header_grants_no_scope_at_all(auth_client: Any) -> None:
+    # P03 contract: without a verified bearer token a header cannot create ANY scope —
+    # stronger than P02's interim 404, and never another tenant's data.
+    response = await auth_client.get(
         "/api/v1/organizations/current", headers={_HEADER: str(uuid.uuid7())}
     )
-    # An attacker who guesses a header still resolves to their own (empty) scope: not-found,
-    # never another tenant's data.
-    assert response.status_code == 404
-    assert response.json()["code"] == "NXS_ORG_NOT_FOUND"
+    assert response.status_code == 403
+    assert response.json()["code"] == "NXS_TENANT_CONTEXT_REQUIRED"
 
 
 async def test_malformed_tenant_header_is_rejected(tenant_header_client: Any) -> None:
@@ -59,26 +58,30 @@ async def test_malformed_tenant_header_is_rejected(tenant_header_client: Any) ->
 
 
 async def test_confused_deputy_body_org_id_is_ignored(
-    tenant_header_client: Any, make_organization
+    auth_client: Any, make_auth_org: Any, make_auth_user: Any, login_helper: Any
 ) -> None:
-    victim = await make_organization(activate=True)
-    attacker = await make_organization(activate=True)
-    # Attacker is scoped to their own org via the header, but puts the victim's id in the body.
-    response = await tenant_header_client.patch(
+    victim = await make_auth_org()
+    attacker_org = await make_auth_org()
+    attacker_email, _, _ = await make_auth_user(organization=attacker_org)
+    session = await login_helper(attacker_email, PASSWORD)
+    # The attacker is authenticated into their own org but smuggles the victim's id in
+    # the body: organization_id is an unknown field -> 422, and the token's org claim —
+    # not any body value — remains the only tenant authority.
+    response = await auth_client.patch(
         "/api/v1/organizations/current",
-        headers={_HEADER: str(attacker.id)},
+        headers={"Authorization": f"Bearer {session['access_token']}"},
         json={
             "display_name": "Owned",
-            "expected_version": attacker.version,
+            "expected_version": attacker_org.version,
             "organization_id": str(victim.id),
         },
     )
-    # organization_id is an unknown field -> 422; scope never switches to the victim regardless.
     assert response.status_code == 422
-    read = await tenant_header_client.get(
-        "/api/v1/organizations/current", headers={_HEADER: str(victim.id)}
+    read = await auth_client.get(
+        "/api/v1/organizations/current",
+        headers={"Authorization": f"Bearer {session['access_token']}"},
     )
-    assert read.json()["display_name"] != "Owned"
+    assert read.json()["display_name"] != "Owned"  # nothing was modified anywhere
 
 
 async def test_raw_sql_cross_scope_via_service_is_blocked(
@@ -99,7 +102,7 @@ async def test_tax_identifier_never_in_public_view_or_repr(
     from nexus_ai.domain.organizations.entities import OrganizationDraft
 
     draft = OrganizationDraft(
-        organization_key="tax-secret-org",
+        organization_key=f"tax-secret-org-{uuid.uuid4().hex[:8]}",
         display_name="Tax Secret",
         legal_name="Tax Secret SA",
         country_code="cr",

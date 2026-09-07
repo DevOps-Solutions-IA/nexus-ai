@@ -19,6 +19,9 @@ dependencies = [
   "redis==8.1.0",
   "nats-py==2.15.0",
   "alembic==1.19.2",
+  "argon2-cffi==25.1.0",
+  "cryptography==50.0.1",
+  "pyjwt==2.13.0",
   "structlog==26.1.0",
   "opentelemetry-api==1.44.0",
   "opentelemetry-sdk==1.44.0",
@@ -58,6 +61,7 @@ ignore = ["ASYNC109"]
 "scripts/nxs_guard/__main__.py" = ["S603", "S607"]
 "scripts/nxs_gate/__main__.py" = ["S603"]
 "scripts/nxs_start/__main__.py" = ["S603", "S607"]
+"scripts/nxs_p03_evidence.py" = ["S603", "S607"]
 "migrations/env.py" = ["E402"]
 
 [tool.mypy]

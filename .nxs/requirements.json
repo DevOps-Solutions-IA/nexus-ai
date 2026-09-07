@@ -418,6 +418,196 @@
       ]
     },
     {
+      "category": "AUTH",
+      "dependencies": [],
+      "description": "A canonical global user identity model with immutable server-generated UUIDv7 user_id, lifecycle status, normalized email identity, verified/unverified email state and no tenant trust from request bodies or arbitrary headers; tenant association is resolved only through authenticated membership.",
+      "id": "NXS-AUTH-001",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/identity.py",
+        "src/nexus_ai/domain/auth/entities.py",
+        "src/nexus_ai/domain/auth/models.py",
+        "src/nexus_ai/domain/auth/repository.py",
+        "src/nexus_ai/domain/auth/service.py",
+        "tests/unit/test_auth_identity.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "User identity core",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-001",
+        "NXS-TENANT-003"
+      ],
+      "description": "A secure user-organization membership boundary with status lifecycle, unique constraints preventing duplicate active membership ambiguity, safely scoped lookup, no cross-organization enumeration and no privilege inheritance between organizations.",
+      "id": "NXS-AUTH-002",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/models.py",
+        "src/nexus_ai/domain/auth/repository.py",
+        "src/nexus_ai/domain/auth/administration.py",
+        "src/nexus_ai/infrastructure/database.py",
+        "migrations/versions/20260907_0915-36741ae62327_auth_foundation.py",
+        "tests/integration/test_auth_rls.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Organization membership boundary",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-001"
+      ],
+      "description": "Argon2id password credentials with per-password salt through the library primitive, no custom or reversible storage, secure verification, credential versioning seam, length and normalization rules, protection against pathological hashing inputs and no password material in logs, errors or traces.",
+      "id": "NXS-AUTH-003",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/passwords.py",
+        "src/nexus_ai/domain/auth/identity.py",
+        "tests/unit/test_auth_passwords.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Password credentials",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-001",
+        "NXS-AUTH-002",
+        "NXS-AUTH-005"
+      ],
+      "description": "Short-lived access tokens with rotation-capable server-side refresh sessions, revocation and reuse detection, explicit issuer and audience validation, strict algorithm allowlist, exp/iat/nbf validation, key identifier support, bounded clock skew, no algorithm confusion and fail-closed malformed claims.",
+      "id": "NXS-AUTH-004",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/tokens.py",
+        "src/nexus_ai/domain/auth/repository.py",
+        "src/nexus_ai/domain/auth/service.py",
+        "tests/unit/test_auth_tokens.py",
+        "tests/concurrency/test_auth_concurrency.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Token and session architecture",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [],
+      "description": "A provider-independent signing and verification key abstraction with key identifier rotation support, verification of old valid tokens during controlled rotation, a future external KMS/HSM seam, private key material never returned or logged, and hardened environments failing closed on insecure development key configuration.",
+      "id": "NXS-AUTH-005",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/keys.py",
+        "src/nexus_ai/core/config.py",
+        "tests/unit/test_auth_keys.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Signing key management",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-002"
+      ],
+      "description": "Foundational organization-scoped role-based access control with stable permission identifiers, organization-scoped role assignments, a deny-by-default authorization service boundary, explicit permission checks, least privilege, no implicit admin from email or domain and no cross-tenant role leakage.",
+      "id": "NXS-AUTH-006",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/rbac.py",
+        "src/nexus_ai/domain/auth/administration.py",
+        "tests/integration/test_auth_rbac.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Organization-scoped RBAC",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-004",
+        "NXS-AUTH-006"
+      ],
+      "description": "The production TenantContextResolver derives organization_id only from authenticated and authorized identity and membership context, never from arbitrary headers, request bodies, global fallback or unauthorized membership switching; proven by adversarial tests.",
+      "id": "NXS-AUTH-007",
+      "implementation_evidence": [
+        "src/nexus_ai/api/tenancy.py",
+        "src/nexus_ai/domain/auth/service.py",
+        "tests/security/test_auth_security.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Authenticated tenant resolution",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-004",
+        "NXS-AUTH-007"
+      ],
+      "description": "A minimal login, refresh, logout/revoke and session/identity API with generic authentication failure responses, stable error codes, no user enumeration, no password hashes, signing secrets or refresh tokens in responses or logs.",
+      "id": "NXS-AUTH-008",
+      "implementation_evidence": [
+        "src/nexus_ai/api/auth.py",
+        "src/nexus_ai/api/auth_deps.py",
+        "tests/integration/test_auth_integration.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Authentication API surface",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
+      "category": "AUTH",
+      "dependencies": [
+        "NXS-AUTH-008"
+      ],
+      "description": "A bounded authentication abuse-control layer with failed-attempt throttling, no unbounded in-memory-only production security primitive, user/IP-aware keys where safe, deterministic tests and safe fallback behavior.",
+      "id": "NXS-AUTH-009",
+      "implementation_evidence": [
+        "src/nexus_ai/domain/auth/ratelimit.py",
+        "src/nexus_ai/core/config.py",
+        "tests/unit/test_auth_ratelimit.py",
+        "tests/integration/test_auth_integration.py"
+      ],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P03",
+      "title": "Authentication abuse control",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P03/quality-gates.json"
+      ]
+    },
+    {
       "category": "CACHE",
       "dependencies": [
         "NXS-CONFIG-001",
