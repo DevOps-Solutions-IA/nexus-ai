@@ -30,6 +30,8 @@ from nexus_ai.domain.auth.service import AuthService
 from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
 from nexus_ai.domain.organizations.service import OrganizationService
+from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
+from nexus_ai.domain.provisioning.service import OrganizationProvisioner
 from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
@@ -59,6 +61,7 @@ class Resources:
     memberships: MembershipService
     principal_validator: PrincipalStateValidator
     event_platform: EventPlatform
+    provisioner: OrganizationProvisioner
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -162,6 +165,7 @@ class ApplicationLifespan:
             memberships=MembershipService(database, authorizer),
             principal_validator=principal_validator,
             event_platform=event_platform,
+            provisioner=OrganizationProvisioner(settings, database, event_platform.publisher),
         )
         await logger.ainfo(
             "runtime_started",

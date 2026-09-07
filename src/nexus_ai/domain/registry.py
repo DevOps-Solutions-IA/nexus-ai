@@ -22,14 +22,24 @@ from nexus_ai.domain.events.models import (
     EventOutboxRecord,
 )
 from nexus_ai.domain.organizations.models import OrganizationRecord
+from nexus_ai.domain.provisioning.models import (
+    DashboardConfigurationRecord,
+    OrganizationSettingsRecord,
+    PlatformGrantRecord,
+    ProvisioningRequestRecord,
+)
 
 __all__ = [
     "ConsumerReceiptRecord",
+    "DashboardConfigurationRecord",
     "EventDeadLetterRecord",
     "EventOutboxRecord",
     "MembershipRecord",
     "OrganizationRecord",
+    "OrganizationSettingsRecord",
     "PermissionRecord",
+    "PlatformGrantRecord",
+    "ProvisioningRequestRecord",
     "RefreshSessionRecord",
     "RoleAssignmentRecord",
     "RolePermissionRecord",

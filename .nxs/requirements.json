@@ -855,12 +855,21 @@
       ],
       "description": "Organizations are customer-facing tenants with automated, idempotent provisioning.",
       "id": "NXS-ORG-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/domain/provisioning/service.py",
+        "src/nexus_ai/domain/provisioning/entities.py",
+        "src/nexus_ai/domain/provisioning/repository.py",
+        "src/nexus_ai/domain/provisioning/models.py",
+        "migrations/versions/20260907_1935-04a4640c5b95_provisioning_foundation.py",
+        "tests/integration/test_provisioning.py"
+      ],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P05",
       "title": "Organization provisioning",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P05/quality-gates.json"
+      ]
     },
     {
       "category": "DASHBOARD",
@@ -869,12 +878,20 @@
       ],
       "description": "Validated organization configuration generates tenant-specific dashboard schemas.",
       "id": "NXS-DASH-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/domain/dashboard/schema.py",
+        "src/nexus_ai/domain/dashboard/registry.py",
+        "src/nexus_ai/domain/dashboard/generator.py",
+        "src/nexus_ai/domain/dashboard/service.py",
+        "tests/unit/test_dashboard_schema.py"
+      ],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P05",
       "title": "Dynamic organization dashboards",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P05/quality-gates.json"
+      ]
     },
     {
       "category": "CUSTOMER",

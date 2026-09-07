@@ -1,0 +1,10 @@
+{
+  "branch_aware": true,
+  "coverage": "90.78%",
+  "note": "canonical final validated execution at the corrective head (make test-all, --cov-branch, --cov-fail-under=90)",
+  "phase": "NXS-P05",
+  "recorded_at": "2026-09-07T21:21:10Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests_passed": 698
+}

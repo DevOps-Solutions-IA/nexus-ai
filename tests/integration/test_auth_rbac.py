@@ -49,6 +49,8 @@ class TestAuthorization:
         authorizer = AuthorizationService(tenant_database)
         async with tenant_database.tenant_transaction(org.id) as tenant:
             for permission in PermissionKey:
+                if permission is PermissionKey.ORGANIZATION_CREATE:
+                    continue  # a PLATFORM capability: platform_grants, never an org role
                 await authorizer.require(principal, permission, tenant=tenant)
 
     async def test_member_denied_by_default(

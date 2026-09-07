@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...........                                                              [100%]\n11 passed in 2.65s",
+  "passed": 11,
+  "phase": "NXS-P05",
+  "recorded_at": "2026-09-07T20:40:26Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_auth_rls.py"
+  ]
+}

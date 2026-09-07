@@ -50,9 +50,13 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
     ledger_by_id = {r["id"]: r for r in requirements["requirements"]}
     for preserved in ("NXS-CAP-001", "NXS-ORG-001", "NXS-VOICE-001", "NXS-DR-001", "NXS-SRE-001"):
         assert preserved in ledger_by_id
-    # Organization provisioning stays future work for P05 — P02 must not claim it.
+    # Organization provisioning belongs to P05 — no earlier phase claims it. While P05
+    # is active or closed the requirement follows its lifecycle; otherwise PLANNED.
     assert ledger_by_id["NXS-ORG-001"]["target_phase"] == "NXS-P05"
-    assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
+    if registry["NXS-P05"]["status"] == "PLANNED":
+        assert ledger_by_id["NXS-ORG-001"]["status"] == "PLANNED"
+    else:
+        assert ledger_by_id["NXS-ORG-001"]["status"] in {"IN_PROGRESS", "IMPLEMENTED", "VALIDATED"}
 
     # The next eligible phase is generic: the first non-READY, non-blocked phase in
     # registry order whose dependencies are all READY/GO. Asserted generically so
@@ -93,7 +97,17 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
             assert next_eligible_phase(ROOT) == "NXS-P04"
         assert registry["NXS-P04"]["branch"] == "feat/nxs-p04-data-events"
 
-    # Once P04 is READY, the next phase is deterministically P05.
-    if registry["NXS-P04"]["status"] == "READY" and active is None:
+    # Once P04 is READY — and P05 has not closed yet — the next phase is P05.
+    if (
+        registry["NXS-P04"]["status"] == "READY"
+        and registry["NXS-P05"]["status"] != "READY"
+        and active is None
+    ):
         assert next_eligible_phase(ROOT) == "NXS-P05"
         assert registry["NXS-P05"]["branch"] == "feat/nxs-p05-provisioner-dashboard"
+
+    # Once P05 is READY, the next phase is deterministically P06 (the first
+    # non-READY phase in registry order whose dependencies are all READY).
+    if registry["NXS-P05"]["status"] == "READY" and active is None:
+        assert next_eligible_phase(ROOT) == "NXS-P06"
+        assert registry["NXS-P06"]["branch"] == "feat/nxs-p06-customer-conversations"

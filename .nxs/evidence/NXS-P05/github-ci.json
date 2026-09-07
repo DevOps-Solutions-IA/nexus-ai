@@ -1,0 +1,43 @@
+{
+  "checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "closure_lineage_head_sha": "598113d",
+  "corrective_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "corrective_implementation_sha": "116669a",
+  "final_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "final_head_sha": "c053bc8",
+  "implementation_sha": "dc29c84",
+  "note": "final_head_sha recorded after NXS CI (all seven jobs) and NXS Security were green on the corrective closure head",
+  "phase": "NXS-P05",
+  "pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/14",
+  "recorded_at": "2026-09-07T21:34:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "workflows": [
+    "NXS CI",
+    "NXS Security"
+  ]
+}

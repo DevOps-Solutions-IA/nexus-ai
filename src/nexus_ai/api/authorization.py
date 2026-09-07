@@ -33,3 +33,12 @@ def _permission_check(permission: PermissionKey) -> Callable[..., AsyncIterator[
 
 OrgReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.ORGANIZATION_READ))]
 OrgWriteDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.ORGANIZATION_WRITE))]
+OrgProvisionReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.PROVISION_READ))
+]
+OrgSettingsReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.SETTINGS_READ))
+]
+DashboardReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.DASHBOARD_READ))
+]
