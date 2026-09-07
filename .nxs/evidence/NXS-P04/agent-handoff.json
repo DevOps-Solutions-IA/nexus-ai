@@ -4,7 +4,7 @@
   "result": "PASS",
   "actor": "claude-code-p04",
   "branch": "feat/nxs-p04-data-events",
-  "recorded_at": "2026-09-07T18:00:00Z",
+  "recorded_at": "2026-09-07T19:05:00Z",
   "handoff": [
     "Data and Event Platform implemented and tested: canonical versioned EventEnvelope (UUIDv7, UTC, trusted organization_id / explicit global scope, correlation/causation, strict typed payload), deterministic injection-safe subject taxonomy nxs.<env>.<scope>.<domain>.<event>, event schema/version decoder registry with fail-closed unknown-type and unsupported-version handling.",
     "PostgreSQL transactional outbox (event_outbox, TENANT-OWNED, forced RLS + nxs_system_relay unscoped policy): the outbox row and the business mutation commit atomically; WITH CHECK makes a forged organization_id impossible; the relay claims rows with FOR UPDATE SKIP LOCKED, takes a crash-recovering lease, publishes to JetStream, checks the ack, then marks PUBLISHED.",
@@ -14,8 +14,8 @@
     "Delivery semantics documented precisely: Nexus AI guarantees at-least-once transport; exactly-once transport is NOT claimed; idempotent consumers are required for duplicate-safe business effects. ADR-0047 / ADR-0048 / ADR-0049 + docs/engineering/events.md.",
     "Migration 9387c6f0c917 (event_platform) verified: alembic upgrade head + alembic check + downgrade/upgrade + tenant schema guard on fresh volumes. The schema guard now derives tenancy from the ORM class hierarchy (TenantOwnedMixin), closing a latent gap where the P03 tenant tables (memberships / refresh_sessions / role_assignments) carried organization_id + RLS but were not enumerated by the guard.",
     "Runtime role has SELECT/INSERT/UPDATE only on the three new tables (never DELETE). Controlled, audited dead-letter replay via python -m scripts.nxs_events.",
-    "615 tests passing; 90.57% branch-aware coverage. Failure / concurrency / security / resilience / contract matrices in tests/unit, tests/integration, tests/security, tests/concurrency, tests/resilience, tests/contracts.",
+    "615 tests passing; 92.13% branch-aware coverage (threshold 90). Failure / concurrency / security / resilience / contract matrices in tests/unit, tests/integration, tests/security, tests/concurrency, tests/resilience, tests/contracts.",
     "Preserved: NXS-ORG-001 PLANNED / NXS-P05; no provisioner, dashboards, customers, Integration Hub, Tool Engine, channels, telephony, agent runtime, workflows, Sentinel, compliance, audit platform, billing or full observability; external webhooks remain an untrusted P07+ ingestion boundary (provenance seam only).",
-    "Remaining for closure: Stage A implementation commit + push + PR; NXS CI + NXS Security green on the implementation head; then Stage B closure commit; then record green CI evidence at the closure head."
+    "Closure complete: NXS-P04 is READY / GO. Two-stage closure done — implementation commit e00275f55cda26adcf3bc2df1246338ac112e71a (NXS CI all seven jobs and NXS Security green on push and pull_request), closure commit 900c40bcb8668b4982afa91f8116fd510afb6e65, then a test-only generalization of the agent-handoff next-phase assertion for post-P04-closure state, then green-CI evidence. NXS CI (all seven jobs) and NXS Security are green on the branch head. execution lock RELEASED, active_phase null, completed_phases [NXS-P00..NXS-P04], next_allowed_execution NXS-P05 / DEPENDENCIES_READY. origin/main unchanged at d95e0356b897adf9cebf8b42765412e4b19e9b86; PR #13 open, not merged."
   ]
 }
