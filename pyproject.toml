@@ -22,12 +22,14 @@ dependencies = [
   "structlog==26.1.0",
   "opentelemetry-api==1.44.0",
   "opentelemetry-sdk==1.44.0",
+  "opentelemetry-exporter-otlp-proto-http==1.44.0",
   "opentelemetry-instrumentation-fastapi==0.65b0",
 ]
 
 [dependency-groups]
 dev = [
   "anyio==4.15.1",
+  "asgi-lifespan==2.1.0",
   "bandit==1.8.6",
   "httpx==0.28.1",
   "mypy==1.17.1",
@@ -47,6 +49,7 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "S", "SIM", "RUF", "ASYNC"]
+ignore = ["ASYNC109"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101", "S105", "S106"]

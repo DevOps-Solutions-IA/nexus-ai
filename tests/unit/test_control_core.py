@@ -21,8 +21,11 @@ from scripts.nxs_guard.lock import acquire, recover, release
 
 @pytest.fixture
 def control_repo(tmp_path: Path) -> Path:
+    from tests.conftest import normalize_nxs_baseline
+
     source = Path(__file__).parents[2]
     shutil.copytree(source / ".nxs", tmp_path / ".nxs")
+    normalize_nxs_baseline(tmp_path / ".nxs")
     (tmp_path / ".git").mkdir()
     set_phase(tmp_path, "NXS-P00", "BUILDING", "PENDING")
     state_path = tmp_path / ".nxs/project-state.json"
