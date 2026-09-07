@@ -214,7 +214,7 @@ class TestResilience:
                     "fp": request.fingerprint(),
                     "ok": request.organization_key,
                     "u": user.id,
-                    "payload": request.canonical_payload().decode(),  # JSON text; CAST(:payload AS JSONB)
+                    "payload": request.canonical_payload().decode(),  # JSON text cast to JSONB
                 },
             )
         with pytest.raises(ProvisioningInProgressError):

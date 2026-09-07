@@ -1,4 +1,4 @@
-"""Provisioning × P04 event platform (NXS-ORG-001 × NXS-EVENT-003/008/009).
+"""Provisioning with the P04 event platform (NXS-ORG-001 with NXS-EVENT-003/008/009).
 
 The ``organizations.provisioned`` event travels through the transactional outbox to
 real JetStream with the canonical envelope, trusted organization_id, canonical subject
@@ -65,8 +65,8 @@ class TestProvisionedEventDelivery:
         for _ in range(10):
             try:
                 [msg] = await psub.fetch(1, timeout=3)
-            except Exception:
-                continue
+            except TimeoutError:
+                break  # no (more) messages available on the stream right now
             candidate = EventEnvelope.from_json(msg.data)
             if candidate.event_type == "organizations.provisioned":
                 delivered = candidate
@@ -100,7 +100,8 @@ class TestProvisionedEventDelivery:
             subject = (
                 await tenant.session.execute(
                     text(
-                        "SELECT subject FROM event_outbox WHERE event_type='organizations.provisioned'"
+                        "SELECT subject FROM event_outbox "
+                        "WHERE event_type='organizations.provisioned'"
                     )
                 )
             ).scalar_one()
@@ -130,7 +131,8 @@ class TestProvisionedEventDelivery:
                 rows = (
                     await tenant.session.execute(
                         text(
-                            "SELECT status FROM event_outbox WHERE event_type='organizations.provisioned'"
+                            "SELECT status FROM event_outbox "
+                            "WHERE event_type='organizations.provisioned'"
                         )
                     )
                 ).all()
@@ -145,7 +147,8 @@ class TestProvisionedEventDelivery:
             status = (
                 await tenant.session.execute(
                     text(
-                        "SELECT status FROM event_outbox WHERE event_type='organizations.provisioned'"
+                        "SELECT status FROM event_outbox "
+                        "WHERE event_type='organizations.provisioned'"
                     )
                 )
             ).scalar_one()

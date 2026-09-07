@@ -1,4 +1,4 @@
-"""Provisioning security matrix (NXS-ORG-001 × P03 live-state auth / P02 RLS).
+"""Provisioning security matrix (NXS-ORG-001 with P03 live-state auth / P02 RLS).
 
 Unauthorized provisioning, escalation attempts, forged identity/role/widget injection,
 cross-tenant reads and writes on the P05 tables, and P03 live-state blocking — all
@@ -12,6 +12,7 @@ from typing import Any
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.exc import DBAPIError
 
 from nexus_ai.core.errors import PermissionDeniedError
 from nexus_ai.domain.provisioning.entities import OnboardingRequest
@@ -53,7 +54,7 @@ class TestProvisioningAuthorization:
         self, auth_client: Any, make_auth_org: Any, make_auth_user: Any
     ) -> None:
         org = await make_auth_org()
-        email, _, user = await make_auth_user(organization=org)
+        _email, _, user = await make_auth_user(organization=org)
         resources = _resources(auth_client)
         with pytest.raises(PermissionDeniedError) as excinfo:
             await resources.provisioner.provision(
@@ -164,7 +165,7 @@ class TestRlsOnP05Tables:
         )
         # Scoped to a foreign org, an INSERT targeting the victim's org fails at the DB.
         async with tenant_database.tenant_transaction(uuid.uuid7()) as tenant:
-            with pytest.raises(Exception):
+            with pytest.raises(DBAPIError):
                 await tenant.session.execute(
                     text(
                         "INSERT INTO dashboard_configurations "
@@ -190,7 +191,8 @@ class TestRlsOnP05Tables:
             stored = (
                 await session.execute(
                     text(
-                        "SELECT idempotency_key_hash, request_fingerprint FROM provisioning_requests"
+                        "SELECT idempotency_key_hash, request_fingerprint "
+                        "FROM provisioning_requests"
                     )
                 )
             ).all()

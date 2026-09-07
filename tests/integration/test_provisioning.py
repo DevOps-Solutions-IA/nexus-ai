@@ -104,7 +104,7 @@ class TestProvisioningSuccess:
         self, auth_client: Any, make_auth_user: Any, tenant_database: Any
     ) -> None:
         resources = _resources(auth_client)
-        email, _, user = await make_auth_user()
+        _email, _, user = await make_auth_user()
         await resources.provisioner.grant_create_capability(user_id=user.id)
         result = await resources.provisioner.provision(
             _onboarding(), caller_user_id=user.id, caller_has_platform_grant=True
@@ -125,15 +125,15 @@ class TestProvisioningSuccess:
         self, auth_client: Any, make_auth_user: Any
     ) -> None:
         resources = _resources(auth_client)
-        operator_email, _, operator = await make_auth_user()
-        owner_email, _, owner = await make_auth_user()
+        _operator_email, _, operator = await make_auth_user()
+        _owner_email, _, owner = await make_auth_user()
         await resources.provisioner.grant_create_capability(user_id=operator.id)
         result = await resources.provisioner.provision(
             _onboarding(owner_user_id=owner.id),
             caller_user_id=operator.id,
             caller_has_platform_grant=True,
         )
-        session = await _login(auth_client, owner_email, result.organization_id)
+        session = await _login(auth_client, _owner_email, result.organization_id)
         me = await auth_client.get(
             "/api/v1/auth/me", headers={"Authorization": f"Bearer {session['access_token']}"}
         )
@@ -311,7 +311,7 @@ class TestIdempotency:
                     "fp": request.fingerprint(),
                     "ok": request.organization_key,
                     "u": user.id,
-                    "payload": request.canonical_payload().decode(),  # JSON text; CAST(:payload AS JSONB)
+                    "payload": request.canonical_payload().decode(),  # JSON text cast to JSONB
                 },
             )
         with pytest.raises(ProvisioningInProgressError):
@@ -404,8 +404,8 @@ class TestAuthorizationAndEndpoint:
         from nexus_ai.domain.auth.rbac import RoleKey
 
         resources = _resources(auth_client)
-        owner_email, _, owner = await make_auth_user()
-        member_email, _, member = await make_auth_user()
+        _owner_email, _, owner = await make_auth_user()
+        _member_email, _, member = await make_auth_user()
         await resources.provisioner.grant_create_capability(user_id=owner.id)
         result = await resources.provisioner.provision(
             _onboarding(), caller_user_id=owner.id, caller_has_platform_grant=True
@@ -416,7 +416,7 @@ class TestAuthorizationAndEndpoint:
             user_id=member.id,
             role=RoleKey.ORG_MEMBER,
         )
-        member_session = await _login(auth_client, member_email, result.organization_id)
+        member_session = await _login(auth_client, _member_email, result.organization_id)
         dashboard = await auth_client.get(
             "/api/v1/organizations/current/dashboard-schema",
             headers={"Authorization": f"Bearer {member_session['access_token']}"},

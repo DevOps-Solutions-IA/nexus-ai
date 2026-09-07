@@ -1,0 +1,9 @@
+{
+  "branch": "feat/nxs-p05-provisioner-dashboard",
+  "clean_tree": false,
+  "head_sha": "05c4bc83b69f1cf29edf25b4b4e72c89504acf55",
+  "phase": "NXS-P05",
+  "recorded_at": "2026-09-07T20:44:01Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

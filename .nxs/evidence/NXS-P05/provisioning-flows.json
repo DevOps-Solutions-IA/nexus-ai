@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "..............                                                           [100%]\n14 passed in 4.16s",
+  "passed": 14,
+  "phase": "NXS-P05",
+  "recorded_at": "2026-09-07T20:40:12Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_provisioning.py"
+  ]
+}
