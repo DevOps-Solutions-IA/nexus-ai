@@ -900,9 +900,20 @@
       ],
       "description": "Customer identity and conversation context resolve safely across all supported channels.",
       "id": "NXS-CUSTOMER-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/domain/customers/entities.py",
+        "src/nexus_ai/domain/customers/normalization.py",
+        "src/nexus_ai/domain/customers/service.py",
+        "src/nexus_ai/domain/customers/repository.py",
+        "src/nexus_ai/domain/customers/models.py",
+        "src/nexus_ai/domain/customers/events.py",
+        "src/nexus_ai/api/customers.py",
+        "src/nexus_ai/api/conversations.py",
+        "migrations/versions/20260907_2200-6e63fd35017a_customer_foundation.py",
+        "tests/integration/test_customer_conversations.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "IMPLEMENTED",
       "target_phase": "NXS-P06",
       "title": "Omnichannel customer identity",
       "validation_evidence": []

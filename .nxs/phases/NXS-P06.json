@@ -6,7 +6,36 @@
   "dependencies": [
     "NXS-P04"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P06/agent-handoff.json",
+    ".nxs/evidence/NXS-P06/auth-flows.json",
+    ".nxs/evidence/NXS-P06/clean-room.json",
+    ".nxs/evidence/NXS-P06/coverage.json",
+    ".nxs/evidence/NXS-P06/cross-tenant-security.json",
+    ".nxs/evidence/NXS-P06/customer-concurrency.json",
+    ".nxs/evidence/NXS-P06/customer-flows.json",
+    ".nxs/evidence/NXS-P06/customer-resilience.json",
+    ".nxs/evidence/NXS-P06/customer-security.json",
+    ".nxs/evidence/NXS-P06/database-roles.json",
+    ".nxs/evidence/NXS-P06/docker.json",
+    ".nxs/evidence/NXS-P06/git.json",
+    ".nxs/evidence/NXS-P06/github-ci.json",
+    ".nxs/evidence/NXS-P06/migration.json",
+    ".nxs/evidence/NXS-P06/multiarch.json",
+    ".nxs/evidence/NXS-P06/normalization.json",
+    ".nxs/evidence/NXS-P06/preflight.json",
+    ".nxs/evidence/NXS-P06/quality-gates.json",
+    ".nxs/evidence/NXS-P06/quality-matrix.json",
+    ".nxs/evidence/NXS-P06/rbac-api.json",
+    ".nxs/evidence/NXS-P06/rbac.json",
+    ".nxs/evidence/NXS-P06/rls.json",
+    ".nxs/evidence/NXS-P06/runtime-role-security.json",
+    ".nxs/evidence/NXS-P06/schema-validator.json",
+    ".nxs/evidence/NXS-P06/secret-leakage.json",
+    ".nxs/evidence/NXS-P06/security.json",
+    ".nxs/evidence/NXS-P06/state-validation.json",
+    ".nxs/evidence/NXS-P06/tests.json"
+  ],
   "id": "NXS-P06",
   "implementation_commit": null,
   "mandatory_gates": [
@@ -57,7 +86,7 @@
     "NXS-CUSTOMER-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "VALIDATING",
   "timestamps": {
     "closed_at": null,
     "started_at": "2026-09-07T21:52:32Z"

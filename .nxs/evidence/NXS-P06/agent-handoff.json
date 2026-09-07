@@ -1,0 +1,17 @@
+{
+  "actor": "claude-code-p06",
+  "branch": "feat/nxs-p06-customer-conversations",
+  "handoff": [
+    "Customer identity plane implemented: Customer aggregate (minimal PII) with independently-modeled channel identities (EMAIL/PHONE/EXTERNAL_ID), deterministic normalization (E.164 with explicit country context, shared email vocabulary, bounded external ids \u2014 ADR-0052), the (org, type, normalized_value) invariant, duplicate-safe resolve_or_create and idempotent linking.",
+    "Conversation aggregate: channel-neutral PENDING/OPEN/CLOSED state machine with explicit reopen, typed participants, external thread keys, idempotent close (ADR-0053). Unified UUIDv7-ordered timeline with replay-safe dedup and cursor pagination.",
+    "Isolation at two levels: forced RLS + composite tenant-aware FKs (org, parent_id)->(org, id); cross-tenant attachment fails at the database.",
+    "Five P04 outbox events (customers.created, customers.identity.linked, customers.identity.status_changed, conversations.opened, conversations.closed) \u2014 ID-only payloads, committed atomically with the mutation; NATS outage cannot corrupt domain state.",
+    "Migration 6e63fd35017a reversible (upgrade/downgrade/upgrade verified); eight P06 permissions seeded (member lacks customer:update).",
+    "765 tests, 90.33% branch coverage; clean-room PASS; amd64+arm64 PASS; non-root PASS; failure matrix A-V in docs/runbooks/customer-failure-matrix.md.",
+    "Preserved: no channel providers, no OTP, no CRM, no agent records, no fuzzy merging, no compliance lifecycle; P07+ untouched."
+  ],
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-07T23:11:46Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}
