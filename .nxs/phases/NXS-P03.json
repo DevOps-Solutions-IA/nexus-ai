@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p03-security-auth",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P02"
   ],
@@ -27,6 +27,7 @@
     ".nxs/evidence/NXS-P03/quality-gates.json",
     ".nxs/evidence/NXS-P03/quality-matrix.json",
     ".nxs/evidence/NXS-P03/rate-limiting.json",
+    ".nxs/evidence/NXS-P03/rbac-api.json",
     ".nxs/evidence/NXS-P03/rbac.json",
     ".nxs/evidence/NXS-P03/requirements.json",
     ".nxs/evidence/NXS-P03/rls.json",
@@ -34,11 +35,12 @@
     ".nxs/evidence/NXS-P03/schema-validator.json",
     ".nxs/evidence/NXS-P03/secret-leakage.json",
     ".nxs/evidence/NXS-P03/security.json",
+    ".nxs/evidence/NXS-P03/state-validation.json",
     ".nxs/evidence/NXS-P03/tests.json",
     ".nxs/evidence/NXS-P03/token-attacks.json"
   ],
   "id": "NXS-P03",
-  "implementation_commit": null,
+  "implementation_commit": "5c83e5483698370a2f19e1bc644d5c7981387890",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -98,9 +100,9 @@
     "NXS-AUTH-009"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-07T16:19:24Z",
     "started_at": "2026-09-07T08:18:35Z"
   },
   "title": "Security and Authentication"
