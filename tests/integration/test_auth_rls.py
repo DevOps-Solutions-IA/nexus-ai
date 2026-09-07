@@ -15,7 +15,7 @@ import pytest
 from asyncpg.exceptions import InsufficientPrivilegeError
 from sqlalchemy.exc import DBAPIError
 
-pytestmark = pytest.mark.anyio
+pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 
 class TestMembershipsRls:

@@ -25,7 +25,7 @@ def uuid_hex() -> str:
     return uuid.uuid4().hex[:8]
 
 
-pytestmark = pytest.mark.anyio
+pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 PASSWORD = "correct-horse-battery-staple"
 

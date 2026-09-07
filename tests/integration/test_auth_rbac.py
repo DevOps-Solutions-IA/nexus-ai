@@ -15,7 +15,7 @@ from nexus_ai.core.errors import PermissionDeniedError
 from nexus_ai.domain.auth.entities import Principal
 from nexus_ai.domain.auth.rbac import AuthorizationService, PermissionKey, RoleKey
 
-pytestmark = pytest.mark.anyio
+pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 PASSWORD = "correct-horse-battery-staple"
 
