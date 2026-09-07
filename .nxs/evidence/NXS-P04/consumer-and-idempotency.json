@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".......                                                                  [100%]\n7 passed in 18.49s",
+  "passed": 7,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:45:52Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "targets": [
+    "tests/integration/test_event_consumer.py"
+  ]
+}

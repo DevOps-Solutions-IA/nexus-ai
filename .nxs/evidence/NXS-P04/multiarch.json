@@ -1,0 +1,13 @@
+{
+  "base_images": "multi-arch index digests (uv 0.11.32, python 3.14.7-slim-trixie, chainguard/python)",
+  "builder": "docker-container (buildx nxs-cleanroom)",
+  "note": "local clean-room multi-arch build PASS; CI 'multiarch' job additionally health-smokes the emulated arm64 image",
+  "phase": "NXS-P04",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "recorded_at": "2026-09-07T17:59:46Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

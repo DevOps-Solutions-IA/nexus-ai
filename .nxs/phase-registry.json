@@ -41,12 +41,12 @@
     },
     {
       "branch": "feat/nxs-p04-data-events",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P03"
       ],
       "id": "NXS-P04",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Data and Event Platform"
     },
     {

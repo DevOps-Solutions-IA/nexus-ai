@@ -1,0 +1,26 @@
+{
+  "fresh_postgres_volume": true,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:59:46Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh",
+  "steps": {
+    "agent_handoff": "PASS",
+    "alembic_check": "PASS",
+    "amd64_image": "PASS",
+    "fresh_volume_roles_bootstrap": "PASS",
+    "full_suite_runtime_role": "PASS (615 passed, 92.13% coverage)",
+    "graceful_shutdown": "PASS",
+    "health_live_ready": "PASS (readiness 200 with deps, event platform topology ready)",
+    "migration_upgrade_head": "PASS",
+    "multiarch_amd64_arm64": "PASS",
+    "mypy": "PASS",
+    "non_root_runtime": "PASS (65532:65532)",
+    "nxs_validate": "PASS",
+    "ruff_check": "PASS",
+    "ruff_format": "PASS",
+    "schema_guard": "PASS",
+    "uv_sync_lock_check": "PASS"
+  }
+}

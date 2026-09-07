@@ -602,3 +602,103 @@ def login_helper(auth_client: httpx.AsyncClient) -> Callable[..., Any]:
         return response.json()
 
     return _login
+
+
+# --- Data and event platform fixtures (NXS-P04) ---
+
+
+@pytest.fixture
+async def nats_messaging(integration_env: Callable[..., Settings]) -> AsyncIterator[Any]:
+    from nexus_ai.infrastructure.messaging import Messaging
+
+    settings = integration_env()
+    messaging = Messaging(settings.messaging)
+    await messaging.connect()
+    try:
+        yield messaging
+    finally:
+        await messaging.disconnect()
+
+
+@pytest.fixture
+async def jetstream_reset(nats_messaging: Any) -> Any:
+    """Delete the NXS event streams so each test starts from an empty topology."""
+
+    import contextlib
+
+    async def _reset() -> None:
+        js = nats_messaging.jetstream()
+        for name in ("NXS_EVENTS", "NXS_EVENTS_DLQ"):
+            with contextlib.suppress(Exception):
+                await js.delete_stream(name)
+
+    await _reset()
+    return _reset
+
+
+@pytest.fixture
+async def truncate_event_tables() -> Callable[..., Any]:
+    """Truncate the P04 event tables (needs the migration role — runtime has no DELETE)."""
+    import asyncpg
+
+    async def _truncate() -> None:
+        connection = await asyncpg.connect(
+            MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+        )
+        try:
+            await connection.execute("TRUNCATE event_outbox, event_dead_letters, consumer_receipts")
+        finally:
+            await connection.close()
+
+    await _truncate()
+    return _truncate
+
+
+@pytest.fixture
+async def event_platform(
+    tenant_database: Any,
+    nats_messaging: Any,
+    jetstream_reset: Any,
+    truncate_event_tables: Any,
+    integration_env: Callable[..., Settings],
+) -> AsyncIterator[Any]:
+    """An EventPlatform with the background relay OFF so tests drive it deterministically."""
+    from nexus_ai.events.service import EventPlatform
+
+    settings = integration_env(
+        NXS_EVENTS__PUBLISHER_ENABLED="false",
+        NXS_EVENTS__CONSUMERS_ENABLED="false",
+        NXS_EVENTS__PUBLISHER_POLL_INTERVAL_SECONDS="0.1",
+        NXS_EVENTS__RETRY_BASE_DELAY_SECONDS="0.1",
+        NXS_EVENTS__RETRY_MAX_DELAY_SECONDS="1",
+        NXS_EVENTS__CONSUMER_ACK_WAIT_SECONDS="2",
+        NXS_EVENTS__HANDLER_TIMEOUT_SECONDS="3",
+    )
+    platform = EventPlatform(settings, tenant_database, nats_messaging, worker_name="test-worker")
+    await platform.start()
+    try:
+        yield platform
+    finally:
+        await platform.stop()
+
+
+@pytest.fixture
+def make_tenant_event() -> Callable[..., Any]:
+    from nexus_ai.events.envelope import EventEnvelope
+
+    def _make(organization_id: Any, *, nonce: str | None = None, **overrides: Any) -> Any:
+        import uuid
+
+        params: dict[str, Any] = {
+            "event_type": "platform.tenant_probe.emitted",
+            "event_version": 1,
+            "aggregate_type": "platform",
+            "aggregate_id": uuid.uuid4().hex,
+            "producer": "nxs-test",
+            "payload": {"nonce": nonce or uuid.uuid4().hex},
+            "organization_id": organization_id,
+        }
+        params.update(overrides)
+        return EventEnvelope.create(**params)
+
+    return _make

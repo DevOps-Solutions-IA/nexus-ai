@@ -1,0 +1,7 @@
+{
+  "output_tail": "{\n  \"ok\": true,\n  \"tables_checked\": [\n    \"event_dead_letters\",\n    \"event_outbox\",\n    \"memberships\",\n    \"organizations\",\n    \"refresh_sessions\",\n    \"role_assignments\"\n  ],\n  \"violations\": []\n}",
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:45:29Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

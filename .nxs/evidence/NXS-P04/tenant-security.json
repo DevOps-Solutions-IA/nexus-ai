@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "..........                                                               [100%]\n10 passed in 6.62s",
+  "passed": 10,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:45:59Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "targets": [
+    "tests/security/test_event_security.py",
+    "tests/integration/test_event_migration.py"
+  ]
+}

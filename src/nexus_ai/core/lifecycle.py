@@ -30,6 +30,7 @@ from nexus_ai.domain.auth.service import AuthService
 from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
 from nexus_ai.domain.organizations.service import OrganizationService
+from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.messaging import Messaging
@@ -57,6 +58,7 @@ class Resources:
     authorizer: AuthorizationService
     memberships: MembershipService
     principal_validator: PrincipalStateValidator
+    event_platform: EventPlatform
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -71,6 +73,7 @@ class ApplicationLifespan:
         self._settings = settings
         self._resources: Resources | None = None
         self._adapters: tuple[Messaging, Cache, Database] | None = None
+        self._event_platform: EventPlatform | None = None
         self._shut_down = False
 
     @property
@@ -101,11 +104,19 @@ class ApplicationLifespan:
         ):
             await self._verify_runtime_role(database)
 
+        # Data and event platform (NXS-P04). Startup is fail-closed in hardened
+        # environments: if durable JetStream is required and unavailable, or the stream
+        # topology cannot be established, ``start`` raises ConfigurationError.
+        event_platform = EventPlatform(settings, database, messaging)
+        self._event_platform = event_platform
+        await event_platform.start()
+
         probe_timeout = settings.health.probe_timeout_seconds
         probes: list[Probe] = [
             _bind(database, probe_timeout),
             _bind(cache, probe_timeout),
             _bind(messaging, probe_timeout),
+            _bind(event_platform, probe_timeout),
         ]
         readiness = ReadinessEvaluator(
             probes,
@@ -150,6 +161,7 @@ class ApplicationLifespan:
             authorizer=authorizer,
             memberships=MembershipService(database, authorizer),
             principal_validator=principal_validator,
+            event_platform=event_platform,
         )
         await logger.ainfo(
             "runtime_started",
@@ -207,6 +219,11 @@ class ApplicationLifespan:
             return
         self._shut_down = True
         logger = get_logger("nexus_ai.lifecycle")
+        if self._event_platform is not None:
+            try:
+                await self._event_platform.stop()
+            except Exception as exc:
+                await logger.awarning("event_platform_shutdown_error", error=str(exc))
         messaging, cache, database = self._adapters
         for name, closer in (
             ("nats", messaging.disconnect),

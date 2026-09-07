@@ -1,0 +1,11 @@
+{
+  "base_main_sha": "d95e0356b897adf9cebf8b42765412e4b19e9b86",
+  "branch": "feat/nxs-p04-data-events",
+  "clean_tree": false,
+  "head_sha": "b6b383a1a6b8d60caf6483c36af0671c08e0b7db",
+  "merged_to_main": false,
+  "phase": "NXS-P04",
+  "recorded_at": "2026-09-07T17:49:42Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}
