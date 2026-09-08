@@ -244,6 +244,58 @@ async def test_database_fk_prevents_a_forged_cross_tenant_reply_relation(
             )
 
 
+async def test_parent_deletion_nulls_only_reply_to_and_keeps_organization(
+    messaging_stack: Any, make_organization: Any
+) -> None:
+    """The FK deletion semantics (ON DELETE SET NULL (reply_to_message_id)):
+    deleting a parent NULLs the child's reply_to_message_id and leaves
+    organization_id (NOT NULL) and every other field intact — tenant isolation
+    preserved, delete succeeds."""
+    import asyncpg
+
+    from tests.conftest import MIGRATION_DSN
+
+    org = await make_organization()
+    stack = messaging_stack
+    account = await _account(stack, org.id, MessageChannel.EMAIL, "support@nexus.example")
+    _unique_provider_id(stack)
+    conversation, _ = await stack.conversations.open_or_resolve(
+        org.id, CreateConversationRequest(channel="email")
+    )
+    parent = await stack.service.send(org.id, None, _send(account, conversation))
+    child = await stack.service.send(org.id, None, _send(account, conversation, reply_to=parent.id))
+    assert child.reply_to_message_id == parent.id
+
+    # delete the parent through a real PostgreSQL transaction (owner role, tenant GUC)
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        async with connection.transaction():
+            await connection.execute(
+                "SELECT set_config('nxs.organization_id', $1, true)", str(org.id)
+            )
+            deleted = await connection.execute(
+                "DELETE FROM messaging_messages WHERE id = $1", parent.id
+            )
+            assert deleted == "DELETE 1"  # the delete succeeds — no NOT NULL violation
+            row = await connection.fetchrow(
+                "SELECT organization_id, reply_to_message_id, channel, direction, status "
+                "FROM messaging_messages WHERE id = $1",
+                child.id,
+            )
+    finally:
+        await connection.close()
+
+    assert row["reply_to_message_id"] is None  # NULLed
+    assert row["organization_id"] == org.id  # UNCHANGED
+    assert row["channel"] == "EMAIL" and row["direction"] == "OUTBOUND"  # every other field valid
+
+    # the child is still readable through the service in its Organization
+    refreshed = await stack.service.get_message(org.id, child.id)
+    assert refreshed.reply_to_message_id is None and refreshed.organization_id == org.id
+
+
 async def test_reply_thread_headers_are_crlf_safe(
     messaging_stack: Any, make_organization: Any
 ) -> None:

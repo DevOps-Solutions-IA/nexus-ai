@@ -116,7 +116,10 @@ class MessagingMessageRecord(TenantOwnedMixin, Base):
             ["organization_id", "reply_to_message_id"],
             ["messaging_messages.organization_id", "messaging_messages.id"],
             name="fk_messaging_messages_org_reply_parent",
-            ondelete="SET NULL",
+            # PostgreSQL 15+ column-specific SET NULL: deleting a parent message NULLs
+            # ONLY reply_to_message_id on its children — organization_id (NOT NULL) is
+            # left unchanged, so tenant isolation is preserved and the delete succeeds.
+            ondelete="SET NULL (reply_to_message_id)",
         ),
         Index(
             "ix_messaging_messages_conversation",
