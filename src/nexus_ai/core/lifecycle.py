@@ -31,6 +31,10 @@ from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
 from nexus_ai.domain.customers import events as customer_events  # noqa: F401 - payload registration
 from nexus_ai.domain.customers.service import ConversationService, CustomerService
+from nexus_ai.domain.integrations.repository import (
+    IntegrationIdempotencyRepository,
+    IntegrationSecretStore,
+)
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
@@ -38,6 +42,16 @@ from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.messaging import Messaging
+from nexus_ai.integrations import events as integration_events  # noqa: F401 - payload registration
+from nexus_ai.integrations.auth_profiles import AuthProfileApplier
+from nexus_ai.integrations.circuit import CircuitBreakerRegistry
+from nexus_ai.integrations.credentials import LocalEncryptedVault, VaultClient, build_fernet
+from nexus_ai.integrations.destination import DestinationPolicy
+from nexus_ai.integrations.executor import GovernedHttpExecutor
+from nexus_ai.integrations.ratelimit import OutboundRateLimiter
+from nexus_ai.integrations.registry import IntegrationRegistry
+from nexus_ai.integrations.service import IntegrationHubService
+from nexus_ai.integrations.webhooks import InboundWebhookService
 
 _Connector = Callable[[], Awaitable[None]]
 
@@ -66,6 +80,10 @@ class Resources:
     provisioner: OrganizationProvisioner
     customers: CustomerService
     conversations: ConversationService
+    integration_vault: VaultClient
+    integrations: IntegrationRegistry
+    integration_hub: IntegrationHubService
+    inbound_webhooks: InboundWebhookService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -153,6 +171,51 @@ class ApplicationLifespan:
             rate_gate,
             state_validator=principal_validator,
         )
+        integrations_settings = settings.integrations
+        vault_keys = integrations_settings.vault_key_list()
+        if settings.is_hardened_environment and integrations_settings.enabled:
+            # Fail startup closed: hardened deployments must ship real key material and
+            # must never allow plain-http outbound destinations (NXS-INT-001).
+            if not vault_keys:
+                raise ConfigurationError(
+                    "NXS_INTEGRATIONS__VAULT_ENCRYPTION_KEYS is required outside local/test"
+                )
+            if not integrations_settings.require_https_outbound:
+                raise ConfigurationError(
+                    "NXS_INTEGRATIONS__REQUIRE_HTTPS_OUTBOUND must be true outside local/test"
+                )
+        if not vault_keys and not settings.is_hardened_environment:
+            # local/test convenience only.
+            from cryptography.fernet import Fernet
+
+            vault_keys = [Fernet.generate_key().decode("ascii")]
+            await logger.awarning("integration_vault_ephemeral_key")
+        destination_policy = DestinationPolicy(
+            require_https=integrations_settings.require_https_outbound
+        )
+        integration_vault: VaultClient = LocalEncryptedVault(
+            IntegrationSecretStore(database), build_fernet(vault_keys)
+        )
+        http_executor = GovernedHttpExecutor(integrations_settings, destination_policy)
+        auth_applier = AuthProfileApplier(integration_vault, destination_policy, http_executor)
+        integration_registry = IntegrationRegistry(
+            settings, database, event_platform.publisher, integration_vault, destination_policy
+        )
+        integration_hub = IntegrationHubService(
+            settings,
+            database,
+            event_platform.publisher,
+            integration_registry,
+            http_executor,
+            auth_applier,
+            CircuitBreakerRegistry(integrations_settings),
+            OutboundRateLimiter(integrations_settings, cache),
+            IntegrationIdempotencyRepository(database),
+        )
+        inbound_webhooks = InboundWebhookService(
+            settings, database, event_platform.publisher, integration_vault
+        )
+
         self._resources = Resources(
             settings=settings,
             metadata=ServiceMetadata.from_settings(settings),
@@ -172,6 +235,10 @@ class ApplicationLifespan:
             provisioner=OrganizationProvisioner(settings, database, event_platform.publisher),
             customers=CustomerService(settings, database, event_platform.publisher),
             conversations=ConversationService(settings, database, event_platform.publisher),
+            integration_vault=integration_vault,
+            integrations=integration_registry,
+            integration_hub=integration_hub,
+            inbound_webhooks=inbound_webhooks,
         )
         await logger.ainfo(
             "runtime_started",

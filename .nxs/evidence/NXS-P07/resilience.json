@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "....                                                                     [100%]\n4 passed in 6.50s",
+  "passed": 4,
+  "phase": "NXS-P07",
+  "recorded_at": "2026-09-08T04:42:32Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/resilience/test_integration_resilience.py"
+  ]
+}

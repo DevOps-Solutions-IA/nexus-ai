@@ -28,6 +28,15 @@ from nexus_ai.domain.events.models import (
     EventDeadLetterRecord,
     EventOutboxRecord,
 )
+from nexus_ai.domain.integrations.models import (
+    IntegrationExecutionRecord,
+    IntegrationIdempotencyRecord,
+    IntegrationOperationRecord,
+    IntegrationRecord,
+    IntegrationSecretRecord,
+    WebhookEndpointRecord,
+    WebhookReceiptRecord,
+)
 from nexus_ai.domain.organizations.models import OrganizationRecord
 from nexus_ai.domain.provisioning.models import (
     DashboardConfigurationRecord,
@@ -46,6 +55,11 @@ __all__ = [
     "DashboardConfigurationRecord",
     "EventDeadLetterRecord",
     "EventOutboxRecord",
+    "IntegrationExecutionRecord",
+    "IntegrationIdempotencyRecord",
+    "IntegrationOperationRecord",
+    "IntegrationRecord",
+    "IntegrationSecretRecord",
     "MembershipRecord",
     "OrganizationRecord",
     "OrganizationSettingsRecord",
@@ -58,4 +72,6 @@ __all__ = [
     "RoleRecord",
     "UserCredentialRecord",
     "UserRecord",
+    "WebhookEndpointRecord",
+    "WebhookReceiptRecord",
 ]
