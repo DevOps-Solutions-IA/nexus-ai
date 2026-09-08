@@ -986,7 +986,7 @@
       "id": "NXS-TOOL-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P08",
       "title": "Controlled AI tools and actions",
       "validation_evidence": []

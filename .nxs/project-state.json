@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": null,
+  "active_phase": "NXS-P08",
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -13,20 +13,20 @@
     "NXS-P07"
   ],
   "current_phase": {
-    "branch": "feat/nxs-p07-integration-hub",
+    "branch": "feat/nxs-p08-tool-engine",
     "closure_commit": null,
-    "decision": "GO",
-    "id": "NXS-P07",
-    "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
-    "status": "READY"
+    "decision": "PENDING",
+    "id": "NXS-P08",
+    "implementation_commit": null,
+    "status": "BUILDING"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-08T04:55:12Z",
+  "last_updated_at": "2026-09-08T15:43:51Z",
   "next_allowed_execution": {
-    "condition": "DEPENDENCIES_READY",
+    "condition": "ACTIVE_PHASE_ONLY",
     "phase": "NXS-P08"
   },
   "product": {

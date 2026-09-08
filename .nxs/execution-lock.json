@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "claude-code-p08",
+  "branch": "feat/nxs-p08-tool-engine",
+  "expires_at": "2026-09-08T19:43:51Z",
+  "phase": "NXS-P08",
+  "repository_commit": "fe04eeb6a7ffbe5d1483d68020f43f3881e70dbb",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-08T15:43:51Z",
+  "state": "ACTIVE"
 }
