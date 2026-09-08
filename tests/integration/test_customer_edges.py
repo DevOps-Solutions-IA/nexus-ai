@@ -15,7 +15,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
 from nexus_ai.core.errors import (
+    ConversationNotFoundError,
     ConversationStateConflictError,
+    CustomerNotFoundError,
     NotFoundError,
 )
 from nexus_ai.domain.customers.entities import (
@@ -23,6 +25,7 @@ from nexus_ai.domain.customers.entities import (
     CreateCustomerRequest,
     IdentityType,
     IdentityVerificationState,
+    LinkIdentityRequest,
     ParticipantType,
 )
 
@@ -42,6 +45,112 @@ def _create_request(**overrides: object) -> CreateCustomerRequest:
 
 def _resources(client: Any) -> Any:
     return client.nexus_app.state.lifespan.resources  # type: ignore[attr-defined]
+
+
+class TestMissingEntities:
+    async def test_link_identity_requires_an_existing_customer(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        with pytest.raises(CustomerNotFoundError):
+            await resources.customers.link_identity(
+                org.id,
+                uuid.uuid7(),
+                LinkIdentityRequest(
+                    identity_type=IdentityType.EMAIL, identity_value="ghost@example.com"
+                ),
+            )
+
+    async def test_timeline_requires_an_existing_customer(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        with pytest.raises(CustomerNotFoundError):
+            await resources.customers.timeline(org.id, uuid.uuid7(), after=None, limit=10)
+
+    async def test_close_unknown_conversation_is_not_found(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        with pytest.raises(ConversationNotFoundError):
+            await resources.conversations.close(org.id, uuid.uuid7())
+
+    async def test_reopen_unknown_conversation_is_not_found(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        with pytest.raises(ConversationNotFoundError):
+            await resources.conversations.reopen(org.id, uuid.uuid7())
+
+
+class TestExternalThreadCustomerSemantics:
+    """The four external-thread customer-compatibility cases (audit section 6)."""
+
+    def _thread(self, **overrides: Any) -> CreateConversationRequest:
+        payload: dict[str, Any] = {
+            "channel": "whatsapp",
+            "provider_namespace": "wa",
+            "external_thread_id": f"sem-{uuid.uuid4().hex[:8]}",
+        }
+        payload.update(overrides)
+        return CreateConversationRequest(**payload)
+
+    async def test_same_customer_is_compatible(self, auth_client: Any, make_auth_org: Any) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        customer, _ = await resources.customers.resolve_or_create(org.id, _create_request())
+        req = self._thread(customer_id=customer.id)
+        first, created = await resources.conversations.open_or_resolve(org.id, req)
+        assert created is True
+        second, again = await resources.conversations.open_or_resolve(org.id, req)
+        assert again is False
+        assert second.id == first.id
+
+    async def test_both_anonymous_is_compatible(self, auth_client: Any, make_auth_org: Any) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        req = self._thread()  # no customer_id
+        first, _ = await resources.conversations.open_or_resolve(org.id, req)
+        second, again = await resources.conversations.open_or_resolve(org.id, req)
+        assert again is False
+        assert second.id == first.id
+
+    async def test_existing_has_customer_incoming_none_is_compatible(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        customer, _ = await resources.customers.resolve_or_create(org.id, _create_request())
+        req = self._thread(customer_id=customer.id)
+        first, _ = await resources.conversations.open_or_resolve(org.id, req)
+        # A caller that asserts no customer accepts the thread's existing resolution.
+        resolved, again = await resources.conversations.open_or_resolve(
+            org.id, req.model_copy(update={"customer_id": None})
+        )
+        assert again is False
+        assert resolved.id == first.id
+        assert resolved.customer_id == customer.id
+
+    async def test_existing_anonymous_incoming_customer_fails_closed(
+        self, auth_client: Any, make_auth_org: Any
+    ) -> None:
+        from nexus_ai.core.errors import ConversationCustomerConflictError
+
+        org = await make_auth_org()
+        resources = _resources(auth_client)
+        customer, _ = await resources.customers.resolve_or_create(org.id, _create_request())
+        req = self._thread()  # anonymous thread first
+        await resources.conversations.open_or_resolve(org.id, req)
+        # Now a caller explicitly claims the anonymous thread for a customer: ambiguous,
+        # so fail closed rather than silently attach.
+        with pytest.raises(ConversationCustomerConflictError):
+            await resources.conversations.open_or_resolve(
+                org.id, req.model_copy(update={"customer_id": customer.id})
+            )
 
 
 class TestServiceEdges:

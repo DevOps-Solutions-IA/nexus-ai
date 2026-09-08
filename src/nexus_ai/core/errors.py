@@ -321,6 +321,15 @@ class ConversationExternalKeyConflictError(NxsError):
     title = "Conversation External Key Conflict"
 
 
+class ConversationCustomerConflictError(NxsError):
+    """A deterministic external thread already resolves to a different Customer than the
+    one the caller explicitly requested. Fail closed — never silently reattach."""
+
+    code = "NXS_CONVERSATION_CUSTOMER_CONFLICT"
+    status = 409
+    title = "Conversation Customer Conflict"
+
+
 class DashboardSchemaError(NxsError):
     """Base for deterministic dashboard schema failures."""
 
@@ -386,4 +395,5 @@ PUBLIC_ERRORS: tuple[type[NxsError], ...] = (
     ConversationNotFoundError,
     ConversationStateConflictError,
     ConversationExternalKeyConflictError,
+    ConversationCustomerConflictError,
 )

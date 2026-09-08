@@ -30,7 +30,12 @@ conversations_router = APIRouter(prefix="/conversations", tags=["conversations"]
     responses={
         401: {"description": "Invalid or revoked token"},
         403: {"description": "Missing conversation:create"},
-        409: {"description": "External thread key conflict"},
+        409: {
+            "description": (
+                "External thread key conflict, or the thread already resolves to a "
+                "different Customer than the one requested"
+            )
+        },
     },
 )
 async def open_conversation(
