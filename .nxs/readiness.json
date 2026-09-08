@@ -868,6 +868,7 @@
         ".nxs/evidence/NXS-P08/docker.json",
         ".nxs/evidence/NXS-P08/engine-integration.json",
         ".nxs/evidence/NXS-P08/git.json",
+        ".nxs/evidence/NXS-P08/github-ci.json",
         ".nxs/evidence/NXS-P08/migration.json",
         ".nxs/evidence/NXS-P08/multiarch.json",
         ".nxs/evidence/NXS-P08/preflight.json",

@@ -1,0 +1,33 @@
+{
+  "base_main_sha": "fe04eeb6a7ffbe5d1483d68020f43f3881e70dbb",
+  "closure_commit": "2c86ac60b3b0156f850bee7975948c27252ab921",
+  "implementation_commit": "56422d05a23a3cf3d0e122f12c473d0d9677826b",
+  "merged": false,
+  "phase": "NXS-P08",
+  "pull_request": 18,
+  "record_green_ci_head": "pending — this commit",
+  "recorded_at": "2026-09-08T17:05:00Z",
+  "result": "PASS",
+  "runs": {
+    "closure_2c86ac6": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34252510764,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34252473291,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34252510615,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34252473193
+    }
+  },
+  "schema_version": "1.0.0"
+}
