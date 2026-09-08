@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P07",
+  "result": "PASS",
+  "recorded_at": "2026-09-08T05:00:31Z",
+  "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
+  "closure_commit": "2135b35aab25fd8fad1c8f75e1bb13341129354c",
+  "pull_request": 17,
+  "runs": {
+    "implementation_571e932": {
+      "nxs_ci_push": "success",
+      "nxs_ci_pull_request": "success",
+      "nxs_security_push": "success",
+      "nxs_security_pull_request": "success",
+      "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"]
+    },
+    "closure_2135b35": {
+      "nxs_ci_push": "success",
+      "nxs_ci_pull_request": "success",
+      "nxs_security_push": "success",
+      "nxs_security_pull_request": "success",
+      "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"]
+    }
+  },
+  "base_main_sha": "6d54073039241c8374cd8506d12d27c3bc0f78e4",
+  "merged": false
+}
