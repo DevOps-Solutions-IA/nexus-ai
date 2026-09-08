@@ -1,10 +1,10 @@
 {
-  "actor": "claude-code-p09",
-  "branch": "feat/nxs-p09-messaging",
-  "expires_at": "2026-09-08T22:47:51Z",
-  "phase": "NXS-P09",
-  "repository_commit": "96ecf6b7f4c18f5d42624905de860c36dbb5ec57",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-08T18:47:51Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

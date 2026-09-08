@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "....                                                                     [100%]\n4 passed in 0.97s",
+  "passed": 4,
+  "phase": "NXS-P09",
+  "recorded_at": "2026-09-08T19:33:26Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/concurrency/test_messaging_concurrency.py"
+  ]
+}

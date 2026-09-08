@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "............                                                             [100%]\n12 passed in 1.59s",
+  "passed": 12,
+  "phase": "NXS-P09",
+  "recorded_at": "2026-09-08T19:33:19Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/security/test_messaging_security.py"
+  ]
+}

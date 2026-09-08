@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...............                                                          [100%]\n15 passed in 3.28s",
+  "passed": 15,
+  "phase": "NXS-P09",
+  "recorded_at": "2026-09-08T19:33:23Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_messaging_channels.py",
+    "tests/integration/test_messaging_api.py"
+  ]
+}
