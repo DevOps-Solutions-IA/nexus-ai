@@ -263,6 +263,89 @@ class EventsSettings(BaseModel):
         return f"{self.subject_prefix}.{environment.value}.dlq.>"
 
 
+class IntegrationsSettings(BaseModel):
+    """Integration Hub configuration (NXS-INT-001).
+
+    Every bound is explicit and validated. The governed HTTP executor is deny-by-default:
+    SSRF destination policy is always on, redirects are disabled unless a bounded count is
+    configured, and hardened environments additionally require https for every outbound
+    destination and refuse an ephemeral vault key.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+
+    # -- credential vault seam --
+    vault_encryption_keys: str = ""
+    allow_ephemeral_vault_key: bool = False
+
+    # -- governed HTTP executor bounds --
+    connect_timeout_seconds: float = Field(default=5.0, gt=0, le=60)
+    read_timeout_seconds: float = Field(default=15.0, gt=0, le=120)
+    total_timeout_seconds: float = Field(default=25.0, gt=0, le=180)
+    max_request_bytes: int = Field(default=1_048_576, ge=1024, le=16_777_216)
+    max_response_bytes: int = Field(default=2_097_152, ge=1024, le=33_554_432)
+    max_response_header_bytes: int = Field(default=65_536, ge=1024, le=1_048_576)
+    max_redirects: int = Field(default=0, ge=0, le=5)
+    user_agent: str = Field(default="NexusAI-IntegrationHub/1.0", min_length=1, max_length=128)
+    require_https_outbound: bool = False
+    #: Header NAMES (lowercased) whose values are redacted everywhere, on top of the
+    #: always-redacted Authorization / api-key / cookie set.
+    sensitive_header_names: str = ""
+
+    # -- retry policy --
+    retry_max_attempts: int = Field(default=3, ge=1, le=8)
+    retry_base_delay_seconds: float = Field(default=0.2, gt=0, le=30)
+    retry_max_delay_seconds: float = Field(default=10.0, gt=0, le=120)
+    retry_max_elapsed_seconds: float = Field(default=30.0, gt=0, le=300)
+
+    # -- circuit breaker --
+    circuit_failure_threshold: int = Field(default=5, ge=1, le=100)
+    circuit_reset_seconds: float = Field(default=30.0, gt=0, le=3600)
+    circuit_half_open_max_calls: int = Field(default=1, ge=1, le=20)
+
+    # -- outbound rate limiting --
+    outbound_rate_limit_per_minute: int = Field(default=600, ge=1, le=100_000)
+    outbound_rate_limit_burst: int = Field(default=60, ge=1, le=10_000)
+
+    # -- idempotency --
+    idempotency_retention_seconds: int = Field(default=86_400, ge=60, le=2_592_000)
+
+    # -- OpenAPI ingestion bounds --
+    openapi_max_document_bytes: int = Field(default=2_097_152, ge=1024, le=16_777_216)
+    openapi_max_operations: int = Field(default=100, ge=1, le=2000)
+    openapi_max_depth: int = Field(default=40, ge=4, le=200)
+
+    # -- inbound webhooks --
+    webhook_max_body_bytes: int = Field(default=1_048_576, ge=256, le=16_777_216)
+    webhook_default_tolerance_seconds: int = Field(default=300, ge=30, le=3600)
+    webhook_receipt_retention_seconds: int = Field(default=604_800, ge=3600, le=2_592_000)
+
+    @model_validator(mode="after")
+    def _bounds(self) -> Self:
+        if self.read_timeout_seconds > self.total_timeout_seconds:
+            raise ValueError("read_timeout_seconds must not exceed total_timeout_seconds")
+        if self.connect_timeout_seconds > self.total_timeout_seconds:
+            raise ValueError("connect_timeout_seconds must not exceed total_timeout_seconds")
+        if self.retry_base_delay_seconds > self.retry_max_delay_seconds:
+            raise ValueError("retry_base_delay_seconds must not exceed retry_max_delay_seconds")
+        if self.max_request_bytes > self.max_response_bytes * 8:
+            raise ValueError("max_request_bytes is disproportionately large")
+        if self.allow_ephemeral_vault_key and self.vault_encryption_keys:
+            raise ValueError(
+                "NXS_INTEGRATIONS__ALLOW_EPHEMERAL_VAULT_KEY cannot be combined with keys"
+            )
+        return self
+
+    def vault_key_list(self) -> list[str]:
+        return [k.strip() for k in self.vault_encryption_keys.split(",") if k.strip()]
+
+    def sensitive_headers(self) -> frozenset[str]:
+        raw = self.sensitive_header_names.split(",")
+        return frozenset(h.strip().lower() for h in raw if h.strip())
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -416,6 +499,7 @@ class Settings(BaseSettings):
     tenancy: TenancySettings = Field(default_factory=TenancySettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
     events: EventsSettings = Field(default_factory=EventsSettings)
+    integrations: IntegrationsSettings = Field(default_factory=IntegrationsSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
@@ -468,6 +552,10 @@ class Settings(BaseSettings):
         if self.events.publisher_poll_interval_seconds < 0.2:
             problems.append(
                 "NXS_EVENTS__PUBLISHER_POLL_INTERVAL_SECONDS is below the hardened minimum (0.2s)"
+            )
+        if self.integrations.enabled and self.integrations.allow_ephemeral_vault_key:
+            problems.append(
+                "NXS_INTEGRATIONS__ALLOW_EPHEMERAL_VAULT_KEY must be false outside local/test"
             )
         if problems:
             raise ValueError("unsafe security configuration: " + "; ".join(sorted(problems)))

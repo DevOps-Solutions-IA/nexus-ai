@@ -16,6 +16,7 @@ dependencies = [
   "pydantic-settings==2.15.0",
   "sqlalchemy[asyncio]==2.0.52",
   "asyncpg==0.31.0",
+  "httpx==0.28.1",
   "redis==8.1.0",
   "nats-py==2.15.0",
   "alembic==1.19.2",
@@ -34,7 +35,6 @@ dev = [
   "anyio==4.15.1",
   "asgi-lifespan==2.1.0",
   "bandit==1.9.2",
-  "httpx==0.28.1",
   "mypy==1.17.1",
   "pip-audit==2.9.0",
   "pytest==9.0.3",
@@ -65,6 +65,7 @@ ignore = ["ASYNC109"]
 "scripts/nxs_p05_evidence.py" = ["S603", "S607"]
 "scripts/nxs_p06_evidence.py" = ["S603", "S607"]
 "scripts/nxs_p04_evidence.py" = ["S603", "S607"]
+"scripts/nxs_p07_evidence.py" = ["S603", "S607"]
 "migrations/env.py" = ["E402"]
 
 [tool.mypy]
@@ -88,7 +89,14 @@ branch = true
 # One-shot evidence GENERATORS (not product code, no test suite, run manually once per
 # phase to record real command outputs) are excluded like migrations. Every other module
 # under src/ and scripts/ is covered and gated at >= 90%.
-omit = ["migrations/*", "scripts/nxs_p03_evidence.py", "scripts/nxs_p04_evidence.py"]
+omit = [
+  "migrations/*",
+  "scripts/nxs_p03_evidence.py",
+  "scripts/nxs_p04_evidence.py",
+  "scripts/nxs_p05_evidence.py",
+  "scripts/nxs_p06_evidence.py",
+  "scripts/nxs_p07_evidence.py",
+]
 
 [tool.bandit]
 exclude_dirs = ["tests"]

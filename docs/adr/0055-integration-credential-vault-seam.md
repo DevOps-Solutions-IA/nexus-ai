@@ -1,0 +1,15 @@
+# ADR-0055: Integration credential-reference / vault seam
+
+Status: Accepted. Context: NXS-INT-001 integrations authenticate to external systems, but the LLM must never receive a plaintext secret and no secret may be stored in PostgreSQL in the clear. A production external vault (AWS Secrets Manager / GCP / HashiCorp Vault) is out of scope for P07; the seam it will drop into is not. Decision:
+
+**Indirection.** An `AuthProfile` holds an opaque `credential_ref` (`^[a-z][a-z0-9_:-]{2,126}$`), never secret material. Resolving the reference to usable secret material is the sole job of `nexus_ai.integrations.credentials` and is done only for the auth layer and the executor — the resolved material never crosses the API boundary and never reaches the LLM.
+
+**`VaultClient` protocol.** `get_secret / store_secret / delete_secret / has_secret`, each tenant-scoped by an `organization_id` argument. Production and future external vaults implement this contract.
+
+**Local encrypted-at-rest implementation.** `LocalEncryptedVault` serialises the secret fields, encrypts them with Fernet (`MultiFernet` for key rotation — first key encrypts, all keys decrypt) and persists only the ciphertext in `integration_secrets` (`credential_type` + `ciphertext TEXT`). A decryption failure (wrong / rotated-out key, tampered row) surfaces as a stable `NXS_INT_CREDENTIAL_UNAVAILABLE`, never a raw crypto error. Key material comes from `NXS_INTEGRATIONS__VAULT_ENCRYPTION_KEYS` (comma-separated url-safe base64 32-byte keys); local/test generates an ephemeral key with a structured warning; `ApplicationLifespan.startup` fails closed in staging/production when no explicit key is configured.
+
+**`SecretMaterial`.** A frozen non-Pydantic holder (so it cannot be dumped through `model_dump`) that redacts itself in `repr`/`str`; `field(name)` is the only accessor. Credential types (`API_KEY`, `BEARER_TOKEN`, `BASIC_AUTH`, `OAUTH2_CLIENT`, `HMAC_SECRET`) each declare their required fields, enforced on store and on resolve. An `InMemoryVault` exists for unit tests and is never wired into the running app.
+
+**Auth application.** `AuthProfileApplier` is the only component that turns a `credential_ref` into material and injects it. It is header-injection safe: it never sets a reserved header for anything but its own `Authorization` (Bearer / Basic); an API-key header is rejected at config time if it names a reserved header; secret values are newline-stripped. `OAUTH2_CLIENT_CREDENTIALS` tokens are fetched through the governed executor (client credentials in the POST body, the token URL itself SSRF-validated) and cached in-process until shortly before expiry. OAuth interactive authorization-code flows are deferred.
+
+Consequences: swapping to a production vault is a new `VaultClient` implementation and a wiring change in `ApplicationLifespan`; no domain, API or executor code changes. `integration_secrets` never holds a readable secret; structured logs never contain `Authorization`, an API key, a token, a password or a webhook secret.

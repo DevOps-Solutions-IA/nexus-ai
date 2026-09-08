@@ -702,3 +702,168 @@ def make_tenant_event() -> Callable[..., Any]:
         return EventEnvelope.create(**params)
 
     return _make
+
+
+# --- Integration Hub fixtures (NXS-P07) ---
+
+
+@pytest.fixture
+def mock_http_server() -> Iterator[Any]:
+    """A controlled local HTTP server (127.0.0.1, ephemeral port) for outbound tests.
+    NEVER the public internet."""
+    import http.server
+    import json as _json
+    import threading
+
+    state: dict[str, Any] = {
+        "handler": lambda method, path, headers, body: (200, {"ok": True}),
+        "requests": [],
+    }
+
+    class _ThreadingServer(http.server.ThreadingHTTPServer):
+        daemon_threads = True
+        allow_reuse_address = True
+
+    class _Handler(http.server.BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
+        def log_message(self, *args: Any) -> None:  # silence
+            return
+
+        def _serve(self, method: str) -> None:
+            length = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(length) if length else b""
+            state["requests"].append(
+                {"method": method, "path": self.path, "headers": dict(self.headers), "body": body}
+            )
+            result = state["handler"](method, self.path, dict(self.headers), body)
+            status, payload = result[0], result[1]
+            headers = result[2] if len(result) > 2 else {}
+            raw = payload if isinstance(payload, bytes) else _json.dumps(payload).encode()
+            self.send_response(status)
+            self.send_header("Content-Type", headers.pop("Content-Type", "application/json"))
+            self.send_header("Content-Length", str(len(raw)))
+            for key, value in headers.items():
+                self.send_header(key, value)
+            self.end_headers()
+            if method != "HEAD":
+                self.wfile.write(raw)
+
+        def do_GET(self) -> None:
+            self._serve("GET")
+
+        def do_POST(self) -> None:
+            self._serve("POST")
+
+        def do_PUT(self) -> None:
+            self._serve("PUT")
+
+        def do_PATCH(self) -> None:
+            self._serve("PATCH")
+
+        def do_DELETE(self) -> None:
+            self._serve("DELETE")
+
+    server = _ThreadingServer(("127.0.0.1", 0), _Handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    port = server.server_address[1]
+
+    class _Control:
+        base_url = f"http://127.0.0.1:{port}"
+
+        @staticmethod
+        def set_handler(fn: Callable[..., Any]) -> None:
+            state["handler"] = fn
+
+        @property
+        def requests(self) -> list[dict[str, Any]]:
+            return state["requests"]
+
+    try:
+        yield _Control()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+
+
+@pytest.fixture
+async def integration_hub(
+    tenant_database: Any,
+    event_platform: Any,
+    truncate_event_tables: Any,
+    integration_env: Callable[..., Settings],
+) -> Any:
+    """A fully wired Integration Hub against the real DB + event outbox, with the
+    governed executor allowed to reach the local mock server only."""
+    import asyncpg
+    from cryptography.fernet import Fernet
+
+    from nexus_ai.domain.integrations.repository import (
+        IntegrationIdempotencyRepository,
+        IntegrationSecretStore,
+    )
+    from nexus_ai.integrations.auth_profiles import AuthProfileApplier
+    from nexus_ai.integrations.circuit import CircuitBreakerRegistry
+    from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
+    from nexus_ai.integrations.destination import DestinationPolicy
+    from nexus_ai.integrations.executor import GovernedHttpExecutor
+    from nexus_ai.integrations.ratelimit import OutboundRateLimiter
+    from nexus_ai.integrations.registry import IntegrationRegistry
+    from nexus_ai.integrations.service import IntegrationHubService
+    from nexus_ai.integrations.webhooks import InboundWebhookService
+
+    settings = integration_env()
+    policy = DestinationPolicy(allow_loopback=True, resolver=lambda h, p: ["127.0.0.1"])
+    vault = LocalEncryptedVault(
+        IntegrationSecretStore(tenant_database), build_fernet([Fernet.generate_key().decode()])
+    )
+    executor = GovernedHttpExecutor(settings.integrations, policy)
+    registry = IntegrationRegistry(
+        settings, tenant_database, event_platform.publisher, vault, policy
+    )
+    service = IntegrationHubService(
+        settings,
+        tenant_database,
+        event_platform.publisher,
+        registry,
+        executor,
+        AuthProfileApplier(vault, policy, executor),
+        CircuitBreakerRegistry(settings.integrations),
+        OutboundRateLimiter(settings.integrations, _NoCache()),
+        IntegrationIdempotencyRepository(tenant_database),
+    )
+    webhooks = InboundWebhookService(settings, tenant_database, event_platform.publisher, vault)
+
+    async def _cleanup() -> None:
+        connection = await asyncpg.connect(
+            MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+        )
+        try:
+            await connection.execute(
+                "TRUNCATE integrations, integration_operations, integration_secrets, "
+                "integration_execution_records, integration_idempotency_records, "
+                "webhook_endpoints, webhook_receipts CASCADE"
+            )
+        finally:
+            await connection.close()
+
+    await _cleanup()
+
+    class _Hub:
+        def __init__(self) -> None:
+            self.registry = registry
+            self.service = service
+            self.webhooks = webhooks
+            self.vault = vault
+            self.event_platform = event_platform
+            self.database = tenant_database
+            self.settings = settings
+
+    return _Hub()
+
+
+class _NoCache:
+    is_connected = False
+    client = None

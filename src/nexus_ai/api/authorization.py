@@ -64,3 +64,30 @@ ConversationCloseDep = Annotated[
 TimelineReadDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.CUSTOMER_TIMELINE_READ))
 ]
+IntegrationReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_READ))
+]
+IntegrationCreateDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_CREATE))
+]
+IntegrationUpdateDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_UPDATE))
+]
+IntegrationDisableDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_DISABLE))
+]
+IntegrationOperationManageDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_OPERATION_MANAGE))
+]
+IntegrationCredentialManageDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_CREDENTIAL_MANAGE))
+]
+IntegrationTestDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_TEST))
+]
+IntegrationExecuteDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_EXECUTE))
+]
+IntegrationWebhookManageDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_WEBHOOK_MANAGE))
+]
