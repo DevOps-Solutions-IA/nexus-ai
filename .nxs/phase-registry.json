@@ -61,12 +61,12 @@
     },
     {
       "branch": "feat/nxs-p06-customer-conversations",
-      "decision": "GO",
+      "decision": "PENDING",
       "dependencies": [
         "NXS-P04"
       ],
       "id": "NXS-P06",
-      "status": "READY",
+      "status": "VALIDATING",
       "title": "Customer Identity and Conversations"
     },
     {
