@@ -954,13 +954,21 @@
         "secret_scan": "PASS",
         "security_tests": "PASS",
         "static_arguments_cannot_be_overridden": "PASS",
+        "stricter_of_p08_and_p07_timeout_wins": "PASS",
+        "timeout_seconds_change_bumps_tool_version": "PASS",
         "tool_definitions_deterministic_and_versioned": "PASS",
+        "tool_timeout_finalises_idempotency_as_failed": "PASS",
+        "tool_timeout_independent_of_p07_timeout": "PASS",
+        "tool_timeout_maps_to_nxs_tool_timeout": "PASS",
+        "tool_timeout_none_leaves_p07_behaviour_unchanged": "PASS",
+        "tool_timeout_records_failure_receipt_and_safe_event": "PASS",
+        "tool_timeout_seconds_enforced_at_engine_boundary": "PASS",
         "toolchain_consistency": "PASS",
         "typing": "PASS",
         "unit_tests": "PASS",
         "url_method_header_graphql_injection_rejected": "PASS"
       },
-      "implementation_commit": "56422d05a23a3cf3d0e122f12c473d0d9677826b",
+      "implementation_commit": "275c127f2c9bd82104660aab475f022f1caabba7",
       "phase": "NXS-P08",
       "regression_status": "PASS",
       "requirements": [
@@ -968,8 +976,8 @@
       ],
       "security_status": "PASS",
       "status": "READY",
-      "test_count": 996,
-      "timestamp": "2026-09-08T16:39:34Z"
+      "test_count": 1001,
+      "timestamp": "2026-09-08T17:22:59Z"
     }
   ],
   "schema_version": "1.0.0"

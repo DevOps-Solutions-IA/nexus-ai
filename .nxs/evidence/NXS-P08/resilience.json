@@ -1,10 +1,10 @@
 {
   "failed": 0,
   "marker": null,
-  "output_tail": "....                                                                     [100%]\n4 passed in 6.07s",
-  "passed": 4,
+  "output_tail": "    ~~~~~~~~~~~~~~~~~~^^^\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------",
+  "passed": 8,
   "phase": "NXS-P08",
-  "recorded_at": "2026-09-08T16:30:37Z",
+  "recorded_at": "2026-09-08T17:10:15Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "tests": [

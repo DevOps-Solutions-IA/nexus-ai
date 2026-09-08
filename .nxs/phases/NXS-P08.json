@@ -29,7 +29,7 @@
     ".nxs/evidence/NXS-P08/unit-primitives.json"
   ],
   "id": "NXS-P08",
-  "implementation_commit": "56422d05a23a3cf3d0e122f12c473d0d9677826b",
+  "implementation_commit": "275c127f2c9bd82104660aab475f022f1caabba7",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -82,7 +82,7 @@
   "schema_version": "1.0.0",
   "status": "READY",
   "timestamps": {
-    "closed_at": "2026-09-08T16:39:34Z",
+    "closed_at": "2026-09-08T17:22:59Z",
     "started_at": "2026-09-08T15:43:51Z"
   },
   "title": "Tool Engine"
