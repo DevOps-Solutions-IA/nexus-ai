@@ -842,7 +842,8 @@ async def integration_hub(
         )
         try:
             await connection.execute(
-                "TRUNCATE integrations, integration_operations, integration_secrets, "
+                "TRUNCATE tool_definitions, tool_execution_records, tool_idempotency_records, "
+                "integrations, integration_operations, integration_secrets, "
                 "integration_execution_records, integration_idempotency_records, "
                 "webhook_endpoints, webhook_receipts CASCADE"
             )
@@ -864,6 +865,99 @@ async def integration_hub(
     return _Hub()
 
 
+@pytest.fixture
+async def tool_engine(integration_hub: Any) -> Any:
+    """A fully wired Tool Engine on top of the ``integration_hub`` fixture (real DB +
+    event outbox + governed Integration Hub reaching the local mock server only)."""
+    from nexus_ai.domain.auth.rbac import AuthorizationService
+    from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
+    from nexus_ai.tools.permissions import ToolPermissionGuard
+    from nexus_ai.tools.registry import ToolRegistry
+    from nexus_ai.tools.service import ToolEngine
+
+    hub = integration_hub
+    registry = ToolRegistry(hub.settings, hub.database, hub.event_platform.publisher, hub.registry)
+    engine = ToolEngine(
+        hub.settings,
+        hub.database,
+        hub.event_platform.publisher,
+        registry,
+        hub.service,
+        ToolPermissionGuard(AuthorizationService(hub.database)),
+        ToolIdempotencyRepository(hub.database),
+    )
+
+    class _ToolEngine:
+        def __init__(self) -> None:
+            self.registry = registry
+            self.engine = engine
+            self.hub = hub
+            self.database = hub.database
+            self.settings = hub.settings
+            self.event_platform = hub.event_platform
+            self.integrations = hub.registry
+            self.mock = None
+
+    return _ToolEngine()
+
+
 class _NoCache:
     is_connected = False
     client = None
+
+
+@pytest.fixture
+def make_tool_principal(tenant_database: Any) -> Callable[..., Any]:
+    """Seed an ACTIVE user + ACTIVE owner membership + org_owner role assignment in an
+    Organization and return a :class:`Principal` for it (no HTTP / token round-trip)."""
+    import datetime as _dt
+    import uuid as _uuid
+
+    from sqlalchemy import text as _text
+
+    from nexus_ai.domain.auth.entities import Principal
+    from nexus_ai.domain.auth.rbac import ROLE_IDS, RoleKey
+
+    async def _make(organization: Any, *, role: RoleKey = RoleKey.ORG_OWNER) -> Any:
+        user_id = _uuid.uuid7()
+        now = _dt.datetime.now(_dt.UTC)
+        async with tenant_database.transaction() as session:
+            await session.execute(
+                _text(
+                    "INSERT INTO users (id, email, email_verified, display_name, status, "
+                    "version, created_at, updated_at) VALUES (:id, :email, true, 'Tool Tester', "
+                    "'ACTIVE', 1, now(), now())"
+                ),
+                {"id": user_id, "email": f"tool-{user_id.hex[:12]}@example.com"},
+            )
+        async with tenant_database.tenant_transaction(organization.id) as tenant:
+            await tenant.session.execute(
+                _text(
+                    "INSERT INTO memberships (id, organization_id, user_id, status, "
+                    "created_at, updated_at) VALUES (:id, :org, :user, 'ACTIVE', now(), now())"
+                ),
+                {"id": _uuid.uuid7(), "org": organization.id, "user": user_id},
+            )
+            await tenant.session.execute(
+                _text(
+                    "INSERT INTO role_assignments (id, organization_id, user_id, role_id, "
+                    "status, created_at, updated_at) VALUES (:id, :org, :user, :role, 'ACTIVE', "
+                    "now(), now())"
+                ),
+                {
+                    "id": _uuid.uuid7(),
+                    "org": organization.id,
+                    "user": user_id,
+                    "role": ROLE_IDS[role],
+                },
+            )
+        return Principal(
+            user_id=user_id,
+            session_id=_uuid.uuid7(),
+            organization_id=organization.id,
+            token_id=_uuid.uuid7(),
+            issued_at=now,
+            expires_at=now + _dt.timedelta(hours=1),
+        )
+
+    return _make

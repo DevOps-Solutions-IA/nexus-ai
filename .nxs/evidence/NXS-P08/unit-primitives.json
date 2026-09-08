@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...............                                                          [100%]\n15 passed in 0.01s",
+  "passed": 15,
+  "phase": "NXS-P08",
+  "recorded_at": "2026-09-08T17:09:36Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_tool_primitives.py"
+  ]
+}

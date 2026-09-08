@@ -91,3 +91,8 @@ IntegrationExecuteDep = Annotated[
 IntegrationWebhookManageDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.INTEGRATION_WEBHOOK_MANAGE))
 ]
+ToolReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_READ))]
+ToolCreateDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_CREATE))]
+ToolUpdateDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_UPDATE))]
+ToolDisableDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_DISABLE))]
+ToolInvokeDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_INVOKE))]

@@ -38,6 +38,7 @@ from nexus_ai.domain.integrations.repository import (
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
+from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
 from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
@@ -52,6 +53,10 @@ from nexus_ai.integrations.ratelimit import OutboundRateLimiter
 from nexus_ai.integrations.registry import IntegrationRegistry
 from nexus_ai.integrations.service import IntegrationHubService
 from nexus_ai.integrations.webhooks import InboundWebhookService
+from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registration
+from nexus_ai.tools.permissions import ToolPermissionGuard
+from nexus_ai.tools.registry import ToolRegistry
+from nexus_ai.tools.service import ToolEngine
 
 _Connector = Callable[[], Awaitable[None]]
 
@@ -84,6 +89,8 @@ class Resources:
     integrations: IntegrationRegistry
     integration_hub: IntegrationHubService
     inbound_webhooks: InboundWebhookService
+    tools: ToolRegistry
+    tool_engine: ToolEngine
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -216,6 +223,19 @@ class ApplicationLifespan:
             settings, database, event_platform.publisher, integration_vault
         )
 
+        tool_registry = ToolRegistry(
+            settings, database, event_platform.publisher, integration_registry
+        )
+        tool_engine = ToolEngine(
+            settings,
+            database,
+            event_platform.publisher,
+            tool_registry,
+            integration_hub,
+            ToolPermissionGuard(authorizer),
+            ToolIdempotencyRepository(database),
+        )
+
         self._resources = Resources(
             settings=settings,
             metadata=ServiceMetadata.from_settings(settings),
@@ -239,6 +259,8 @@ class ApplicationLifespan:
             integrations=integration_registry,
             integration_hub=integration_hub,
             inbound_webhooks=inbound_webhooks,
+            tools=tool_registry,
+            tool_engine=tool_engine,
         )
         await logger.ainfo(
             "runtime_started",

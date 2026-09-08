@@ -10,6 +10,7 @@ from nexus_ai.api.customers import customers_router
 from nexus_ai.api.integrations import integrations_router
 from nexus_ai.api.organizations import organizations_router
 from nexus_ai.api.system import system_router
+from nexus_ai.api.tools import tools_router
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(system_router)
@@ -18,3 +19,4 @@ api_v1_router.include_router(organizations_router)
 api_v1_router.include_router(customers_router)
 api_v1_router.include_router(conversations_router)
 api_v1_router.include_router(integrations_router)
+api_v1_router.include_router(tools_router)

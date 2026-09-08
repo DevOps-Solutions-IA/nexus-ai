@@ -1,0 +1,8 @@
+{
+  "image": "nexus-ai:clean-room",
+  "non_root_user": "65532:65532",
+  "phase": "NXS-P08",
+  "recorded_at": "2026-09-08T17:19:04Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}
