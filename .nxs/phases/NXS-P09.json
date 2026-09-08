@@ -30,7 +30,7 @@
     ".nxs/evidence/NXS-P09/unit-primitives.json"
   ],
   "id": "NXS-P09",
-  "implementation_commit": "119aec3135001f1c9059b07e8572c05ec89af032",
+  "implementation_commit": "d6d8222e508acce5af0cb847b76a46b0c325b2b5",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -85,7 +85,7 @@
   "schema_version": "1.0.0",
   "status": "READY",
   "timestamps": {
-    "closed_at": "2026-09-08T21:01:16Z",
+    "closed_at": "2026-09-08T22:32:34Z",
     "started_at": "2026-09-08T18:47:51Z"
   },
   "title": "Messaging Channels"

@@ -1096,6 +1096,9 @@
         "p06_customer_identity_reused": "PASS",
         "p07_p09_boundary_preserved": "PASS",
         "p10_p13_p14_p16_remain_planned": "PASS",
+        "parent_deletion_keeps_child_organization_id": "PASS",
+        "parent_deletion_nulls_only_reply_to": "PASS",
+        "parent_deletion_succeeds_no_not_null_violation": "PASS",
         "phone_numbers_normalized_e164": "PASS",
         "provider_account_configuration_bounded_and_allow_listed": "PASS",
         "provider_account_no_cross_org_adoption": "PASS",
@@ -1107,6 +1110,9 @@
         "rbac_on_messaging": "PASS",
         "real_in_reply_to_and_references_emitted": "PASS",
         "regression": "PASS",
+        "reply_fk_column_specific_set_null": "PASS",
+        "reply_fk_composite_tenant_aware_preserved": "PASS",
+        "reply_fk_emitted_ddl_verified": "PASS",
         "reply_thread_headers_crlf_safe": "PASS",
         "repository_integrity": "PASS",
         "requirements_ledger": "PASS",
@@ -1131,7 +1137,7 @@
         "webhook_signature_timing_safe": "PASS",
         "webhook_timestamp_freshness_enforced": "PASS"
       },
-      "implementation_commit": "119aec3135001f1c9059b07e8572c05ec89af032",
+      "implementation_commit": "d6d8222e508acce5af0cb847b76a46b0c325b2b5",
       "phase": "NXS-P09",
       "regression_status": "PASS",
       "requirements": [
@@ -1141,8 +1147,8 @@
       ],
       "security_status": "PASS",
       "status": "READY",
-      "test_count": 1085,
-      "timestamp": "2026-09-08T21:01:16Z"
+      "test_count": 1086,
+      "timestamp": "2026-09-08T22:32:34Z"
     }
   ],
   "schema_version": "1.0.0"

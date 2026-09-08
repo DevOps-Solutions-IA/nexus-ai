@@ -1,14 +1,14 @@
 {
   "base_main_sha": "96ecf6b7f4c18f5d42624905de860c36dbb5ec57",
-  "closure_commit": "8668a3c4c487317114980f997b921bd82be762f6",
-  "corrective_implementation_commit": "119aec3135001f1c9059b07e8572c05ec89af032",
+  "closure_commit": "pending \u2014 the re-close commit for the FK corrective",
+  "corrective_implementation_commit": "d6d8222e508acce5af0cb847b76a46b0c325b2b5",
   "implementation_commit": "37224a5837e9409b8d1f290abb3cf432de171939",
   "merged": false,
   "phase": "NXS-P09",
   "pull_request": 19,
-  "record_green_ci_head": "pending \u2014 this commit",
+  "record_green_ci_head": "pending \u2014 the record-green commit after the re-close",
   "recorded_at": "2026-09-08T21:35:00Z",
-  "result": "PASS",
+  "result": "PENDING",
   "runs": {
     "audit_corrective_re_close_8668a3c": {
       "jobs": [
