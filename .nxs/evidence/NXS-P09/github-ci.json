@@ -1,14 +1,14 @@
 {
   "base_main_sha": "96ecf6b7f4c18f5d42624905de860c36dbb5ec57",
-  "closure_commit": "pending \u2014 the re-close commit for the FK corrective",
+  "closure_commit": "7c84f3db3cf942e7ad6728687fd03d7de2f6ad12",
   "corrective_implementation_commit": "d6d8222e508acce5af0cb847b76a46b0c325b2b5",
   "implementation_commit": "37224a5837e9409b8d1f290abb3cf432de171939",
   "merged": false,
   "phase": "NXS-P09",
   "pull_request": 19,
-  "record_green_ci_head": "pending \u2014 the record-green commit after the re-close",
-  "recorded_at": "2026-09-08T21:35:00Z",
-  "result": "PENDING",
+  "record_green_ci_head": "7c84f3db3cf942e7ad6728687fd03d7de2f6ad12",
+  "recorded_at": "2026-09-08T22:30:00Z",
+  "result": "PASS",
   "runs": {
     "audit_corrective_re_close_8668a3c": {
       "jobs": [
@@ -47,6 +47,44 @@
       "nxs_security_pull_request_run": 34270687423,
       "nxs_security_push": "success",
       "nxs_security_push_run": 34270645094
+    },
+    "fk_corrective_re_close_7c84f3d": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34286475964,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34286472699,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34286475988,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34286472649
+    },
+    "record_green_950758c": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34278893368,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34278889012,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34278893381,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34278888963
     },
     "record_green_e7a34f2": {
       "jobs": [
