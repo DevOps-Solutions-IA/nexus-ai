@@ -14,6 +14,7 @@
     ".nxs/evidence/NXS-P07/database-roles.json",
     ".nxs/evidence/NXS-P07/docker.json",
     ".nxs/evidence/NXS-P07/git.json",
+    ".nxs/evidence/NXS-P07/github-ci.json",
     ".nxs/evidence/NXS-P07/hub-integration.json",
     ".nxs/evidence/NXS-P07/migration.json",
     ".nxs/evidence/NXS-P07/multiarch.json",
