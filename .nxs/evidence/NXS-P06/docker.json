@@ -2,7 +2,7 @@
   "image": "nexus-ai:p03",
   "non_root_user": "65532:65532",
   "phase": "NXS-P06",
-  "recorded_at": "2026-09-07T22:41:24Z",
+  "recorded_at": "2026-09-08T01:25:48Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

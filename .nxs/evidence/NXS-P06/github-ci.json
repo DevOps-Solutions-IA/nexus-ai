@@ -9,6 +9,18 @@
     "state": "PASS"
   },
   "closure_head_sha": "ccd9293",
+  "corrective_checks": {
+    "docker": "PASS",
+    "image": "PASS",
+    "integration": "PASS",
+    "multiarch": "PASS",
+    "quality": "PASS",
+    "source-and-dependencies": "PASS",
+    "state": "PASS"
+  },
+  "corrective_implementation_sha": "4811c74eb0b2ceaa32392df54a54878f3171ecc2",
+  "corrective_nxs_ci": "success (push + pull_request, all 7 jobs)",
+  "corrective_nxs_security": "success (push + pull_request)",
   "final_checks": {
     "docker": "PASS",
     "image": "PASS",
@@ -20,10 +32,11 @@
   },
   "final_head_sha": "59d6cb6",
   "implementation_sha": "09acb31",
-  "note": "final_head_sha recorded after NXS CI (all seven jobs) and NXS Security were green on the final head",
+  "note": "Original close: implementation 09acb31, final green head 59d6cb6. Independent-audit race-recovery corrective: reopened d2956b2, corrective implementation 4811c74 \u2014 NXS CI (all 7 jobs) and NXS Security green on push and pull_request. The corrective final head is recorded after re-closure CI is green.",
   "phase": "NXS-P06",
   "pr": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/15",
-  "recorded_at": "2026-09-07T23:20:24Z",
+  "recorded_at": "2026-09-08T01:21:45Z",
+  "reopen_commit_sha": "d2956b295d25f53ffce9af17fb16ed2451e2e29c",
   "result": "PASS",
   "schema_version": "1.0.0",
   "workflows": [

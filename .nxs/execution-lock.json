@@ -1,10 +1,10 @@
 {
-  "actor": "claude-code-p06",
-  "branch": "feat/nxs-p06-customer-conversations",
-  "expires_at": "2026-09-08T04:43:00Z",
-  "phase": "NXS-P06",
-  "repository_commit": "f2db7f9ec82a59ea79f2ef1f71d1c4e3e65f89f0",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-08T00:43:00Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }
