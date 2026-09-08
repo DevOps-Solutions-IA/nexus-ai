@@ -37,6 +37,13 @@ from nexus_ai.domain.integrations.models import (
     WebhookEndpointRecord,
     WebhookReceiptRecord,
 )
+from nexus_ai.domain.messaging.models import (
+    MessagingAccountRecord,
+    MessagingInboundReceiptRecord,
+    MessagingMessageRecord,
+    MessagingSecretRecord,
+    MessagingSendIdempotencyRecord,
+)
 from nexus_ai.domain.organizations.models import OrganizationRecord
 from nexus_ai.domain.provisioning.models import (
     DashboardConfigurationRecord,
@@ -66,6 +73,11 @@ __all__ = [
     "IntegrationRecord",
     "IntegrationSecretRecord",
     "MembershipRecord",
+    "MessagingAccountRecord",
+    "MessagingInboundReceiptRecord",
+    "MessagingMessageRecord",
+    "MessagingSecretRecord",
+    "MessagingSendIdempotencyRecord",
     "OrganizationRecord",
     "OrganizationSettingsRecord",
     "PermissionRecord",

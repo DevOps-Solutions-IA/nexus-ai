@@ -367,6 +367,22 @@ class ToolsSettings(BaseModel):
     default_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
 
 
+class ChannelsSettings(BaseModel):
+    """Messaging Channels configuration (NXS-P09: WhatsApp / Email / SMS).
+
+    Channel adapters never open their own socket — every outbound provider call routes
+    through the NXS-P07 governed HTTP executor — so these bounds are about inbound
+    webhook size, durable outbound idempotency and delivery-callback tolerance.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    max_webhook_body_bytes: int = Field(default=1_048_576, ge=1_024, le=10_485_760)
+    send_idempotency_retention_seconds: int = Field(default=86_400, ge=60, le=2_592_000)
+    provider_timeout_seconds: float = Field(default=20.0, gt=0, le=60)
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -522,6 +538,7 @@ class Settings(BaseSettings):
     events: EventsSettings = Field(default_factory=EventsSettings)
     integrations: IntegrationsSettings = Field(default_factory=IntegrationsSettings)
     tools: ToolsSettings = Field(default_factory=ToolsSettings)
+    channels: ChannelsSettings = Field(default_factory=ChannelsSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

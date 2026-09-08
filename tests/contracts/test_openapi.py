@@ -22,10 +22,13 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
         "/api/v1/auth/me",
         "/api/v1/auth/memberships",
     } <= paths
-    # P06 conversations are advertised; later-phase domains are not.
-    assert not any(
-        segment in path for path in paths for segment in ("/agents", "/users", "/messages")
-    )
+    # Later-phase domains are not advertised yet (P13 agents, human/user admin).
+    assert not any(segment in path for path in paths for segment in ("/agents", "/users"))
+    # The P09 messaging surface is advertised (accounts + one send endpoint + webhooks);
+    # ``/messages`` only ever appears under ``/messaging/``.
+    assert "/api/v1/messaging/messages" in paths
+    assert "/api/v1/webhooks/messaging/{provider}/{token}" in paths
+    assert all("/messages" not in path or "/messaging/" in path for path in paths)
     # The P05 provisioning and P06 customer/conversation surfaces are advertised;
     # arbitrary-id administration is not.
     assert "/api/v1/organizations" in paths

@@ -58,6 +58,10 @@ class PermissionKey(StrEnum):
     TOOL_UPDATE = "tool:update"
     TOOL_DISABLE = "tool:disable"
     TOOL_INVOKE = "tool:invoke"
+    # P09 additions (seeded by the P09 migration):
+    MESSAGING_READ = "messaging:read"
+    MESSAGING_SEND = "messaging:send"
+    MESSAGING_MANAGE_ACCOUNTS = "messaging:manage_accounts"
 
 
 class RoleKey(StrEnum):
@@ -132,6 +136,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.TOOL_UPDATE: UUID("b2000000-0000-7000-8000-00000000001d"),
     PermissionKey.TOOL_DISABLE: UUID("b2000000-0000-7000-8000-00000000001e"),
     PermissionKey.TOOL_INVOKE: UUID("b2000000-0000-7000-8000-00000000001f"),
+    PermissionKey.MESSAGING_READ: UUID("b2000000-0000-7000-8000-000000000020"),
+    PermissionKey.MESSAGING_SEND: UUID("b2000000-0000-7000-8000-000000000021"),
+    PermissionKey.MESSAGING_MANAGE_ACCOUNTS: UUID("b2000000-0000-7000-8000-000000000022"),
 }
 
 _CATALOG_SQL = """
