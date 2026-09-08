@@ -346,6 +346,27 @@ class IntegrationsSettings(BaseModel):
         return frozenset(h.strip().lower() for h in raw if h.strip())
 
 
+class ToolsSettings(BaseModel):
+    """Tool Engine configuration (NXS-TOOL-001).
+
+    The Tool Engine never opens a network connection itself — every external call routes
+    through the Integration Hub — so its bounds are about the registry, the invocation
+    policy pipeline and durable idempotency.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    #: Per-organization ceiling on a tool's declared risk class. A tool that declares a
+    #: higher class than the ceiling cannot be ACTIVE. Bounded — there is no autonomous
+    #: approval flow.
+    max_risk_class: Literal["LOW", "MEDIUM", "HIGH", "CRITICAL"] = "HIGH"
+    max_input_schema_bytes: int = Field(default=65_536, ge=256, le=1_048_576)
+    max_arguments_bytes: int = Field(default=262_144, ge=256, le=4_194_304)
+    idempotency_retention_seconds: int = Field(default=86_400, ge=60, le=2_592_000)
+    default_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -500,6 +521,7 @@ class Settings(BaseSettings):
     auth: AuthSettings = Field(default_factory=AuthSettings)
     events: EventsSettings = Field(default_factory=EventsSettings)
     integrations: IntegrationsSettings = Field(default_factory=IntegrationsSettings)
+    tools: ToolsSettings = Field(default_factory=ToolsSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

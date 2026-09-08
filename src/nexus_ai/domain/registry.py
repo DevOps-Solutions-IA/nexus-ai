@@ -44,6 +44,11 @@ from nexus_ai.domain.provisioning.models import (
     PlatformGrantRecord,
     ProvisioningRequestRecord,
 )
+from nexus_ai.domain.tools.models import (
+    ToolDefinitionRecord,
+    ToolExecutionRecord,
+    ToolIdempotencyRecord,
+)
 
 __all__ = [
     "ConsumerReceiptRecord",
@@ -70,6 +75,9 @@ __all__ = [
     "RoleAssignmentRecord",
     "RolePermissionRecord",
     "RoleRecord",
+    "ToolDefinitionRecord",
+    "ToolExecutionRecord",
+    "ToolIdempotencyRecord",
     "UserCredentialRecord",
     "UserRecord",
     "WebhookEndpointRecord",

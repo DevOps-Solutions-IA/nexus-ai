@@ -52,6 +52,12 @@ class PermissionKey(StrEnum):
     INTEGRATION_TEST = "integration:test"
     INTEGRATION_EXECUTE = "integration:execute"
     INTEGRATION_WEBHOOK_MANAGE = "integration:webhook:manage"
+    # P08 additions (seeded by the P08 migration):
+    TOOL_READ = "tool:read"
+    TOOL_CREATE = "tool:create"
+    TOOL_UPDATE = "tool:update"
+    TOOL_DISABLE = "tool:disable"
+    TOOL_INVOKE = "tool:invoke"
 
 
 class RoleKey(StrEnum):
@@ -121,6 +127,11 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.INTEGRATION_TEST: UUID("b2000000-0000-7000-8000-000000000018"),
     PermissionKey.INTEGRATION_EXECUTE: UUID("b2000000-0000-7000-8000-000000000019"),
     PermissionKey.INTEGRATION_WEBHOOK_MANAGE: UUID("b2000000-0000-7000-8000-00000000001a"),
+    PermissionKey.TOOL_READ: UUID("b2000000-0000-7000-8000-00000000001b"),
+    PermissionKey.TOOL_CREATE: UUID("b2000000-0000-7000-8000-00000000001c"),
+    PermissionKey.TOOL_UPDATE: UUID("b2000000-0000-7000-8000-00000000001d"),
+    PermissionKey.TOOL_DISABLE: UUID("b2000000-0000-7000-8000-00000000001e"),
+    PermissionKey.TOOL_INVOKE: UUID("b2000000-0000-7000-8000-00000000001f"),
 }
 
 _CATALOG_SQL = """

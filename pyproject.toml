@@ -66,6 +66,7 @@ ignore = ["ASYNC109"]
 "scripts/nxs_p06_evidence.py" = ["S603", "S607"]
 "scripts/nxs_p04_evidence.py" = ["S603", "S607"]
 "scripts/nxs_p07_evidence.py" = ["S603", "S607"]
+"scripts/nxs_p08_evidence.py" = ["S603", "S607"]
 "migrations/env.py" = ["E402"]
 
 [tool.mypy]
@@ -96,6 +97,7 @@ omit = [
   "scripts/nxs_p05_evidence.py",
   "scripts/nxs_p06_evidence.py",
   "scripts/nxs_p07_evidence.py",
+  "scripts/nxs_p08_evidence.py",
 ]
 
 [tool.bandit]
