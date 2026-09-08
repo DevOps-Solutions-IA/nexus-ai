@@ -245,6 +245,24 @@ class TestRegistry:
         activated = await te.registry.set_status(org.id, tool.id, ToolStatus.ACTIVE)
         assert activated.status is ToolStatus.ACTIVE
 
+    async def test_update_timeout_seconds_bumps_version(
+        self, tool_engine: Any, make_organization: Any, mock_http_server: Any
+    ) -> None:
+        # timeout_seconds is execution policy: changing it MUST bump the deterministic
+        # ToolDefinition version (D — NXS-P08 timeout corrective).
+        org = await make_organization()
+        te = tool_engine
+        integration = await _ready_integration(te, org.id, mock_http_server.base_url)
+        tool = await te.registry.register(org.id, _register(integration.id))
+        assert tool.version == 1 and tool.timeout_seconds is None
+
+        bumped = await te.registry.update(org.id, tool.id, UpdateToolRequest(timeout_seconds=0.5))
+        assert bumped.timeout_seconds == 0.5
+        assert bumped.version == tool.version + 1
+
+        again = await te.registry.update(org.id, tool.id, UpdateToolRequest(timeout_seconds=2.0))
+        assert again.version == bumped.version + 1
+
     async def test_update_rejects_unknown_permission_and_bad_binding(
         self, tool_engine: Any, make_organization: Any, mock_http_server: Any
     ) -> None:

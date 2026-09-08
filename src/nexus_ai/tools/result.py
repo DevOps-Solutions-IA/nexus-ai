@@ -41,7 +41,10 @@ def map_downstream_error(exc: NxsError) -> NxsError:
     """Translate an Integration Hub ``NxsError`` into a Tool Engine error."""
     code = getattr(exc, "code", "")
     if code in _TIMEOUT_CODES:
-        return ToolTimeoutError("the downstream integration timed out")
+        return ToolTimeoutError(
+            "the downstream integration timed out",
+            extensions={"timeout_scope": "integration", "downstream_code": code},
+        )
     if code in _RATE_LIMIT_CODES:
         return ToolRateLimitedError("the downstream integration was rate limited")
     upstream = exc.extensions.get("upstream_status")

@@ -139,7 +139,9 @@ class ToolRegistry:
             changes["idempotency_policy"] = request.idempotency_policy.value
             bump = True
         if request.timeout_seconds is not None:
+            # the timeout is execution policy — a change bumps the deterministic version
             changes["timeout_seconds"] = request.timeout_seconds
+            bump = True
         if request.input_schema is not None:
             validate_schema_document(request.input_schema, closed_object=True)
             changes["input_schema"] = request.input_schema

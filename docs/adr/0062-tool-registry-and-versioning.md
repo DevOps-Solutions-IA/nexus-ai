@@ -10,7 +10,7 @@ Decision:
 
 **Lifecycle.** `DRAFT → ACTIVE → DISABLED` (plus `ERROR` for a future health signal). A tool is created `DRAFT`; activation re-checks the risk ceiling and the binding. Only `ACTIVE` tools invoke. `set_status` accepts `ACTIVE` or `DISABLED` only — never a jump back to `DRAFT`.
 
-**Deterministic version bumps.** `version` increments when and only when a semantically significant field changes: `input_schema`, `output_schema`, `binding`, `side_effect_class`, `risk_class` or `required_permissions`. Cosmetic edits (`name`, `description`, `timeout_seconds`) do not bump. A no-op update returns the current definition unchanged. Concurrent updates are serialised by the row and remain monotonic — no lost update.
+**Deterministic version bumps.** `version` increments when and only when a semantically significant field changes: `input_schema`, `output_schema`, `binding`, `side_effect_class`, `risk_class`, `required_permissions` or `timeout_seconds` (the last added by ADR-0068 — the timeout is execution policy). Cosmetic edits (`name`, `description`) do not bump. A no-op update returns the current definition unchanged. Concurrent updates are serialised by the row and remain monotonic — no lost update.
 
 **Events.** `tools.registered / updated / disabled` — registered, versioned, strict, ID-only P04 outbox payloads enqueued in the same transaction as the mutation. No schema body or binding detail reaches the bus.
 

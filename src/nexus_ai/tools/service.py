@@ -15,7 +15,9 @@ LLM, the future Agent Runtime, the future Workflow Engine) — the caller choose
   9  side-effect / risk policy (REQUIRED idempotency) -> NXS_TOOL_IDEMPOTENCY_REQUIRED
   10 durable idempotency claim / replay / conflict / in-progress
   11 integration binding + argument merge (static wins)
-  12 governed Integration Hub execution (NXS-P07) — never bypassed
+  12 governed Integration Hub execution (NXS-P07) — never bypassed, additionally bounded
+     by ``tool.timeout_seconds`` when set (the stricter of the P08 and P07 limits wins)
+     -> NXS_TOOL_TIMEOUT
   13 untrusted result validated against the output schema  -> NXS_TOOL_RESULT_INVALID
   14 execution receipt + P04 transactional event
 
@@ -24,6 +26,7 @@ No external connection is opened here — every external call is `IntegrationHub
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import hashlib
 import time
@@ -59,6 +62,7 @@ from nexus_ai.tools.errors import (
     ToolIdempotencyRequiredError,
     ToolPolicyDeniedError,
     ToolResultInvalidError,
+    ToolTimeoutError,
 )
 from nexus_ai.tools.idempotency import (
     ToolIdempotencyStatus,
@@ -184,17 +188,20 @@ class ToolEngine:
         started: float,
     ) -> ToolResult:
         derived_key = _derive_integration_key(tool.id, invocation.idempotency_key)
-        try:  # 12 — governed Integration Hub execution
-            downstream = await self._hub.execute(
-                organization_id,
-                ExecutionRequest(
-                    integration_id=tool.binding.integration_id,
-                    operation_key=tool.binding.operation_key,
-                    input=merged_arguments,
-                    idempotency_key=derived_key,
-                    correlation_id=invocation.correlation_id,
-                ),
+        request = ExecutionRequest(
+            integration_id=tool.binding.integration_id,
+            operation_key=tool.binding.operation_key,
+            input=merged_arguments,
+            idempotency_key=derived_key,
+            correlation_id=invocation.correlation_id,
+        )
+        try:  # 12 — governed Integration Hub execution, bounded by the tool timeout
+            downstream = await self._execute_bounded(organization_id, tool, request)
+        except ToolTimeoutError as exc:  # the P08 tool timeout is the stricter bound
+            await self._finish_failure(
+                organization_id, principal, tool, invocation, exc, 0, started
             )
+            raise
         except NxsError as exc:
             mapped = map_downstream_error(exc)
             await self._finish_failure(
@@ -241,6 +248,31 @@ class ToolEngine:
         await self._record(organization_id, principal, tool, result)  # 14 — receipt
         await self._emit_completed(organization_id, tool, result)
         return result
+
+    async def _execute_bounded(
+        self, organization_id: UUID, tool: ToolDefinition, request: ExecutionRequest
+    ) -> Any:
+        """Run the governed NXS-P07 execution, bounded by ``tool.timeout_seconds``.
+
+        When the tool declares no timeout, the Integration Hub's own timeout / retry /
+        circuit / rate-limit controls are the only bound. When it declares one, the Tool
+        Engine additionally enforces it as an outer upper bound with the canonical async
+        timeout primitive — P07's controls stay fully active, and whichever limit is
+        stricter fires first. Expiry of the tool bound is a deterministic
+        ``NXS_TOOL_TIMEOUT`` (never a bypass of P07, never a false success)."""
+        if tool.timeout_seconds is None:
+            return await self._hub.execute(organization_id, request)
+        try:
+            async with asyncio.timeout(tool.timeout_seconds):
+                return await self._hub.execute(organization_id, request)
+        except TimeoutError as exc:
+            raise ToolTimeoutError(
+                "the tool timeout elapsed before the governed execution completed",
+                extensions={
+                    "timeout_scope": "tool",
+                    "timeout_seconds": tool.timeout_seconds,
+                },
+            ) from exc
 
     async def _claim(
         self,
