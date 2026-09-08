@@ -162,7 +162,10 @@ def main() -> int:
 
     pytest_evidence(
         "unit-primitives",
-        ["tests/unit/test_messaging_primitives.py"],
+        [
+            "tests/unit/test_messaging_primitives.py",
+            "tests/unit/test_messaging_account_config.py",
+        ],
     )
     pytest_evidence(
         "security",
@@ -173,6 +176,7 @@ def main() -> int:
         [
             "tests/integration/test_messaging_channels.py",
             "tests/integration/test_messaging_api.py",
+            "tests/integration/test_messaging_reply_threading.py",
         ],
     )
     pytest_evidence(
@@ -181,7 +185,10 @@ def main() -> int:
     )
     pytest_evidence(
         "resilience",
-        ["tests/resilience/test_messaging_resilience.py"],
+        [
+            "tests/resilience/test_messaging_resilience.py",
+            "tests/resilience/test_messaging_delivery_consistency.py",
+        ],
     )
     pytest_evidence(
         "contracts",
