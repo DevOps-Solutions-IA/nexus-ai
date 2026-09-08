@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "......                                                                   [100%]\n6 passed in 0.73s",
+  "passed": 6,
+  "phase": "NXS-P08",
+  "recorded_at": "2026-09-08T16:30:39Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/contracts/test_tool_contracts.py"
+  ]
+}

@@ -2,13 +2,33 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p08-tool-engine",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P07"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P08/clean-room.json",
+    ".nxs/evidence/NXS-P08/concurrency.json",
+    ".nxs/evidence/NXS-P08/contracts.json",
+    ".nxs/evidence/NXS-P08/coverage.json",
+    ".nxs/evidence/NXS-P08/database-roles.json",
+    ".nxs/evidence/NXS-P08/docker.json",
+    ".nxs/evidence/NXS-P08/engine-integration.json",
+    ".nxs/evidence/NXS-P08/git.json",
+    ".nxs/evidence/NXS-P08/migration.json",
+    ".nxs/evidence/NXS-P08/multiarch.json",
+    ".nxs/evidence/NXS-P08/preflight.json",
+    ".nxs/evidence/NXS-P08/quality-gates.json",
+    ".nxs/evidence/NXS-P08/quality-matrix.json",
+    ".nxs/evidence/NXS-P08/resilience.json",
+    ".nxs/evidence/NXS-P08/schema-validator.json",
+    ".nxs/evidence/NXS-P08/security-scan.json",
+    ".nxs/evidence/NXS-P08/security.json",
+    ".nxs/evidence/NXS-P08/tests.json",
+    ".nxs/evidence/NXS-P08/unit-primitives.json"
+  ],
   "id": "NXS-P08",
-  "implementation_commit": null,
+  "implementation_commit": "56422d05a23a3cf3d0e122f12c473d0d9677826b",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -59,9 +79,9 @@
     "NXS-TOOL-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-08T16:39:34Z",
     "started_at": "2026-09-08T15:43:51Z"
   },
   "title": "Tool Engine"
