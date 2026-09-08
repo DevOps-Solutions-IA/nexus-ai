@@ -59,8 +59,14 @@ async def _account(
 
 
 def _sign(secret: str, body: bytes) -> dict[str, str]:
-    digest = hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
-    return {"X-Messaging-Signature": f"sha256={digest}"}
+    import time
+
+    timestamp = str(int(time.time()))
+    digest = hmac.new(secret.encode(), f"{timestamp}.".encode() + body, hashlib.sha256).hexdigest()
+    return {
+        "X-Messaging-Signature": f"sha256={digest}",
+        "X-Messaging-Timestamp": timestamp,
+    }
 
 
 def _wa_sign(secret: str, body: bytes) -> dict[str, str]:
@@ -428,7 +434,7 @@ async def test_delivery_status_callback_advances_message_state(
     assert (await stack.service.get_message(org.id, message.id)).status is MessageStatus.DELIVERED
 
 
-async def test_email_outbound_carries_threading_headers_and_status_callbacks(
+async def test_email_outbound_body_and_bounce_status_maps_to_failed(
     messaging_stack: Any, make_organization: Any
 ) -> None:
     from nexus_ai.domain.customers.entities import CreateConversationRequest

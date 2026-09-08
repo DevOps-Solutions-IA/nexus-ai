@@ -80,8 +80,16 @@ class WhatsAppProvider:
         return ctx.query.get("hub.challenge") or ""
 
     async def verify_webhook(
-        self, account: MessagingAccount, ctx: WebhookContext, secret: SecretMaterial | None
+        self,
+        account: MessagingAccount,
+        ctx: WebhookContext,
+        secret: SecretMaterial | None,
+        *,
+        timestamp_tolerance_seconds: int,
     ) -> None:
+        # Meta's X-Hub-Signature-256 carries no timestamp protocol; the tolerance
+        # argument is accepted for a uniform provider interface and unused here.
+        _ = timestamp_tolerance_seconds
         if ctx.method.upper() == "GET":
             token = ctx.query.get("hub.verify_token")
             expected = secret.field("verify_token") if secret is not None else None

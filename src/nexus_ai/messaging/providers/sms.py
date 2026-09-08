@@ -14,8 +14,6 @@ Account shape:
 from __future__ import annotations
 
 import datetime as dt
-import hashlib
-import hmac
 import json
 from typing import Any
 
@@ -44,6 +42,7 @@ from nexus_ai.messaging.providers.base import (
     WebhookContext,
     WebhookParseResult,
     provider_send_error,
+    verify_generic_signed_webhook,
 )
 from nexus_ai.messaging.providers.whatsapp import _header
 
@@ -81,21 +80,22 @@ class SmsProvider:
         return None
 
     async def verify_webhook(
-        self, account: MessagingAccount, ctx: WebhookContext, secret: SecretMaterial | None
+        self,
+        account: MessagingAccount,
+        ctx: WebhookContext,
+        secret: SecretMaterial | None,
+        *,
+        timestamp_tolerance_seconds: int,
     ) -> None:
         if secret is None:
             raise MessagingSignatureInvalidError("the account has no webhook secret configured")
-        provided = _header(ctx.headers, "x-messaging-signature")
-        timestamp = _header(ctx.headers, "x-messaging-timestamp")
-        if not provided:
-            raise MessagingSignatureInvalidError("the request is unsigned")
-        signed = (f"{timestamp}.".encode() + ctx.body) if timestamp else ctx.body
-        expected = hmac.new(
-            secret.field("webhook_secret").encode("utf-8"), signed, hashlib.sha256
-        ).hexdigest()
-        digest = provided.split("=", 1)[1] if "=" in provided else provided
-        if not hmac.compare_digest(expected, digest.lower()):
-            raise MessagingSignatureInvalidError("the webhook signature did not verify")
+        verify_generic_signed_webhook(
+            body=ctx.body,
+            provided_signature=_header(ctx.headers, "x-messaging-signature"),
+            provided_timestamp=_header(ctx.headers, "x-messaging-timestamp"),
+            secret=secret.field("webhook_secret"),
+            tolerance_seconds=timestamp_tolerance_seconds,
+        )
 
     def parse_webhook(self, account: MessagingAccount, ctx: WebhookContext) -> WebhookParseResult:
         try:

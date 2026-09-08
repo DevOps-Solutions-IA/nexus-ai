@@ -25,6 +25,7 @@ from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
+from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 
 from nexus_ai.core.config import Settings
@@ -45,6 +46,7 @@ from nexus_ai.integrations.credentials import SecretMaterial, VaultClient
 from nexus_ai.integrations.errors import WebhookEndpointNotFoundError
 from nexus_ai.integrations.webhooks import decode_webhook_token
 from nexus_ai.messaging.addresses import normalize_address
+from nexus_ai.messaging.delivery import apply_callback
 from nexus_ai.messaging.entities import (
     AccountStatus,
     Message,
@@ -57,8 +59,10 @@ from nexus_ai.messaging.errors import (
     MessagingAuthFailedError,
     MessagingPayloadInvalidError,
 )
+from nexus_ai.messaging.events import STATUS_EVENT_TYPE
 from nexus_ai.messaging.providers.base import (
     NormalizedInbound,
+    NormalizedStatus,
     WebhookContext,
 )
 from nexus_ai.messaging.providers.registry import resolve_provider
@@ -67,6 +71,11 @@ from nexus_ai.messaging.service import (
     resolve_inbound_conversation,
     resolve_inbound_customer,
 )
+
+
+class _DeferStatus(Exception):
+    """Internal: roll back a status-callback transaction because the target message is
+    not yet visible, so a provider retry can reprocess it."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -115,12 +124,15 @@ class InboundMessagingService:
 
         provider = resolve_provider(account.channel, account.provider)
         secret = await self._resolve_secret(organization_id, account)
+        tolerance = self._settings.channels.webhook_timestamp_tolerance_seconds
 
         if ctx.method.upper() == "GET":
-            await provider.verify_webhook(account, ctx, secret)
+            await provider.verify_webhook(
+                account, ctx, secret, timestamp_tolerance_seconds=tolerance
+            )
             return InboundResult(accepted=True, challenge=provider.webhook_challenge(account, ctx))
 
-        await provider.verify_webhook(account, ctx, secret)
+        await provider.verify_webhook(account, ctx, secret, timestamp_tolerance_seconds=tolerance)
         if account.status is not AccountStatus.ACTIVE:
             raise MessagingAccountDisabledError("the messaging account is disabled")
 
@@ -138,23 +150,14 @@ class InboundMessagingService:
                 result.message_ids.append(str(stored.id))
 
         for status in parsed.statuses:
-            event_id = f"st:{status.provider_message_id}:{status.provider_status}"
-            claimed = await self._claim_only(organization_id, account, event_id)
-            if not claimed:
-                replayed += 1
-                continue
-            advanced = await self._outbound.apply_delivery_status(
-                organization_id,
-                account,
-                status.provider_message_id,
-                status.status,
-                provider_status=status.provider_status,
-                occurred_at=status.occurred_at,
-                error_code=status.error_code,
-                provider_code=status.provider_code,
-            )
-            if advanced:
+            # claim receipt + resolve message + fold monotonic transition + enqueue the
+            # P04 event ALL in one tenant transaction — a failure anywhere rolls back the
+            # receipt too, so a provider retry is safely reprocessable.
+            fold = await self._process_status(organization_id, account, status)
+            if fold == "advanced":
                 status_updates += 1
+            elif fold == "replayed":
+                replayed += 1
 
         return InboundResult(
             accepted=True,
@@ -252,9 +255,14 @@ class InboundMessagingService:
             return None
         return stored
 
-    async def _claim_only(
-        self, organization_id: UUID, account: MessagingAccount, event_id: str
-    ) -> bool:
+    async def _process_status(
+        self, organization_id: UUID, account: MessagingAccount, status: NormalizedStatus
+    ) -> str:
+        """Fold one provider delivery-status callback atomically. Returns 'advanced',
+        'duplicate', 'ignored', 'replayed' or 'deferred'. A callback for a message that
+        is not yet visible is DEFERRED (no receipt committed) so a provider retry
+        reprocesses it — no lost DELIVERED / READ / FAILED."""
+        event_id = f"st:{status.provider_message_id}:{status.provider_status}"[:400]
         try:
             async with self._db.tenant_transaction(organization_id) as tenant:
                 tenant.session.add(
@@ -262,16 +270,52 @@ class InboundMessagingService:
                         id=uuid.uuid7(),
                         organization_id=organization_id,
                         account_id=account.id,
-                        event_id=event_id[:400],
+                        event_id=event_id,
                         message_id=None,
                         status="ACCEPTED",
                         created_at=_now(),
                     )
                 )
                 await tenant.session.flush()
-                return True
+
+                messages = MessagingMessageRepository(tenant)
+                message = await messages.by_provider_id(
+                    account.id, MessageDirection.OUTBOUND, status.provider_message_id
+                )
+                if message is None:
+                    raise _DeferStatus  # roll the receipt back; retry later
+
+                outcome = apply_callback(message.status, status.status)
+                if not outcome.advanced:
+                    return "duplicate" if outcome.duplicate else "ignored"
+
+                now = _now()
+                changes: dict[str, Any] = {"status": outcome.status.value}
+                if outcome.status is MessageStatus.DELIVERED:
+                    changes["delivered_at"] = status.occurred_at or now
+                elif outcome.status is MessageStatus.READ:
+                    changes["read_at"] = status.occurred_at or now
+                    changes["delivered_at"] = message.delivered_at or status.occurred_at or now
+                elif outcome.status is MessageStatus.FAILED:
+                    changes["failed_at"] = status.occurred_at or now
+                    changes["error_code"] = status.error_code or "NXS_MSG_DELIVERY_FAILED"
+                updated = await messages.apply(message.id, changes)
+                assert updated is not None  # noqa: S101
+                await tenant.session.execute(
+                    update(MessagingInboundReceiptRecord)
+                    .where(
+                        MessagingInboundReceiptRecord.organization_id == organization_id,
+                        MessagingInboundReceiptRecord.account_id == account.id,
+                        MessagingInboundReceiptRecord.event_id == event_id,
+                    )
+                    .values(message_id=updated.id)
+                )
+                await self._enqueue_status_event(tenant.session, organization_id, updated, status)
+                return "advanced"
+        except _DeferStatus:
+            return "deferred"
         except IntegrityError:
-            return False
+            return "replayed"
 
     async def _resolve_secret(
         self, organization_id: UUID, account: MessagingAccount
@@ -302,6 +346,38 @@ class InboundMessagingService:
                 "customer_id": (None if message.customer_id is None else str(message.customer_id)),
                 "replayed": False,
             },
+        )
+        await self._publisher.enqueue(session, envelope)
+
+    async def _enqueue_status_event(
+        self,
+        session: Any,
+        organization_id: UUID,
+        message: Message,
+        status: NormalizedStatus,
+    ) -> None:
+        ctx = current_context()
+        payload: dict[str, Any] = {
+            "message_id": str(message.id),
+            "conversation_id": str(message.conversation_id),
+            "channel": message.channel.value,
+            "direction": message.direction.value,
+            "provider": message.provider,
+            "provider_message_id": message.provider_message_id,
+        }
+        if message.status is MessageStatus.FAILED:
+            payload["error_code"] = message.error_code or "NXS_MSG_DELIVERY_FAILED"
+            if status.provider_code:
+                payload["provider_code"] = status.provider_code
+        envelope = EventEnvelope.create(
+            event_type=STATUS_EVENT_TYPE[message.status.value],
+            event_version=1,
+            aggregate_type="messaging_message",
+            aggregate_id=str(message.id),
+            producer=self._settings.service_name,
+            organization_id=organization_id,
+            correlation_id=None if ctx is None else ctx.correlation_id,
+            payload=payload,
         )
         await self._publisher.enqueue(session, envelope)
 

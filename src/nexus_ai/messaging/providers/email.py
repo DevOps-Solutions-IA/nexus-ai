@@ -16,12 +16,11 @@ Account shape:
 from __future__ import annotations
 
 import datetime as dt
-import hashlib
-import hmac
 import json
 from typing import Any
 
 from nexus_ai.integrations.credentials import SecretMaterial
+from nexus_ai.messaging.content import scrub_header_token
 from nexus_ai.messaging.entities import (
     EmailEnvelopeFields,
     MessageChannel,
@@ -46,6 +45,7 @@ from nexus_ai.messaging.providers.base import (
     WebhookContext,
     WebhookParseResult,
     provider_send_error,
+    verify_generic_signed_webhook,
 )
 from nexus_ai.messaging.providers.whatsapp import _header
 
@@ -87,21 +87,22 @@ class EmailProvider:
         return None
 
     async def verify_webhook(
-        self, account: MessagingAccount, ctx: WebhookContext, secret: SecretMaterial | None
+        self,
+        account: MessagingAccount,
+        ctx: WebhookContext,
+        secret: SecretMaterial | None,
+        *,
+        timestamp_tolerance_seconds: int,
     ) -> None:
         if secret is None:
             raise MessagingSignatureInvalidError("the account has no webhook secret configured")
-        provided = _header(ctx.headers, "x-messaging-signature")
-        timestamp = _header(ctx.headers, "x-messaging-timestamp")
-        if not provided:
-            raise MessagingSignatureInvalidError("the request is unsigned")
-        signed = (f"{timestamp}.".encode() + ctx.body) if timestamp else ctx.body
-        expected = hmac.new(
-            secret.field("webhook_secret").encode("utf-8"), signed, hashlib.sha256
-        ).hexdigest()
-        digest = provided.split("=", 1)[1] if "=" in provided else provided
-        if not hmac.compare_digest(expected, digest.lower()):
-            raise MessagingSignatureInvalidError("the webhook signature did not verify")
+        verify_generic_signed_webhook(
+            body=ctx.body,
+            provided_signature=_header(ctx.headers, "x-messaging-signature"),
+            provided_timestamp=_header(ctx.headers, "x-messaging-timestamp"),
+            secret=secret.field("webhook_secret"),
+            tolerance_seconds=timestamp_tolerance_seconds,
+        )
 
     def parse_webhook(self, account: MessagingAccount, ctx: WebhookContext) -> WebhookParseResult:
         try:
@@ -129,7 +130,7 @@ class EmailProvider:
         self, payload: dict[str, Any], account: MessagingAccount
     ) -> NormalizedInbound | None:
         sender = str(payload.get("from") or "").strip()
-        provider_message_id = (
+        provider_message_id = scrub_header_token(
             str(payload.get("message_id") or payload.get("id") or "").strip().strip("<>")
         )
         if not sender or not provider_message_id:
@@ -141,11 +142,13 @@ class EmailProvider:
             else account.sender_identity
         ).strip()
         references = [
-            str(ref).strip().strip("<>")
+            token
             for ref in (payload.get("references") or [])
-            if str(ref).strip()
+            if (token := scrub_header_token(str(ref).strip().strip("<>")))
         ][:20]
-        in_reply_to = str(payload.get("in_reply_to") or "").strip().strip("<>") or None
+        in_reply_to = (
+            scrub_header_token(str(payload.get("in_reply_to") or "").strip().strip("<>")) or None
+        )
         text = str(payload.get("text") or "")[:60000]
         html_raw = payload.get("html")
         html = str(html_raw)[:400000] if html_raw else None
@@ -198,6 +201,8 @@ class EmailProvider:
             raise MessagingProviderError("the email account has no api token configured")
         email = prepared.email or EmailEnvelopeFields()
         headers: dict[str, str] = {}
+        if email.message_id_header:
+            headers["Message-ID"] = f"<{email.message_id_header}>"
         if email.in_reply_to:
             headers["In-Reply-To"] = f"<{email.in_reply_to}>"
         if email.references:

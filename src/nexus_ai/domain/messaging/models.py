@@ -112,6 +112,12 @@ class MessagingMessageRecord(TenantOwnedMixin, Base):
             name="fk_messaging_messages_org_account",
             ondelete="RESTRICT",
         ),
+        ForeignKeyConstraint(
+            ["organization_id", "reply_to_message_id"],
+            ["messaging_messages.organization_id", "messaging_messages.id"],
+            name="fk_messaging_messages_org_reply_parent",
+            ondelete="SET NULL",
+        ),
         Index(
             "ix_messaging_messages_conversation",
             "organization_id",

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import time
 import uuid
 from typing import Any
 
@@ -201,11 +202,16 @@ async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
     body = json.dumps(
         {"from": "+14155550142", "to": "+14155550100", "message_id": "in-1", "text": "hi"}
     ).encode()
-    sig = hmac.new(b"whsec", body, hashlib.sha256).hexdigest()
+    timestamp = str(int(time.time()))
+    sig = hmac.new(b"whsec", f"{timestamp}.".encode() + body, hashlib.sha256).hexdigest()
 
     ok = await api.client.post(
         f"/api/v1/webhooks/messaging/generic_http/{token}",
-        headers={"X-Messaging-Signature": f"sha256={sig}", "Content-Type": "application/json"},
+        headers={
+            "X-Messaging-Signature": f"sha256={sig}",
+            "X-Messaging-Timestamp": timestamp,
+            "Content-Type": "application/json",
+        },
         content=body,
     )
     assert ok.status_code == 202, ok.text
@@ -213,10 +219,27 @@ async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
 
     bad = await api.client.post(
         f"/api/v1/webhooks/messaging/generic_http/{token}",
-        headers={"X-Messaging-Signature": "sha256=00", "Content-Type": "application/json"},
+        headers={
+            "X-Messaging-Signature": "sha256=00",
+            "X-Messaging-Timestamp": timestamp,
+            "Content-Type": "application/json",
+        },
         content=body,
     )
     assert bad.status_code == 401
+
+    stale = str(int(time.time()) - 4000)
+    stale_sig = hmac.new(b"whsec", f"{stale}.".encode() + body, hashlib.sha256).hexdigest()
+    replay = await api.client.post(
+        f"/api/v1/webhooks/messaging/generic_http/{token}",
+        headers={
+            "X-Messaging-Signature": f"sha256={stale_sig}",
+            "X-Messaging-Timestamp": stale,
+            "Content-Type": "application/json",
+        },
+        content=body,
+    )
+    assert replay.status_code == 409, replay.text  # NXS_MSG_REPLAY_REJECTED
 
 
 async def test_member_can_send_but_not_manage_accounts(

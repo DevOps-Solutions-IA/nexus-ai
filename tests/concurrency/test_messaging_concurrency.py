@@ -47,7 +47,14 @@ async def _sms_account(stack: Any, org_id: Any) -> Any:
 
 
 def _sig(body: bytes) -> dict[str, str]:
-    return {"X-Messaging-Signature": "sha256=" + hmac.new(b"s", body, hashlib.sha256).hexdigest()}
+    import time
+
+    timestamp = str(int(time.time()))
+    digest = hmac.new(b"s", f"{timestamp}.".encode() + body, hashlib.sha256).hexdigest()
+    return {
+        "X-Messaging-Signature": f"sha256={digest}",
+        "X-Messaging-Timestamp": timestamp,
+    }
 
 
 async def test_concurrent_duplicate_inbound_webhook_persists_once(

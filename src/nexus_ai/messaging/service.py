@@ -41,9 +41,9 @@ from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.integrations.credentials import CredentialType, SecretMaterial, VaultClient
 from nexus_ai.integrations.webhooks import build_webhook_token
+from nexus_ai.messaging.account_config import validate_account_configuration
 from nexus_ai.messaging.addresses import identity_type_for, normalize_address
 from nexus_ai.messaging.content import normalize_content, sanitize_header_value
-from nexus_ai.messaging.delivery import apply_callback
 from nexus_ai.messaging.entities import (
     AccountStatus,
     CreateAccountRequest,
@@ -70,7 +70,6 @@ from nexus_ai.messaging.errors import (
     MessagingRecipientInvalidError,
     MessagingSendInProgressError,
 )
-from nexus_ai.messaging.events import STATUS_EVENT_TYPE
 from nexus_ai.messaging.idempotency import (
     SendIdempotencyRecord,
     SendIdempotencyStatus,
@@ -120,6 +119,9 @@ class MessagingService:
         configuration = dict(request.configuration)
         if request.default_country and "default_country" not in configuration:
             configuration["default_country"] = request.default_country
+        configuration = validate_account_configuration(
+            request.channel, provider_key, configuration, settings=self._settings.channels
+        )
         async with self._db.tenant_transaction(organization_id) as tenant:
             return await MessagingAccountRepository(tenant).insert(
                 account_id=uuid.uuid7(),
@@ -142,12 +144,18 @@ class MessagingService:
     async def update_account(
         self, organization_id: UUID, account_id: UUID, request: UpdateAccountRequest
     ) -> MessagingAccount:
-        await self._require_account(organization_id, account_id)
+        account = await self._require_account(organization_id, account_id)
         if request.configuration is None:
-            return await self._require_account(organization_id, account_id)
+            return account
+        configuration = validate_account_configuration(
+            account.channel,
+            account.provider,
+            dict(request.configuration),
+            settings=self._settings.channels,
+        )
         async with self._db.tenant_transaction(organization_id) as tenant:
             updated = await MessagingAccountRepository(tenant).apply(
-                account_id, changes={"configuration": dict(request.configuration)}
+                account_id, changes={"configuration": configuration}
             )
         assert updated is not None  # noqa: S101 - _require_account proved existence
         return updated
@@ -244,9 +252,13 @@ class MessagingService:
         conversation = await self._require_conversation(
             organization_id, request.conversation_id, account.channel
         )
+        parent = await self._require_reply_parent(
+            organization_id, conversation, account.channel, request.reply_to_message_id
+        )
         recipients = self._normalized_recipients(account, request)
         content = normalize_content(account.channel, request.content)
         subject = self._normalized_subject(account.channel, request)
+        email_fields = self._email_thread_fields(account.channel, subject, parent)
 
         fingerprint = send_fingerprint(request, [address.value for address in recipients])
         if request.idempotency_key is not None:
@@ -255,11 +267,11 @@ class MessagingService:
                 return replay
 
         message = await self._persist_queued(
-            organization_id, account, conversation, recipients, content, subject, request
+            organization_id, account, conversation, recipients, content, email_fields, request
         )
 
         secret = await self._resolve_secret(organization_id, account)
-        prepared = self._prepare(organization_id, account, recipients, content, subject, request)
+        prepared = self._prepare(account, recipients, content, subject, email_fields)
         provider = resolve_provider(account.channel, account.provider)
 
         try:
@@ -289,61 +301,6 @@ class MessagingService:
                 None,
             )
         return sent
-
-    # -- delivery-status callback (used by the inbound webhook status path) ----
-
-    async def apply_delivery_status(
-        self,
-        organization_id: UUID,
-        account: MessagingAccount,
-        provider_message_id: str,
-        reported: MessageStatus,
-        *,
-        provider_status: str,
-        occurred_at: dt.datetime | None,
-        error_code: str | None,
-        provider_code: str | None,
-    ) -> bool:
-        """Fold one provider delivery-status callback into the canonical message state.
-        Returns True when the callback advanced the state. Never raises on a regressive
-        or unknown callback — it is safely ignored."""
-        async with self._db.tenant_transaction(organization_id) as tenant:
-            messages = MessagingMessageRepository(tenant)
-            message = await messages.by_provider_id(
-                account.id, MessageDirection.OUTBOUND, provider_message_id
-            )
-            if message is None:
-                return False
-            outcome = apply_callback(message.status, reported)
-            if not outcome.advanced:
-                return False
-            now = dt.datetime.now(dt.UTC)
-            changes: dict[str, Any] = {"status": outcome.status.value}
-            if outcome.status is MessageStatus.DELIVERED:
-                changes["delivered_at"] = occurred_at or now
-            elif outcome.status is MessageStatus.READ:
-                changes["read_at"] = occurred_at or now
-                changes.setdefault("delivered_at", message.delivered_at or occurred_at or now)
-            elif outcome.status is MessageStatus.FAILED:
-                changes["failed_at"] = occurred_at or now
-                changes["error_code"] = error_code or "NXS_MSG_DELIVERY_FAILED"
-            updated = await messages.apply(message.id, changes)
-            assert updated is not None  # noqa: S101
-            await self._enqueue_message_event(
-                tenant.session,
-                organization_id,
-                STATUS_EVENT_TYPE[outcome.status.value],
-                updated,
-                extra=(
-                    {
-                        "error_code": updated.error_code or "NXS_MSG_DELIVERY_FAILED",
-                        "provider_code": provider_code,
-                    }
-                    if outcome.status is MessageStatus.FAILED
-                    else None
-                ),
-            )
-        return True
 
     # -- helpers -------------------------------------------------------------
 
@@ -449,6 +406,64 @@ class MessagingService:
             "a send with this idempotency key is still in progress; retry shortly"
         )
 
+    async def _require_reply_parent(
+        self,
+        organization_id: UUID,
+        conversation: Any,
+        channel: MessageChannel,
+        reply_to_message_id: UUID | None,
+    ) -> Message | None:
+        """Resolve and govern a reply parent. A parent must exist in this Organization
+        (RLS + the tenant-aware self-reference FK enforce it), belong to the SAME
+        Conversation, and — for an Email reply — itself be an Email message. A new root
+        message (no reply_to) is fine."""
+        if reply_to_message_id is None:
+            return None
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            parent = await MessagingMessageRepository(tenant).by_id(reply_to_message_id)
+        if parent is None:
+            raise MessagingConversationInvalidError(
+                "the reply_to_message_id does not exist in this Organization"
+            )
+        if parent.conversation_id != conversation.id:
+            raise MessagingConversationInvalidError(
+                "the reply_to message belongs to a different Conversation"
+            )
+        if channel is MessageChannel.EMAIL and parent.channel is not MessageChannel.EMAIL:
+            raise MessagingConversationInvalidError(
+                "an Email reply may only reference an Email message"
+            )
+        return parent
+
+    def _email_thread_fields(
+        self, channel: MessageChannel, subject: str | None, parent: Message | None
+    ) -> EmailEnvelopeFields | None:
+        """Build the outbound Email envelope. ``message_id_header`` is the CANONICAL
+        threading identifier for a Nexus message (set on every outbound Email and copied
+        from the provider id on every inbound Email); ``provider_message_id`` is the
+        provider's own opaque id and is NOT used for threading. In-Reply-To / References
+        are derived from the parent and are CRLF / control-character safe."""
+        if channel is not MessageChannel.EMAIL:
+            return None
+        our_message_id = f"{uuid.uuid7().hex}@nexus.messaging"
+        if parent is None or parent.email is None:
+            return EmailEnvelopeFields(subject=subject, message_id_header=our_message_id)
+        parent_id = parent.email.message_id_header or parent.provider_message_id or ""
+        parent_id = sanitize_header_value(parent_id, field="parent message id", max_length=255)
+        references = [
+            sanitize_header_value(ref, field="references entry", max_length=255)
+            for ref in parent.email.references
+            if ref
+        ]
+        if parent_id and parent_id not in references:
+            references.append(parent_id)
+        return EmailEnvelopeFields(
+            subject=subject,
+            message_id_header=our_message_id,
+            in_reply_to=parent_id or None,
+            references=tuple(references[-20:]),
+        )
+
     async def _persist_queued(
         self,
         organization_id: UUID,
@@ -456,12 +471,11 @@ class MessagingService:
         conversation: Any,
         recipients: list[Any],
         content: Any,
-        subject: str | None,
+        email: EmailEnvelopeFields | None,
         request: SendMessageRequest,
     ) -> Message:
         now = dt.datetime.now(dt.UTC)
         ctx = current_context()
-        email = self._outbound_email_fields(organization_id, account, subject, request)
         message = Message(
             id=uuid.uuid7(),
             organization_id=organization_id,
@@ -504,37 +518,21 @@ class MessagingService:
             )
         return stored
 
-    def _outbound_email_fields(
-        self,
-        organization_id: UUID,
-        account: MessagingAccount,
-        subject: str | None,
-        request: SendMessageRequest,
-    ) -> EmailEnvelopeFields | None:
-        if account.channel is not MessageChannel.EMAIL:
-            return None
-        message_id_header = f"{uuid.uuid7().hex}@nexus.messaging"
-        return EmailEnvelopeFields(subject=subject, message_id_header=message_id_header)
-
     def _prepare(
         self,
-        organization_id: UUID,
         account: MessagingAccount,
         recipients: list[Any],
         content: Any,
         subject: str | None,
-        request: SendMessageRequest,
+        email: EmailEnvelopeFields | None,
     ) -> PreparedSend:
-        email = None
-        if account.channel is MessageChannel.EMAIL:
-            email = EmailEnvelopeFields(subject=subject)
         return PreparedSend(
             sender=normalize_address(account.channel, account.sender_identity),
             recipients=tuple(recipients),
             content=content,
             subject=subject,
             email=email,
-            reply_provider_message_id=None,
+            reply_provider_message_id=(None if email is None else email.in_reply_to),
         )
 
     async def _mark_sent(

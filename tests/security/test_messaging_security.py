@@ -384,42 +384,113 @@ async def test_idempotency_key_reuse_with_a_different_payload_is_a_conflict(
     assert len([r for r in stack.transport.requests]) == 1  # upstream hit exactly once
 
 
-async def test_stale_timestamp_signature_is_replay_rejected(
-    messaging_stack: Any, make_organization: Any
-) -> None:
-    from nexus_ai.messaging.errors import MessagingReplayRejectedError
-
-    org = await make_organization()
-    stack = messaging_stack
+async def _signed_account(stack: Any, org_id: Any) -> Any:
     account = await stack.service.create_account(
-        org.id,
+        org_id,
         CreateAccountRequest(
             channel=MessageChannel.SMS,
             provider="generic_http",
             slug="sms",
-            external_account_id="svc-1",
+            external_account_id="svc-freshness",
             sender_identity="+14155550100",
         ),
     )
     await stack.service.store_account_credential(
-        org.id, account.id, StoreAccountCredentialRequest(fields={"webhook_secret": "s"})
+        org_id, account.id, StoreAccountCredentialRequest(fields={"webhook_secret": "s"})
     )
-    body = json.dumps({"message_id": "sm-1", "status": "delivered"}).encode()
-    stale_ts = str(int(time.time()) - 100_000)
-    signed = f"{stale_ts}.".encode() + body
-    digest = hmac.new(b"s", signed, hashlib.sha256).hexdigest()
-    # the generic HTTP provider does not enforce a timestamp window itself, so a stale
-    # timestamp simply must not verify against a signature computed without it
+    return await stack.service.get_account(org_id, account.id)
+
+
+def _timed_sig(body: bytes, ts: int) -> dict[str, str]:
+    digest = hmac.new(b"s", f"{ts}.".encode() + body, hashlib.sha256).hexdigest()
+    return {"X-Messaging-Signature": f"sha256={digest}", "X-Messaging-Timestamp": str(ts)}
+
+
+async def test_signed_webhook_timestamp_freshness_is_enforced(
+    messaging_stack: Any, make_organization: Any
+) -> None:
+    """A. deterministic timestamp semantics for the generic signed webhook protocol:
+    a cryptographically VALID request outside the freshness window is a replay."""
+    from nexus_ai.messaging.errors import MessagingReplayRejectedError
+
+    org = await make_organization()
+    stack = messaging_stack
+    account = await _signed_account(stack, org.id)
+    now = int(time.time())
+    body = json.dumps({"message_id": "sm-fresh-1", "status": "queued"}).encode()
+
+    # 1. current timestamp + valid signature => accepted
+    ok = await stack.inbound.receive(
+        "generic_http",
+        account.webhook_token,
+        WebhookContext("POST", _timed_sig(body, now), {}, body),
+    )
+    assert ok.accepted
+
+    # 2. a CRYPTOGRAPHICALLY CORRECT stale-signed request => REPLAY_REJECTED
+    stale = now - 4000
+    with pytest.raises(MessagingReplayRejectedError):
+        await stack.inbound.receive(
+            "generic_http",
+            account.webhook_token,
+            WebhookContext(
+                "POST",
+                _timed_sig(
+                    json.dumps({"message_id": "sm-fresh-2", "status": "sent"}).encode(), stale
+                ),
+                {},
+                json.dumps({"message_id": "sm-fresh-2", "status": "sent"}).encode(),
+            ),
+        )
+
+    # 3. a future timestamp outside tolerance => rejected
+    future_body = json.dumps({"message_id": "sm-fresh-3", "status": "sent"}).encode()
+    with pytest.raises(MessagingReplayRejectedError):
+        await stack.inbound.receive(
+            "generic_http",
+            account.webhook_token,
+            WebhookContext("POST", _timed_sig(future_body, now + 4000), {}, future_body),
+        )
+
+    # 4. malformed timestamp => rejected
+    malformed_body = json.dumps({"message_id": "sm-fresh-4", "status": "sent"}).encode()
+    digest = hmac.new(b"s", b"not-a-number." + malformed_body, hashlib.sha256).hexdigest()
     with pytest.raises(MessagingSignatureInvalidError):
         await stack.inbound.receive(
             "generic_http",
             account.webhook_token,
             WebhookContext(
                 "POST",
-                {"X-Messaging-Signature": f"sha256={digest}"},  # no X-Messaging-Timestamp header
+                {
+                    "X-Messaging-Signature": f"sha256={digest}",
+                    "X-Messaging-Timestamp": "not-a-number",
+                },
                 {},
-                body,
+                malformed_body,
             ),
         )
-    _ = MessagingReplayRejectedError  # taxonomy exists for providers that carry a window
+
+    # 5. timestamp modified after signing => signature invalid (bytes no longer match)
+    tampered_body = json.dumps({"message_id": "sm-fresh-5", "status": "sent"}).encode()
+    headers = _timed_sig(tampered_body, now)
+    headers["X-Messaging-Timestamp"] = str(now + 1)
+    with pytest.raises(MessagingSignatureInvalidError):
+        await stack.inbound.receive(
+            "generic_http",
+            account.webhook_token,
+            WebhookContext("POST", headers, {}, tampered_body),
+        )
+
+    # 6. missing timestamp behaviour is EXPLICIT: the signed protocol requires one
+    missing_body = json.dumps({"message_id": "sm-fresh-6", "status": "sent"}).encode()
+    unsigned_digest = hmac.new(b"s", missing_body, hashlib.sha256).hexdigest()
+    with pytest.raises(MessagingSignatureInvalidError):
+        await stack.inbound.receive(
+            "generic_http",
+            account.webhook_token,
+            WebhookContext(
+                "POST", {"X-Messaging-Signature": f"sha256={unsigned_digest}"}, {}, missing_body
+            ),
+        )
+
     _ = MessagingConversationInvalidError

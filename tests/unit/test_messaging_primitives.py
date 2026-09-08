@@ -260,11 +260,11 @@ async def test_whatsapp_get_challenge_requires_matching_verify_token() -> None:
         {"hub.mode": "subscribe", "hub.verify_token": "s3cret", "hub.challenge": "12345"},
         b"",
     )
-    await provider.verify_webhook(account, ok_ctx, secret)
+    await provider.verify_webhook(account, ok_ctx, secret, timestamp_tolerance_seconds=300)
     assert provider.webhook_challenge(account, ok_ctx) == "12345"
     bad_ctx = WebhookContext("GET", {}, {"hub.mode": "subscribe", "hub.verify_token": "wrong"}, b"")
     with pytest.raises(MessagingChallengeFailedError):
-        await provider.verify_webhook(account, bad_ctx, secret)
+        await provider.verify_webhook(account, bad_ctx, secret, timestamp_tolerance_seconds=300)
 
 
 async def test_whatsapp_post_signature_is_verified_constant_time() -> None:
@@ -277,16 +277,25 @@ async def test_whatsapp_post_signature_is_verified_constant_time() -> None:
     good = hmac.new(b"appsec", body, hashlib.sha256).hexdigest()
     provider = WhatsAppProvider()
     await provider.verify_webhook(
-        account, WebhookContext("POST", {"X-Hub-Signature-256": f"sha256={good}"}, {}, body), secret
+        account,
+        WebhookContext("POST", {"X-Hub-Signature-256": f"sha256={good}"}, {}, body),
+        secret,
+        timestamp_tolerance_seconds=300,
     )
     with pytest.raises(MessagingSignatureInvalidError):
         await provider.verify_webhook(
             account,
             WebhookContext("POST", {"X-Hub-Signature-256": "sha256=deadbeef"}, {}, body),
             secret,
+            timestamp_tolerance_seconds=300,
         )
     with pytest.raises(MessagingSignatureInvalidError):
-        await provider.verify_webhook(account, WebhookContext("POST", {}, {}, body), secret)
+        await provider.verify_webhook(
+            account,
+            WebhookContext("POST", {}, {}, body),
+            secret,
+            timestamp_tolerance_seconds=300,
+        )
 
 
 def test_whatsapp_media_metadata_is_bounded_and_provider_mime_untrusted() -> None:

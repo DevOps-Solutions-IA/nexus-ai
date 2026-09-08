@@ -34,6 +34,19 @@ def _has_unpaired_surrogate(value: str) -> bool:
     return any(0xD800 <= ord(character) <= 0xDFFF for character in value)
 
 
+def scrub_header_token(value: str, *, max_length: int = 255) -> str:
+    """Strip CR / LF / NUL / other control characters and unpaired surrogates from an
+    UNTRUSTED provider token (e.g. an inbound email Message-ID) and bound its length.
+    Never raises — used where a provider is malformed rather than a caller hostile."""
+    normalized = unicodedata.normalize("NFC", value)
+    cleaned = "".join(
+        character
+        for character in normalized
+        if ord(character) > 0x20 and character != "\x7f" and not 0xD800 <= ord(character) <= 0xDFFF
+    )
+    return cleaned[:max_length]
+
+
 def sanitize_header_value(value: str, *, field: str, max_length: int = 255) -> str:
     """Return a CRLF-safe, bounded header value or raise. Used for subject and every
     email threading key, and for any display name that reaches a provider."""

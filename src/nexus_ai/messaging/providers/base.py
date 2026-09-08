@@ -10,6 +10,9 @@ transport API — it forces an identical *normalized domain output*.
 from __future__ import annotations
 
 import datetime as dt
+import hashlib
+import hmac
+import time
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
@@ -60,6 +63,53 @@ class TransportError(Exception):
         super().__init__(message)
         self.timeout = timeout
         self.connect = connect
+
+
+def verify_generic_signed_webhook(
+    *,
+    body: bytes,
+    provided_signature: str | None,
+    provided_timestamp: str | None,
+    secret: str,
+    tolerance_seconds: int,
+) -> None:
+    """The generic Email / SMS signed-webhook protocol: HMAC-SHA256 over
+    ``"<unix_ts>." + body`` with a MANDATORY, freshness-checked ``X-Messaging-Timestamp``.
+
+    * missing signature or timestamp -> NXS_MSG_SIGNATURE_INVALID (explicit, not "unsigned");
+    * malformed timestamp             -> NXS_MSG_SIGNATURE_INVALID;
+    * a body / timestamp tampered after signing -> NXS_MSG_SIGNATURE_INVALID (HMAC fails);
+    * a correctly-signed request outside +/- ``tolerance_seconds`` -> NXS_MSG_REPLAY_REJECTED.
+
+    HMAC comparison is constant-time.
+    """
+    from nexus_ai.messaging.errors import (
+        MessagingReplayRejectedError,
+        MessagingSignatureInvalidError,
+    )
+
+    if not provided_signature:
+        raise MessagingSignatureInvalidError("the request is unsigned")
+    if not provided_timestamp:
+        raise MessagingSignatureInvalidError(
+            "the signed webhook requires an X-Messaging-Timestamp header"
+        )
+    try:
+        timestamp_value = int(provided_timestamp.strip())
+    except (TypeError, ValueError) as exc:
+        raise MessagingSignatureInvalidError("the webhook timestamp is malformed") from exc
+
+    signed_payload = f"{provided_timestamp}.".encode() + body
+    expected = hmac.new(secret.encode("utf-8"), signed_payload, hashlib.sha256).hexdigest()
+    signature = provided_signature.strip()
+    digest = signature.split("=", 1)[1] if "=" in signature else signature
+    if not hmac.compare_digest(expected, digest.lower()):
+        raise MessagingSignatureInvalidError("the webhook signature did not verify")
+
+    if abs(time.time() - timestamp_value) > tolerance_seconds:
+        raise MessagingReplayRejectedError(
+            "the webhook timestamp is outside the permitted freshness window"
+        )
 
 
 def provider_send_error(detail: str, *, status_code: int, provider_code: str | None) -> Exception:
@@ -143,9 +193,15 @@ class MessagingProvider(Protocol):
         ...
 
     async def verify_webhook(
-        self, account: MessagingAccount, ctx: WebhookContext, secret: SecretMaterial | None
+        self,
+        account: MessagingAccount,
+        ctx: WebhookContext,
+        secret: SecretMaterial | None,
+        *,
+        timestamp_tolerance_seconds: int,
     ) -> None:
-        """Raise a messaging error if the webhook is not authentic."""
+        """Raise a messaging error if the webhook is not authentic (bad signature, stale
+        timestamp, failed challenge)."""
         ...
 
     def parse_webhook(self, account: MessagingAccount, ctx: WebhookContext) -> WebhookParseResult:
