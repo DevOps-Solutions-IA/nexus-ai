@@ -992,6 +992,7 @@
         ".nxs/evidence/NXS-P09/database-roles.json",
         ".nxs/evidence/NXS-P09/docker.json",
         ".nxs/evidence/NXS-P09/git.json",
+        ".nxs/evidence/NXS-P09/github-ci.json",
         ".nxs/evidence/NXS-P09/migration.json",
         ".nxs/evidence/NXS-P09/multiarch.json",
         ".nxs/evidence/NXS-P09/preflight.json",
