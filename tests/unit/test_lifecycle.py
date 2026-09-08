@@ -289,6 +289,109 @@ def test_guard_current_phase_cli(lifecycle_repo: Path, monkeypatch: pytest.Monke
     assert guard_main(["phase-order"]) == 0
 
 
+def test_current_phase_prefers_local_branch_over_ci_ref_name(
+    lifecycle_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Regression: push-to-main CI leaks GITHUB_REF_NAME=main; the repository's own
+    checked-out branch (feat/nxs-p01-backend-core here) must stay authoritative."""
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    monkeypatch.chdir(lifecycle_repo)
+    monkeypatch.setenv("GITHUB_REF_NAME", "main")
+    monkeypatch.delenv("GITHUB_HEAD_REF", raising=False)
+
+    assert guard_main(["current-phase"]) == 0
+    assert capsys.readouterr().out.strip() == "NXS-P01"
+
+
+def test_current_phase_prefers_local_branch_over_ci_head_ref(
+    lifecycle_repo: Path,
+    checkout: Callable[[str], None],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    checkout("feat/nxs-p02-tenancy")
+    monkeypatch.chdir(lifecycle_repo)
+    monkeypatch.setenv("GITHUB_HEAD_REF", "some-unrelated-branch")
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+
+    assert guard_main(["current-phase"]) == 0
+    assert capsys.readouterr().out.strip() == "NXS-P02"
+
+
+def test_current_phase_falls_back_to_ci_branch_on_detached_head(
+    lifecycle_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Detached-HEAD CI checkout: `git branch --show-current` is empty, so the CI
+    branch context is the intended fallback."""
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    subprocess.run(  # noqa: S603
+        ["git", "-C", str(lifecycle_repo), "checkout", "-q", "--detach"],  # noqa: S607
+        check=True,
+        capture_output=True,
+    )
+    monkeypatch.chdir(lifecycle_repo)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+    monkeypatch.setenv("GITHUB_HEAD_REF", "feat/nxs-p02-tenancy")
+
+    assert guard_main(["current-phase"]) == 0
+    assert capsys.readouterr().out.strip() == "NXS-P02"
+
+
+def test_current_phase_returns_nonzero_on_non_phase_branch(
+    lifecycle_repo: Path,
+    checkout: Callable[[str], None],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    checkout("main")
+    monkeypatch.chdir(lifecycle_repo)
+    monkeypatch.delenv("GITHUB_REF_NAME", raising=False)
+    monkeypatch.delenv("GITHUB_HEAD_REF", raising=False)
+
+    assert guard_main(["current-phase"]) == 1
+
+
+def test_run_guard_infer_phase_still_uses_ci_branch_context(
+    lifecycle_repo: Path,
+    checkout: Callable[[str], None],
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """run_guard --infer-phase is unchanged: an explicit CI/--branch value still drives
+    phase resolution even when the local checked-out branch differs."""
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    checkout("feat/nxs-p02-tenancy")
+    monkeypatch.chdir(lifecycle_repo)
+
+    assert guard_main(["--infer-phase", "--branch", "feat/nxs-p01-backend-core", "--json"]) == 0
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload["phase"] == "NXS-P01"
+
+
+def test_phase_order_cli_is_deterministic_registry_order(
+    lifecycle_repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    from scripts.nxs_guard.__main__ import main as guard_main
+
+    monkeypatch.chdir(lifecycle_repo)
+    assert guard_main(["phase-order"]) == 0
+    printed = [line for line in capsys.readouterr().out.splitlines() if line.strip()]
+    assert printed[:3] == ["NXS-P00", "NXS-P01", "NXS-P02"]
+    assert printed == sorted(printed)
+
+
 def test_start_cli_json(lifecycle_repo: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from scripts.nxs_start.__main__ import main as start_main
 

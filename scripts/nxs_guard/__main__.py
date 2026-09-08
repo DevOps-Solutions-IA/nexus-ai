@@ -103,8 +103,12 @@ def run_current_phase() -> int:
     from scripts.nxs_control.core import git
 
     root = repository_root()
-    branch = _ci_branch(None) or git(root, "branch", "--show-current")
-    resolved = _phase_for_branch(branch)
+    # The branch actually checked out in the repository is authoritative for
+    # "current-phase". Ambient CI branch context (e.g. GITHUB_REF_NAME=main on a
+    # push-to-main build) is only a fallback for a detached-HEAD checkout, where
+    # `git branch --show-current` returns an empty string.
+    branch = git(root, "branch", "--show-current") or _ci_branch(None)
+    resolved = _phase_for_branch(branch) if branch else None
     if resolved is None:
         return 1
     print(resolved)
