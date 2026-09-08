@@ -1,0 +1,70 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p07-integration-hub",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P04"
+  ],
+  "evidence": [],
+  "id": "NXS-P07",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "AI Tool Engine, LLM tool definitions, Tool Registry, AI tool selection, tool input mapping from a model, tool result flow back to a model, tool_call parsing (NXS-P08 / NXS-TOOL-001)",
+    "Direct LLM access to external APIs or to plaintext secrets \u2014 architecturally forbidden",
+    "Concrete provider suites: Salesforce / HubSpot / Dynamics / SAP / Oracle / Odoo / Google Calendar / Microsoft Graph business logic \u2014 only the neutral adapter contract and a generic REST/OpenAPI adapter",
+    "OAuth2 interactive authorization-code flows and account-linking UI (deferred; only client-credentials where safely supported)",
+    "A production external secret vault \u2014 P07 ships the vault interface/seam and a local encrypted-at-rest implementation only",
+    "Channel providers: WhatsApp / email / SMS / telephony / ElevenLabs webhooks and delivery (NXS-P09+)",
+    "Metering, cost and billing of outbound calls (NXS-P23)",
+    "Full observability platform (NXS-P24) \u2014 P07 emits structured logs and metrics-ready fields only",
+    "Distributed circuit-breaker coordination and cross-node rate coordination beyond the bounded per-integration scope",
+    "Workflows, scheduler, campaigns, Sentinel, compliance, audit platform, resilience certification, DR, release and production deployment (later phases)",
+    "A generic public POST /http/request, arbitrary URL proxy, arbitrary GraphQL executor, arbitrary raw-header forwarding or arbitrary webhook forwarding endpoint",
+    "Frontend"
+  ],
+  "objective": "Build the permanent provider-neutral Integration Hub: a tenant-owned Integration Registry with configuration-versioned Integrations, typed AuthProfiles that reference secrets indirectly through a credential-reference / vault seam (never plaintext, never returned, never logged), an operation-based execution model where a caller chooses integration_id + operation_key + validated input and never a raw URL, method, headers or query, a governed HTTP executor with bounded connect/read/total timeouts, request and response size limits, controlled redirects and TLS verification, mandatory SSRF destination policy enforced at BOTH configuration and execution time (localhost, loopback, link-local, cloud metadata, RFC1918, multicast, reserved ranges, non-http(s) schemes and DNS-to-private resolution all blocked; redirects revalidated), a safe bounded OpenAPI ingestion pipeline that extracts allow-listed operations without auto-exposing every endpoint, a governed GraphQL primitive that executes only registered documents with bounded variables/depth/response, provider-neutral CRM/ERP/Calendar adapter interfaces that still route through policy + credentials + SSRF + executor + schemas, safe retry classification (SAFE/IDEMPOTENT/NON_IDEMPOTENT) with bounded backoff and Retry-After, durable execution idempotency scoped by organization/integration/operation with request fingerprinting, a per-integration circuit breaker, bounded outbound rate limiting, an inbound webhook foundation with signature verification, replay window, durable dedup and trusted tenant mapping, untrusted response validation into a normalized IntegrationResult, a stable RFC 9457 error taxonomy, and P04 transactional events \u2014 proven by unit, integration, security (SSRF / secret exfiltration / cross-tenant / arbitrary-execution), concurrency, resilience and contract test matrices, reversible migrations with forced RLS and tenant-aware FKs, multi-architecture builds and a clean-room validation on linux/amd64 and linux/arm64. The LLM never reaches a raw external API and never receives a plaintext secret.",
+  "requirements_implemented": [
+    "NXS-INT-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-08T01:53:59Z"
+  },
+  "title": "Integration Hub"
+}

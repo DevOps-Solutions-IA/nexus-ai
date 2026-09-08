@@ -929,7 +929,7 @@
       "id": "NXS-INT-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P07",
       "title": "CRM ERP and API hub",
       "validation_evidence": []
