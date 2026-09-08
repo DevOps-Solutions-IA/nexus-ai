@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": "NXS-P07",
+  "active_phase": null,
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -9,24 +9,25 @@
     "NXS-P03",
     "NXS-P04",
     "NXS-P05",
-    "NXS-P06"
+    "NXS-P06",
+    "NXS-P07"
   ],
   "current_phase": {
     "branch": "feat/nxs-p07-integration-hub",
     "closure_commit": null,
-    "decision": "PENDING",
+    "decision": "GO",
     "id": "NXS-P07",
-    "implementation_commit": null,
-    "status": "BUILDING"
+    "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
+    "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-08T01:53:59Z",
+  "last_updated_at": "2026-09-08T04:55:12Z",
   "next_allowed_execution": {
-    "condition": "ACTIVE_PHASE_ONLY",
-    "phase": "NXS-P07"
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P08"
   },
   "product": {
     "name": "Nexus AI",

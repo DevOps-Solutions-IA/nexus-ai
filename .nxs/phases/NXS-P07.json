@@ -2,13 +2,33 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p07-integration-hub",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P04"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P07/clean-room.json",
+    ".nxs/evidence/NXS-P07/concurrency.json",
+    ".nxs/evidence/NXS-P07/contracts.json",
+    ".nxs/evidence/NXS-P07/coverage.json",
+    ".nxs/evidence/NXS-P07/database-roles.json",
+    ".nxs/evidence/NXS-P07/docker.json",
+    ".nxs/evidence/NXS-P07/git.json",
+    ".nxs/evidence/NXS-P07/hub-integration.json",
+    ".nxs/evidence/NXS-P07/migration.json",
+    ".nxs/evidence/NXS-P07/multiarch.json",
+    ".nxs/evidence/NXS-P07/preflight.json",
+    ".nxs/evidence/NXS-P07/quality-gates.json",
+    ".nxs/evidence/NXS-P07/quality-matrix.json",
+    ".nxs/evidence/NXS-P07/resilience.json",
+    ".nxs/evidence/NXS-P07/schema-validator.json",
+    ".nxs/evidence/NXS-P07/security.json",
+    ".nxs/evidence/NXS-P07/ssrf-and-secret-security.json",
+    ".nxs/evidence/NXS-P07/tests.json",
+    ".nxs/evidence/NXS-P07/unit-primitives.json"
+  ],
   "id": "NXS-P07",
-  "implementation_commit": null,
+  "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -61,9 +81,9 @@
     "NXS-INT-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-08T04:55:12Z",
     "started_at": "2026-09-08T01:53:59Z"
   },
   "title": "Integration Hub"

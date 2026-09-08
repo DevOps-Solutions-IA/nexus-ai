@@ -1,10 +1,10 @@
 {
-  "actor": "DevOps SOLUTIONS IA",
-  "branch": "feat/nxs-p07-integration-hub",
-  "expires_at": "2026-09-08T05:53:59Z",
-  "phase": "NXS-P07",
-  "repository_commit": "3cdd2ac3c53bd95ce983c95f2d16f61830201bd2",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-08T01:53:59Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

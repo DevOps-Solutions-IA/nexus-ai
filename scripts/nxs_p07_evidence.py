@@ -194,14 +194,28 @@ def main() -> int:
         ["tests/contracts/test_integration_contracts.py"],
     )
 
-    full = run("pytest", "-q")
+    full = run("pytest", "-q", "--no-cov")
+    non_int = run("pytest", "-q", "--no-cov", "-m", "not integration")
+    integ = run("pytest", "-q", "--no-cov", "-m", "integration")
+
+    def _count(proc: subprocess.CompletedProcess[str], key: str) -> int:
+        for line in (proc.stdout + proc.stderr).splitlines():
+            if match := re.search(rf"(\d+) {key}", line):
+                return int(match.group(1))
+        return 0
+
     write(
         "tests",
         {
             "schema_version": "1.0.0",
             "phase": PHASE,
             "result": "PASS" if full.returncode == 0 else "FAIL",
-            "output_tail": (full.stdout + full.stderr)[-2500:],
+            "passed": _count(full, "passed"),
+            "failed": _count(full, "failed"),
+            "non_integration": _count(non_int, "passed"),
+            "integration": _count(integ, "passed"),
+            "warnings_as_errors": True,
+            "output_tail": (full.stdout + full.stderr)[-1500:],
             "recorded_at": now(),
         },
     )

@@ -1,0 +1,7 @@
+{
+  "output_tail": "{\n  \"ok\": true,\n  \"tables_checked\": [\n    \"conversation_activities\",\n    \"conversation_participants\",\n    \"conversations\",\n    \"customer_identities\",\n    \"customers\",\n    \"dashboard_configurations\",\n    \"event_dead_letters\",\n    \"event_outbox\",\n    \"integration_execution_records\",\n    \"integration_idempotency_records\",\n    \"integration_operations\",\n    \"integration_secrets\",\n    \"integrations\",\n    \"memberships\",\n    \"organization_settings\",\n    \"organizations\",\n    \"refresh_sessions\",\n    \"role_assignments\",\n    \"webhook_endpoints\",\n    \"webhook_receipts\"\n  ],\n  \"violations\": []\n}",
+  "phase": "NXS-P07",
+  "recorded_at": "2026-09-08T04:41:57Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

@@ -929,10 +929,12 @@
       "id": "NXS-INT-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P07",
       "title": "CRM ERP and API hub",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P07/quality-gates.json"
+      ]
     },
     {
       "category": "TOOL_ENGINE",

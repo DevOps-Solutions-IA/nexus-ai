@@ -1,0 +1,16 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "........................................................................ [ 72%]\n...........................                                              [100%]\n99 passed in 0.06s",
+  "passed": 99,
+  "phase": "NXS-P07",
+  "recorded_at": "2026-09-08T04:41:59Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_integration_destination.py",
+    "tests/unit/test_integration_primitives.py",
+    "tests/unit/test_integration_executor.py",
+    "tests/unit/test_integration_auth_openapi_webhook.py"
+  ]
+}
