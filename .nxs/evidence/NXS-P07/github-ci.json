@@ -1,27 +1,59 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P07",
-  "result": "PASS",
-  "recorded_at": "2026-09-08T05:00:31Z",
-  "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
+  "base_main_sha": "6d54073039241c8374cd8506d12d27c3bc0f78e4",
   "closure_commit": "2135b35aab25fd8fad1c8f75e1bb13341129354c",
+  "implementation_commit": "571e9328045c95e514210bf761cc97d791609303",
+  "merged": false,
+  "phase": "NXS-P07",
   "pull_request": 17,
+  "record_green_ci_head": "pending \u2014 this commit",
+  "recorded_at": "2026-09-08T14:23:23Z",
+  "result": "PASS",
   "runs": {
-    "implementation_571e932": {
-      "nxs_ci_push": "success",
-      "nxs_ci_pull_request": "success",
-      "nxs_security_push": "success",
-      "nxs_security_pull_request": "success",
-      "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"]
-    },
     "closure_2135b35": {
-      "nxs_ci_push": "success",
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
       "nxs_ci_pull_request": "success",
-      "nxs_security_push": "success",
+      "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
-      "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"]
+      "nxs_security_push": "success"
+    },
+    "evidence_corrective_d73ce42": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "implementation_571e932": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
     }
   },
-  "base_main_sha": "6d54073039241c8374cd8506d12d27c3bc0f78e4",
-  "merged": false
+  "schema_version": "1.0.0"
 }
