@@ -33,6 +33,15 @@ class PermissionKey(StrEnum):
     PROVISION_READ = "organization:provision:read"
     SETTINGS_READ = "organization:settings:read"
     DASHBOARD_READ = "dashboard:read"
+    # P06 additions (seeded by the P06 migration):
+    CUSTOMER_READ = "customer:read"
+    CUSTOMER_CREATE = "customer:create"
+    CUSTOMER_UPDATE = "customer:update"
+    CUSTOMER_IDENTITY_LINK = "customer:identity:link"
+    CONVERSATION_READ = "conversation:read"
+    CONVERSATION_CREATE = "conversation:create"
+    CONVERSATION_CLOSE = "conversation:close"
+    CUSTOMER_TIMELINE_READ = "customer:timeline:read"
 
 
 class RoleKey(StrEnum):
@@ -85,6 +94,14 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.PROVISION_READ: UUID("b2000000-0000-7000-8000-000000000007"),
     PermissionKey.SETTINGS_READ: UUID("b2000000-0000-7000-8000-000000000008"),
     PermissionKey.DASHBOARD_READ: UUID("b2000000-0000-7000-8000-000000000009"),
+    PermissionKey.CUSTOMER_READ: UUID("b2000000-0000-7000-8000-00000000000a"),
+    PermissionKey.CUSTOMER_CREATE: UUID("b2000000-0000-7000-8000-00000000000b"),
+    PermissionKey.CUSTOMER_UPDATE: UUID("b2000000-0000-7000-8000-00000000000c"),
+    PermissionKey.CUSTOMER_IDENTITY_LINK: UUID("b2000000-0000-7000-8000-00000000000d"),
+    PermissionKey.CONVERSATION_READ: UUID("b2000000-0000-7000-8000-00000000000e"),
+    PermissionKey.CONVERSATION_CREATE: UUID("b2000000-0000-7000-8000-00000000000f"),
+    PermissionKey.CONVERSATION_CLOSE: UUID("b2000000-0000-7000-8000-000000000010"),
+    PermissionKey.CUSTOMER_TIMELINE_READ: UUID("b2000000-0000-7000-8000-000000000011"),
 }
 
 _CATALOG_SQL = """

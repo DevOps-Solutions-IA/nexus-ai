@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".........................                                                [100%]\n25 passed in 0.06s",
+  "passed": 25,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-08T01:21:18Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_customer_normalization.py"
+  ]
+}

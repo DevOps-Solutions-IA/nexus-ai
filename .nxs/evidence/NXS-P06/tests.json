@@ -1,0 +1,20 @@
+{
+  "categories": [
+    "unit",
+    "contracts",
+    "security",
+    "concurrency",
+    "resilience",
+    "integration"
+  ],
+  "failed": 0,
+  "integration": 274,
+  "non_integration": 506,
+  "note": "audit-corrective full suite at implementation head 4811c74; 90.47% branch coverage",
+  "passed": 780,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-08T01:26:00Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "warnings_as_errors": true
+}

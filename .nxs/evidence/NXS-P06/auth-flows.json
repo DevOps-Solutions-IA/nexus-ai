@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".................                                                        [100%]\n17 passed in 8.75s",
+  "passed": 17,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-08T01:21:31Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_auth_integration.py"
+  ]
+}

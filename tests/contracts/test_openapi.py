@@ -22,14 +22,23 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
         "/api/v1/auth/me",
         "/api/v1/auth/memberships",
     } <= paths
+    # P06 conversations are advertised; later-phase domains are not.
     assert not any(
-        segment in path for path in paths for segment in ("/conversations", "/agents", "/users")
+        segment in path for path in paths for segment in ("/agents", "/users", "/messages")
     )
-    # The P05 provisioning surface is advertised; arbitrary-id administration is not.
+    # The P05 provisioning and P06 customer/conversation surfaces are advertised;
+    # arbitrary-id administration is not.
     assert "/api/v1/organizations" in paths
     assert "/api/v1/organizations/current/provisioning" in paths
     assert "/api/v1/organizations/current/settings" in paths
     assert "/api/v1/organizations/current/dashboard-schema" in paths
+    assert "/api/v1/customers" in paths
+    assert "/api/v1/customers/{customer_id}" in paths
+    assert "/api/v1/customers/{customer_id}/identities" in paths
+    assert "/api/v1/customers/{customer_id}/conversations" in paths
+    assert "/api/v1/customers/{customer_id}/timeline" in paths
+    assert "/api/v1/conversations" in paths
+    assert "/api/v1/conversations/{conversation_id}" in paths
     assert not any(path.rstrip("/").endswith("/organizations/{organization_id}") for path in paths)
 
 

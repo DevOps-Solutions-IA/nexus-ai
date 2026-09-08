@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".........                                                                [100%]\n9 passed in 1.05s",
+  "passed": 9,
+  "phase": "NXS-P06",
+  "recorded_at": "2026-09-08T01:21:21Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/security/test_tenant_security.py"
+  ]
+}

@@ -16,6 +16,13 @@ from nexus_ai.domain.auth.models import (
     UserCredentialRecord,
     UserRecord,
 )
+from nexus_ai.domain.customers.models import (
+    ConversationActivityRecord,
+    ConversationParticipantRecord,
+    ConversationRecord,
+    CustomerIdentityRecord,
+    CustomerRecord,
+)
 from nexus_ai.domain.events.models import (
     ConsumerReceiptRecord,
     EventDeadLetterRecord,
@@ -31,6 +38,11 @@ from nexus_ai.domain.provisioning.models import (
 
 __all__ = [
     "ConsumerReceiptRecord",
+    "ConversationActivityRecord",
+    "ConversationParticipantRecord",
+    "ConversationRecord",
+    "CustomerIdentityRecord",
+    "CustomerRecord",
     "DashboardConfigurationRecord",
     "EventDeadLetterRecord",
     "EventOutboxRecord",

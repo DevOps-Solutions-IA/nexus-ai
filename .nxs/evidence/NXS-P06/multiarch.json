@@ -1,0 +1,11 @@
+{
+  "builder": "docker-container",
+  "phase": "NXS-P06",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "recorded_at": "2026-09-08T01:25:48Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}
