@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p10-otp",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P09"
   ],
@@ -29,7 +29,7 @@
     ".nxs/evidence/NXS-P10/unit-primitives.json"
   ],
   "id": "NXS-P10",
-  "implementation_commit": null,
+  "implementation_commit": "e2e3b9c0fea9f296b355446e9c776b9bfdb913c8",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -71,9 +71,9 @@
     "NXS-OTP-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-09T19:32:40Z",
     "started_at": "2026-09-09T16:39:40Z"
   },
   "title": "OTP Services"
