@@ -1,13 +1,15 @@
 {
   "base_main_sha": "3dde72010a786493dc7d8d6d941b9b7049ccf783",
-  "closure_commit": "75f365c2503c88b3afb07e0fa7d383f1041a929a",
+  "blocked_reason": "GitHub Actions is disabled for the DevOps-Solutions-IA organization: 'The job was not started because recent account payments have failed or your spending limit needs to be increased.' NXS CI / NXS Security cannot run on the corrective heads 77ce1c7 / 31d9d8d / the re-close head. The org owner must restore Actions billing; CI then runs on the exact final HEAD.",
+  "closure_commit": "pending \u2014 the corrective re-close commit",
+  "corrective_implementation_commit": "31d9d8d",
   "implementation_commit": "7f698a14103dcf7c082298e3875702bab60d35fd",
   "merged": false,
   "phase": "NXS-P10",
   "pull_request": 20,
-  "record_green_ci_head": "75f365c2503c88b3afb07e0fa7d383f1041a929a",
-  "recorded_at": "2026-09-09T18:35:00Z",
-  "result": "PASS",
+  "record_green_ci_head": "pending \u2014 blocked on GitHub Actions org billing",
+  "recorded_at": "2026-09-09T19:10:00Z",
+  "result": "BLOCKED_EXTERNAL",
   "runs": {
     "closure_75f365c": {
       "jobs": [
@@ -27,6 +29,15 @@
       "nxs_security_pull_request_run": 34383852906,
       "nxs_security_push": "success",
       "nxs_security_push_run": 34383848463
+    },
+    "corrective_77ce1c7": {
+      "failure_reason": "startup_failure: GitHub Actions disabled for the org (billing) \u2014 no job step executed",
+      "nxs_ci_pull_request": "failure",
+      "nxs_ci_push": "failure",
+      "nxs_ci_run": 34391914495,
+      "nxs_security_pull_request": "failure",
+      "nxs_security_push": "failure",
+      "nxs_security_run": 34391918259
     }
   },
   "schema_version": "1.0.0"
