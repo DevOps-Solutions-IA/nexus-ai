@@ -35,6 +35,10 @@ class CredentialType(StrEnum):
     BASIC_AUTH = "BASIC_AUTH"
     OAUTH2_CLIENT = "OAUTH2_CLIENT"
     HMAC_SECRET = "HMAC_SECRET"  # noqa: S105 - enum member name, not a secret
+    #: A bounded bag of named provider-secret fields with no fixed schema, used by the
+    #: NXS-P09 messaging channels (e.g. an API token plus a webhook-signing secret plus a
+    #: challenge verify token). Same vault, same encryption, same seam — no fixed fields.
+    PROVIDER_SECRET_SET = "PROVIDER_SECRET_SET"  # noqa: S105 - enum member name, not a secret
 
 
 #: The field names each credential type must carry. Enforced on store and on resolve.
@@ -44,6 +48,7 @@ _REQUIRED_FIELDS: dict[CredentialType, frozenset[str]] = {
     CredentialType.BASIC_AUTH: frozenset({"username", "password"}),
     CredentialType.OAUTH2_CLIENT: frozenset({"client_id", "client_secret"}),
     CredentialType.HMAC_SECRET: frozenset({"secret"}),
+    CredentialType.PROVIDER_SECRET_SET: frozenset(),
 }
 
 _MAX_FIELD_BYTES = 8192

@@ -96,3 +96,12 @@ ToolCreateDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey
 ToolUpdateDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_UPDATE))]
 ToolDisableDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_DISABLE))]
 ToolInvokeDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.TOOL_INVOKE))]
+MessagingReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.MESSAGING_READ))
+]
+MessagingSendDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.MESSAGING_SEND))
+]
+MessagingManageAccountsDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.MESSAGING_MANAGE_ACCOUNTS))
+]

@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".........                                                                [100%]\n9 passed in 1.54s",
+  "passed": 9,
+  "phase": "NXS-P09",
+  "recorded_at": "2026-09-08T22:16:02Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/resilience/test_messaging_resilience.py",
+    "tests/resilience/test_messaging_delivery_consistency.py"
+  ]
+}

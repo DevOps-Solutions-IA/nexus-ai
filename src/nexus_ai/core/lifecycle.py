@@ -35,6 +35,7 @@ from nexus_ai.domain.integrations.repository import (
     IntegrationIdempotencyRepository,
     IntegrationSecretStore,
 )
+from nexus_ai.domain.messaging.repository import MessagingSecretStore
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
@@ -53,6 +54,10 @@ from nexus_ai.integrations.ratelimit import OutboundRateLimiter
 from nexus_ai.integrations.registry import IntegrationRegistry
 from nexus_ai.integrations.service import IntegrationHubService
 from nexus_ai.integrations.webhooks import InboundWebhookService
+from nexus_ai.messaging import events as messaging_events  # noqa: F401 - payload registration
+from nexus_ai.messaging.providers.registry import GovernedMessagingTransport
+from nexus_ai.messaging.service import MessagingService
+from nexus_ai.messaging.webhooks import InboundMessagingService
 from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registration
 from nexus_ai.tools.permissions import ToolPermissionGuard
 from nexus_ai.tools.registry import ToolRegistry
@@ -91,6 +96,8 @@ class Resources:
     inbound_webhooks: InboundWebhookService
     tools: ToolRegistry
     tool_engine: ToolEngine
+    channels: MessagingService
+    channel_webhooks: InboundMessagingService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -236,6 +243,30 @@ class ApplicationLifespan:
             ToolIdempotencyRepository(database),
         )
 
+        customer_service = CustomerService(settings, database, event_platform.publisher)
+        conversation_service = ConversationService(settings, database, event_platform.publisher)
+        messaging_vault: VaultClient = LocalEncryptedVault(
+            MessagingSecretStore(database), build_fernet(vault_keys)
+        )
+        channel_service = MessagingService(
+            settings,
+            database,
+            event_platform.publisher,
+            messaging_vault,
+            GovernedMessagingTransport(http_executor),
+            customer_service,
+            conversation_service,
+        )
+        channel_webhooks = InboundMessagingService(
+            settings,
+            database,
+            event_platform.publisher,
+            messaging_vault,
+            customer_service,
+            conversation_service,
+            channel_service,
+        )
+
         self._resources = Resources(
             settings=settings,
             metadata=ServiceMetadata.from_settings(settings),
@@ -253,14 +284,16 @@ class ApplicationLifespan:
             principal_validator=principal_validator,
             event_platform=event_platform,
             provisioner=OrganizationProvisioner(settings, database, event_platform.publisher),
-            customers=CustomerService(settings, database, event_platform.publisher),
-            conversations=ConversationService(settings, database, event_platform.publisher),
+            customers=customer_service,
+            conversations=conversation_service,
             integration_vault=integration_vault,
             integrations=integration_registry,
             integration_hub=integration_hub,
             inbound_webhooks=inbound_webhooks,
             tools=tool_registry,
             tool_engine=tool_engine,
+            channels=channel_service,
+            channel_webhooks=channel_webhooks,
         )
         await logger.ainfo(
             "runtime_started",

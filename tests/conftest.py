@@ -961,3 +961,125 @@ def make_tool_principal(tenant_database: Any) -> Callable[..., Any]:
         )
 
     return _make
+
+
+# --- NXS-P09 messaging channels -------------------------------------------------
+
+
+class FakeMessagingTransport:
+    """An in-memory :class:`MessagingTransport`. Records every request; returns a
+    programmed response (or raises a programmed :class:`TransportError`)."""
+
+    def __init__(self) -> None:
+        self.requests: list[dict[str, Any]] = []
+        self._handler: Callable[..., Any] | None = None
+        self._default = (200, {"messages": [{"id": "prov-msg-1"}], "message_id": "prov-msg-1"})
+
+    def set_response(self, status_code: int, body: Any) -> None:
+        self._default = (status_code, body)
+
+    def set_handler(self, handler: Callable[..., Any]) -> None:
+        self._handler = handler
+
+    async def request(
+        self,
+        *,
+        method: str,
+        url: str,
+        headers: Any,
+        body: bytes | None,
+        timeout_seconds: float | None = None,
+    ) -> Any:
+        import json as _json
+
+        from nexus_ai.messaging.providers.base import TransportError, TransportResponse
+
+        entry = {
+            "method": method,
+            "url": url,
+            "headers": dict(headers),
+            "body": body,
+            "json": _json.loads(body) if body else None,
+        }
+        self.requests.append(entry)
+        outcome = self._handler(entry) if self._handler is not None else self._default
+        if isinstance(outcome, TransportError):
+            raise outcome
+        status_code, payload = outcome
+        raw = payload if isinstance(payload, bytes) else _json.dumps(payload).encode()
+        return TransportResponse(status_code=status_code, headers={}, body=raw)
+
+
+@pytest.fixture
+async def messaging_stack(
+    tenant_database: Any,
+    event_platform: Any,
+    truncate_event_tables: Any,
+    integration_env: Callable[..., Settings],
+) -> Any:
+    """A fully wired messaging subsystem against the real DB + event outbox, with a fake
+    provider transport (no socket) and the P06 customer / conversation services."""
+    import asyncpg
+    from cryptography.fernet import Fernet
+
+    from nexus_ai.domain.customers.service import ConversationService, CustomerService
+    from nexus_ai.domain.messaging.repository import MessagingSecretStore
+    from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
+    from nexus_ai.messaging.service import MessagingService
+    from nexus_ai.messaging.webhooks import InboundMessagingService
+
+    settings = integration_env()
+    vault = LocalEncryptedVault(
+        MessagingSecretStore(tenant_database), build_fernet([Fernet.generate_key().decode()])
+    )
+    transport = FakeMessagingTransport()
+    customers = CustomerService(settings, tenant_database, event_platform.publisher)
+    conversations = ConversationService(settings, tenant_database, event_platform.publisher)
+    service = MessagingService(
+        settings,
+        tenant_database,
+        event_platform.publisher,
+        vault,
+        transport,
+        customers,
+        conversations,
+    )
+    inbound = InboundMessagingService(
+        settings,
+        tenant_database,
+        event_platform.publisher,
+        vault,
+        customers,
+        conversations,
+        service,
+    )
+
+    async def _cleanup() -> None:
+        connection = await asyncpg.connect(
+            MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+        )
+        try:
+            await connection.execute(
+                "TRUNCATE messaging_messages, messaging_send_idempotency, "
+                "messaging_inbound_receipts, messaging_secrets, messaging_accounts, "
+                "conversation_activities, conversation_participants, conversations, "
+                "customer_identities, customers CASCADE"
+            )
+        finally:
+            await connection.close()
+
+    await _cleanup()
+
+    class _MessagingStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.inbound = inbound
+            self.transport = transport
+            self.vault = vault
+            self.customers = customers
+            self.conversations = conversations
+            self.database = tenant_database
+            self.settings = settings
+            self.event_platform = event_platform
+
+    return _MessagingStack()

@@ -367,6 +367,33 @@ class ToolsSettings(BaseModel):
     default_timeout_seconds: float = Field(default=30.0, gt=0, le=120)
 
 
+class ChannelsSettings(BaseModel):
+    """Messaging Channels configuration (NXS-P09: WhatsApp / Email / SMS).
+
+    Channel adapters never open their own socket — every outbound provider call routes
+    through the NXS-P07 governed HTTP executor — so these bounds are about inbound
+    webhook size, durable outbound idempotency and delivery-callback tolerance.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    max_webhook_body_bytes: int = Field(default=1_048_576, ge=1_024, le=10_485_760)
+    send_idempotency_retention_seconds: int = Field(default=86_400, ge=60, le=2_592_000)
+    provider_timeout_seconds: float = Field(default=20.0, gt=0, le=60)
+    #: Tolerance window for a signed generic (Email / SMS) inbound webhook whose
+    #: X-Messaging-Timestamp is part of the HMAC. A correctly-signed request whose
+    #: timestamp is outside +/- this window is rejected as a replay. WhatsApp's Meta
+    #: signature has no timestamp protocol and is unaffected.
+    webhook_timestamp_tolerance_seconds: int = Field(default=300, ge=30, le=3_600)
+    #: Bounds for a channel account's free-form ``configuration`` object.
+    max_account_config_keys: int = Field(default=12, ge=1, le=64)
+    max_account_config_key_length: int = Field(default=64, ge=8, le=256)
+    max_account_config_value_length: int = Field(default=512, ge=16, le=8_192)
+    max_account_config_depth: int = Field(default=3, ge=1, le=8)
+    max_account_config_bytes: int = Field(default=4_096, ge=256, le=65_536)
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -522,6 +549,7 @@ class Settings(BaseSettings):
     events: EventsSettings = Field(default_factory=EventsSettings)
     integrations: IntegrationsSettings = Field(default_factory=IntegrationsSettings)
     tools: ToolsSettings = Field(default_factory=ToolsSettings)
+    channels: ChannelsSettings = Field(default_factory=ChannelsSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

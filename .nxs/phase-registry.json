@@ -91,13 +91,13 @@
     },
     {
       "branch": "feat/nxs-p09-messaging",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P06",
         "NXS-P07"
       ],
       "id": "NXS-P09",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Messaging Channels"
     },
     {
