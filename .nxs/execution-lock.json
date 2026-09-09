@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "claude-code-p10-idempotency-corrective",
+  "branch": "feat/nxs-p10-otp",
+  "expires_at": "2026-09-09T22:54:36Z",
+  "phase": "NXS-P10",
+  "repository_commit": "2fea12d14e32a62a432465bafb94ddc4676ce4d6",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-09T18:54:36Z",
+  "state": "ACTIVE"
 }

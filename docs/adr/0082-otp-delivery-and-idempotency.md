@@ -26,9 +26,23 @@ with `UNIQUE (organization_id, idempotency_key)` plus a `request_fingerprint` ov
 `(purpose, channel, destination, messaging_account_id)` — the code is **not** in the
 fingerprint. Same key + same fingerprint replays the stored safe result with
 `replayed = true`, `delivery = SKIPPED` and **no** second send. Same key + a different
-fingerprint is `NXS_OTP_IDEMPOTENCY_CONFLICT`. A concurrent same-key race collapses on
-the unique constraint and replays the winner. Verification is naturally replay-safe
+fingerprint is `NXS_OTP_IDEMPOTENCY_CONFLICT`. Verification is naturally replay-safe
 through the terminal challenge state (ADR-0080).
+
+**Concurrent-idempotency ownership (corrective).** `_persist_issued` returns an explicit
+`_IssueClaim(challenge, is_owner)`. Ownership is decided by the `INSERT` itself: exactly
+one concurrent request with a given `(organization, idempotency_key)` wins the row and
+is the owner. A request that catches the unique-constraint `IntegrityError` loads the
+winner's challenge and returns `is_owner = False`; `issue()` then returns the winner's
+safe replay result **without ever calling `_deliver_or_unwind` / `MessagingService`**.
+The locally generated code of a losing request never leaves the owner path, so two
+concurrent identical requests can never send two OTP messages and the persisted hash
+always matches the one delivered code. `delivery_message_id` is a secondary
+defence-in-depth check, never the ownership signal (it is written only after delivery
+completes). Proven against real PostgreSQL: six concurrent identical `issue()` calls →
+one challenge row, one provider send, one delivered code that verifies; and the exact
+"loser enters after the owner persists but before delivery completes" window (a gated
+fake transport) → the loser does not send.
 
 **Cleanup seam.** `OtpService.purge_expired` / `OtpChallengeRepository.purge_terminal_before`
 delete terminal challenges older than a retention window (min 1 h); ACTIVE challenges are

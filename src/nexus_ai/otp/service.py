@@ -21,6 +21,7 @@ import hashlib
 import json
 import secrets
 import uuid
+from dataclasses import dataclass
 from typing import Any, NoReturn
 from uuid import UUID
 
@@ -120,6 +121,22 @@ class _AmbiguousDelivery(Exception):
     """Internal: the provider call timed out — delivery is ambiguous."""
 
 
+@dataclass(frozen=True, slots=True)
+class _IssueClaim:
+    """The outcome of trying to persist a new challenge.
+
+    ``is_owner`` is the explicit issuance-ownership signal: exactly one concurrent
+    request with a given ``(organization, idempotency_key)`` wins the row and becomes
+    the owner. Only the owner may deliver the code it generated — a loser carries the
+    *winner's* challenge and MUST return a safe replay without ever calling
+    :class:`MessagingService`. Ownership is decided by the ``INSERT`` itself, never by
+    ``delivery_message_id`` (which is written only after delivery completes).
+    """
+
+    challenge: OtpChallenge
+    is_owner: bool
+
+
 class OtpService:
     def __init__(
         self,
@@ -193,11 +210,17 @@ class OtpService:
             resend_after=now + dt.timedelta(seconds=config.resend_cooldown_seconds),
         )
 
-        challenge = await self._persist_issued(organization_id, create, dest_fp, purpose.key, now)
+        claim = await self._persist_issued(organization_id, create, dest_fp, purpose.key, now)
+        if not claim.is_owner:
+            # Lost the idempotency claim to a concurrent identical request: replay the
+            # winner's safe result. The locally generated code never leaves this path
+            # and MessagingService is never called.
+            return self._result(claim.challenge, OtpDeliveryStatus.SKIPPED, replayed=True)
+
         delivery = await self._deliver_or_unwind(
-            organization_id, challenge, code, config.ttl_seconds
+            organization_id, claim.challenge, code, config.ttl_seconds
         )
-        return self._result(challenge, delivery, replayed=False)
+        return self._result(claim.challenge, delivery, replayed=False)
 
     async def verify(
         self, organization_id: UUID, challenge_id: UUID, request: VerifyOtpRequest
@@ -365,14 +388,9 @@ class OtpService:
     async def _replay(
         self, organization_id: UUID, idempotency_key: str, request_fp: str
     ) -> IssueOtpResult | None:
-        async with self._db.tenant_transaction(organization_id) as tenant:
-            existing = await OtpChallengeRepository(tenant).by_idempotency_key(idempotency_key)
+        existing = await self._load_idempotency_winner(organization_id, idempotency_key, request_fp)
         if existing is None:
             return None
-        if existing.request_fingerprint != request_fp:
-            raise OtpIdempotencyConflictError(
-                "this idempotency key was already used for a different OTP request"
-            )
         return self._result(existing, OtpDeliveryStatus.SKIPPED, replayed=True)
 
     async def _persist_issued(
@@ -382,7 +400,7 @@ class OtpService:
         dest_fp: str,
         purpose_key: str,
         now: dt.datetime,
-    ) -> OtpChallenge:
+    ) -> _IssueClaim:
         config = self._settings.otp
         window_start = now - dt.timedelta(seconds=config.issue_window_seconds)
         try:
@@ -425,27 +443,43 @@ class OtpService:
             )
             raise
         except IntegrityError as exc:
+            # The INSERT lost a race. If it was the idempotency-key unique constraint,
+            # the winner's challenge is findable by that key and we replay it as a
+            # NON-owner (test #8: an identical replay never raises RESEND_TOO_SOON).
+            # A different semantic request under the same key is still a conflict
+            # (raised by ``_load_idempotency_winner`` → test #9).
             if create.idempotency_key is not None:
-                replay = await self._replay(
+                winner = await self._load_idempotency_winner(
                     organization_id, create.idempotency_key, create.request_fingerprint
                 )
-                if replay is not None:
-                    return await self._reload(organization_id, replay.challenge_id)
+                if winner is not None:
+                    return _IssueClaim(challenge=winner, is_owner=False)
+            # Otherwise it was the one-active-challenge partial index and a concurrent
+            # different-key issuance for the same subject won.
             raise OtpResendTooSoonError(
                 "another OTP for this destination and purpose was just issued"
             ) from exc
-        return challenge
+        return _IssueClaim(challenge=challenge, is_owner=True)
 
-    async def _reload(self, organization_id: UUID, challenge_id: UUID) -> OtpChallenge:
+    async def _load_idempotency_winner(
+        self, organization_id: UUID, idempotency_key: str, request_fp: str
+    ) -> OtpChallenge | None:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            challenge = await OtpChallengeRepository(tenant).by_id(challenge_id)
-        assert challenge is not None  # noqa: S101
-        return challenge
+            existing = await OtpChallengeRepository(tenant).by_idempotency_key(idempotency_key)
+        if existing is None:
+            return None
+        if existing.request_fingerprint != request_fp:
+            raise OtpIdempotencyConflictError(
+                "this idempotency key was already used for a different OTP request"
+            )
+        return existing
 
     async def _deliver_or_unwind(
         self, organization_id: UUID, challenge: OtpChallenge, code: str, ttl_seconds: int
     ) -> OtpDeliveryStatus:
-        # A replayed challenge (idempotency) never re-delivers.
+        # Only the issuance owner ever reaches this method (see ``issue``). This guard is
+        # secondary defence-in-depth, not the ownership signal: an owner whose challenge
+        # somehow already carries a delivery message is never re-sent.
         if challenge.delivery_message_id is not None:
             return OtpDeliveryStatus.SKIPPED
         try:

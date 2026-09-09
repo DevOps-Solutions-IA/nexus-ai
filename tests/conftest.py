@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import itertools
 import json
 import os
@@ -1007,6 +1008,8 @@ class FakeMessagingTransport:
         }
         self.requests.append(entry)
         outcome = self._handler(entry) if self._handler is not None else self._default
+        if inspect.isawaitable(outcome):
+            outcome = await outcome
         if isinstance(outcome, TransportError):
             raise outcome
         status_code, payload = outcome

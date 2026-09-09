@@ -21,9 +21,16 @@ from nexus_ai.messaging.entities import (
     MessageChannel,
     StoreAccountCredentialRequest,
 )
-from nexus_ai.otp.entities import IssueOtpRequest, OtpChannel, OtpStatus, VerifyOtpRequest
+from nexus_ai.otp.entities import (
+    IssueOtpRequest,
+    OtpChannel,
+    OtpDeliveryStatus,
+    OtpStatus,
+    VerifyOtpRequest,
+)
 from nexus_ai.otp.errors import (
     OtpAlreadyUsedError,
+    OtpIdempotencyConflictError,
     OtpInvalidError,
     OtpLockedError,
     OtpResendTooSoonError,
@@ -192,6 +199,149 @@ async def test_resend_versus_original_verification_race(
             ).all()
         }
     assert OtpStatus.ACTIVE.value in statuses or OtpStatus.VERIFIED.value in statuses
+
+
+async def test_concurrent_identical_idempotent_issue_sends_exactly_one_code(
+    otp_stack: Any, make_organization: Any
+) -> None:
+    """Six concurrent `issue()` calls with the same org + account + purpose + destination
+    + idempotency_key: exactly one challenge, exactly one provider send, and the single
+    delivered code verifies that challenge (NXS-P10 concurrent-idempotency corrective)."""
+    org = await make_organization()
+    account = await _account(otp_stack, org.id)
+    key = "otp-concurrent-key-abc123"
+
+    async def _one() -> Any:
+        return await otp_stack.service.issue(
+            org.id,
+            IssueOtpRequest(
+                purpose="GENERIC_VERIFICATION",
+                channel=OtpChannel.SMS,
+                destination="+14155550142",
+                messaging_account_id=account.id,
+                idempotency_key=key,
+            ),
+        )
+
+    results = await asyncio.gather(*(_one() for _ in range(6)), return_exceptions=True)
+    ok = [r for r in results if not isinstance(r, Exception)]
+    assert len(ok) == 6, results  # (1) every call returns a safe result
+    challenge_ids = {r.challenge_id for r in ok}
+    assert len(challenge_ids) == 1  # (1) all reference exactly one challenge_id
+    challenge_id = challenge_ids.pop()
+    # (7) losers are replayed, (8) never NXS_OTP_RESEND_TOO_SOON for an identical replay
+    assert sum(1 for r in ok if r.replayed) == 5
+    assert all(
+        r.delivery is OtpDeliveryStatus.SENT or r.delivery is OtpDeliveryStatus.SKIPPED for r in ok
+    )
+    assert not any(isinstance(r, OtpResendTooSoonError) for r in results)
+
+    # (2) exactly one challenge row for that key
+    async with otp_stack.database.tenant_transaction(org.id) as tenant:
+        rows = (
+            await tenant.session.execute(
+                text("SELECT count(*) FROM otp_challenges WHERE idempotency_key = :k"),
+                {"k": key},
+            )
+        ).scalar_one()
+    assert rows == 1
+
+    # (3)(4)(6) exactly one provider send / one code delivered
+    sends = [r for r in otp_stack.transport.requests if "text" in json.loads(r["body"] or b"{}")]
+    assert len(sends) == 1
+    delivered = re.search(r"\b(\d{6})\b", json.loads(sends[0]["body"])["text"])
+    assert delivered is not None
+
+    # (5) the delivered code verifies the one challenge
+    verified = await otp_stack.service.verify(
+        org.id, challenge_id, VerifyOtpRequest(code=delivered.group(1))
+    )
+    assert verified.outcome.value == "VERIFIED"
+
+
+async def test_same_key_different_semantic_request_is_conflict_under_races(
+    otp_stack: Any, make_organization: Any
+) -> None:
+    """(9) same idempotency_key, different destination → NXS_OTP_IDEMPOTENCY_CONFLICT,
+    even when the two calls race."""
+    org = await make_organization()
+    account = await _account(otp_stack, org.id)
+    key = "otp-conflict-key-abc123"
+
+    async def _issue_to(destination: str) -> Any:
+        return await otp_stack.service.issue(
+            org.id,
+            IssueOtpRequest(
+                purpose="GENERIC_VERIFICATION",
+                channel=OtpChannel.SMS,
+                destination=destination,
+                messaging_account_id=account.id,
+                idempotency_key=key,
+            ),
+        )
+
+    results = await asyncio.gather(
+        _issue_to("+14155550142"),
+        _issue_to("+14155550143"),
+        return_exceptions=True,
+    )
+    successes = [r for r in results if not isinstance(r, Exception)]
+    conflicts = [r for r in results if isinstance(r, OtpIdempotencyConflictError)]
+    assert len(successes) == 1
+    assert len(conflicts) == 1
+
+
+async def test_loser_entering_before_delivery_completes_does_not_send(
+    otp_stack: Any, make_organization: Any
+) -> None:
+    """The exact window: A persists its challenge and blocks inside the P09 provider
+    send (delivery_message_id not yet written); B issues with the same key. B must NOT
+    send — it replays A's challenge. Deterministic via a gate in the fake transport."""
+    org = await make_organization()
+    account = await _account(otp_stack, org.id)
+    key = "otp-window-key-abc123"
+
+    inside_send = asyncio.Event()
+    release = asyncio.Event()
+
+    async def _gated_handler(_entry: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        inside_send.set()
+        await release.wait()
+        return 200, {"message_id": "prov-window", "messages": [{"id": "prov-window"}]}
+
+    otp_stack.transport.set_handler(_gated_handler)
+
+    def _request() -> IssueOtpRequest:
+        return IssueOtpRequest(
+            purpose="GENERIC_VERIFICATION",
+            channel=OtpChannel.SMS,
+            destination="+14155550142",
+            messaging_account_id=account.id,
+            idempotency_key=key,
+        )
+
+    task_a = asyncio.create_task(otp_stack.service.issue(org.id, _request()))
+    await asyncio.wait_for(inside_send.wait(), timeout=5)
+    # A's challenge is committed; A is blocked mid-send with no delivery_message_id yet.
+    async with otp_stack.database.tenant_transaction(org.id) as tenant:
+        pre = (
+            await tenant.session.execute(
+                text("SELECT delivery_message_id FROM otp_challenges WHERE idempotency_key = :k"),
+                {"k": key},
+            )
+        ).one()
+    assert pre.delivery_message_id is None
+
+    result_b = await otp_stack.service.issue(org.id, _request())
+    assert result_b.replayed is True
+    assert result_b.delivery is OtpDeliveryStatus.SKIPPED
+
+    release.set()
+    result_a = await asyncio.wait_for(task_a, timeout=5)
+    assert result_a.challenge_id == result_b.challenge_id
+    # exactly one provider send happened across both requests
+    sends = [r for r in otp_stack.transport.requests if "text" in json.loads(r["body"] or b"{}")]
+    assert len(sends) == 1
 
 
 async def test_expire_versus_verify_boundary(otp_stack: Any, make_organization: Any) -> None:
