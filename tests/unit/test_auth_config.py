@@ -27,6 +27,7 @@ def _hardened(**auth_overrides: str) -> Settings:
         cache={"url": "redis://cache.internal:6379/0"},
         messaging={"url": "nats://nats.internal:4222"},
         telemetry={"mode": "local"},
+        otp={"pepper": "hardened-otp-pepper-0123456789abcdef0123456789"},  # type: ignore[arg-type]
         auth=AuthSettings(**merged),
     )
 

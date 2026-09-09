@@ -77,9 +77,7 @@ def upgrade() -> None:
             "status IN ('ACTIVE','VERIFIED','EXPIRED','REVOKED','LOCKED')",
             name="ck_otp_challenges_status_known",
         ),
-        sa.CheckConstraint(
-            "channel IN ('SMS','EMAIL')", name="ck_otp_challenges_channel_known"
-        ),
+        sa.CheckConstraint("channel IN ('SMS','EMAIL')", name="ck_otp_challenges_channel_known"),
         sa.CheckConstraint(
             "subject_type IN ('DESTINATION')", name="ck_otp_challenges_subject_type_known"
         ),
@@ -90,9 +88,7 @@ def upgrade() -> None:
         sa.CheckConstraint(
             "attempts <= max_attempts", name="ck_otp_challenges_attempts_within_limit"
         ),
-        sa.CheckConstraint(
-            "expires_at > issued_at", name="ck_otp_challenges_expiry_after_issue"
-        ),
+        sa.CheckConstraint("expires_at > issued_at", name="ck_otp_challenges_expiry_after_issue"),
         sa.ForeignKeyConstraint(
             ["organization_id"],
             ["organizations.id"],

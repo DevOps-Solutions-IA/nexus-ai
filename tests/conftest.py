@@ -36,7 +36,9 @@ _TEST_ENV = {
     "NXS_LOGGING__FORMAT": "json",
     "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY": "true",
     "NXS_AUTH__RATE_LIMIT_BACKEND": "local",
-    "NXS_OTP__ALLOW_EPHEMERAL_PEPPER": "true",
+    # A fixed, deterministic OTP pepper for the whole test run (a real >= 32-char
+    # secret, valid in every environment — the hardened startup check is satisfied).
+    "NXS_OTP__PEPPER": "test-otp-pepper-0123456789abcdef0123456789abcdef",
 }
 
 
