@@ -1265,7 +1265,7 @@
       "id": "NXS-OTP-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P10",
       "title": "One-time passwords",
       "validation_evidence": []
