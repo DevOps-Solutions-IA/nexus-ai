@@ -16,6 +16,7 @@ The Customer / Conversation model is NXS-P06's; this service resolves and attach
 
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import hashlib
 import json
@@ -102,6 +103,9 @@ from nexus_ai.otp.events import (
     OTP_EVENT_VERIFIED,
 )
 from nexus_ai.otp.purposes import resolve_purpose
+
+#: Bounded retries while a concurrent idempotency-key winner's transaction commits.
+_IDEMPOTENCY_RESOLVE_ATTEMPTS = 8
 
 _CHANNEL_TO_MESSAGE: dict[OtpChannel, MessageChannel] = {
     OtpChannel.SMS: MessageChannel.SMS,
@@ -406,6 +410,19 @@ class OtpService:
         try:
             async with self._db.tenant_transaction(organization_id) as tenant:
                 repo = OtpChallengeRepository(tenant)
+                # An idempotent replay is the SAME logical request, not a resend: if a
+                # row already carries our key, return it as a non-owner before any
+                # throttle / cooldown / revoke logic can fire against it. This also
+                # closes the race where a concurrent same-key winner has just committed
+                # its ACTIVE challenge (its cooldown must not bounce our replay).
+                if create.idempotency_key is not None:
+                    prior = await repo.by_idempotency_key(create.idempotency_key)
+                    if prior is not None:
+                        if prior.request_fingerprint != create.request_fingerprint:
+                            raise OtpIdempotencyConflictError(
+                                "this idempotency key was already used for a different OTP request"
+                            )
+                        return _IssueClaim(challenge=prior, is_owner=False)
                 issued = await repo.count_issued_since(dest_fp, purpose_key, window_start)
                 if issued >= config.max_issues_per_window:
                     raise OtpRateLimitedError(
@@ -413,6 +430,13 @@ class OtpService:
                     )
                 active = await repo.active_for_subject(dest_fp, purpose_key, for_update=True)
                 if active is not None:
+                    if (
+                        create.idempotency_key is not None
+                        and active.idempotency_key == create.idempotency_key
+                    ):
+                        # A concurrent same-key winner committed between our first
+                        # idempotency check and here: replay it, don't resend.
+                        return _IssueClaim(challenge=active, is_owner=False)
                     if now < active.resend_after:
                         raise OtpResendTooSoonError(
                             "an OTP was issued recently; wait before requesting another"
@@ -443,23 +467,45 @@ class OtpService:
             )
             raise
         except IntegrityError as exc:
-            # The INSERT lost a race. If it was the idempotency-key unique constraint,
-            # the winner's challenge is findable by that key and we replay it as a
-            # NON-owner (test #8: an identical replay never raises RESEND_TOO_SOON).
-            # A different semantic request under the same key is still a conflict
-            # (raised by ``_load_idempotency_winner`` → test #9).
+            # The INSERT lost a race. When an idempotency key is present, EXACTLY ONE
+            # insert can ever commit that key (uq_otp_challenges_org_idempotency_key) and
+            # it is never rolled back by a competitor — so a loser resolves the winner
+            # and replays it as a NON-owner (audit #7/#8: an identical concurrent replay
+            # never raises RESEND_TOO_SOON). The winner's commit may land microseconds
+            # after our IntegrityError (our INSERT can conflict on the one-active partial
+            # index against an in-flight competitor that then rolls back), so the lookup
+            # is retried with a bounded backoff. A different semantic request under the
+            # same key is a deterministic conflict (audit #9).
             if create.idempotency_key is not None:
-                winner = await self._load_idempotency_winner(
+                winner = await self._await_idempotency_winner(
                     organization_id, create.idempotency_key, create.request_fingerprint
                 )
                 if winner is not None:
                     return _IssueClaim(challenge=winner, is_owner=False)
-            # Otherwise it was the one-active-challenge partial index and a concurrent
-            # different-key issuance for the same subject won.
+            # No row will ever carry our key: this was a one-active-challenge partial
+            # index conflict with a concurrent DIFFERENT-key issuance for the same subject.
             raise OtpResendTooSoonError(
                 "another OTP for this destination and purpose was just issued"
             ) from exc
         return _IssueClaim(challenge=challenge, is_owner=True)
+
+    async def _await_idempotency_winner(
+        self, organization_id: UUID, idempotency_key: str, request_fp: str
+    ) -> OtpChallenge | None:
+        """Resolve the committed owner of ``idempotency_key``, retrying briefly while a
+        concurrent winner's transaction commits. Returns ``None`` only when no insert
+        will ever carry this key (a pure one-active-challenge race)."""
+        delay = 0.01
+        for attempt in range(_IDEMPOTENCY_RESOLVE_ATTEMPTS):
+            winner = await self._load_idempotency_winner(
+                organization_id, idempotency_key, request_fp
+            )
+            if winner is not None:
+                return winner
+            if attempt + 1 < _IDEMPOTENCY_RESOLVE_ATTEMPTS:
+                await asyncio.sleep(delay)
+                delay = min(delay * 2, 0.08)
+        return None
 
     async def _load_idempotency_winner(
         self, organization_id: UUID, idempotency_key: str, request_fp: str

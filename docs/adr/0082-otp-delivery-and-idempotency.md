@@ -32,17 +32,25 @@ through the terminal challenge state (ADR-0080).
 **Concurrent-idempotency ownership (corrective).** `_persist_issued` returns an explicit
 `_IssueClaim(challenge, is_owner)`. Ownership is decided by the `INSERT` itself: exactly
 one concurrent request with a given `(organization, idempotency_key)` wins the row and
-is the owner. A request that catches the unique-constraint `IntegrityError` loads the
-winner's challenge and returns `is_owner = False`; `issue()` then returns the winner's
-safe replay result **without ever calling `_deliver_or_unwind` / `MessagingService`**.
-The locally generated code of a losing request never leaves the owner path, so two
-concurrent identical requests can never send two OTP messages and the persisted hash
-always matches the one delivered code. `delivery_message_id` is a secondary
-defence-in-depth check, never the ownership signal (it is written only after delivery
-completes). Proven against real PostgreSQL: six concurrent identical `issue()` calls →
-one challenge row, one provider send, one delivered code that verifies; and the exact
-"loser enters after the owner persists but before delivery completes" window (a gated
-fake transport) → the loser does not send.
+is the owner. Only the owner runs `_deliver_or_unwind` / `MessagingService`; every loser
+returns the winner's safe replay result — the locally generated code of a losing request
+never leaves the owner path, so two concurrent identical requests can never send two OTP
+messages and the persisted hash always matches the one delivered code.
+`delivery_message_id` is a secondary defence-in-depth check, never the ownership signal.
+
+A loser is recognised on **three** paths, so a semantically identical concurrent replay
+is never mistaken for a resend (never raises `NXS_OTP_RESEND_TOO_SOON`): (1) a
+`by_idempotency_key` check at the very top of the persist transaction — before any
+throttle / cooldown / one-active-revoke logic; (2) inside the one-active branch, when the
+found ACTIVE challenge *is* our idempotency sibling (a same-key winner committed between
+(1) and here); (3) the `IntegrityError` handler, which resolves the committed winner with
+a short bounded retry while its transaction lands. A different semantic request under the
+same key is a deterministic `NXS_OTP_IDEMPOTENCY_CONFLICT` (paths 1 and 3).
+
+Proven against real PostgreSQL: 8 fresh trials × 8 concurrent identical `issue()` calls →
+one challenge row, one provider send, one delivered code that verifies, zero losing-side
+errors; the exact "loser enters after the owner persists but before delivery completes"
+window (a gated fake transport) → the loser does not send.
 
 **Cleanup seam.** `OtpService.purge_expired` / `OtpChallengeRepository.purge_terminal_before`
 delete terminal challenges older than a retention window (min 1 h); ACTIVE challenges are

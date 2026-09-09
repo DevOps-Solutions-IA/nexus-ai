@@ -23,6 +23,7 @@
     "concurrency_tests": "PASS",
     "concurrent_correct_verifications_exactly_one_success": "PASS",
     "concurrent_double_issue_one_active_outcome": "PASS",
+    "concurrent_idempotency_regression_multi_trial_fanout8": "PASS",
     "concurrent_idempotency_regression_real_postgres": "PASS",
     "concurrent_identical_idempotent_issue_one_send": "PASS",
     "concurrent_wrong_attempts_never_exceed_policy": "PASS",
@@ -69,6 +70,8 @@
     "hash_version_recorded": "PASS",
     "idempotency_conflict_on_different_fingerprint": "PASS",
     "idempotency_key_unique_per_org": "PASS",
+    "idempotency_replay_checked_before_throttle_cooldown": "PASS",
+    "idempotency_winner_resolved_with_bounded_retry": "PASS",
     "identical_idempotent_replay_never_resend_too_soon": "PASS",
     "integration_tests": "PASS",
     "issue_claim_explicit_ownership_signal": "PASS",
@@ -95,6 +98,7 @@
     "no_process_local_only_counters": "PASS",
     "no_provider_tokens_in_otp_path": "PASS",
     "no_raw_provider_or_template_surface": "PASS",
+    "no_resend_too_soon_for_identical_concurrent_replay": "PASS",
     "no_template_expression_execution": "PASS",
     "no_timestamp_or_sequential_codes": "PASS",
     "no_user_controlled_template_or_headers": "PASS",
@@ -138,6 +142,7 @@
     "reversible_migration": "PASS",
     "rfc9457_nxs_otp_taxonomy_stable_unique": "PASS",
     "role_permissions_frozen_unchanged": "PASS",
+    "same_key_sibling_active_challenge_replayed_not_resent": "PASS",
     "sast_bandit": "PASS",
     "secret_scan": "PASS",
     "security_tests": "PASS",
@@ -159,7 +164,7 @@
     "warnings_as_errors": "PASS"
   },
   "phase": "NXS-P10",
-  "recorded_at": "2026-09-09T18:54:28Z",
+  "recorded_at": "2026-09-09T23:58:40Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
