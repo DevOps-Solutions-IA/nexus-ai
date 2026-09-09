@@ -1,15 +1,15 @@
 {
   "base_main_sha": "3dde72010a786493dc7d8d6d941b9b7049ccf783",
-  "blocked_reason": "GitHub Actions is disabled for the DevOps-Solutions-IA organization: 'The job was not started because recent account payments have failed or your spending limit needs to be increased.' NXS CI / NXS Security cannot run on the corrective heads 77ce1c7 / 31d9d8d / the re-close head. The org owner must restore Actions billing; CI then runs on the exact final HEAD.",
+  "ci_recovery_note": "NXS CI / NXS Security attempt 1 on heads 77ce1c7..009213e failed with 0 steps executed and the GitHub annotation 'The job was not started because recent account payments have failed or your spending limit needs to be increased' \u2014 a GitHub Actions org-billing block, not a code failure (every failing job step was reproduced green locally at 009213e). Actions billing was subsequently restored; attempt 2 of both workflows on the exact final HEAD 009213e is SUCCESS (push + pull_request).",
   "closure_commit": "7f671cf2e5fa5128b187db479d8bb663c847165c",
   "corrective_implementation_commit": "e2e3b9c0fea9f296b355446e9c776b9bfdb913c8",
   "implementation_commit": "7f698a14103dcf7c082298e3875702bab60d35fd",
   "merged": false,
   "phase": "NXS-P10",
   "pull_request": 20,
-  "record_green_ci_head": "BLOCKED \u2014 GitHub Actions disabled for the org (billing); re-run on 7f671cf once restored",
-  "recorded_at": "2026-09-09T19:20:00Z",
-  "result": "BLOCKED_EXTERNAL",
+  "record_green_ci_head": "009213e1649170e1bf08b8651d48e802c2445a1a",
+  "recorded_at": "2026-09-09T23:55:00Z",
+  "result": "PASS",
   "runs": {
     "closure_75f365c": {
       "jobs": [
@@ -45,6 +45,27 @@
       "nxs_ci_push": "failure",
       "nxs_security_pull_request": "failure",
       "nxs_security_push": "failure"
+    },
+    "record_green_009213e": {
+      "head_sha": "009213e1649170e1bf08b8651d48e802c2445a1a",
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34395802483,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34395798679,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34395802491,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34395798538,
+      "run_attempt": 2
     }
   },
   "schema_version": "1.0.0"
