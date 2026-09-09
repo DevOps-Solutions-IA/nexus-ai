@@ -484,7 +484,9 @@ class OtpService:
             organization_id,
             account,
             customer_id,
-            f"otp:{challenge.purpose}",
+            # One OTP conversation per destination (not per purpose): all one-time-code
+            # traffic to an address shares a single P06 timeline.
+            f"otp:{challenge.destination_fingerprint}",
         )
         rendered = render_message(challenge.channel, code, ttl_seconds)
         send_request = SendMessageRequest(
