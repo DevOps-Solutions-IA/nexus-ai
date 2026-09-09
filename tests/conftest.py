@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import json
 import os
 import shutil
@@ -35,6 +36,7 @@ _TEST_ENV = {
     "NXS_LOGGING__FORMAT": "json",
     "NXS_AUTH__ALLOW_EPHEMERAL_SIGNING_KEY": "true",
     "NXS_AUTH__RATE_LIMIT_BACKEND": "local",
+    "NXS_OTP__ALLOW_EPHEMERAL_PEPPER": "true",
 }
 
 
@@ -1060,7 +1062,7 @@ async def messaging_stack(
         )
         try:
             await connection.execute(
-                "TRUNCATE messaging_messages, messaging_send_idempotency, "
+                "TRUNCATE otp_challenges, messaging_messages, messaging_send_idempotency, "
                 "messaging_inbound_receipts, messaging_secrets, messaging_accounts, "
                 "conversation_activities, conversation_participants, conversations, "
                 "customer_identities, customers CASCADE"
@@ -1083,3 +1085,41 @@ async def messaging_stack(
             self.event_platform = event_platform
 
     return _MessagingStack()
+
+
+@pytest.fixture
+async def otp_stack(messaging_stack: Any) -> Any:
+    """The OTP subsystem wired against the real DB + event outbox, delivering through the
+    fake-transport messaging stack (no socket)."""
+    from nexus_ai.otp.service import OtpService
+
+    stack = messaging_stack
+    service = OtpService(
+        stack.settings,
+        stack.database,
+        stack.event_platform.publisher,
+        stack.service,
+        stack.customers,
+        stack.conversations,
+    )
+
+    _counter = itertools.count(1)
+
+    def _unique_provider_response(_entry: dict[str, Any]) -> tuple[int, dict[str, Any]]:
+        provider_id = f"otp-prov-{next(_counter)}"
+        return 200, {"messages": [{"id": provider_id}], "message_id": provider_id}
+
+    stack.transport.set_handler(_unique_provider_response)
+
+    class _OtpStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.messaging = stack.service
+            self.transport = stack.transport
+            self.database = stack.database
+            self.settings = stack.settings
+            self.event_platform = stack.event_platform
+            self.customers = stack.customers
+            self.conversations = stack.conversations
+
+    return _OtpStack()

@@ -105,3 +105,6 @@ MessagingSendDep = Annotated[
 MessagingManageAccountsDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.MESSAGING_MANAGE_ACCOUNTS))
 ]
+OtpReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_READ))]
+OtpIssueDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_ISSUE))]
+OtpVerifyDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_VERIFY))]

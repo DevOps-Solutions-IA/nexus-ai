@@ -394,6 +394,56 @@ class ChannelsSettings(BaseModel):
     max_account_config_bytes: int = Field(default=4_096, ge=256, le=65_536)
 
 
+class OtpSettings(BaseModel):
+    """OTP Services configuration (NXS-P10: NXS-OTP-001).
+
+    The OTP subsystem never opens its own socket — delivery routes through the NXS-P09
+    messaging service — so these bounds are about code generation, the keyed verifier,
+    challenge lifetime and durable issuance / verification throttling.
+
+    ``pepper`` is secret key material: it never appears in ``repr``/logs, is never
+    persisted with a challenge, and a hardened environment fails fast when it is absent
+    (see ``Settings._hardened_environment_safety``).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    #: Numeric code length. Bounded well away from a brute-forceable keyspace.
+    code_length: int = Field(default=6, ge=6, le=10)
+    ttl_seconds: int = Field(default=300, ge=60, le=1_800)
+    max_attempts: int = Field(default=5, ge=1, le=10)
+    #: Minimum interval between two successful issuances for the same
+    #: (organization, destination, purpose) — a resend before this is rejected.
+    resend_cooldown_seconds: int = Field(default=60, ge=15, le=900)
+    #: Durable issuance burst ceiling per (organization, destination, purpose) window.
+    max_issues_per_window: int = Field(default=5, ge=1, le=50)
+    issue_window_seconds: int = Field(default=3_600, ge=60, le=86_400)
+    #: HMAC pepper. A 64-character hex string (>= 32 bytes of entropy).
+    pepper: SecretStr | None = None
+    #: Explicit opt-in to an ephemeral per-process pepper for local/test only.
+    allow_ephemeral_pepper: bool = False
+
+    @field_validator("pepper")
+    @classmethod
+    def _pepper(cls, value: SecretStr | None) -> SecretStr | None:
+        if value is None:
+            return None
+        raw = value.get_secret_value().strip()
+        if len(raw) < 32:
+            raise ValueError("NXS_OTP__PEPPER must be at least 32 characters of secret entropy")
+        return SecretStr(raw)
+
+    @model_validator(mode="after")
+    def _pepper_not_both(self) -> Self:
+        if self.allow_ephemeral_pepper and self.pepper is not None:
+            raise ValueError(
+                "NXS_OTP__ALLOW_EPHEMERAL_PEPPER cannot be combined with a configured "
+                "NXS_OTP__PEPPER"
+            )
+        return self
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -550,6 +600,7 @@ class Settings(BaseSettings):
     integrations: IntegrationsSettings = Field(default_factory=IntegrationsSettings)
     tools: ToolsSettings = Field(default_factory=ToolsSettings)
     channels: ChannelsSettings = Field(default_factory=ChannelsSettings)
+    otp: OtpSettings = Field(default_factory=OtpSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
@@ -607,6 +658,13 @@ class Settings(BaseSettings):
             problems.append(
                 "NXS_INTEGRATIONS__ALLOW_EPHEMERAL_VAULT_KEY must be false outside local/test"
             )
+        if self.otp.enabled and self.otp.pepper is None and not self.otp.allow_ephemeral_pepper:
+            problems.append(
+                "NXS_OTP__PEPPER is required outside local/test (the OTP keyed verifier "
+                "must not fall back to an ephemeral per-process pepper)"
+            )
+        if self.otp.allow_ephemeral_pepper:
+            problems.append("NXS_OTP__ALLOW_EPHEMERAL_PEPPER must be false outside local/test")
         if problems:
             raise ValueError("unsafe security configuration: " + "; ".join(sorted(problems)))
         return self
