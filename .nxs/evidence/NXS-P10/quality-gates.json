@@ -1,0 +1,96 @@
+{
+  "decision_eligibility": "GO",
+  "details": {
+    "dependency_security": {
+      "command": [
+        "uv",
+        "run",
+        "pip-audit"
+      ],
+      "exit_code": 0,
+      "output_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n"
+    },
+    "formatting": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "441 files already formatted\n"
+    },
+    "lint": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "All checks passed!\n"
+    },
+    "repository_integrity": {
+      "command": [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "scripts.nxs_validate"
+      ],
+      "exit_code": 0,
+      "output_tail": "{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\n"
+    },
+    "sast": {
+      "command": [
+        "uv",
+        "run",
+        "bandit",
+        "-q",
+        "-lll",
+        "-c",
+        "pyproject.toml",
+        "-r",
+        "src",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "output_tail": ""
+    },
+    "tests": {
+      "command": [
+        "uv",
+        "run",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "output_tail": " 82\nsrc/nexus_ai/tools/service.py                        144      1     26      1    99%   176\n----------------------------------------------------------------------------------------------\nTOTAL                                              11964    613   2118    354    93%\nRequired test coverage of 90% reached. Total coverage: 92.82%\n1149 passed in 183.92s (0:03:03)\n----------------------------------------\nException occurred during processing of request from ('127.0.0.1', 55060)\nTraceback (most recent call last):\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 697, in process_request_thread\n    self.finish_request(request, client_address)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 362, in finish_request\n    self.RequestHandlerClass(request, client_address, self)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 766, in __init__\n    self.handle()\n    ~~~~~~~~~~~^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/http/server.py\", line 496, in handle\n    self.handle_one_request()\n    ~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/http/server.py\", line 484, in handle_one_request\n    method()\n    ~~~~~~^^\n  File \"/home/wundah/nexus-ai/tests/conftest.py\", line 757, in do_GET\n    self._serve(\"GET\")\n    ~~~~~~~~~~~^^^^^^^\n  File \"/home/wundah/nexus-ai/tests/conftest.py\", line 754, in _serve\n    self.wfile.write(raw)\n    ~~~~~~~~~~~~~~~~^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\n    ~~~~~~~~~~~~~~~~~~^^^\n----------------------------------------\n"
+    },
+    "typing": {
+      "command": [
+        "uv",
+        "run",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "output_tail": "Success: no issues found in 193 source files\n"
+    }
+  },
+  "executed_at": "2026-09-09T17:18:33Z",
+  "gates": {
+    "dependency_security": "PASS",
+    "formatting": "PASS",
+    "lint": "PASS",
+    "repository_integrity": "PASS",
+    "sast": "PASS",
+    "tests": "PASS",
+    "typing": "PASS"
+  },
+  "phase": "NXS-P10",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

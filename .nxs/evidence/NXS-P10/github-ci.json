@@ -1,0 +1,13 @@
+{
+  "base_main_sha": "3dde72010a786493dc7d8d6d941b9b7049ccf783",
+  "closure_commit": "pending \u2014 the closure commit",
+  "implementation_commit": "7f698a14103dcf7c082298e3875702bab60d35fd",
+  "merged": false,
+  "phase": "NXS-P10",
+  "pull_request": 20,
+  "record_green_ci_head": "pending \u2014 the record-green commit",
+  "recorded_at": "2026-09-09T18:00:00Z",
+  "result": "PENDING",
+  "runs": {},
+  "schema_version": "1.0.0"
+}

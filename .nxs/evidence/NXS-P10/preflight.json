@@ -1,0 +1,7 @@
+{
+  "guard_output": "{\"code\": \"AUTHORIZED\", \"phase\": \"NXS-P10\", \"reasons\": [], \"result\": \"PASS\", \"system\": \"NXS EXECUTION GUARD\"}",
+  "phase": "NXS-P10",
+  "recorded_at": "2026-09-09T17:24:37Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

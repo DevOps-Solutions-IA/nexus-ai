@@ -1,10 +1,10 @@
 {
-  "actor": "claude-code",
-  "branch": "feat/nxs-p10-otp",
-  "expires_at": "2026-09-09T20:39:40Z",
-  "phase": "NXS-P10",
-  "repository_commit": "3dde72010a786493dc7d8d6d941b9b7049ccf783",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-09T16:39:40Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }
