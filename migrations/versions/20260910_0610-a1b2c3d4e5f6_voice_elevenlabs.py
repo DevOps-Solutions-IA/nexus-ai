@@ -82,9 +82,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_voice_provider_accounts")),
         sa.UniqueConstraint("organization_id", "id", name="uq_voice_provider_accounts_org_id"),
-        sa.UniqueConstraint(
-            "organization_id", "slug", name="uq_voice_provider_accounts_org_slug"
-        ),
+        sa.UniqueConstraint("organization_id", "slug", name="uq_voice_provider_accounts_org_slug"),
         sa.UniqueConstraint(
             "provider", "external_account_id", name="uq_voice_provider_accounts_provider"
         ),
@@ -114,9 +112,7 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_voice_secrets")),
         sa.UniqueConstraint("organization_id", "credential_ref", name="uq_voice_secrets_ref"),
     )
-    op.create_index(
-        "ix_voice_secrets_organization_id", "voice_secrets", ["organization_id"]
-    )
+    op.create_index("ix_voice_secrets_organization_id", "voice_secrets", ["organization_id"])
     apply_tenant_rls(op, "voice_secrets", allow_delete=True)
 
     op.create_table(
@@ -235,7 +231,9 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id", name=op.f("pk_voice_sessions")),
         sa.UniqueConstraint("organization_id", "id", name="uq_voice_sessions_org_id"),
         sa.UniqueConstraint(
-            "organization_id", "account_id", "provider_session_id",
+            "organization_id",
+            "account_id",
+            "provider_session_id",
             name="uq_voice_sessions_provider_session_id",
         ),
         sa.UniqueConstraint(
@@ -243,9 +241,7 @@ def upgrade() -> None:
         ),
     )
     op.create_index("ix_voice_sessions_organization_id", "voice_sessions", ["organization_id"])
-    op.create_index(
-        "ix_voice_sessions_call", "voice_sessions", ["organization_id", "call_id"]
-    )
+    op.create_index("ix_voice_sessions_call", "voice_sessions", ["organization_id", "call_id"])
     op.create_index(
         "uq_voice_sessions_one_live_per_media",
         "voice_sessions",
@@ -284,7 +280,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_voice_provider_events")),
         sa.UniqueConstraint(
-            "organization_id", "account_id", "provider_event_id",
+            "organization_id",
+            "account_id",
+            "provider_event_id",
             name="uq_voice_provider_events_provider_event",
         ),
     )
@@ -326,9 +324,7 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_voice_usage_records")),
         sa.UniqueConstraint("organization_id", "id", name="uq_voice_usage_records_org_id"),
-        sa.UniqueConstraint(
-            "organization_id", "session_id", name="uq_voice_usage_records_session"
-        ),
+        sa.UniqueConstraint("organization_id", "session_id", name="uq_voice_usage_records_session"),
     )
     op.create_index(
         "ix_voice_usage_records_organization_id",
