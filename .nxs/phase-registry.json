@@ -102,12 +102,12 @@
     },
     {
       "branch": "feat/nxs-p10-otp",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P09"
       ],
       "id": "NXS-P10",
-      "status": "VALIDATING",
+      "status": "READY",
       "title": "OTP Services"
     },
     {
