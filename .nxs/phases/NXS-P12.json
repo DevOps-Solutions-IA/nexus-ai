@@ -29,7 +29,7 @@
     ".nxs/evidence/NXS-P12/voice-integration.json"
   ],
   "id": "NXS-P12",
-  "implementation_commit": "996e33c524af3618250ceb959f5860d1c027030f",
+  "implementation_commit": "56b2c4b01dbb0c2b38a6fd2d397bec4af99dc06d",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -74,7 +74,7 @@
   "schema_version": "1.0.0",
   "status": "READY",
   "timestamps": {
-    "closed_at": "2026-09-10T08:35:20Z",
+    "closed_at": "2026-09-10T09:17:25Z",
     "started_at": "2026-09-10T05:48:26Z"
   },
   "title": "ElevenLabs Voice"

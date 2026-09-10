@@ -1598,6 +1598,7 @@
         "all_strings_maps_lists_bounded": "PASS",
         "ambiguous_provider_timeout_no_second_session": "PASS",
         "amd64_image": "PASS",
+        "arbitrary_bridge_reference_cannot_forge_handoff_completed": "PASS",
         "arm64_image": "PASS",
         "arm64_liveness_readiness_smoke": "PASS",
         "audio_format_explicit_and_validated": "PASS",
@@ -1619,8 +1620,11 @@
         "concurrency_tests": "PASS",
         "concurrent_handoff_requests_deterministic": "PASS",
         "concurrent_identical_start_one_provider_creation": "PASS",
+        "confirm_handoff_is_a_non_public_in_process_seam": "PASS",
         "confirm_handoff_is_the_only_path_to_human": "PASS",
         "confirm_handoff_requires_authoritative_bridge_reference": "PASS",
+        "confirm_handoff_seam_preserved_for_nxs_p17": "PASS",
+        "confirm_handoff_seam_remains_tenant_scoped": "PASS",
         "confirm_handoff_tenant_scoped": "PASS",
         "connection_timeout": "PASS",
         "consumes_p11_media_session_boundary": "PASS",
@@ -1661,6 +1665,8 @@
         "governed_voice_api_surface_only": "PASS",
         "graceful_shutdown": "PASS",
         "graceful_shutdown_cancels_runtime_tasks": "PASS",
+        "handoff_completion_has_no_public_route": "PASS",
+        "handoff_completion_has_no_reachable_voice_permission": "PASS",
         "handoff_lifecycle_ai_pending_human_human": "PASS",
         "handshake_timeout": "PASS",
         "idle_timeout": "PASS",
@@ -1694,6 +1700,7 @@
         "no_cross_organization_reference": "PASS",
         "no_duplicate_interruption_handling": "PASS",
         "no_elevenlabs_type_outside_adapter": "PASS",
+        "no_openapi_path_certifies_a_human_handoff": "PASS",
         "no_plaintext_credential_in_tables": "PASS",
         "no_raw_ari_command_or_sip_headers_in_api": "PASS",
         "no_raw_audio_persisted_by_default": "PASS",
@@ -1717,6 +1724,7 @@
         "nxs_validate": "PASS",
         "official_elevenlabs_contract_documented": "PASS",
         "one_live_session_per_media_session": "PASS",
+        "org_member_voice_use_cannot_reach_human_state": "PASS",
         "organization_boundary_enforced": "PASS",
         "p04_voice_events_published": "PASS",
         "p11_remains_call_source_of_truth": "PASS",
@@ -1741,6 +1749,7 @@
         "repository_integrity": "PASS",
         "request_handoff_does_not_emit_completed": "PASS",
         "request_handoff_idempotent": "PASS",
+        "request_handoff_is_the_entire_public_handoff_surface": "PASS",
         "request_handoff_moves_to_pending_human_only": "PASS",
         "resilience_tests": "PASS",
         "reversible_alembic_migration": "PASS",
@@ -1791,7 +1800,7 @@
         "websockets_pinned_direct_dep_no_new_lock_entry": "PASS",
         "ws_connection_pins_host_port_refuses_cross_origin_redirect": "PASS"
       },
-      "implementation_commit": "996e33c524af3618250ceb959f5860d1c027030f",
+      "implementation_commit": "56b2c4b01dbb0c2b38a6fd2d397bec4af99dc06d",
       "phase": "NXS-P12",
       "regression_status": "PASS",
       "requirements": [
@@ -1800,8 +1809,8 @@
       ],
       "security_status": "PASS",
       "status": "READY",
-      "test_count": 1366,
-      "timestamp": "2026-09-10T08:35:20Z"
+      "test_count": 1369,
+      "timestamp": "2026-09-10T09:17:25Z"
     }
   ],
   "schema_version": "1.0.0"
