@@ -1572,6 +1572,21 @@
       ]
     },
     {
+      "category": "AGENT_RUNTIME",
+      "dependencies": [
+        "NXS-TOOL-001",
+        "NXS-VOICE-001"
+      ],
+      "description": "A tenant-isolated, provider-neutral AI agent runtime manages agent sessions, bounded context, model invocation, governed NXS-P08 Tool Engine execution, cancellation, concurrency, idempotency and provider-neutral responses without granting language models direct authority over credentials, databases, network destinations, shell execution or infrastructure.",
+      "id": "NXS-AGENT-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P13",
+      "title": "Provider-neutral AI agent runtime",
+      "validation_evidence": []
+    },
+    {
       "category": "WORKFLOW",
       "dependencies": [
         "NXS-TOOL-001"

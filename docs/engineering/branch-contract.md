@@ -2,6 +2,8 @@
 
 Every execution branch must define: phase ID, objective, requirement IDs, dependencies and preconditions; scope and non-scope; functional, security, concurrency, resilience and test criteria; evidence paths; rollback and observability; GO/NO-GO decision; and an objective READY definition.
 
+Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
+
 ## NXS-P00 contract
 
 - Phase: NXS-P00; branch: `feat/nxs-p00-engineering-control-system`.
