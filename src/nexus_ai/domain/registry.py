@@ -65,6 +65,14 @@ from nexus_ai.domain.tools.models import (
     ToolExecutionRecord,
     ToolIdempotencyRecord,
 )
+from nexus_ai.domain.voice.models import (
+    VoiceProfileRecord,
+    VoiceProviderAccountRecord,
+    VoiceProviderEventRecord,
+    VoiceSecretRecord,
+    VoiceSessionRecord,
+    VoiceUsageRecordRecord,
+)
 
 __all__ = [
     "ConsumerReceiptRecord",
@@ -108,6 +116,12 @@ __all__ = [
     "ToolIdempotencyRecord",
     "UserCredentialRecord",
     "UserRecord",
+    "VoiceProfileRecord",
+    "VoiceProviderAccountRecord",
+    "VoiceProviderEventRecord",
+    "VoiceSecretRecord",
+    "VoiceSessionRecord",
+    "VoiceUsageRecordRecord",
     "WebhookEndpointRecord",
     "WebhookReceiptRecord",
 ]

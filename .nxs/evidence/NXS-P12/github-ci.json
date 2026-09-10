@@ -1,0 +1,64 @@
+{
+  "base_main_sha": "8b163f35fe517590f3110a200805883d693e6300",
+  "closure_commit": "2005b1548abdca2404763131ca646a44a65b7a63",
+  "corrective_audits": [
+    "#1: WebSocket SSRF / provider-URL trust; truthful AI -> PENDING_HUMAN -> HUMAN; dated ElevenLabs protocol reconciliation (2026-09-10).",
+    "#2: the public POST /voice/sessions/{id}/handoff/confirm endpoint was forgeable (VoiceUseDep, unverified bridge_reference). OPTION A: route removed; PENDING_HUMAN -> HUMAN / voice.handoff.completed is a non-public in-process seam for the future NXS-P17 only."
+  ],
+  "implementation_commit": "56b2c4b01dbb0c2b38a6fd2d397bec4af99dc06d",
+  "lineage": "Original: af52e24 + 9a56053 + 2b01695 all green. Corrective #1: d0fa5bb + 996e33c + 58dd4fd + 3369049 all green. Corrective #2: 56b2c4b (OPTION A), 2005b15 (re-close), and the record-green commit (record-green) all fully green (every job, push + pull_request) for NXS CI and NXS Security.",
+  "merged": false,
+  "phase": "NXS-P12",
+  "pull_request": 22,
+  "record_green_ci_head": "2005b1548abdca2404763131ca646a44a65b7a63",
+  "recorded_at": "2026-09-10T09:23:32Z",
+  "result": "PASS",
+  "runs": {
+    "corrective1_final_3369049": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "corrective2_impl_56b2c4b": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "corrective2_reclose": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    }
+  },
+  "schema_version": "1.0.0"
+}

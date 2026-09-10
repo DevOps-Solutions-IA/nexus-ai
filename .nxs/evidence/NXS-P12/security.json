@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "............................                                             [100%]\n28 passed in 1.77s",
+  "passed": 28,
+  "phase": "NXS-P12",
+  "recorded_at": "2026-09-10T09:05:38Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/security/test_voice_security.py"
+  ]
+}

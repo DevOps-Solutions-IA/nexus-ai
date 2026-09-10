@@ -1,0 +1,81 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p12-elevenlabs",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P11"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P12/clean-room.json",
+    ".nxs/evidence/NXS-P12/concurrency.json",
+    ".nxs/evidence/NXS-P12/contracts.json",
+    ".nxs/evidence/NXS-P12/coverage.json",
+    ".nxs/evidence/NXS-P12/database-roles.json",
+    ".nxs/evidence/NXS-P12/docker.json",
+    ".nxs/evidence/NXS-P12/git.json",
+    ".nxs/evidence/NXS-P12/github-ci.json",
+    ".nxs/evidence/NXS-P12/migration.json",
+    ".nxs/evidence/NXS-P12/multiarch.json",
+    ".nxs/evidence/NXS-P12/preflight.json",
+    ".nxs/evidence/NXS-P12/quality-gates.json",
+    ".nxs/evidence/NXS-P12/quality-matrix.json",
+    ".nxs/evidence/NXS-P12/resilience.json",
+    ".nxs/evidence/NXS-P12/schema-validator.json",
+    ".nxs/evidence/NXS-P12/security-scan.json",
+    ".nxs/evidence/NXS-P12/security.json",
+    ".nxs/evidence/NXS-P12/tests.json",
+    ".nxs/evidence/NXS-P12/unit-primitives.json",
+    ".nxs/evidence/NXS-P12/voice-integration.json"
+  ],
+  "id": "NXS-P12",
+  "implementation_commit": "56b2c4b01dbb0c2b38a6fd2d397bec4af99dc06d",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Defined in the phase branch contract"
+  ],
+  "objective": "Deliver the ElevenLabs Voice phase per its branch contract and requirements.",
+  "requirements_implemented": [
+    "NXS-EL-001",
+    "NXS-VOICE-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-10T09:17:25Z",
+    "started_at": "2026-09-10T05:48:26Z"
+  },
+  "title": "ElevenLabs Voice"
+}

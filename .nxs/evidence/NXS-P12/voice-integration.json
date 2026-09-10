@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".......................                                                  [100%]\n23 passed in 6.96s",
+  "passed": 23,
+  "phase": "NXS-P12",
+  "recorded_at": "2026-09-10T09:05:47Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_voice_service.py",
+    "tests/integration/test_voice_api.py"
+  ]
+}

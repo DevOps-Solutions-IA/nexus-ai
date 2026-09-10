@@ -171,5 +171,5 @@ def test_later_phases_remain_planned() -> None:
 
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    for later in ("NXS-P12", "NXS-P13", "NXS-P14", "NXS-P15", "NXS-P16", "NXS-P17"):
+    for later in ("NXS-P13", "NXS-P14", "NXS-P15", "NXS-P16", "NXS-P17"):
         assert phases[later]["status"] == "PLANNED", later

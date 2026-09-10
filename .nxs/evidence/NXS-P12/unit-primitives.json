@@ -1,0 +1,16 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "..............................................................           [100%]\n62 passed in 0.27s",
+  "passed": 62,
+  "phase": "NXS-P12",
+  "recorded_at": "2026-09-10T09:05:35Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_voice_primitives.py",
+    "tests/unit/test_voice_elevenlabs_adapter.py",
+    "tests/unit/test_voice_transport_and_runtime.py",
+    "tests/unit/test_voice_websocket_transport.py"
+  ]
+}

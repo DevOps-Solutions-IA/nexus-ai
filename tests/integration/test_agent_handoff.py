@@ -160,8 +160,17 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
         assert next_eligible_phase(ROOT) == "NXS-P11"
         assert registry["NXS-P11"]["branch"] == "feat/nxs-p11-telephony"
 
-    # Once P11 is READY, the next phase is deterministically P12 (the first
-    # non-READY phase in registry order whose dependencies are all READY).
-    if registry["NXS-P11"]["status"] == "READY" and active is None:
+    # Once P11 is READY — and P12 has not closed yet — the next phase is P12.
+    if (
+        registry["NXS-P11"]["status"] == "READY"
+        and registry["NXS-P12"]["status"] != "READY"
+        and active is None
+    ):
         assert next_eligible_phase(ROOT) == "NXS-P12"
         assert registry["NXS-P12"]["branch"] == "feat/nxs-p12-elevenlabs"
+
+    # Once P12 is READY, the next phase is deterministically P13 (the first
+    # non-READY phase in registry order whose dependencies are all READY).
+    if registry["NXS-P12"]["status"] == "READY" and active is None:
+        assert next_eligible_phase(ROOT) == "NXS-P13"
+        assert registry["NXS-P13"]["branch"] == "feat/nxs-p13-agent-runtime"

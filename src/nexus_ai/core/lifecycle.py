@@ -41,6 +41,7 @@ from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: 
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
 from nexus_ai.domain.telephony.repository import TelephonySecretStore
 from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
+from nexus_ai.domain.voice.repository import VoiceSecretStore
 from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
@@ -69,6 +70,10 @@ from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registr
 from nexus_ai.tools.permissions import ToolPermissionGuard
 from nexus_ai.tools.registry import ToolRegistry
 from nexus_ai.tools.service import ToolEngine
+from nexus_ai.voice import events as voice_events  # noqa: F401 - payload registration
+from nexus_ai.voice.providers.registry import GovernedVoiceHttpTransport
+from nexus_ai.voice.service import VoiceService
+from nexus_ai.voice.webhooks import InboundVoiceService
 
 _Connector = Callable[[], Awaitable[None]]
 
@@ -108,6 +113,8 @@ class Resources:
     otp: OtpService
     telephony: TelephonyService
     telephony_webhooks: InboundTelephonyService
+    voice: VoiceService
+    voice_webhooks: InboundVoiceService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -300,6 +307,21 @@ class ApplicationLifespan:
         telephony_webhooks = InboundTelephonyService(
             settings, database, event_platform.publisher, telephony_vault
         )
+        voice_vault: VaultClient = LocalEncryptedVault(
+            VoiceSecretStore(database), build_fernet(vault_keys)
+        )
+        voice_service = VoiceService(
+            settings,
+            database,
+            event_platform.publisher,
+            voice_vault,
+            GovernedVoiceHttpTransport(
+                http_executor, timeout_seconds=settings.voice.provider_timeout_seconds
+            ),
+        )
+        voice_webhooks = InboundVoiceService(
+            settings, database, event_platform.publisher, voice_vault
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -331,6 +353,8 @@ class ApplicationLifespan:
             otp=otp_service,
             telephony=telephony_service,
             telephony_webhooks=telephony_webhooks,
+            voice=voice_service,
+            voice_webhooks=voice_webhooks,
         )
         await logger.ainfo(
             "runtime_started",
@@ -388,6 +412,11 @@ class ApplicationLifespan:
             return
         self._shut_down = True
         logger = get_logger("nexus_ai.lifecycle")
+        if self._resources is not None:
+            try:
+                await self._resources.voice.shutdown()
+            except Exception as exc:
+                await logger.awarning("voice_shutdown_error", error=str(exc))
         if self._event_platform is not None:
             try:
                 await self._event_platform.stop()
