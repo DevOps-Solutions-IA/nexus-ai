@@ -37,7 +37,12 @@ from nexus_ai.voice.entities import (
     VoiceSessionContext,
     VoiceUsage,
 )
-from nexus_ai.voice.errors import VoiceConnectionFailedError, VoiceProtocolError, VoiceProviderError
+from nexus_ai.voice.errors import (
+    VoiceConnectionFailedError,
+    VoiceProtocolError,
+    VoiceProviderError,
+    VoiceProviderTimeoutError,
+)
 from nexus_ai.voice.providers.base import (
     ProviderSessionInit,
     VoiceHttpTransport,
@@ -128,6 +133,7 @@ class VoiceSessionRuntime:
         outcome.provider_session_id = init.provider_session_id
 
         connect_ms: int | None = None
+        workers: list[asyncio.Task[None]] = []
         try:
             connect_start = _now()
             await transport.connect(
@@ -144,20 +150,20 @@ class VoiceSessionRuntime:
                 self._reader(adapter, transport, media, state, on_event, outcome)
             )
             writer = asyncio.create_task(self._writer(adapter, transport, media, state))
+            workers = [reader, writer]
             try:
                 async with asyncio.timeout(cfg.max_session_seconds):
-                    done, pending = await asyncio.wait(
+                    done, _pending = await asyncio.wait(
                         {reader, writer}, return_when=asyncio.FIRST_COMPLETED
                     )
             except TimeoutError:
-                done, pending = set(), {reader, writer}
+                done = set()
                 outcome.error_code = "NXS_VOICE_PROVIDER_TIMEOUT"
-            for task in pending:
-                task.cancel()
-            await asyncio.gather(*pending, return_exceptions=True)
             for task in done:
                 task_exc = task.exception()
-                if task_exc is not None and not isinstance(task_exc, StreamClosed):
+                if isinstance(task_exc, VoiceProviderTimeoutError):
+                    outcome.error_code = "NXS_VOICE_PROVIDER_TIMEOUT"
+                elif task_exc is not None and not isinstance(task_exc, StreamClosed):
                     raise task_exc
             if outcome.error_code is None and outcome.disposition is VoiceSessionDisposition.FAILED:
                 outcome.disposition = VoiceSessionDisposition.COMPLETED
@@ -168,6 +174,10 @@ class VoiceSessionRuntime:
             outcome.disposition = VoiceSessionDisposition.FAILED
             outcome.error_code = exc.code
         finally:
+            for task in workers:
+                task.cancel()
+            if workers:
+                await asyncio.gather(*workers, return_exceptions=True)
             state.outbound.close()
             await transport.aclose()
             with contextlib.suppress(Exception):
