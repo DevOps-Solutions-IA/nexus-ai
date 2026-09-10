@@ -1,0 +1,47 @@
+{
+  "base_main_sha": "8224e6ca9800ab0ba1425d2a2bc3442bb5ba7e1a",
+  "closure_commit": "05f5c8be5c77313ce203197507d0137967ba4b94",
+  "corrective_audits": [],
+  "implementation_commit": "9fa14d71229226da0c397df1cea8ee15a2ff22f4",
+  "lineage": "Activation 80a36ba. Implementation 9fa14d7. Quality-gate + evidence 429fc48. Canonical close 05f5c8b (NXS-P13 READY/GO, NXS-AGENT-001 VALIDATED). Post-closure test fix 330ffd1 generalizes the phase-ladder assertion for the READY state. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 330ffd1.",
+  "merged": false,
+  "phase": "NXS-P13",
+  "pull_request": 24,
+  "record_green_ci_head": "330ffd17d7e2f35afcb69a1159c6acac21d9ff00",
+  "recorded_at": "2026-09-10T17:40:00Z",
+  "result": "PASS",
+  "runs": {
+    "closure_05f5c8b": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "note": "quality + integration failed on one phase-ladder assertion in test_agent_handoff.py that had not yet been generalized for the post-P13-closure state; NXS Security green. Fixed in 330ffd1.",
+      "nxs_ci_pull_request": "failure",
+      "nxs_ci_push": "failure",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "final_330ffd1": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    }
+  },
+  "schema_version": "1.0.0"
+}
