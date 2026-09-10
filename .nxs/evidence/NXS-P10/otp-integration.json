@@ -1,0 +1,14 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...............                                                          [100%]\n15 passed in 3.56s",
+  "passed": 15,
+  "phase": "NXS-P10",
+  "recorded_at": "2026-09-10T00:02:51Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_otp_service.py",
+    "tests/integration/test_otp_api.py"
+  ]
+}

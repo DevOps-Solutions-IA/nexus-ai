@@ -45,6 +45,7 @@ from nexus_ai.domain.messaging.models import (
     MessagingSendIdempotencyRecord,
 )
 from nexus_ai.domain.organizations.models import OrganizationRecord
+from nexus_ai.domain.otp.models import OtpChallengeRecord
 from nexus_ai.domain.provisioning.models import (
     DashboardConfigurationRecord,
     OrganizationSettingsRecord,
@@ -80,6 +81,7 @@ __all__ = [
     "MessagingSendIdempotencyRecord",
     "OrganizationRecord",
     "OrganizationSettingsRecord",
+    "OtpChallengeRecord",
     "PermissionRecord",
     "PlatformGrantRecord",
     "ProvisioningRequestRecord",

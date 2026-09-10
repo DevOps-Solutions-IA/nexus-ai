@@ -1,0 +1,108 @@
+{
+  "base_main_sha": "3dde72010a786493dc7d8d6d941b9b7049ccf783",
+  "ci_recovery_note": "NXS CI / NXS Security attempt 1 on heads 77ce1c7..009213e failed with 0 steps executed and the GitHub annotation 'The job was not started because recent account payments have failed or your spending limit needs to be increased' \u2014 a GitHub Actions org-billing block, not a code failure (every failing job step was reproduced green locally at 009213e). Actions billing was subsequently restored; attempt 2 of both workflows on the exact final HEAD 009213e is SUCCESS (push + pull_request).",
+  "closure_commit": "c9177fa1248e4b35aa91f81d98596d6f6489c591",
+  "corrective_implementation_commit": "aa04cc9bcee7594b7cc4f4e5bd372abd2cc16717",
+  "implementation_commit": "7f698a14103dcf7c082298e3875702bab60d35fd",
+  "merged": false,
+  "phase": "NXS-P10",
+  "pull_request": 20,
+  "record_green_ci_head": "c9177fa1248e4b35aa91f81d98596d6f6489c591",
+  "recorded_at": "2026-09-10T00:45:00Z",
+  "result": "PASS",
+  "runs": {
+    "closure_75f365c": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34383852808,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34383848558,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34383852906,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34383848463
+    },
+    "corrective_77ce1c7": {
+      "failure_reason": "startup_failure: GitHub Actions disabled for the org (billing) \u2014 no job step executed",
+      "nxs_ci_pull_request": "failure",
+      "nxs_ci_push": "failure",
+      "nxs_ci_run": 34391914495,
+      "nxs_security_pull_request": "failure",
+      "nxs_security_push": "failure",
+      "nxs_security_run": 34391918259
+    },
+    "corrective_re_close_7f671cf": {
+      "failure_reason": "startup_failure: 'The job was not started because recent account payments have failed or your spending limit needs to be increased.' \u2014 no job step executed; not a code failure",
+      "nxs_ci_pull_request": "failure",
+      "nxs_ci_push": "failure",
+      "nxs_security_pull_request": "failure",
+      "nxs_security_push": "failure"
+    },
+    "race_corrective_3407acd": {
+      "head_sha": "3407acd28b13377511dea9be0127862067c028d6",
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "record_green_009213e": {
+      "head_sha": "009213e1649170e1bf08b8651d48e802c2445a1a",
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34395802483,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34395798679,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34395802491,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34395798538,
+      "run_attempt": 2
+    },
+    "record_green_c9177fa": {
+      "head_sha": "c9177fa1248e4b35aa91f81d98596d6f6489c591",
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_pull_request_run": 34420721771,
+      "nxs_ci_push": "success",
+      "nxs_ci_push_run": 34420718281,
+      "nxs_security_pull_request": "success",
+      "nxs_security_pull_request_run": 34420721765,
+      "nxs_security_push": "success",
+      "nxs_security_push_run": 34420718298
+    }
+  },
+  "schema_version": "1.0.0"
+}

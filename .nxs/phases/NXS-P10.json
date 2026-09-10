@@ -1,0 +1,80 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p10-otp",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P09"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P10/clean-room.json",
+    ".nxs/evidence/NXS-P10/concurrency.json",
+    ".nxs/evidence/NXS-P10/contracts.json",
+    ".nxs/evidence/NXS-P10/coverage.json",
+    ".nxs/evidence/NXS-P10/database-roles.json",
+    ".nxs/evidence/NXS-P10/docker.json",
+    ".nxs/evidence/NXS-P10/git.json",
+    ".nxs/evidence/NXS-P10/github-ci.json",
+    ".nxs/evidence/NXS-P10/migration.json",
+    ".nxs/evidence/NXS-P10/multiarch.json",
+    ".nxs/evidence/NXS-P10/otp-integration.json",
+    ".nxs/evidence/NXS-P10/preflight.json",
+    ".nxs/evidence/NXS-P10/quality-gates.json",
+    ".nxs/evidence/NXS-P10/quality-matrix.json",
+    ".nxs/evidence/NXS-P10/resilience.json",
+    ".nxs/evidence/NXS-P10/schema-validator.json",
+    ".nxs/evidence/NXS-P10/security-scan.json",
+    ".nxs/evidence/NXS-P10/security.json",
+    ".nxs/evidence/NXS-P10/tests.json",
+    ".nxs/evidence/NXS-P10/unit-primitives.json"
+  ],
+  "id": "NXS-P10",
+  "implementation_commit": "aa04cc9bcee7594b7cc4f4e5bd372abd2cc16717",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Defined in the phase branch contract"
+  ],
+  "objective": "Deliver the OTP Services phase per its branch contract and requirements.",
+  "requirements_implemented": [
+    "NXS-OTP-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-10T00:18:06Z",
+    "started_at": "2026-09-09T16:39:40Z"
+  },
+  "title": "OTP Services"
+}

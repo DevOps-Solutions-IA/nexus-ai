@@ -62,6 +62,10 @@ class PermissionKey(StrEnum):
     MESSAGING_READ = "messaging:read"
     MESSAGING_SEND = "messaging:send"
     MESSAGING_MANAGE_ACCOUNTS = "messaging:manage_accounts"
+    # P10 additions (seeded by the P10 migration):
+    OTP_READ = "otp:read"
+    OTP_ISSUE = "otp:issue"
+    OTP_VERIFY = "otp:verify"
 
 
 class RoleKey(StrEnum):
@@ -139,6 +143,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.MESSAGING_READ: UUID("b2000000-0000-7000-8000-000000000020"),
     PermissionKey.MESSAGING_SEND: UUID("b2000000-0000-7000-8000-000000000021"),
     PermissionKey.MESSAGING_MANAGE_ACCOUNTS: UUID("b2000000-0000-7000-8000-000000000022"),
+    PermissionKey.OTP_READ: UUID("b2000000-0000-7000-8000-000000000023"),
+    PermissionKey.OTP_ISSUE: UUID("b2000000-0000-7000-8000-000000000024"),
+    PermissionKey.OTP_VERIFY: UUID("b2000000-0000-7000-8000-000000000025"),
 }
 
 _CATALOG_SQL = """

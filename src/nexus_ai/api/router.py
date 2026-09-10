@@ -10,6 +10,7 @@ from nexus_ai.api.customers import customers_router
 from nexus_ai.api.integrations import integrations_router
 from nexus_ai.api.messaging import messaging_router, messaging_webhooks_router
 from nexus_ai.api.organizations import organizations_router
+from nexus_ai.api.otp import otp_router
 from nexus_ai.api.system import system_router
 from nexus_ai.api.tools import tools_router
 
@@ -23,3 +24,4 @@ api_v1_router.include_router(integrations_router)
 api_v1_router.include_router(tools_router)
 api_v1_router.include_router(messaging_router)
 api_v1_router.include_router(messaging_webhooks_router)
+api_v1_router.include_router(otp_router)

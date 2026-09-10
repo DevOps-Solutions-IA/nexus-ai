@@ -58,6 +58,8 @@ from nexus_ai.messaging import events as messaging_events  # noqa: F401 - payloa
 from nexus_ai.messaging.providers.registry import GovernedMessagingTransport
 from nexus_ai.messaging.service import MessagingService
 from nexus_ai.messaging.webhooks import InboundMessagingService
+from nexus_ai.otp import events as otp_events  # noqa: F401 - payload registration
+from nexus_ai.otp.service import OtpService
 from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registration
 from nexus_ai.tools.permissions import ToolPermissionGuard
 from nexus_ai.tools.registry import ToolRegistry
@@ -98,6 +100,7 @@ class Resources:
     tool_engine: ToolEngine
     channels: MessagingService
     channel_webhooks: InboundMessagingService
+    otp: OtpService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -266,6 +269,14 @@ class ApplicationLifespan:
             conversation_service,
             channel_service,
         )
+        otp_service = OtpService(
+            settings,
+            database,
+            event_platform.publisher,
+            channel_service,
+            customer_service,
+            conversation_service,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -294,6 +305,7 @@ class ApplicationLifespan:
             tool_engine=tool_engine,
             channels=channel_service,
             channel_webhooks=channel_webhooks,
+            otp=otp_service,
         )
         await logger.ainfo(
             "runtime_started",

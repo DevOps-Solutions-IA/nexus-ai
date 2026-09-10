@@ -1,0 +1,12 @@
+{
+  "alembic_check": "PASS",
+  "check_tail": "No new upgrade operations detected.\nINFO  [alembic.runtime.migration] Context impl PostgresqlImpl.\nINFO  [alembic.runtime.migration] Will assume transactional DDL.\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.schemas\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.tables\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.types\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.constraints\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.defaults\nINFO  [alembic.runtime.plugins] setting up autogenerate plugin alembic.autogenerate.comments\n",
+  "downgrade_one": "PASS",
+  "phase": "NXS-P10",
+  "recorded_at": "2026-09-10T00:02:41Z",
+  "result": "PASS",
+  "reupgrade_head": "PASS",
+  "role": "nexus_migration",
+  "schema_version": "1.0.0",
+  "upgrade_head": "PASS"
+}
