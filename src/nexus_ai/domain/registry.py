@@ -52,6 +52,14 @@ from nexus_ai.domain.provisioning.models import (
     PlatformGrantRecord,
     ProvisioningRequestRecord,
 )
+from nexus_ai.domain.telephony.models import (
+    TelephonyAccountRecord,
+    TelephonyCallEventRecord,
+    TelephonyCallRecord,
+    TelephonyMediaSessionRecord,
+    TelephonyPhoneNumberRecord,
+    TelephonySecretRecord,
+)
 from nexus_ai.domain.tools.models import (
     ToolDefinitionRecord,
     ToolExecutionRecord,
@@ -89,6 +97,12 @@ __all__ = [
     "RoleAssignmentRecord",
     "RolePermissionRecord",
     "RoleRecord",
+    "TelephonyAccountRecord",
+    "TelephonyCallEventRecord",
+    "TelephonyCallRecord",
+    "TelephonyMediaSessionRecord",
+    "TelephonyPhoneNumberRecord",
+    "TelephonySecretRecord",
     "ToolDefinitionRecord",
     "ToolExecutionRecord",
     "ToolIdempotencyRecord",

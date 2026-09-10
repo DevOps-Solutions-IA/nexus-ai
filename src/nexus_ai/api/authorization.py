@@ -108,3 +108,15 @@ MessagingManageAccountsDep = Annotated[
 OtpReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_READ))]
 OtpIssueDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_ISSUE))]
 OtpVerifyDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.OTP_VERIFY))]
+TelephonyReadDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.TELEPHONY_READ))
+]
+TelephonyCallDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.TELEPHONY_CALL))
+]
+TelephonyHangupDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.TELEPHONY_HANGUP))
+]
+TelephonyConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.TELEPHONY_CONFIGURE))
+]
