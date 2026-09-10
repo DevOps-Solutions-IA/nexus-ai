@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p11-telephony",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P04"
   ],
@@ -29,7 +29,7 @@
     ".nxs/evidence/NXS-P11/unit-primitives.json"
   ],
   "id": "NXS-P11",
-  "implementation_commit": null,
+  "implementation_commit": "912b4078a1d036db2a8003f2bb0c0ff5257dd43f",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -71,9 +71,9 @@
     "NXS-TEL-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-10T02:49:16Z",
     "started_at": "2026-09-10T00:52:48Z"
   },
   "title": "Telephony Foundation"
