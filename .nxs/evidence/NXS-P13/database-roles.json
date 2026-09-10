@@ -1,6 +1,6 @@
 {
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-10T18:30:34Z",
+  "recorded_at": "2026-09-10T23:07:54Z",
   "result": "PASS",
   "runtime_role_report": "{'role': 'nexus_runtime', 'is_superuser': False, 'can_bypass_rls': False, 'can_create_role': False, 'can_create_db': False, 'can_bypass_tenancy': False}",
   "schema_version": "1.0.0"
