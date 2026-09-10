@@ -1581,7 +1581,7 @@
       "id": "NXS-AGENT-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P13",
       "title": "Provider-neutral AI agent runtime",
       "validation_evidence": []
