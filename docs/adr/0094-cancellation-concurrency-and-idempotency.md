@@ -1,8 +1,10 @@
 # ADR-0094: Cancellation, concurrency and idempotency in the agent runtime
 
-Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by the
-NXS-P13 independent-audit corrective #1 (the tool-call idempotency key is a pure semantic
-identity — no `tool_call_id`, no iteration index).
+Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by
+independent-audit corrective #1 (the tool-call idempotency key is a pure semantic
+identity — no `tool_call_id`, no iteration index) and corrective #2 (the per-Agent turn
+deadline, the enforced absolute session lifetime with a truthful `EXPIRED` terminal, and
+the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy — see the deadline section).
 
 ## Context
 
@@ -16,11 +18,38 @@ never surface a stale answer after a cancellation.
 ### Session and turn state machines
 
 `AgentSessionState`: `PENDING → ACTIVE → WAITING_TOOL → RESPONDING →
-COMPLETED | FAILED | CANCELLED`. `AgentTurnState`: `PENDING → RUNNING → AWAITING_TOOLS →
-FINALIZING → COMPLETED | FAILED | CANCELLED`. Folds are deterministic and fail-closed
-(same design as ADR-0085 / ADR-0089): a terminal state is absorbing, a terminal proposal
-always wins from a live state, an undeclared live edge is a no-op. `state` and
-`state_rank` are `CHECK`-constrained columns.
+COMPLETED | FAILED | CANCELLED | EXPIRED`. `AgentTurnState`: `PENDING → RUNNING →
+AWAITING_TOOLS → FINALIZING → COMPLETED | FAILED | CANCELLED`. Folds are deterministic
+and fail-closed (same design as ADR-0085 / ADR-0089): a terminal state is absorbing, a
+terminal proposal always wins from a live state, an undeclared live edge is a no-op.
+`state` and `state_rank` are `CHECK`-constrained columns. `EXPIRED` (rank 4, disposition
+`EXPIRED`) is the truthful terminal for the absolute lifetime ceiling — neither success
+(`COMPLETED`), error (`FAILED`), nor barge-in / client cancellation (`CANCELLED`);
+migration `c9e0f1a2b3c4` adds it to the state domain.
+
+### Two independent time bounds
+
+* **Per-turn deadline** — `min(agent.timeout_seconds, settings.agents.turn_deadline_seconds)`
+  (`AgentService._effective_turn_deadline`). `agent.timeout_seconds` is the per-Agent
+  maximum total-turn execution deadline; a tenant value may only *tighten* the global
+  safety ceiling, never widen it. `submit_turn` wraps the whole `_run_turn` task in
+  `asyncio.timeout(effective_deadline)` — model calls, the tool loop and continuation
+  combined. On expiry the task is cancelled + drained (no stale response committed), the
+  turn is persisted `FAILED` with `NXS_AGENT_TURN_TIMEOUT`, `agent.turn.failed` is
+  emitted, the **session returns to `ACTIVE`** (a fresh turn is allowed), and
+  `AgentTurnTimeoutError` (504) is raised — **never a bare `TimeoutError`**. A single
+  model provider call that times out inside `_run_turn` remains a distinct
+  `AgentProviderTimeoutError` (`NXS_AGENT_PROVIDER_TIMEOUT`).
+
+* **Absolute session lifetime** — `started_at + settings.agents.max_session_seconds`.
+  `_open_turn` checks `_lifetime_exceeded(session, now)` (inclusive: `now >= deadline`)
+  under the `SELECT … FOR UPDATE` session-row lock, **before** any model or Tool Engine
+  call. Once exceeded the session is terminalised `EXPIRED` + `ended_at` +
+  `error_code = NXS_AGENT_SESSION_EXPIRED` in that same locked transaction,
+  `agent.session.expired` is emitted, and `AgentSessionExpiredError` (409) is raised —
+  no turn row opens, no model call begins, and the terminal is absorbing (no
+  resurrection). Concurrent submits serialise on the row lock, so a late turn cannot slip
+  through.
 
 ### Concurrency
 

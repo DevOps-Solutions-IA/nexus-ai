@@ -46,6 +46,7 @@ def test_agent_and_turn_states_are_frozen() -> None:
         "COMPLETED",
         "FAILED",
         "CANCELLED",
+        "EXPIRED",
     ]
     assert [s.value for s in AgentTurnState] == [
         "PENDING",
@@ -106,6 +107,29 @@ def test_error_taxonomy_is_stable_unique_and_rfc9457() -> None:
         assert issubclass(error, NxsError)
         assert 400 <= error.status < 600
         assert error.code.startswith("NXS_AGENT_")
+    # audit corrective #2: the whole-turn deadline and the session lifetime ceiling are
+    # distinct stable members — a bare TimeoutError must never reach a caller.
+    from nexus_ai.agents.errors import (
+        AgentProviderTimeoutError,
+        AgentSessionExpiredError,
+        AgentTurnTimeoutError,
+    )
+
+    by_code = {e.code: e for e in AGENT_ERRORS}
+    assert by_code["NXS_AGENT_TURN_TIMEOUT"] is AgentTurnTimeoutError
+    assert AgentTurnTimeoutError.status == 504
+    assert by_code["NXS_AGENT_SESSION_EXPIRED"] is AgentSessionExpiredError
+    assert AgentSessionExpiredError.status == 409
+    assert AgentProviderTimeoutError.code == "NXS_AGENT_PROVIDER_TIMEOUT"  # still distinct
+
+    service_src = (_ROOT / "src" / "nexus_ai" / "agents" / "service.py").read_text()
+    # the per-Agent deadline and the absolute lifetime are enforced, and the total-turn
+    # deadline raises the stable error rather than re-raising the builtin.
+    assert "_effective_turn_deadline" in service_src and "min(agent.timeout_seconds" in service_src
+    assert "_lifetime_exceeded" in service_src and "max_session_seconds" in service_src
+    assert "raise AgentTurnTimeoutError(" in service_src
+    timeout_block = service_src.split("except TimeoutError:", 1)[1].split("except asyncio", 1)[0]
+    assert "\n                raise\n" not in timeout_block  # no bare re-raise of TimeoutError
 
 
 def test_p04_agent_events_are_registered_and_strict() -> None:
@@ -117,6 +141,7 @@ def test_p04_agent_events_are_registered_and_strict() -> None:
         "agent.session.completed",
         "agent.session.failed",
         "agent.session.cancelled",
+        "agent.session.expired",
         "agent.turn.started",
         "agent.turn.completed",
         "agent.turn.failed",

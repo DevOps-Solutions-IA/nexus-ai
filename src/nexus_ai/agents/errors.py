@@ -101,13 +101,36 @@ class AgentProviderError(NxsError):
 
 
 class AgentProviderTimeoutError(NxsError):
-    """A model provider call timed out. When the provider may have already begun driving
-    tool output this is AMBIGUOUS — the request is NOT blindly replayed."""
+    """A single model provider CALL timed out. When the provider may have already begun
+    driving tool output this is AMBIGUOUS — the request is NOT blindly replayed."""
 
     code = "NXS_AGENT_PROVIDER_TIMEOUT"
     status = 504
     title = "Model Provider Timeout"
     retryable = False
+
+
+class AgentTurnTimeoutError(NxsError):
+    """The WHOLE agent turn exceeded its execution deadline (model calls + tool loop +
+    continuation combined), bounded by ``min(agent.timeout_seconds, turn_deadline)``.
+    Distinct from a single provider-call timeout. The in-flight task is cancelled and no
+    stale model response is committed; the turn is persisted FAILED and the session stays
+    usable for a fresh turn."""
+
+    code = "NXS_AGENT_TURN_TIMEOUT"
+    status = 504
+    title = "Agent Turn Timeout"
+    retryable = False
+
+
+class AgentSessionExpiredError(NxsError):
+    """A new turn was refused because the session reached its absolute lifetime ceiling
+    (``started_at + max_session_seconds``). The session is terminalised EXPIRED before
+    any model or Tool Engine call begins; it cannot be resurrected."""
+
+    code = "NXS_AGENT_SESSION_EXPIRED"
+    status = 409
+    title = "Agent Session Expired"
 
 
 class AgentOutputInvalidError(NxsError):
@@ -190,6 +213,8 @@ AGENT_ERRORS: tuple[type[NxsError], ...] = (
     AgentBusyError,
     AgentProviderError,
     AgentProviderTimeoutError,
+    AgentTurnTimeoutError,
+    AgentSessionExpiredError,
     AgentOutputInvalidError,
     AgentToolInvalidError,
     AgentToolDeniedError,

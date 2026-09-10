@@ -50,9 +50,12 @@ from nexus_ai.agents.errors import (
     AgentModelProfileNotFoundError,
     AgentModelProviderAccountNotFoundError,
     AgentNotFoundError,
+    AgentSessionExpiredError,
     AgentSessionNotFoundError,
     AgentTurnNotFoundError,
+    AgentTurnTimeoutError,
 )
+from nexus_ai.agents.events import SESSION_STATE_EVENT_TYPE
 from nexus_ai.agents.idempotency import start_session_fingerprint, turn_fingerprint
 from nexus_ai.agents.models.base import ModelProviderAdapter, ModelToolSpec
 from nexus_ai.agents.models.registry import resolve_model_provider
@@ -458,9 +461,7 @@ class AgentService:
                 tenant.session,
                 organization_id,
                 updated,
-                "agent.session.cancelled"
-                if target is AgentSessionState.CANCELLED
-                else "agent.session.completed",
+                SESSION_STATE_EVENT_TYPE[fold.state.value],
             )
             await self._record_usage(tenant.session, organization_id, updated)
         return updated
@@ -480,21 +481,29 @@ class AgentService:
             if turn.state in (AgentTurnState.COMPLETED,):
                 return self._response_from_turn(turn)
 
+            agent = await self.get_agent(organization_id, session.agent_id)
+            deadline = self._effective_turn_deadline(agent)
+
             task: asyncio.Task[TurnOutcome] = asyncio.create_task(
-                self._run_turn(organization_id, session, turn, request)
+                self._run_turn(organization_id, session, turn, request, agent)
             )
             self._turn_tasks[session_id] = task
             try:
-                async with asyncio.timeout(self._cfg.turn_deadline_seconds):
+                async with asyncio.timeout(deadline):
                     outcome = await task
             except TimeoutError:
+                # the WHOLE-turn deadline elapsed — cancel + drain the task so no stale
+                # model response is committed, persist FAILED, and raise the stable
+                # taxonomy error (never a bare TimeoutError).
                 task.cancel()
                 with contextlib.suppress(asyncio.CancelledError, Exception):
                     await task
                 await self._fail_turn(
-                    organization_id, session_id, turn.id, "NXS_AGENT_PROVIDER_TIMEOUT"
+                    organization_id, session_id, turn.id, "NXS_AGENT_TURN_TIMEOUT"
                 )
-                raise
+                raise AgentTurnTimeoutError(
+                    "the agent turn exceeded its execution deadline"
+                ) from None
             except asyncio.CancelledError:
                 await self._fail_turn(
                     organization_id, session_id, turn.id, "NXS_AGENT_CANCELLED", cancelled=True
@@ -529,6 +538,7 @@ class AgentService:
         request: SubmitTurnRequest,
         fingerprint: str,
     ) -> tuple[AgentTurn, AgentSession]:
+        expired = False
         async with self._db.tenant_transaction(organization_id) as tenant:
             session_repo = AgentSessionRepository(tenant)
             session = await session_repo.by_id(session_id, for_update=True)
@@ -536,51 +546,106 @@ class AgentService:
                 raise AgentSessionNotFoundError("no such agent session in this Organization")
             if session_is_terminal(session.state):
                 raise AgentInvalidStateError("the agent session has already ended")
-            turn_repo = AgentTurnRepository(tenant)
-            if request.idempotency_key is not None:
-                existing = await turn_repo.by_session_idempotency_key(
-                    session_id, request.idempotency_key
-                )
-                if existing is not None:
-                    if existing.request_fingerprint != fingerprint:
-                        from nexus_ai.agents.errors import AgentIdempotencyConflictError
+            # Absolute lifetime ceiling — enforced BEFORE any model or Tool Engine call,
+            # under the FOR UPDATE session-row lock so a concurrent submit cannot slip a
+            # late turn through. Terminalise EXPIRED in THIS transaction (so it commits),
+            # then raise outside the block.
+            if self._lifetime_exceeded(session, dt.datetime.now(dt.UTC)):
+                await self._terminalize_expired(tenant.session, organization_id, session)
+                expired = True
+            else:
+                turn_repo = AgentTurnRepository(tenant)
+                if request.idempotency_key is not None:
+                    existing = await turn_repo.by_session_idempotency_key(
+                        session_id, request.idempotency_key
+                    )
+                    if existing is not None:
+                        if existing.request_fingerprint != fingerprint:
+                            from nexus_ai.agents.errors import AgentIdempotencyConflictError
 
-                        raise AgentIdempotencyConflictError(
-                            "the idempotency key was used for a different turn"
-                        )
-                    return existing, session
-            if await turn_repo.active_for_session(session_id) is not None:
-                raise AgentBusyError("a turn is already in flight for this session")
-            sequence = session.turn_count + 1
-            turn = await turn_repo.insert(
-                {
-                    "session_id": session_id,
-                    "sequence": sequence,
-                    "state": AgentTurnState.RUNNING.value,
-                    "channel": session.channel.value,
-                    "input_text": request.content,
-                    "response_text": None,
-                    "input_char_count": len(request.content),
-                    "idempotency_key": request.idempotency_key,
-                    "request_fingerprint": fingerprint,
-                }
-            )
-            await session_repo.apply(
-                session_id,
-                {
-                    "turn_count": sequence,
-                    "last_activity_at": dt.datetime.now(dt.UTC),
-                },
-            )
-            await self._emit_turn_event(
-                tenant.session,
-                organization_id,
-                session,
-                turn,
-                "agent.turn.started",
-                {"input_char_count": len(request.content)},
-            )
+                            raise AgentIdempotencyConflictError(
+                                "the idempotency key was used for a different turn"
+                            )
+                        return existing, session
+                if await turn_repo.active_for_session(session_id) is not None:
+                    raise AgentBusyError("a turn is already in flight for this session")
+                sequence = session.turn_count + 1
+                turn = await turn_repo.insert(
+                    {
+                        "session_id": session_id,
+                        "sequence": sequence,
+                        "state": AgentTurnState.RUNNING.value,
+                        "channel": session.channel.value,
+                        "input_text": request.content,
+                        "response_text": None,
+                        "input_char_count": len(request.content),
+                        "idempotency_key": request.idempotency_key,
+                        "request_fingerprint": fingerprint,
+                    }
+                )
+                await session_repo.apply(
+                    session_id,
+                    {
+                        "turn_count": sequence,
+                        "last_activity_at": dt.datetime.now(dt.UTC),
+                    },
+                )
+                await self._emit_turn_event(
+                    tenant.session,
+                    organization_id,
+                    session,
+                    turn,
+                    "agent.turn.started",
+                    {"input_char_count": len(request.content)},
+                )
+        if expired:
+            raise AgentSessionExpiredError("the agent session reached its lifetime ceiling")
         return turn, session
+
+    def _effective_turn_deadline(self, agent: AgentDefinition) -> float:
+        """The per-turn execution deadline (model calls + tool loop + continuation).
+
+        ``agent.timeout_seconds`` is the per-Agent maximum total turn deadline. A tenant
+        value may only TIGHTEN the global ``turn_deadline_seconds`` safety ceiling, never
+        widen it, so the effective deadline is the minimum of the two."""
+        ceiling = self._cfg.turn_deadline_seconds
+        if agent.timeout_seconds is None:
+            return ceiling
+        return min(agent.timeout_seconds, ceiling)
+
+    def _lifetime_exceeded(self, session: AgentSession, now: dt.datetime) -> bool:
+        """``True`` once ``started_at + max_session_seconds`` has passed — the absolute
+        session lifetime ceiling. A session with no ``started_at`` (never happens after
+        ``start_session``) is treated as not expired."""
+        started = session.started_at
+        if started is None:
+            return False
+        return now >= started + dt.timedelta(seconds=self._cfg.max_session_seconds)
+
+    async def _terminalize_expired(
+        self, session_conn: Any, organization_id: UUID, session: AgentSession
+    ) -> None:
+        """Persist the EXPIRED terminal + ``ended_at`` and emit ``agent.session.expired``,
+        within the caller's already-locked transaction."""
+        repo = AgentSessionRepository(
+            cast(TenantSession, _TenantShim(session_conn, organization_id))
+        )
+        fold = fold_agent_session_state(current=session.state, proposed=AgentSessionState.EXPIRED)
+        updated = await repo.apply(
+            session.id,
+            {
+                "state": fold.state.value,
+                "state_rank": session_rank(fold.state),
+                "disposition": (fold.disposition.value if fold.disposition else None),
+                "error_code": "NXS_AGENT_SESSION_EXPIRED",
+                "ended_at": dt.datetime.now(dt.UTC),
+            },
+        )
+        assert updated is not None  # noqa: S101
+        await self._emit_session_event(
+            session_conn, organization_id, updated, "agent.session.expired"
+        )
+        await self._record_usage(session_conn, organization_id, updated)
 
     async def _run_turn(
         self,
@@ -588,8 +653,8 @@ class AgentService:
         session: AgentSession,
         turn: AgentTurn,
         request: SubmitTurnRequest,
+        agent: AgentDefinition,
     ) -> TurnOutcome:
-        agent = await self.get_agent(organization_id, session.agent_id)
         profile = await self.get_profile(organization_id, agent.model_profile_id)
         account = await self.get_account(organization_id, profile.account_id)
 
@@ -1004,7 +1069,7 @@ class AgentService:
             "state": row.state.value,
             "correlation_id": row.correlation_id,
         }
-        if event_type == "agent.session.failed":
+        if event_type in ("agent.session.failed", "agent.session.expired"):
             payload["error_code"] = row.error_code
         await self._publisher.enqueue(
             session,

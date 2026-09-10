@@ -1,6 +1,10 @@
 # ADR-0090: AI Agent Runtime architecture and phase boundaries
 
-Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10.
+Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by
+independent-audit corrective #2 — `AgentDefinition.timeout_seconds` is the enforced
+per-Agent total-turn deadline (`min` with the global ceiling), and the absolute session
+lifetime (`max_session_seconds`) is enforced with a truthful `EXPIRED` terminal (see
+ADR-0094).
 
 ## Context
 

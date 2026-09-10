@@ -21,12 +21,16 @@ class AgentSessionState(StrEnum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
+    #: the absolute lifetime ceiling (started_at + max_session_seconds) was reached — a
+    #: distinct truthful terminal, neither success nor error nor barge-in cancellation.
+    EXPIRED = "EXPIRED"
 
 
 class AgentSessionDisposition(StrEnum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
+    EXPIRED = "EXPIRED"
     UNKNOWN = "UNKNOWN"
 
 
@@ -41,7 +45,12 @@ class AgentTurnState(StrEnum):
 
 
 _SESSION_TERMINAL = frozenset(
-    {AgentSessionState.COMPLETED, AgentSessionState.FAILED, AgentSessionState.CANCELLED}
+    {
+        AgentSessionState.COMPLETED,
+        AgentSessionState.FAILED,
+        AgentSessionState.CANCELLED,
+        AgentSessionState.EXPIRED,
+    }
 )
 _TURN_TERMINAL = frozenset(
     {AgentTurnState.COMPLETED, AgentTurnState.FAILED, AgentTurnState.CANCELLED}
@@ -66,6 +75,7 @@ _SESSION_RANK: dict[AgentSessionState, int] = {
     AgentSessionState.COMPLETED: 4,
     AgentSessionState.FAILED: 4,
     AgentSessionState.CANCELLED: 4,
+    AgentSessionState.EXPIRED: 4,
 }
 
 #: the declared live-transition graph for the interaction context
@@ -84,6 +94,7 @@ _SESSION_DISPOSITION_FOR: dict[AgentSessionState, AgentSessionDisposition] = {
     AgentSessionState.COMPLETED: AgentSessionDisposition.COMPLETED,
     AgentSessionState.FAILED: AgentSessionDisposition.FAILED,
     AgentSessionState.CANCELLED: AgentSessionDisposition.CANCELLED,
+    AgentSessionState.EXPIRED: AgentSessionDisposition.EXPIRED,
 }
 
 _TURN_EDGES: dict[AgentTurnState, frozenset[AgentTurnState]] = {

@@ -179,6 +179,7 @@ def main() -> int:
             "tests/integration/test_agent_service.py",
             "tests/integration/test_agent_api.py",
             "tests/integration/test_agent_tool_budget.py",
+            "tests/integration/test_agent_deadlines.py",
         ],
     )
     pytest_evidence(

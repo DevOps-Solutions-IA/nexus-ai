@@ -48,6 +48,7 @@ def test_session_state_machine_is_terminal_safe_and_graph_bound() -> None:
         "COMPLETED",
         "FAILED",
         "CANCELLED",
+        "EXPIRED",
     ]
     # a terminal state is absorbing
     for proposed in AgentSessionState:
@@ -59,6 +60,12 @@ def test_session_state_machine_is_terminal_safe_and_graph_bound() -> None:
         current=AgentSessionState.WAITING_TOOL, proposed=AgentSessionState.CANCELLED
     )
     assert fold.outcome is FoldOutcome.APPLIED and fold.disposition.value == "CANCELLED"
+    # the absolute-lifetime terminal is its own truthful disposition, from any live state
+    expired = fold_agent_session_state(
+        current=AgentSessionState.ACTIVE, proposed=AgentSessionState.EXPIRED
+    )
+    assert expired.outcome is FoldOutcome.APPLIED and expired.disposition.value == "EXPIRED"
+    assert session_is_terminal(AgentSessionState.EXPIRED)
     # a declared live edge applies; an undeclared one is a no-op
     assert (
         fold_agent_session_state(

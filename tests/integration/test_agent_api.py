@@ -229,6 +229,34 @@ async def test_unauthenticated_access_is_refused(auth_client: Any) -> None:
         assert resp.status_code in (401, 403), (path, resp.status_code)
 
 
+async def test_turn_timeout_is_rendered_as_rfc9457_504(
+    agents_api: Any, auth_client: Any, monkeypatch: Any
+) -> None:
+    """Audit corrective #2, blocker 3: a whole-turn deadline surfaces the stable
+    NXS_AGENT_TURN_TIMEOUT Problem Details, never a bare TimeoutError."""
+    from nexus_ai.agents.errors import AgentTurnTimeoutError
+
+    owner, _member = agents_api
+    ids = await _provision_over_http(owner)
+    session = await owner.request("POST", "/agents/sessions", {"agent_id": ids["agent_id"]})
+    session_id = session.json()["id"]
+
+    svc = auth_client.nexus_app.state.lifespan.resources.agents
+
+    async def _timeout(*_a: Any, **_kw: Any) -> Any:
+        raise AgentTurnTimeoutError("the agent turn exceeded its execution deadline")
+
+    monkeypatch.setattr(svc, "submit_turn", _timeout)
+
+    resp = await owner.request("POST", f"/agents/sessions/{session_id}/turns", {"content": "hi"})
+    assert resp.status_code == 504, resp.text
+    assert resp.headers["content-type"].startswith("application/problem+json")
+    body = resp.json()
+    assert body["code"] == "NXS_AGENT_TURN_TIMEOUT"
+    assert body["type"].endswith("NXS_AGENT_TURN_TIMEOUT")
+    assert "TimeoutError" not in resp.text and "Traceback" not in resp.text
+
+
 async def test_session_and_turn_bodies_reject_unknown_or_privileged_fields(
     agents_api: Any,
 ) -> None:

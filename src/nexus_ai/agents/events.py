@@ -54,6 +54,16 @@ class AgentSessionCancelledV1(_AgentSessionEventV1):
     VERSION: ClassVar[int] = 1
 
 
+@EVENT_REGISTRY.payload_model("agent.session.expired")
+class AgentSessionExpiredV1(_AgentSessionEventV1):
+    """The session reached its absolute lifetime ceiling and was terminalised before a
+    new turn could begin. No reasoning, no secret material — the state fact only."""
+
+    EVENT_TYPE: ClassVar[str] = "agent.session.expired"
+    VERSION: ClassVar[int] = 1
+    error_code: str | None = None
+
+
 class _AgentTurnEventV1(EventPayload):
     session_id: UUID
     turn_id: UUID
@@ -158,4 +168,5 @@ SESSION_STATE_EVENT_TYPE: dict[str, str] = {
     "COMPLETED": "agent.session.completed",
     "FAILED": "agent.session.failed",
     "CANCELLED": "agent.session.cancelled",
+    "EXPIRED": "agent.session.expired",
 }
