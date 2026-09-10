@@ -1414,7 +1414,7 @@
       "id": "NXS-VOICE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P12",
       "title": "Realtime AI voice",
       "validation_evidence": []
@@ -1428,7 +1428,7 @@
       "id": "NXS-EL-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P12",
       "title": "ElevenLabs provider",
       "validation_evidence": []
