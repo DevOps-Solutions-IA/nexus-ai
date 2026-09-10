@@ -1,14 +1,29 @@
 {
   "base_main_sha": "420d6696e6fc6fbef995879fc13d848c3aa4096d",
-  "closure_commit": "pending \u2014 the closure commit",
+  "closure_commit": "bb3e298812eebf6380f2ce8bf4cb681d1073b13b",
   "implementation_commit": "5a84fdcc3ce4fd16dd26d06a0cdb10539cd6efe1",
   "merged": false,
   "phase": "NXS-P11",
   "pull_request": 21,
-  "record_green_ci_head": "pending \u2014 the record-green commit",
-  "recorded_at": "2026-09-10T02:00:00Z",
-  "result": "PENDING",
+  "record_green_ci_head": "bb3e298812eebf6380f2ce8bf4cb681d1073b13b",
+  "recorded_at": "2026-09-10T02:05:00Z",
+  "result": "PASS",
   "runs": {
+    "closure_bb3e298": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
     "implementation_5a84fdc": {
       "jobs": [
         "state",
