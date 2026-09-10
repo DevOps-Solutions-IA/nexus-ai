@@ -1,9 +1,9 @@
 {
   "branch": "feat/nxs-p10-otp",
   "clean_tree": false,
-  "head_sha": "77ce1c7ea158d7259fe472e661e370bfae0bdf6a",
+  "head_sha": "3407acd28b13377511dea9be0127862067c028d6",
   "phase": "NXS-P10",
-  "recorded_at": "2026-09-09T19:22:34Z",
+  "recorded_at": "2026-09-10T00:12:44Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
