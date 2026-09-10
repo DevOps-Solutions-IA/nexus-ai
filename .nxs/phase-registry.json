@@ -122,12 +122,12 @@
     },
     {
       "branch": "feat/nxs-p12-elevenlabs",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P11"
       ],
       "id": "NXS-P12",
-      "status": "VALIDATING",
+      "status": "READY",
       "title": "ElevenLabs Voice"
     },
     {

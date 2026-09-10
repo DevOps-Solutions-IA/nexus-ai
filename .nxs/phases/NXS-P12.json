@@ -2,13 +2,34 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p12-elevenlabs",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P11"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P12/clean-room.json",
+    ".nxs/evidence/NXS-P12/concurrency.json",
+    ".nxs/evidence/NXS-P12/contracts.json",
+    ".nxs/evidence/NXS-P12/coverage.json",
+    ".nxs/evidence/NXS-P12/database-roles.json",
+    ".nxs/evidence/NXS-P12/docker.json",
+    ".nxs/evidence/NXS-P12/git.json",
+    ".nxs/evidence/NXS-P12/github-ci.json",
+    ".nxs/evidence/NXS-P12/migration.json",
+    ".nxs/evidence/NXS-P12/multiarch.json",
+    ".nxs/evidence/NXS-P12/preflight.json",
+    ".nxs/evidence/NXS-P12/quality-gates.json",
+    ".nxs/evidence/NXS-P12/quality-matrix.json",
+    ".nxs/evidence/NXS-P12/resilience.json",
+    ".nxs/evidence/NXS-P12/schema-validator.json",
+    ".nxs/evidence/NXS-P12/security-scan.json",
+    ".nxs/evidence/NXS-P12/security.json",
+    ".nxs/evidence/NXS-P12/tests.json",
+    ".nxs/evidence/NXS-P12/unit-primitives.json",
+    ".nxs/evidence/NXS-P12/voice-integration.json"
+  ],
   "id": "NXS-P12",
-  "implementation_commit": null,
+  "implementation_commit": "af52e245ec4ac3562346c1f1c7af1eccb6f03264",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -51,9 +72,9 @@
     "NXS-VOICE-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-10T07:13:52Z",
     "started_at": "2026-09-10T05:48:26Z"
   },
   "title": "ElevenLabs Voice"

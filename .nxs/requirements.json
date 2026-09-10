@@ -1462,7 +1462,7 @@
         "tests/unit/test_voice_websocket_transport.py"
       ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P12",
       "title": "Realtime AI voice",
       "validation_evidence": [
@@ -1545,7 +1545,7 @@
         "tests/unit/test_voice_websocket_transport.py"
       ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P12",
       "title": "ElevenLabs provider",
       "validation_evidence": [
