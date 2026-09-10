@@ -162,7 +162,10 @@ def main() -> int:
 
     pytest_evidence(
         "unit-primitives",
-        ["tests/unit/test_telephony_primitives.py"],
+        [
+            "tests/unit/test_telephony_primitives.py",
+            "tests/unit/test_telephony_asterisk_adapter.py",
+        ],
     )
     pytest_evidence(
         "security",
@@ -173,6 +176,7 @@ def main() -> int:
         [
             "tests/integration/test_telephony_service.py",
             "tests/integration/test_telephony_api.py",
+            "tests/integration/test_telephony_media_and_transport.py",
         ],
     )
     pytest_evidence(
