@@ -1581,10 +1581,12 @@
       "id": "NXS-AGENT-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P13",
       "title": "Provider-neutral AI agent runtime",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P13/quality-gates.json"
+      ]
     },
     {
       "category": "WORKFLOW",

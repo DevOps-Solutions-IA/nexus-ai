@@ -2,14 +2,34 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p13-agent-runtime",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P08",
     "NXS-P12"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P13/agent-integration.json",
+    ".nxs/evidence/NXS-P13/clean-room.json",
+    ".nxs/evidence/NXS-P13/concurrency.json",
+    ".nxs/evidence/NXS-P13/contracts.json",
+    ".nxs/evidence/NXS-P13/coverage.json",
+    ".nxs/evidence/NXS-P13/database-roles.json",
+    ".nxs/evidence/NXS-P13/docker.json",
+    ".nxs/evidence/NXS-P13/git.json",
+    ".nxs/evidence/NXS-P13/migration.json",
+    ".nxs/evidence/NXS-P13/multiarch.json",
+    ".nxs/evidence/NXS-P13/preflight.json",
+    ".nxs/evidence/NXS-P13/quality-gates.json",
+    ".nxs/evidence/NXS-P13/quality-matrix.json",
+    ".nxs/evidence/NXS-P13/resilience.json",
+    ".nxs/evidence/NXS-P13/schema-validator.json",
+    ".nxs/evidence/NXS-P13/security-scan.json",
+    ".nxs/evidence/NXS-P13/security.json",
+    ".nxs/evidence/NXS-P13/tests.json",
+    ".nxs/evidence/NXS-P13/unit-primitives.json"
+  ],
   "id": "NXS-P13",
-  "implementation_commit": null,
+  "implementation_commit": "9fa14d71229226da0c397df1cea8ee15a2ff22f4",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -51,9 +71,9 @@
     "NXS-AGENT-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-10T17:21:33Z",
     "started_at": "2026-09-10T15:34:05Z"
   },
   "title": "AI Agent Runtime"
