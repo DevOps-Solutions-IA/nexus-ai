@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json as _json
 import uuid
 from typing import Any
 
@@ -107,22 +108,45 @@ async def test_start_session_with_unknown_ids_is_not_found_or_forbidden(voice_ap
     assert resp.json()["type"].startswith("https://docs.nexus-ai.dev/errors/NXS_VOICE_")
 
 
-async def test_handoff_confirm_endpoint_validates_and_maps_errors(voice_api: Any) -> None:
-    # bridge_reference is mandatory on the confirmation contract
-    bad = await voice_api.post(
-        f"/voice/sessions/{uuid.uuid4()}/handoff/confirm", {"target": "human_agent"}
-    )
-    assert bad.status_code == 422
-    # a well-formed confirmation for an unknown session is a governed NXS_VOICE_* 404
-    missing = await voice_api.post(
-        f"/voice/sessions/{uuid.uuid4()}/handoff/confirm",
-        {"target": "human_agent", "bridge_reference": "p11-leg-1"},
-    )
-    assert missing.status_code in (403, 404)
-    assert missing.json()["type"].startswith("https://docs.nexus-ai.dev/errors/NXS_VOICE_")
-    # request_handoff on an unknown session is likewise governed
+async def test_request_handoff_is_the_only_public_handoff_route(voice_api: Any) -> None:
+    # request_handoff on an unknown session is a governed NXS_VOICE_* 404 (or 403)
     req = await voice_api.post(f"/voice/sessions/{uuid.uuid4()}/handoff", {"target": "human_agent"})
     assert req.status_code in (403, 404)
+    if req.status_code == 404:
+        assert req.json()["type"].startswith("https://docs.nexus-ai.dev/errors/NXS_VOICE_")
+
+
+async def test_no_public_route_certifies_a_human_handoff(
+    auth_client: Any, make_auth_org: Any, make_auth_user: Any
+) -> None:
+    """OPTION A: NO public path (any role, any body) moves a session to HUMAN or emits
+    voice.handoff.completed. The old /handoff/confirm endpoint is gone from the router
+    and the OpenAPI surface."""
+    org = await make_auth_org()
+    for role in (RoleKey.ORG_OWNER, RoleKey.ORG_ADMIN, RoleKey.ORG_MEMBER):
+        token = await _token(auth_client, make_auth_user, org, role)
+        auth = {"Authorization": f"Bearer {token}"}
+        for body in (
+            {},
+            {"target": "human_agent"},
+            {"target": "human_agent", "bridge_reference": "fake-bridge"},
+        ):
+            resp = await auth_client.request(
+                "POST",
+                f"/api/v1/voice/sessions/{uuid.uuid4()}/handoff/confirm",
+                headers=auth,
+                json=body,
+            )
+            # the route does not exist — a plain 404, never a 200/403/422/NXS error
+            assert resp.status_code == 404, (role, body, resp.status_code)
+            assert "NXS_VOICE" not in resp.text
+
+    schema = (await auth_client.get("/openapi.json")).json()
+    voice_paths = [p for p in schema["paths"] if "/voice/" in p]
+    assert "/api/v1/voice/sessions/{session_id}/handoff" in voice_paths
+    assert not any("confirm" in p for p in voice_paths)
+    assert "handoff/confirm" not in _json.dumps(schema["paths"])
+    assert "ConfirmHandoffRequest" not in _json.dumps(schema.get("components", {}))
 
 
 async def test_voice_endpoints_require_auth(auth_client: Any) -> None:

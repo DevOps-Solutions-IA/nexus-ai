@@ -458,10 +458,12 @@ class VoiceService:
     ) -> VoiceSession:
         """Request an AI -> human handoff. Moves ``handoff_state`` AI -> PENDING_HUMAN,
         emits ``voice.handoff.requested`` and detaches the AI voice stream. It does NOT
-        emit ``voice.handoff.completed`` and does NOT claim HUMAN — only
-        :meth:`confirm_handoff`, driven by an authoritative confirmation of the actual
-        human bridge (a future NXS-P17 responsibility), may do that. Idempotent; a
-        terminal session is rejected."""
+        emit ``voice.handoff.completed`` and does NOT claim HUMAN. This is the entire
+        public handoff surface (RBAC ``voice:use``). The PENDING_HUMAN -> HUMAN transition
+        is *not* reachable from any request: it needs authoritative telephony evidence
+        that a human bridge is live, which is a future NXS-P17 (Human Agent Operations)
+        responsibility — see :meth:`confirm_handoff` (a non-public in-process seam).
+        Idempotent; the initial transition rejects an already-terminal session."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             repo = VoiceSessionRepository(tenant)
             session = await repo.by_id(session_id, for_update=True)
@@ -494,11 +496,19 @@ class VoiceService:
     async def confirm_handoff(
         self, organization_id: UUID, session_id: UUID, request: ConfirmHandoffRequest
     ) -> VoiceSession:
-        """Record an AUTHORITATIVE confirmation that the human bridge is live. Moves
-        ``handoff_state`` PENDING_HUMAN -> HUMAN and emits ``voice.handoff.completed``.
-        Tenant-scoped (a caller can only confirm a session in its own Organization);
-        rejects any state other than PENDING_HUMAN. This is the seam a future NXS-P17
-        bridge-completion callback calls — P12 never advances to HUMAN on its own."""
+        """NON-PUBLIC in-process seam. Records an AUTHORITATIVE confirmation that a human
+        bridge is live: moves ``handoff_state`` PENDING_HUMAN -> HUMAN and emits
+        ``voice.handoff.completed``.
+
+        P12 wires NO route to this and grants NO ``voice:*`` permission that reaches it.
+        The ``HUMAN`` fact is telephony truth P12 cannot itself verify, so it must only be
+        asserted by a trusted in-process authority — the future NXS-P17 (Human Agent
+        Operations) service — AFTER that authority has verified the bridge against its own
+        server-side state. ``request`` carries the bridge reference that authority has
+        already validated; this method records it and does not re-derive trust from it.
+
+        Tenant-scoped (only a session in ``organization_id``); rejects any state other
+        than PENDING_HUMAN (``NXS_VOICE_INVALID_STATE``); ``HUMAN`` is idempotent."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             repo = VoiceSessionRepository(tenant)
             session = await repo.by_id(session_id, for_update=True)

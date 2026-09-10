@@ -429,14 +429,17 @@ class RequestHandoffRequest(BaseModel):
 
 
 class ConfirmHandoffRequest(BaseModel):
-    """An AUTHORITATIVE confirmation that the human bridge is live — the only thing that
-    moves a session PENDING_HUMAN -> HUMAN. In P12 this is a deliberate governed call
-    (the seam a future NXS-P17 bridge-completion callback uses); P12 never self-advances."""
+    """The argument object for the NON-PUBLIC in-process seam
+    :meth:`~nexus_ai.voice.service.VoiceService.confirm_handoff` — NOT a public API
+    request. P12 wires no route to it. The future NXS-P17 (Human Agent Operations)
+    service constructs it AFTER it has authoritatively verified the human bridge, and
+    ``bridge_reference`` is the reference that authority has already validated (P12 only
+    records it). It is defined here so the seam contract is frozen for NXS-P17."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     target: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]{1,63}$")] = "human_agent"
-    #: A bounded opaque reference to the confirmed bridge (e.g. a P11 call-leg / bridge id).
+    #: The bridge reference the trusted authority (NXS-P17) has already verified.
     bridge_reference: Annotated[str, StringConstraints(min_length=1, max_length=200)]
 
 

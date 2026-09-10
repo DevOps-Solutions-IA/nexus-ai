@@ -362,17 +362,41 @@ async def test_request_handoff_moves_to_pending_human_not_completed(
     assert handed.state in (VoiceSessionState.CANCELLED, VoiceSessionState.FAILED)
     assert await _handoff_events(voice_stack, org.id) == ["voice.handoff.requested"]
 
-    # repeated request is idempotent — no second requested event, still PENDING_HUMAN
-    again = await voice_stack.service.request_handoff(
-        org.id, session.id, RequestHandoffRequest(target="human_agent")
-    )
-    assert again.handoff_state is VoiceHandoffState.PENDING_HUMAN
-    assert await _handoff_events(voice_stack, org.id) == ["voice.handoff.requested"]
+    # repeated request is idempotent — no second requested event, still PENDING_HUMAN,
+    # and never a voice.handoff.completed
+    for _ in range(3):
+        again = await voice_stack.service.request_handoff(
+            org.id, session.id, RequestHandoffRequest(target="human_agent")
+        )
+        assert again.handoff_state is VoiceHandoffState.PENDING_HUMAN
+    events = await _handoff_events(voice_stack, org.id)
+    assert events == ["voice.handoff.requested"]
+    assert "voice.handoff.completed" not in events
 
 
-async def test_confirm_handoff_is_the_only_path_to_human(
+def test_no_public_route_reaches_confirm_handoff() -> None:
+    """OPTION A: the only path to PENDING_HUMAN -> HUMAN is the non-public in-process
+    seam VoiceService.confirm_handoff. No FastAPI route on the voice router touches it,
+    and the voice API module declares no confirm endpoint."""
+    import nexus_ai.api.voice as voice_api_module
+    from nexus_ai.api.voice import voice_router
+
+    for route in voice_router.routes:
+        assert "confirm" not in getattr(route, "path", "")
+        endpoint = getattr(route, "endpoint", None)
+        assert endpoint is None or endpoint.__name__ != "confirm_handoff"
+    assert not hasattr(voice_api_module, "confirm_handoff")
+    # the seam itself is still present on the service for NXS-P17
+    from nexus_ai.voice.service import VoiceService
+
+    assert callable(VoiceService.confirm_handoff)
+
+
+async def test_confirm_handoff_internal_seam_is_the_only_path_to_human(
     voice_stack: Any, make_organization: Any
 ) -> None:
+    """The internal seam (which the future NXS-P17 authority invokes after verifying the
+    bridge) still works and is the ONLY thing that can reach HUMAN."""
     from nexus_ai.voice.entities import ConfirmHandoffRequest
 
     org = await make_organization()

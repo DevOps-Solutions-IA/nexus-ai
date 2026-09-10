@@ -1,10 +1,12 @@
 # ADR-0087: NXS voice provider abstraction + the ElevenLabs boundary
 
-Status: Accepted; amended 2026-09-10 by the NXS-P12 independent-audit corrective
-(WebSocket SSRF / provider-URL trust hardening, truthful `AI → PENDING_HUMAN → HUMAN`
-handoff lifecycle, and a dated ElevenLabs protocol-reconciliation record). Establishes
-NXS-P12 (`NXS-VOICE-001`, `NXS-EL-001`): the permanent, provider-neutral real-time voice
-layer:
+Status: Accepted; amended 2026-09-10 by two NXS-P12 independent-audit correctives —
+#1: WebSocket SSRF / provider-URL trust hardening, truthful `AI → PENDING_HUMAN → HUMAN`
+handoff lifecycle, dated ElevenLabs protocol-reconciliation record;
+#2: the `PENDING_HUMAN → HUMAN` transition has no public route and no reachable `voice:*`
+permission — it is a non-public in-process seam for the future NXS-P17 service.
+Establishes NXS-P12 (`NXS-VOICE-001`, `NXS-EL-001`): the permanent, provider-neutral
+real-time voice layer:
 
     PSTN / SIP -> Asterisk 22 LTS / ARI -> NXS-P11 Telephony Foundation
         -> Call + ACTIVE MediaSession -> NXS-P12 Voice Gateway -> ElevenLabs
@@ -86,18 +88,23 @@ integration is **CONTRACT-CERTIFIED** (fake provider + canned-frame adapter unit
 SSRF matrix + full lifecycle on real PostgreSQL), **not LIVE-PROVIDER-CERTIFIED**.
 Enabling a real key requires no code change beyond storing the credential in the vault.
 
-**Controlled AI↔human handoff — truthful lifecycle.** `handoff_state` is a three-state
-machine: `AI → PENDING_HUMAN → HUMAN`. `request_handoff` atomically moves `AI →
-PENDING_HUMAN`, emits `voice.handoff.requested`, and detaches / cancels the AI voice
-stream — it does **NOT** emit `voice.handoff.completed` and does **NOT** claim `HUMAN`,
-because P12 neither performs nor verifies the actual human bridge. Only `confirm_handoff`
-— the tenant-scoped seam a future NXS-P17 bridge-completion callback invokes with an
-authoritative `bridge_reference` — moves `PENDING_HUMAN → HUMAN` and emits
-`voice.handoff.completed`. `request_handoff` is idempotent (a second call is a no-op, no
-duplicate event), rejects a terminal session for the initial transition, and is
-deterministic under concurrent callers (row `FOR UPDATE`; exactly one
-`voice.handoff.requested`). `confirm_handoff` refuses any state other than
-`PENDING_HUMAN` and cannot cross tenants.
+**Controlled AI↔human handoff — truthful lifecycle, no public completion.** `handoff_state`
+is a three-state machine `AI → PENDING_HUMAN → HUMAN`. The **entire public handoff
+surface** is `POST /voice/sessions/{id}/handoff` (RBAC `voice:use`) → `request_handoff`:
+it atomically moves `AI → PENDING_HUMAN`, emits `voice.handoff.requested`, detaches /
+cancels the AI voice stream — and stops. It never emits `voice.handoff.completed`, never
+claims `HUMAN`. It is idempotent (a second call is a no-op, no duplicate event), rejects
+a terminal session for the initial transition, and is deterministic under concurrent
+callers (row `FOR UPDATE`; exactly one `voice.handoff.requested`).
+
+`PENDING_HUMAN → HUMAN` + `voice.handoff.completed` is **not reachable from any request** —
+no route, no `voice:*` permission. Certifying that a human bridge is live is telephony
+truth P12 cannot verify (NXS-P11 models no human-agent leg), and a public caller must
+never be trusted to assert it with a bare string. That transition is the future NXS-P17
+(Human Agent Operations) responsibility; P12 keeps only a **non-public in-process seam**
+`VoiceService.confirm_handoff` (tenant-scoped, refuses any state other than
+`PENDING_HUMAN`, `HUMAN` idempotent) so the contract is frozen for NXS-P17 to drive after
+it has verified the bridge against its own server-side state.
 
 **Voice profile / voice-id governance.** A caller never supplies a raw `voice_id` /
 `agent_id` / `model` — those are an Organization-owned `voice_profiles` row referenced by

@@ -65,6 +65,30 @@ def test_handoff_state_machine_is_truthful() -> None:
     assert [s.value for s in VoiceHandoffState] == ["AI", "PENDING_HUMAN", "HUMAN"]
 
 
+def test_no_public_surface_certifies_a_human_handoff() -> None:
+    """OPTION A (audit corrective #2): PENDING_HUMAN -> HUMAN / voice.handoff.completed
+    is a non-public in-process seam only. No FastAPI route reaches it; the voice API
+    module declares no confirm endpoint; the seam stays on VoiceService for NXS-P17."""
+    import nexus_ai.api.voice as voice_api_module
+    from nexus_ai.api.voice import voice_router
+    from nexus_ai.voice.service import VoiceService
+
+    route_paths = [getattr(r, "path", "") for r in voice_router.routes]
+    assert not any("confirm" in p for p in route_paths)
+    assert "/voice/sessions/{session_id}/handoff" in route_paths
+    endpoint_names = {
+        getattr(r, "endpoint", None).__name__
+        for r in voice_router.routes
+        if getattr(r, "endpoint", None)
+    }
+    assert "confirm_handoff" not in endpoint_names
+    assert not hasattr(voice_api_module, "confirm_handoff")
+    # the seam is preserved for the future NXS-P17 authority
+    assert callable(VoiceService.confirm_handoff)
+    # the completion event contract stays frozen (NXS-P17 will emit it)
+    assert EVENT_REGISTRY.model_for("voice.handoff.completed", 1) is not None
+
+
 def test_start_session_options_are_a_fixed_allow_list_never_an_endpoint() -> None:
     from nexus_ai.voice.entities import ALLOWED_SESSION_OPTION_KEYS
 
@@ -191,8 +215,19 @@ async def test_openapi_voice_surface_is_governed_only(app_client) -> None:  # ty
     schema = (await app_client.get("/openapi.json")).json()
     voice_paths = [p for p in schema["paths"] if "/voice" in p]
     assert "/api/v1/voice/sessions" in voice_paths
+    assert "/api/v1/voice/sessions/{session_id}/handoff" in voice_paths
+    # no public route certifies a human handoff (audit corrective #2 — OPTION A)
+    assert not any("confirm" in p for p in voice_paths)
     blob = json.dumps(schema)
-    for banned in ("signed_url", "xi-api-key", "user_audio_chunk", "wss://", "ari/channels"):
+    for banned in (
+        "signed_url",
+        "xi-api-key",
+        "user_audio_chunk",
+        "wss://",
+        "ari/channels",
+        "handoff/confirm",
+        "ConfirmHandoffRequest",
+    ):
         assert banned not in blob
 
 
