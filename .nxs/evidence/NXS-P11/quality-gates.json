@@ -1,0 +1,96 @@
+{
+  "decision_eligibility": "GO",
+  "details": {
+    "dependency_security": {
+      "command": [
+        "uv",
+        "run",
+        "pip-audit"
+      ],
+      "exit_code": 0,
+      "output_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n"
+    },
+    "formatting": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "473 files already formatted\n"
+    },
+    "lint": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "All checks passed!\n"
+    },
+    "repository_integrity": {
+      "command": [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "scripts.nxs_validate"
+      ],
+      "exit_code": 0,
+      "output_tail": "{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\n"
+    },
+    "sast": {
+      "command": [
+        "uv",
+        "run",
+        "bandit",
+        "-q",
+        "-lll",
+        "-c",
+        "pyproject.toml",
+        "-r",
+        "src",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "output_tail": ""
+    },
+    "tests": {
+      "command": [
+        "uv",
+        "run",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 0,
+      "output_tail": ", 174, 184-186\nsrc/nexus_ai/telephony/providers/fake.py             107     19     34     11    79%   71, 99-101, 104, 124, 147, 152-153, 155, 167, 170-171, 200, 212, 230, 248, 260-262\nsrc/nexus_ai/telephony/providers/registry.py          25      0      0      0   100%\nsrc/nexus_ai/telephony/service.py                    282     38     70     16    82%   131-132, 137-138, 147-156, 179->exit, 184-190, 210-211, 227-228, 231, 243, 246, 309, 311, 327->339, 351, 407, 455-459, 486, 499-502, 518->exit, 527, 545\nsrc/nexus_ai/telephony/state_machine.py               44      8     18      1    76%   129-135, 158-162\nsrc/nexus_ai/telephony/webhooks.py                   172     22     48     12    85%   98-101, 107, 110, 142-143, 147, 154, 195-196, 202, 231-232, 279-280, 309, 313, 338->350, 351->exit, 353, 370, 384\nsrc/nexus_ai/tools/__init__.py                         0      0      0      0   100%\nsrc/nexus_ai/tools/entities.py                       150      0      2      0   100%\nsrc/nexus_ai/tools/errors.py                          82      0      6      2    98%   62->exit, 127->129\nsrc/nexus_ai/tools/events.py                          45      0      0      0   100%\nsrc/nexus_ai/tools/idempotency.py                     32      0      0      0   100%\nsrc/nexus_ai/tools/permissions.py                     27      1      4      0    97%   72\nsrc/nexus_ai/tools/registry.py                       140      4     44      2    97%   146-148, 230\nsrc/nexus_ai/tools/result.py                          17      0      4      0   100%\nsrc/nexus_ai/tools/schemas.py                         66      3     34      3    94%   38, 53, 82\nsrc/nexus_ai/tools/service.py                        144      1     26      1    99%   176\n----------------------------------------------------------------------------------------------\nTOTAL                                              13747    782   2426    429    92%\nRequired test coverage of 90% reached. Total coverage: 92.09%\n1230 passed in 203.77s (0:03:23)\n"
+    },
+    "typing": {
+      "command": [
+        "uv",
+        "run",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "output_tail": "Success: no issues found in 212 source files\n"
+    }
+  },
+  "executed_at": "2026-09-10T01:34:51Z",
+  "gates": {
+    "dependency_security": "PASS",
+    "formatting": "PASS",
+    "lint": "PASS",
+    "repository_integrity": "PASS",
+    "sast": "PASS",
+    "tests": "PASS",
+    "typing": "PASS"
+  },
+  "phase": "NXS-P11",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

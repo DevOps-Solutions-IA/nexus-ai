@@ -1,0 +1,15 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "...................                                                      [100%]\n19 passed in 3.84s",
+  "passed": 19,
+  "phase": "NXS-P11",
+  "recorded_at": "2026-09-10T01:35:15Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/integration/test_telephony_service.py",
+    "tests/integration/test_telephony_api.py",
+    "tests/integration/test_telephony_media_and_transport.py"
+  ]
+}

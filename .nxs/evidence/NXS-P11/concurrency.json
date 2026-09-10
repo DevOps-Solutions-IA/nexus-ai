@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "......                                                                   [100%]\n6 passed in 1.44s",
+  "passed": 6,
+  "phase": "NXS-P11",
+  "recorded_at": "2026-09-10T01:35:18Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/concurrency/test_telephony_concurrency.py"
+  ]
+}
