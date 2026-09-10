@@ -1260,6 +1260,7 @@ async def voice_stack(telephony_stack: Any) -> Any:
     fake HTTP transport; the real-time WebSocket uses a scripted fake stream transport;
     the media side is an in-memory loopback. No socket."""
     import asyncpg
+    from cryptography.fernet import Fernet
 
     from nexus_ai.domain.voice.repository import VoiceSecretStore
     from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
@@ -1267,8 +1268,6 @@ async def voice_stack(telephony_stack: Any) -> Any:
     from nexus_ai.voice.service import VoiceService
     from nexus_ai.voice.transport import FakeVoiceStreamTransport
     from nexus_ai.voice.webhooks import InboundVoiceService
-
-    from cryptography.fernet import Fernet
 
     stack = telephony_stack
     vault = LocalEncryptedVault(

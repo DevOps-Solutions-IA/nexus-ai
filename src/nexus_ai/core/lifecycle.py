@@ -41,6 +41,7 @@ from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: 
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
 from nexus_ai.domain.telephony.repository import TelephonySecretStore
 from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
+from nexus_ai.domain.voice.repository import VoiceSecretStore
 from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
@@ -65,15 +66,14 @@ from nexus_ai.telephony import events as telephony_events  # noqa: F401 - payloa
 from nexus_ai.telephony.providers.registry import GovernedTelephonyTransport
 from nexus_ai.telephony.service import TelephonyService
 from nexus_ai.telephony.webhooks import InboundTelephonyService
-from nexus_ai.domain.voice.repository import VoiceSecretStore
-from nexus_ai.voice import events as voice_events  # noqa: F401 - payload registration
-from nexus_ai.voice.providers.registry import GovernedVoiceHttpTransport
-from nexus_ai.voice.service import VoiceService
-from nexus_ai.voice.webhooks import InboundVoiceService
 from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registration
 from nexus_ai.tools.permissions import ToolPermissionGuard
 from nexus_ai.tools.registry import ToolRegistry
 from nexus_ai.tools.service import ToolEngine
+from nexus_ai.voice import events as voice_events  # noqa: F401 - payload registration
+from nexus_ai.voice.providers.registry import GovernedVoiceHttpTransport
+from nexus_ai.voice.service import VoiceService
+from nexus_ai.voice.webhooks import InboundVoiceService
 
 _Connector = Callable[[], Awaitable[None]]
 
