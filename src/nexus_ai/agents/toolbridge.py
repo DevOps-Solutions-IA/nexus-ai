@@ -13,6 +13,7 @@ adapter, reads a credential, executes SQL / a shell, or opens a network connecti
 
 from __future__ import annotations
 
+import json
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -93,13 +94,17 @@ class AgentToolBridge:
                 status_code=None,
                 error_code="NXS_AGENT_TOOL_DENIED",
                 latency_ms=0,
-                reinjected={"error": "tool_not_available", "tool": call.name},
+                reinjected=self._reinject({"error": "tool_not_available", "tool": call.name[:64]}),
             )
 
+        # The P08 idempotency key is a canonical SEMANTIC execution identity:
+        # (turn seed, tool_key, canonical-argument hash). It deliberately excludes the
+        # model-generated tool_call_id and the loop iteration — the identical semantic
+        # tool request anywhere in one AgentTurn resolves to ONE external effect.
         invocation = ToolInvocation(
             tool_key=call.name,
             arguments=call.arguments,
-            idempotency_key=_derive_key(idempotency_seed, call.id, arg_hash),
+            idempotency_key=_derive_key(idempotency_seed, call.name, arg_hash),
             correlation_id=correlation_id,
         )
         started = time.monotonic()
@@ -117,7 +122,7 @@ class AgentToolBridge:
                 status_code=exc.status,
                 error_code=exc.code,
                 latency_ms=latency,
-                reinjected={"error": "tool_denied", "reason": exc.code},
+                reinjected=self._reinject({"error": "tool_denied", "reason": exc.code}),
             )
         except NxsError as exc:
             latency = int((time.monotonic() - started) * 1000)
@@ -131,7 +136,7 @@ class AgentToolBridge:
                 status_code=exc.status,
                 error_code=exc.code,
                 latency_ms=latency,
-                reinjected={"error": "tool_failed", "code": exc.code},
+                reinjected=self._reinject({"error": "tool_failed", "code": exc.code}),
             )
 
         latency = int((time.monotonic() - started) * 1000)
@@ -148,6 +153,12 @@ class AgentToolBridge:
             reinjected=self._bound_result(result),
         )
 
+    def _reinject(self, payload: dict[str, Any]) -> dict[str, Any]:
+        """Every re-injected object is bounded so its serialisation into the model
+        context cannot exceed ``max_tool_result_bytes`` — for ASCII or arbitrary
+        Unicode, measured with the widest serialisation and never split mid code point."""
+        return bound_reinjection(payload, self._cfg.max_tool_result_bytes)
+
     def _bound_result(self, result: ToolResult) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "ok": result.ok,
@@ -157,13 +168,12 @@ class AgentToolBridge:
         if result.error_code is not None:
             payload["error_code"] = result.error_code
         if result.output is not None:
-            body = _clip_json(result.output, self._cfg.max_tool_result_bytes)
-            payload["output"] = body
-        return payload
+            payload["output"] = result.output
+        return self._reinject(payload)
 
 
-def _derive_key(seed: str, call_id: str, arg_hash: str) -> str:
-    raw = f"{seed}:{call_id}:{arg_hash}"
+def _derive_key(seed: str, tool_key: str, arg_hash: str) -> str:
+    raw = f"{seed}:{tool_key}:{arg_hash}"
     import hashlib
 
     return "agt-" + hashlib.sha256(raw.encode("utf-8")).hexdigest()[:40]
@@ -178,15 +188,60 @@ def _json_depth(value: Any, current: int = 1) -> int:
 
 
 def _canonical_bytes(value: Any) -> int:
-    import json
-
     return len(json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
 
 
-def _clip_json(value: Any, limit: int) -> Any:
-    import json
+def reinjection_json(payload: dict[str, Any]) -> str:
+    """The single canonical serialisation of a re-injected tool result — the exact form
+    the runtime writes into the model context (compact separators, ASCII-escaped)."""
+    return json.dumps(payload, separators=(",", ":"), default=str)
 
-    encoded = json.dumps(value, separators=(",", ":"), ensure_ascii=False, default=str)
-    if len(encoded.encode("utf-8")) <= limit:
+
+def _widest_bytes(value: Any) -> int:
+    """UTF-8 byte length of the widest single-line JSON serialisation of ``value``:
+    ASCII-escaped (``\\uXXXX`` is never shorter than the raw code point) and the default
+    ``", "`` / ``": "`` separators (never shorter than the compact ``,`` / ``:`` the
+    runtime uses). Bounding this bounds the bytes the runtime actually injects and any
+    plain ``json.dumps`` an auditor might measure with."""
+    return len(json.dumps(value, default=str).encode("utf-8"))
+
+
+def bound_reinjection(payload: dict[str, Any], limit: int) -> dict[str, Any]:
+    """Return a re-injection object whose JSON serialisation is <= ``limit`` UTF-8 bytes
+    for ANY serialisation. Only the ``output`` value can be large; it is replaced with a
+    ``{"truncated": true, "preview": ...}`` object trimmed on whole code points so the
+    FINAL object (wrapper included) fits. Falls back to a minimal truthful envelope."""
+    if _widest_bytes(payload) <= limit:
+        return payload
+    reserved = {key: value for key, value in payload.items() if key != "output"}
+    if "output" in payload:
+        skeleton_bytes = _widest_bytes({**reserved, "output": None})
+        value_budget = limit - skeleton_bytes + len("null")
+        candidate = {**reserved, "output": _fit_value(payload["output"], value_budget)}
+        if _widest_bytes(candidate) <= limit:
+            return candidate
+    minimal = {"truncated": True, "ok": bool(payload.get("ok", False))}
+    return minimal if _widest_bytes(minimal) <= limit else {"truncated": True}
+
+
+def _fit_value(value: Any, budget: int) -> Any:
+    if budget > 0 and _widest_bytes(value) <= budget:
         return value
-    return {"truncated": True, "preview": encoded[: max(0, limit - 32)]}
+    # A string preview is a prefix of the string itself; anything else previews its
+    # compact JSON. Either way the cut is on a whole code point (Python str slicing).
+    source = (
+        value
+        if isinstance(value, str)
+        else json.dumps(value, separators=(",", ":"), ensure_ascii=False, default=str)
+    )
+    base: dict[str, Any] = {"truncated": True}
+    if budget <= 0 or _widest_bytes({**base, "preview": ""}) > budget:
+        return base
+    low, high = 0, len(source)
+    while low < high:
+        mid = (low + high + 1) // 2
+        if _widest_bytes({**base, "preview": source[:mid]}) <= budget:
+            low = mid
+        else:
+            high = mid - 1
+    return {**base, "preview": source[:low]}

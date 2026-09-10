@@ -548,8 +548,14 @@ class AgentRuntimeSettings(BaseModel):
     max_session_seconds: float = Field(default=3_600.0, gt=0, le=86_400)
     #: Bounded tool loop: model -> tool -> model -> ... terminates deterministically.
     max_tool_iterations: int = Field(default=6, ge=0, le=32)
-    #: Largest number of tool calls a single model response may request.
+    #: Total tool calls one AgentTurn may request across ALL model iterations combined.
+    #: Every model-requested call counts toward this budget, duplicates included — a model
+    #: re-requesting the same call is itself loop behaviour. Exceeding it fails the turn
+    #: deterministically BEFORE the offending call reaches the Tool Engine.
     max_tool_calls_per_turn: int = Field(default=8, ge=1, le=32)
+    #: Structural bound on a SINGLE model response (one iteration). Distinct from the
+    #: turn-wide budget above; a response over this is rejected as malformed model output.
+    max_tool_calls_per_response: int = Field(default=8, ge=1, le=32)
     #: Largest model-supplied tool-call argument object (bytes of canonical JSON).
     max_tool_arguments_bytes: int = Field(default=32_768, ge=256, le=262_144)
     #: Largest tool result re-injected into the model context (bytes of JSON).

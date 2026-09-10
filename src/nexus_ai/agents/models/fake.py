@@ -51,6 +51,9 @@ class FakeModelTurn:
     oversized_chars: int = 0
     deep_tool_args: int = 0
     duplicate_tool_ids: bool = False
+    #: prefix for the model-generated tool_call_id — vary it across scripted turns to
+    #: prove semantic (not id-based) deduplication of repeated tool requests.
+    tool_call_id_prefix: str = "call"
     hang_seconds: float = 0.0
     provider_request_id: str | None = "fake-req"
 
@@ -118,7 +121,7 @@ class FakeModelProvider:
         calls: list[ModelToolCall] = []
         for idx, (name, args) in enumerate(turn.tool_calls):
             call_args = _deep(turn.deep_tool_args) if turn.deep_tool_args else dict(args)
-            call_id = "dup" if turn.duplicate_tool_ids else f"call-{idx}"
+            call_id = "dup" if turn.duplicate_tool_ids else f"{turn.tool_call_id_prefix}-{idx}"
             calls.append(ModelToolCall(id=call_id, name=name, arguments=call_args))
         finish = turn.finish_reason or (
             ModelFinishReason.TOOL_CALLS if calls else ModelFinishReason.STOP

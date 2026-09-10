@@ -165,6 +165,8 @@ def main() -> int:
         [
             "tests/unit/test_agent_primitives.py",
             "tests/unit/test_agent_model_providers.py",
+            "tests/unit/test_agent_transport.py",
+            "tests/unit/test_agent_reinjection_bounds.py",
         ],
     )
     pytest_evidence(
@@ -176,6 +178,7 @@ def main() -> int:
         [
             "tests/integration/test_agent_service.py",
             "tests/integration/test_agent_api.py",
+            "tests/integration/test_agent_tool_budget.py",
         ],
     )
     pytest_evidence(

@@ -1,6 +1,8 @@
 # ADR-0093: The bounded tool-execution loop and where tool authority lives
 
-Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10.
+Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by the
+NXS-P13 independent-audit corrective #1 (turn-wide semantic tool deduplication; a true
+turn-wide tool-call budget; a byte-exact Unicode result bound — see the loop section).
 
 ## Context
 
@@ -42,20 +44,46 @@ The `Principal` handed to the Tool Engine is reconstructed by the service from t
 session's `initiator_user_id` / `initiator_session_id` (captured at `start_session` from
 the API principal). The Tool Engine reads only `user_id` and `organization_id`.
 
-### The loop is bounded and deterministic
+### The loop is bounded and deterministic — every guard is turn-wide
 
-`AgentRuntime.run_turn` iterates `range(max_tool_iterations + 1)`:
+`AgentRuntime.run_turn` iterates `range(max_tool_iterations + 1)`, carrying two
+turn-scoped structures across **every** iteration:
+
+* **`executed`** — a cache keyed on the semantic identity `(tool_key,
+  canonical_arguments_hash)`. The same semantic call reappearing anywhere in the turn —
+  in the same response or a later iteration — reuses the first `ToolCallOutcome`; the
+  Tool Engine is invoked once, the model still receives a valid result for each protocol
+  `tool_call_id`, and `on_tool` (the durable record + `agent.tool.*` events) fires once.
+  The model-generated `tool_call_id` correlates the protocol response only — it never
+  keys the cache.
+* **`tool_calls_requested`** — a counter incremented for **every** model-requested call,
+  duplicates included (a re-request is itself loop behaviour). The call that would push
+  it past `max_tool_calls_per_turn` raises `AgentToolLoopLimitError` **before** it
+  reaches the Tool Engine, so the number of external executions never exceeds the
+  ceiling.
+
+Per-iteration guards remain:
 
 * a non-tool finish returns `COMPLETED`;
 * `iteration >= max_tool_iterations` with the model still asking → `AgentToolLoopLimitError`;
-* `len(tool_calls) > max_tool_calls_per_turn` → `AgentOutputInvalidError`;
-* duplicate `(name, arguments_hash)` **within a turn** reuses the first outcome — a model
-  loop hammering one call cannot cause repeated side effects;
-* each tool call carries a derived idempotency key
-  (`seed:iteration:call_id:arguments_hash`) into P08's durable idempotency.
+* `len(response.tool_calls) > max_tool_calls_per_response` (a distinct, structural
+  per-response bound — **not** the turn budget) → `AgentOutputInvalidError`.
 
-A failed turn (loop limit, provider error, invalid output) marks the **turn** FAILED and
-returns the **session** to `ACTIVE` — the session survives and stays usable.
+Each tool call carries a **semantic** P08 idempotency key,
+`agt-<sha256(f"{session}:{turn_sequence}:{tool_key}:{arguments_hash}")>` — no
+`tool_call_id`, no iteration index. The same semantic call anywhere in one turn resolves
+to one P08 durable effect; the identical call in a *later* turn (different sequence) may
+legitimately re-run.
+
+Every re-injected tool result is passed through `bound_reinjection`: the final object's
+JSON serialisation is `<= max_tool_result_bytes` UTF-8 bytes for ASCII **and** arbitrary
+Unicode — measured on the widest serialisation (`ensure_ascii` + `", "` separators, never
+shorter than the compact form the runtime writes), trimmed on whole code points, wrapper
+overhead (`{"truncated": true, "preview": …}`) included.
+
+A failed turn (loop limit, tool-budget, provider error, invalid output) marks the
+**turn** FAILED and returns the **session** to `ACTIVE` — the session survives and stays
+usable.
 
 ## Consequences
 

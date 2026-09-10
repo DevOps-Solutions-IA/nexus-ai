@@ -172,6 +172,28 @@ def test_rbac_scopes_exist_and_member_is_not_configure() -> None:
         assert key in PERMISSION_IDS
 
 
+def test_tool_budgets_are_turn_wide_and_the_p08_key_is_semantic() -> None:
+    """Audit corrective #1: the turn tool-call budget and the byte-exact result bound
+    are turn-wide semantic contracts, not per-response artefacts."""
+    from nexus_ai.core.config import AgentRuntimeSettings
+
+    cfg = AgentRuntimeSettings()
+    assert cfg.max_tool_calls_per_turn >= 1 and cfg.max_tool_calls_per_response >= 1
+    assert "max_tool_calls_per_turn" in AgentRuntimeSettings.model_fields
+    assert "max_tool_calls_per_response" in AgentRuntimeSettings.model_fields
+
+    bridge = (_ROOT / "src" / "nexus_ai" / "agents" / "toolbridge.py").read_text()
+    runtime = (_ROOT / "src" / "nexus_ai" / "agents" / "runtime.py").read_text()
+    # the P08 idempotency key is derived from the semantic identity only — never the
+    # model tool_call_id and never the loop iteration index.
+    assert "_derive_key(idempotency_seed, call.name, arg_hash)" in bridge
+    assert "idempotency_seed=ctx.idempotency_seed" in runtime
+    assert ":{iteration}" not in runtime and "call.id, arg_hash" not in bridge
+    # the semantic-dedup cache and the turn budget live OUTSIDE the iteration loop
+    pre_loop = runtime.split("for iteration in range(", 1)[0]
+    assert "executed: dict" in pre_loop and "tool_calls_requested = 0" in pre_loop
+
+
 def test_tool_engine_is_the_only_external_action_path() -> None:
     bridge = (_ROOT / "src" / "nexus_ai" / "agents" / "toolbridge.py").read_text()
     runtime = (_ROOT / "src" / "nexus_ai" / "agents" / "runtime.py").read_text()

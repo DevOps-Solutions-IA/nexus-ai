@@ -1,6 +1,8 @@
 # ADR-0094: Cancellation, concurrency and idempotency in the agent runtime
 
-Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10.
+Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by the
+NXS-P13 independent-audit corrective #1 (the tool-call idempotency key is a pure semantic
+identity — no `tool_call_id`, no iteration index).
 
 ## Context
 
@@ -53,8 +55,11 @@ NXS-P11/P12):
   `(organization_id, session_id, idempotency_key) WHERE idempotency_key IS NOT NULL`. A
   replay returns the completed turn; a differing body under the same key conflicts;
   exactly one model call happens (proven).
-* **tool calls** — a derived key `seed:iteration:call_id:arguments_hash` flows into P08's
-  durable idempotency (ADR-0093).
+* **tool calls** — a derived semantic key
+  `agt-<sha256(session:turn_sequence:tool_key:arguments_hash)>` flows into P08's durable
+  idempotency (ADR-0093). It deliberately omits the model `tool_call_id` and the loop
+  iteration, so the identical semantic call repeated anywhere in one turn is one external
+  effect; the same call in a later turn (new sequence) is a new key and may re-run.
 
 `correlation_id` is observational and excluded from every fingerprint.
 

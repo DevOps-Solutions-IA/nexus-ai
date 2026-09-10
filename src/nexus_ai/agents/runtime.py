@@ -2,17 +2,25 @@
 
 ``AgentRuntime.run_turn`` drives one reasoning turn: assemble the provider-neutral
 request, call the model (bounded timeout), validate the untrusted response, and — while
-the model wants tools and the iteration budget allows — run each requested tool through
-the :class:`~nexus_ai.agents.toolbridge.AgentToolBridge` and re-inject the bounded result.
-The loop terminates deterministically: a final answer, the tool-iteration ceiling, a
-provider error, or cancellation. It performs no database work (the caller owns
-persistence and the terminal transition), so a cancelled turn never leaks a connection.
+the model wants tools and the budgets allow — run each requested tool through the
+:class:`~nexus_ai.agents.toolbridge.AgentToolBridge` and re-inject the bounded result.
+
+Turn-wide invariants held across EVERY model iteration:
+  * the same semantic tool call (tool key + canonical-argument hash) reappearing anywhere
+    in the turn reuses the first outcome — the Tool Engine runs once, the P08 idempotency
+    key never changes, no repeated external side effect;
+  * every model-requested call counts toward ``max_tool_calls_per_turn`` (duplicates
+    included); the call that would exceed it fails the turn before it reaches the engine.
+
+The loop terminates deterministically: a final answer, the tool-iteration ceiling, the
+per-turn tool-call budget, a provider error, or cancellation. It performs no database
+work (the caller owns persistence and the terminal transition), so a cancelled turn
+never leaks a connection.
 """
 
 from __future__ import annotations
 
 import asyncio
-import json
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -24,6 +32,7 @@ from nexus_ai.agents.errors import (
     AgentProviderTimeoutError,
     AgentToolLoopLimitError,
 )
+from nexus_ai.agents.idempotency import arguments_hash
 from nexus_ai.agents.models.base import (
     HttpError,
     ModelError,
@@ -39,7 +48,7 @@ from nexus_ai.agents.models.base import (
 )
 from nexus_ai.agents.prompt import build_messages
 from nexus_ai.agents.state_machine import AgentSessionDisposition
-from nexus_ai.agents.toolbridge import AgentToolBridge, ToolCallOutcome
+from nexus_ai.agents.toolbridge import AgentToolBridge, ToolCallOutcome, reinjection_json
 from nexus_ai.core.config import AgentRuntimeSettings
 from nexus_ai.core.logging import get_logger
 from nexus_ai.domain.auth.entities import Principal
@@ -97,6 +106,16 @@ class AgentRuntime:
         )
         usage_total = ModelUsage()
         outcomes: list[ToolCallOutcome] = []
+        # Turn-scoped, spanning EVERY model iteration:
+        #  * `executed` — the same semantic call (tool_key + canonical-argument hash)
+        #    reappearing anywhere in the turn reuses the first ToolCallOutcome; the Tool
+        #    Engine is never invoked a second time and the P08 idempotency key never
+        #    changes. The model-generated tool_call_id is used only to correlate the
+        #    protocol response, never to defeat this deduplication.
+        #  * `tool_calls_requested` — every model-requested call counts toward the
+        #    turn-wide budget, duplicates included (a re-request is loop behaviour).
+        executed: dict[tuple[str, str], ToolCallOutcome] = {}
+        tool_calls_requested = 0
 
         for iteration in range(ctx.max_tool_iterations + 1):
             response = await self._call_model(ctx, adapter, secret, http, messages)
@@ -123,7 +142,7 @@ class AgentRuntime:
                 raise AgentToolLoopLimitError(
                     "the model kept requesting tools past the iteration ceiling"
                 )
-            if len(response.tool_calls) > self._cfg.max_tool_calls_per_turn:
+            if len(response.tool_calls) > self._cfg.max_tool_calls_per_response:
                 raise AgentOutputInvalidError(
                     "the model requested more tools in one response than permitted"
                 )
@@ -135,29 +154,27 @@ class AgentRuntime:
                     tool_calls=response.tool_calls,
                 )
             )
-            # duplicate (tool, arguments) within one turn reuses the prior outcome so a
-            # model loop hammering the same call cannot drive repeated side effects.
-            seen: dict[tuple[str, str], ToolCallOutcome] = {}
             for call in response.tool_calls:
-                key = (call.name, _arg_hash(call.arguments))
-                cached = seen.get(key)
-                if cached is not None:
-                    outcome = cached
-                else:
+                tool_calls_requested += 1
+                if tool_calls_requested > self._cfg.max_tool_calls_per_turn:
+                    raise AgentToolLoopLimitError("the turn exhausted its total tool-call budget")
+                key = (call.name, arguments_hash(call.arguments))
+                outcome = executed.get(key)
+                if outcome is None:
                     outcome = await self._tools.execute(
                         principal=ctx.principal,
                         allow_list=ctx.allow_list,
                         call=call,
                         correlation_id=ctx.correlation_id,
-                        idempotency_seed=f"{ctx.idempotency_seed}:{iteration}",
+                        idempotency_seed=ctx.idempotency_seed,
                     )
-                    seen[key] = outcome
+                    executed[key] = outcome
                     outcomes.append(outcome)
                     await on_tool(call.id, outcome, iteration)
                 messages.append(
                     ModelMessage(
                         role=ModelRole.TOOL,
-                        content=json.dumps(outcome.reinjected, separators=(",", ":")),
+                        content=reinjection_json(outcome.reinjected),
                         tool_call_id=call.id,
                     )
                 )
@@ -216,10 +233,3 @@ class AgentRuntime:
             raise AgentOutputInvalidError("the model returned duplicate tool-call ids")
         for call in response.tool_calls:
             self._tools.validate_structure(call)
-
-
-def _arg_hash(arguments: dict[str, Any]) -> str:
-    import hashlib
-
-    canonical = json.dumps(arguments, separators=(",", ":"), sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
