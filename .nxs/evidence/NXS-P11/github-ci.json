@@ -1,16 +1,31 @@
 {
   "base_main_sha": "420d6696e6fc6fbef995879fc13d848c3aa4096d",
-  "closure_commit": "pending \u2014 the corrective re-close commit",
+  "closure_commit": "d0a0cdf26e6bb753aace20e3fad3717bd802254d",
   "implementation_commit": "912b4078a1d036db2a8003f2bb0c0ff5257dd43f",
+  "lineage": "implementation_5a84fdc and closure_bb3e298: fully green pre-audit heads. corrective_d0a0cdf: green head of the audit corrective (outbound idempotency fingerprint + provider-sequence precedence) \u2014 the merge-authoritative HEAD.",
   "merged": false,
-  "note": "Corrective on PR #21 (audit: outbound idempotency fingerprint + provider-sequence precedence). Prior heads 5a84fdc and bb3e298 were fully green (blocks retained for lineage); the corrective head is pending exact-head NXS CI + NXS Security.",
   "phase": "NXS-P11",
   "pull_request": 21,
-  "record_green_ci_head": "pending \u2014 the corrective record-green commit",
-  "recorded_at": "2026-09-10T02:45:00Z",
-  "result": "PENDING",
+  "record_green_ci_head": "d0a0cdf26e6bb753aace20e3fad3717bd802254d",
+  "recorded_at": "2026-09-10T03:05:00Z",
+  "result": "PASS",
   "runs": {
     "closure_bb3e298": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
+    "corrective_d0a0cdf": {
       "jobs": [
         "state",
         "quality",
