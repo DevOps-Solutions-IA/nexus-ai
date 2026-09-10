@@ -97,8 +97,9 @@ async def ready_voice_call(
     )
     await stack.telephony.store_account_credential(org_id, tel_account.id, _TEL_SECRET)
     tel_account = await stack.telephony.get_account(org_id, tel_account.id)
+    e164 = f"+1415{uuid4().int % 10_000_000:07d}"
     dialed = await stack.telephony.register_number(
-        org_id, RegisterPhoneNumberRequest(account_id=tel_account.id, e164="+14155550100")
+        org_id, RegisterPhoneNumberRequest(account_id=tel_account.id, e164=e164)
     )
     provider_call = f"pc-{uuid4().hex}"
     await stack.telephony_inbound.receive(
@@ -137,7 +138,8 @@ async def ready_voice_call(
         media_id = (
             await tenant.session.execute(
                 text(
-                    "SELECT id FROM telephony_media_sessions WHERE call_id = :c AND state = 'ACTIVE'"
+                    "SELECT id FROM telephony_media_sessions "
+                    "WHERE call_id = :c AND state = 'ACTIVE'"
                 ),
                 {"c": call_id},
             )
