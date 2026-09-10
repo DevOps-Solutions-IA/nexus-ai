@@ -22,14 +22,14 @@
     "closure_commit": null,
     "decision": "GO",
     "id": "NXS-P12",
-    "implementation_commit": "af52e245ec4ac3562346c1f1c7af1eccb6f03264",
+    "implementation_commit": "996e33c524af3618250ceb959f5860d1c027030f",
     "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-10T07:13:52Z",
+  "last_updated_at": "2026-09-10T08:35:20Z",
   "next_allowed_execution": {
     "condition": "DEPENDENCIES_READY",
     "phase": "NXS-P13"

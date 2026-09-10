@@ -1,9 +1,9 @@
 {
   "branch": "feat/nxs-p12-elevenlabs",
   "clean_tree": false,
-  "head_sha": "88d6169d0be712d30986244f6bf8140b4f03066a",
+  "head_sha": "996e33c524af3618250ceb959f5860d1c027030f",
   "phase": "NXS-P12",
-  "recorded_at": "2026-09-10T07:07:13Z",
+  "recorded_at": "2026-09-10T08:34:06Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
