@@ -20,7 +20,7 @@
         "."
       ],
       "exit_code": 0,
-      "output_tail": "473 files already formatted\n"
+      "output_tail": "475 files already formatted\n"
     },
     "lint": {
       "command": [
@@ -68,7 +68,7 @@
         "-q"
       ],
       "exit_code": 0,
-      "output_tail": ", 174, 184-186\nsrc/nexus_ai/telephony/providers/fake.py             107     19     34     11    79%   71, 99-101, 104, 124, 147, 152-153, 155, 167, 170-171, 200, 212, 230, 248, 260-262\nsrc/nexus_ai/telephony/providers/registry.py          25      0      0      0   100%\nsrc/nexus_ai/telephony/service.py                    282     38     70     16    82%   131-132, 137-138, 147-156, 179->exit, 184-190, 210-211, 227-228, 231, 243, 246, 309, 311, 327->339, 351, 407, 455-459, 486, 499-502, 518->exit, 527, 545\nsrc/nexus_ai/telephony/state_machine.py               44      8     18      1    76%   129-135, 158-162\nsrc/nexus_ai/telephony/webhooks.py                   172     22     48     12    85%   98-101, 107, 110, 142-143, 147, 154, 195-196, 202, 231-232, 279-280, 309, 313, 338->350, 351->exit, 353, 370, 384\nsrc/nexus_ai/tools/__init__.py                         0      0      0      0   100%\nsrc/nexus_ai/tools/entities.py                       150      0      2      0   100%\nsrc/nexus_ai/tools/errors.py                          82      0      6      2    98%   62->exit, 127->129\nsrc/nexus_ai/tools/events.py                          45      0      0      0   100%\nsrc/nexus_ai/tools/idempotency.py                     32      0      0      0   100%\nsrc/nexus_ai/tools/permissions.py                     27      1      4      0    97%   72\nsrc/nexus_ai/tools/registry.py                       140      4     44      2    97%   146-148, 230\nsrc/nexus_ai/tools/result.py                          17      0      4      0   100%\nsrc/nexus_ai/tools/schemas.py                         66      3     34      3    94%   38, 53, 82\nsrc/nexus_ai/tools/service.py                        144      1     26      1    99%   176\n----------------------------------------------------------------------------------------------\nTOTAL                                              13747    782   2426    429    92%\nRequired test coverage of 90% reached. Total coverage: 92.09%\n1230 passed in 203.77s (0:03:23)\n"
+      "output_tail": "90%   152, 155-156, 174, 184-186\nsrc/nexus_ai/telephony/providers/fake.py             107     19     34     11    79%   71, 99-101, 104, 124, 147, 152-153, 155, 167, 170-171, 200, 212, 230, 248, 260-262\nsrc/nexus_ai/telephony/providers/registry.py          25      0      0      0   100%\nsrc/nexus_ai/telephony/service.py                    285     38     70     16    83%   132-133, 138-139, 148-157, 180->exit, 185-191, 211-212, 228-229, 232, 244, 247, 319, 321, 337->349, 361, 417, 468-473, 501, 514-517, 533->exit, 542, 560\nsrc/nexus_ai/telephony/state_machine.py               44      1     18      1    97%   143\nsrc/nexus_ai/telephony/webhooks.py                   172     21     48     11    85%   98-101, 107, 110, 142-143, 147, 154, 195-196, 202, 231-232, 279-280, 314, 339->351, 352->exit, 354, 371, 385\nsrc/nexus_ai/tools/__init__.py                         0      0      0      0   100%\nsrc/nexus_ai/tools/entities.py                       150      0      2      0   100%\nsrc/nexus_ai/tools/errors.py                          82      0      6      2    98%   62->exit, 127->129\nsrc/nexus_ai/tools/events.py                          45      0      0      0   100%\nsrc/nexus_ai/tools/idempotency.py                     32      0      0      0   100%\nsrc/nexus_ai/tools/permissions.py                     27      1      4      0    97%   72\nsrc/nexus_ai/tools/registry.py                       140      4     44      2    97%   146-148, 230\nsrc/nexus_ai/tools/result.py                          17      0      4      0   100%\nsrc/nexus_ai/tools/schemas.py                         66      3     34      3    94%   38, 53, 82\nsrc/nexus_ai/tools/service.py                        144      1     26      1    99%   176\n----------------------------------------------------------------------------------------------\nTOTAL                                              13762    780   2426    429    92%\nRequired test coverage of 90% reached. Total coverage: 92.16%\n1235 passed in 198.52s (0:03:18)\n"
     },
     "typing": {
       "command": [
@@ -77,10 +77,10 @@
         "mypy"
       ],
       "exit_code": 0,
-      "output_tail": "Success: no issues found in 212 source files\n"
+      "output_tail": "Success: no issues found in 213 source files\n"
     }
   },
-  "executed_at": "2026-09-10T01:34:51Z",
+  "executed_at": "2026-09-10T02:48:24Z",
   "gates": {
     "dependency_security": "PASS",
     "formatting": "PASS",

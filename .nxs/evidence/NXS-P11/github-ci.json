@@ -1,13 +1,14 @@
 {
   "base_main_sha": "420d6696e6fc6fbef995879fc13d848c3aa4096d",
-  "closure_commit": "bb3e298812eebf6380f2ce8bf4cb681d1073b13b",
-  "implementation_commit": "5a84fdcc3ce4fd16dd26d06a0cdb10539cd6efe1",
+  "closure_commit": "pending \u2014 the corrective re-close commit",
+  "implementation_commit": "912b4078a1d036db2a8003f2bb0c0ff5257dd43f",
   "merged": false,
+  "note": "Corrective on PR #21 (audit: outbound idempotency fingerprint + provider-sequence precedence). Prior heads 5a84fdc and bb3e298 were fully green (blocks retained for lineage); the corrective head is pending exact-head NXS CI + NXS Security.",
   "phase": "NXS-P11",
   "pull_request": 21,
-  "record_green_ci_head": "bb3e298812eebf6380f2ce8bf4cb681d1073b13b",
-  "recorded_at": "2026-09-10T02:05:00Z",
-  "result": "PASS",
+  "record_green_ci_head": "pending \u2014 the corrective record-green commit",
+  "recorded_at": "2026-09-10T02:45:00Z",
+  "result": "PENDING",
   "runs": {
     "closure_bb3e298": {
       "jobs": [
