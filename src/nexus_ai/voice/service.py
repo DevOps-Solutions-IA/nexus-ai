@@ -134,6 +134,9 @@ class VoiceService:
             media_channel_factory or _default_media_channel
         )
         self._tasks: dict[UUID, asyncio.Task[None]] = {}
+        #: Serializes the cancel + terminal transition for one session so concurrent
+        #: stop / handoff callers never race on ``task.cancel()`` / a terminal write.
+        self._terminalize_locks: dict[UUID, asyncio.Lock] = {}
         self._log = get_logger("nexus_ai.voice")
 
     # -- accounts -----------------------------------------------------------------
@@ -420,30 +423,34 @@ class VoiceService:
     ) -> VoiceSession:
         """Cancel the background runtime task (awaiting it so the transport / media
         channel are closed) and move the session to a CANCELLED terminal state in this
-        service's own tenant transaction. Idempotent for an already-terminal session."""
-        task = self._tasks.get(session_id)
-        if task is not None and not task.done():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError, Exception):
-                await task
-        async with self._db.tenant_transaction(organization_id) as tenant:
-            repo = VoiceSessionRepository(tenant)
-            session = await repo.by_id(session_id, for_update=True)
-            if session is None:
-                raise VoiceSessionNotFoundError("no such voice session in this Organization")
-            if is_terminal(session.state):
-                return session
-            updated = await repo.apply(
-                session_id,
-                {
-                    "state": VoiceSessionState.CANCELLED.value,
-                    "state_rank": session_rank(VoiceSessionState.CANCELLED),
-                    "disposition": VoiceSessionDisposition.CANCELLED.value,
-                    "ended_at": dt.datetime.now(dt.UTC),
-                },
-            )
-            assert updated is not None  # noqa: S101
-            await self._enqueue_state_event(tenant.session, organization_id, updated)
+        service's own tenant transaction. Idempotent for an already-terminal session, and
+        serialized per session so concurrent stop / handoff callers never race on
+        ``task.cancel()`` or the terminal write."""
+        lock = self._terminalize_locks.setdefault(session_id, asyncio.Lock())
+        async with lock:
+            task = self._tasks.get(session_id)
+            if task is not None and not task.done():
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError, Exception):
+                    await task
+            async with self._db.tenant_transaction(organization_id) as tenant:
+                repo = VoiceSessionRepository(tenant)
+                session = await repo.by_id(session_id, for_update=True)
+                if session is None:
+                    raise VoiceSessionNotFoundError("no such voice session in this Organization")
+                if is_terminal(session.state):
+                    return session
+                updated = await repo.apply(
+                    session_id,
+                    {
+                        "state": VoiceSessionState.CANCELLED.value,
+                        "state_rank": session_rank(VoiceSessionState.CANCELLED),
+                        "disposition": VoiceSessionDisposition.CANCELLED.value,
+                        "ended_at": dt.datetime.now(dt.UTC),
+                    },
+                )
+                assert updated is not None  # noqa: S101
+                await self._enqueue_state_event(tenant.session, organization_id, updated)
         return updated
 
     async def request_handoff(
@@ -461,25 +468,26 @@ class VoiceService:
             if session is None:
                 raise VoiceSessionNotFoundError("no such voice session in this Organization")
             if session.handoff_state is not VoiceHandoffState.AI:
-                # already PENDING_HUMAN or HUMAN — idempotent, no duplicate event, and a
-                # now-terminal AI stream is expected (it was detached on the first call).
-                pass
-            elif is_terminal(session.state):
+                # already PENDING_HUMAN or HUMAN — idempotent. No duplicate event, no
+                # second cancel + terminal write to race; the now-detached AI stream is
+                # expected. Report the row as read under the lock.
+                return session
+            if is_terminal(session.state):
                 raise VoiceInvalidStateError("the voice session has already ended")
-            else:
-                moved = await repo.apply(
-                    session_id, {"handoff_state": VoiceHandoffState.PENDING_HUMAN.value}
-                )
-                assert moved is not None  # noqa: S101
-                await self._enqueue_named_event(
-                    tenant.session,
-                    organization_id,
-                    "voice.handoff.requested",
-                    moved,
-                    target=request.target,
-                )
-        # Detach the AI voice stream and end the voice session — NXS-P11 owns the actual
-        # call bridge to the human. The handoff_state (PENDING_HUMAN) is preserved.
+            moved = await repo.apply(
+                session_id, {"handoff_state": VoiceHandoffState.PENDING_HUMAN.value}
+            )
+            assert moved is not None  # noqa: S101
+            await self._enqueue_named_event(
+                tenant.session,
+                organization_id,
+                "voice.handoff.requested",
+                moved,
+                target=request.target,
+            )
+        # Only the caller that actually moved AI -> PENDING_HUMAN gets here: detach the AI
+        # voice stream and end the voice session (NXS-P11 owns the real bridge to the
+        # human). The handoff_state (PENDING_HUMAN) is preserved by _cancel_and_terminalize.
         await self._cancel_and_terminalize(organization_id, session_id)
         return await self._require_session(organization_id, session_id)
 
@@ -521,6 +529,7 @@ class VoiceService:
         if tasks:
             await asyncio.gather(*tasks, return_exceptions=True)
         self._tasks.clear()
+        self._terminalize_locks.clear()
 
     async def join(self, session_id: UUID) -> None:
         """Await the background runtime task for a session (used by tests)."""
