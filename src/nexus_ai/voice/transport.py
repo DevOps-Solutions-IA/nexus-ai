@@ -22,7 +22,7 @@ import asyncio
 import contextlib
 from collections import deque
 from collections.abc import Iterable
-from typing import Protocol
+from typing import Any, Protocol
 
 from nexus_ai.voice.errors import (
     VoiceConnectionFailedError,
@@ -104,9 +104,21 @@ class BoundedFrameQueue:
 class VoiceStreamTransport(Protocol):
     """A provider-neutral duplex byte transport. Text and binary frames both surface as
     ``bytes`` / ``str`` from :meth:`recv`. Every method is bounded by an explicit
-    timeout and is safe to call after close."""
+    timeout and is safe to call after close.
 
-    async def connect(self, *, url: str, headers: dict[str, str], open_timeout: float) -> None: ...
+    ``pin_host`` / ``pin_port`` are the ALREADY-VALIDATED TCP target
+    (:func:`~nexus_ai.voice.providers.base.validate_provider_ws_url`). A production
+    transport MUST connect only there and MUST refuse a cross-origin redirect."""
+
+    async def connect(
+        self,
+        *,
+        url: str,
+        headers: dict[str, str],
+        open_timeout: float,
+        pin_host: str | None = None,
+        pin_port: int | None = None,
+    ) -> None: ...
 
     async def send(self, message: bytes | str) -> None: ...
 
@@ -129,11 +141,25 @@ class WebsocketVoiceStreamTransport:
         self._close_timeout = close_timeout
         self._ws: object | None = None
 
-    async def connect(self, *, url: str, headers: dict[str, str], open_timeout: float) -> None:
+    async def connect(
+        self,
+        *,
+        url: str,
+        headers: dict[str, str],
+        open_timeout: float,
+        pin_host: str | None = None,
+        pin_port: int | None = None,
+    ) -> None:
         try:
             from websockets.asyncio.client import connect as ws_connect
         except ImportError as exc:  # pragma: no cover - dependency is vendored + pinned
             raise VoiceConnectionFailedError("the websocket client is unavailable") from exc
+        # Pinning host/port makes the library REFUSE any cross-origin redirect ("cannot
+        # follow cross-origin redirect ... with an explicit host or port"), so a redirect
+        # cannot escape the validated allow-listed target.
+        extra: dict[str, Any] = {}
+        if pin_host is not None:
+            extra = {"host": pin_host, "port": pin_port if pin_port is not None else 443}
         try:
             self._ws = await ws_connect(
                 url,
@@ -143,6 +169,7 @@ class WebsocketVoiceStreamTransport:
                 max_size=self._max_message_bytes,
                 ping_interval=20,
                 ping_timeout=20,
+                **extra,
             )
         except TimeoutError as exc:
             raise VoiceConnectionFailedError("the voice websocket handshake timed out") from exc
@@ -214,8 +241,16 @@ class FakeVoiceStreamTransport:
     def push(self, frame: bytes | str) -> None:
         self._inbound.append(frame)
 
-    async def connect(self, *, url: str, headers: dict[str, str], open_timeout: float) -> None:
-        del url, headers, open_timeout
+    async def connect(
+        self,
+        *,
+        url: str,
+        headers: dict[str, str],
+        open_timeout: float,
+        pin_host: str | None = None,
+        pin_port: int | None = None,
+    ) -> None:
+        del url, headers, open_timeout, pin_host, pin_port
         self.connect_calls += 1
         self._connected = True
 

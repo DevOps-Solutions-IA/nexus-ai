@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import time
+import uuid
 from typing import Any
 
 import pytest
@@ -30,6 +31,7 @@ from nexus_ai.voice.providers.elevenlabs import ElevenLabsVoiceAdapter
 pytestmark = pytest.mark.anyio
 
 _FMT = AudioFormat(codec=VoiceCodec.PCM_S16LE, sample_rate=16_000)
+_UUID_A = uuid.UUID("01a00000-0000-7000-8000-000000000001")
 _SECRET = SecretMaterial(
     CredentialType.PROVIDER_SECRET_SET, {"api_key": "sk-eleven", "webhook_secret": "wh"}
 )
@@ -40,6 +42,7 @@ _SPEC = VoiceSessionSpec(
     provider_model_ref=None,
     input_format=_FMT,
     output_format=_FMT,
+    provider_api_base="https://api.elevenlabs.io",
 )
 
 
@@ -187,3 +190,99 @@ def test_fake_provider_parses_and_serializes_the_neutral_protocol() -> None:
         p.parse_frame(_json.dumps({"type": "nonsense"}))
     assert "user_audio" not in p.serialize_audio(b"x")  # fake uses its own shape
     assert _json.loads(p.keepalive_reply(9))["event_id"] == 9
+
+
+# --- BLOCKER 1: WebSocket SSRF / provider URL trust -----------------------------------
+
+
+@pytest.mark.parametrize(
+    "signed_url",
+    [
+        "wss://127.0.0.1/stream",  # loopback
+        "wss://169.254.169.254/latest/meta-data",  # cloud metadata
+        "wss://10.0.0.5/stream",  # RFC1918
+        "wss://192.168.1.1/stream",  # RFC1918
+        "wss://internal.corp.local/stream",  # unauthorised hostname
+        "wss://evil.example.com/stream",  # unauthorised public hostname
+        "wss://user:pw@api.elevenlabs.io/stream",  # userinfo
+        "wss://api.elevenlabs.io:22/stream",  # unsafe port
+        "https://api.elevenlabs.io/stream",  # not wss
+    ],
+)
+async def test_open_session_rejects_untrusted_signed_ws_url(signed_url: str) -> None:
+    adapter = ElevenLabsVoiceAdapter()
+    http = _Http(HttpResponse(200, {}, json.dumps({"signed_url": signed_url}).encode()))
+    with pytest.raises(VoiceProviderError):
+        await adapter.open_session(_SPEC, _SECRET, http)
+
+
+async def test_open_session_accepts_the_official_elevenlabs_ws_host() -> None:
+    adapter = ElevenLabsVoiceAdapter()
+    http = _Http(
+        HttpResponse(
+            200,
+            {},
+            json.dumps(
+                {"signed_url": "wss://api.elevenlabs.io/v1/convai/conversation?token=t"}
+            ).encode(),
+        )
+    )
+    init = await adapter.open_session(_SPEC, _SECRET, http)
+    assert init.ws_host == "api.elevenlabs.io" and init.ws_port == 443
+
+
+async def test_open_session_uses_only_the_configured_api_base_never_a_request_option() -> None:
+    from nexus_ai.voice.providers.base import VoiceSessionSpec
+
+    adapter = ElevenLabsVoiceAdapter()
+    # a spec with NO provider_api_base (as if a caller tried to omit / override it)
+    naked = VoiceSessionSpec(
+        provider="elevenlabs",
+        external_account_id="acct-1",
+        provider_voice_ref="agent_1",
+        provider_model_ref=None,
+        input_format=_FMT,
+        output_format=_FMT,
+        options={"language": "en"},
+    )
+    with pytest.raises(Exception):  # noqa: B017 - VoiceConfigInvalidError
+        await adapter.open_session(naked, _SECRET, _Http())
+    # a caller CANNOT smuggle an endpoint through options (allow-list on the request model)
+    from pydantic import ValidationError
+
+    from nexus_ai.voice.entities import StartVoiceSessionRequest
+
+    with pytest.raises(ValidationError):
+        StartVoiceSessionRequest(
+            call_id=_UUID_A,
+            media_session_id=_UUID_A,
+            provider_account_id=_UUID_A,
+            voice_profile_id=_UUID_A,
+            options={"api_base": "https://evil.example"},
+        )
+
+
+# --- protocol reconciliation ---------------------------------------------------------
+
+
+def test_agent_response_correction_is_normalized_as_a_transport_fact() -> None:
+    adapter = ElevenLabsVoiceAdapter()
+    ev = adapter.parse_frame(
+        json.dumps(
+            {
+                "type": "agent_response_correction",
+                "agent_response_correction_event": {"corrected_agent_response": "actually, no"},
+            }
+        )
+    )
+    assert ev is not None and ev.kind is VoiceProviderEventKind.AGENT_TEXT
+    assert ev.text == "actually, no"
+
+
+def test_client_tool_call_is_ignored_never_executed_in_p12() -> None:
+    adapter = ElevenLabsVoiceAdapter()
+    for frame_type in ("client_tool_call", "client_tool_result", "mcp_tool_call"):
+        assert adapter.parse_frame(json.dumps({"type": frame_type, "x": 1})) is None, frame_type
+    # a genuinely unknown frame still fails closed
+    with pytest.raises(VoiceProtocolError):
+        adapter.parse_frame(json.dumps({"type": "totally_made_up_frame"}))

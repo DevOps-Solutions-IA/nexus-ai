@@ -12,9 +12,11 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import ipaddress
 import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
+from urllib.parse import urlsplit
 
 from nexus_ai.voice.audio import AudioFormat
 from nexus_ai.voice.entities import VoiceProviderEvent
@@ -55,7 +57,12 @@ class VoiceHttpTransport(Protocol):
 @dataclass(frozen=True, slots=True)
 class VoiceSessionSpec:
     """Everything an adapter needs to open a session — already validated by the service.
-    No credential, no raw provider config, no WebSocket URL."""
+    No credential, no raw provider config, no WebSocket URL.
+
+    ``provider_api_base`` is the TRUSTED provider REST origin. It comes from server-side
+    configuration (``settings.voice.elevenlabs_api_base``), NEVER from a caller: a
+    ``start_session`` request cannot select the provider endpoint.
+    """
 
     provider: str
     external_account_id: str
@@ -63,7 +70,9 @@ class VoiceSessionSpec:
     provider_model_ref: str | None
     input_format: AudioFormat
     output_format: AudioFormat
-    #: Bounded, provider-neutral session options.
+    #: Trusted provider REST origin (a bare https origin), from server config only.
+    provider_api_base: str = ""
+    #: Bounded, provider-neutral, ALLOW-LISTED session options — never an endpoint.
     options: dict[str, str] = field(default_factory=dict)
     correlation_id: str | None = None
 
@@ -71,12 +80,17 @@ class VoiceSessionSpec:
 @dataclass(frozen=True, slots=True)
 class ProviderSessionInit:
     """The result of the REST leg: how to open the real-time transport, plus the audio
-    format the provider actually negotiated. The URL may be a short-lived signed URL —
-    it is passed straight to the transport and never logged, evented or persisted."""
+    format the provider actually negotiated. ``url`` is a short-lived signed WebSocket URL
+    that has ALREADY been validated against the provider host allow-list
+    (:func:`validate_provider_ws_url`); ``ws_host`` / ``ws_port`` are the validated TCP
+    target the transport must pin so a cross-origin redirect cannot escape. The URL is
+    never logged, evented or persisted."""
 
     url: str
     headers: dict[str, str]
     negotiated_format: AudioFormat
+    ws_host: str
+    ws_port: int
     provider_session_id: str | None = None
 
 
@@ -121,6 +135,56 @@ class VoiceProviderAdapter(Protocol):
 
 
 # --- shared helpers -----------------------------------------------------------------
+
+
+_UNSAFE_WS_PORTS: frozenset[int] = frozenset({22, 23, 25, 3306, 5432, 6379, 9200, 11211, 27017})
+
+
+@dataclass(frozen=True, slots=True)
+class ValidatedWsTarget:
+    url: str
+    host: str
+    port: int
+
+
+def validate_provider_ws_url(url: str, *, allowed_hosts: frozenset[str]) -> ValidatedWsTarget:
+    """The one gate a provider-supplied signed WebSocket URL passes before the transport
+    opens it. Defends against a chain of: caller-influenced REST -> attacker-controlled
+    signed_url -> a connection to an internal / arbitrary host.
+
+    Fails closed (``NXS_VOICE_PROVIDER_ERROR``) when the URL is not ``wss://``, carries
+    userinfo, targets an IP literal, targets a loopback / private / link-local /
+    multicast / reserved / cloud-metadata address, uses an unsafe port, or its host is
+    not in ``allowed_hosts``. The returned host / port are what the transport MUST pin so
+    a cross-origin redirect cannot escape.
+    """
+    try:
+        parts = urlsplit(url.strip())
+    except ValueError as exc:
+        raise VoiceProviderError("the provider returned a malformed signed url") from exc
+    if parts.scheme != "wss":
+        raise VoiceProviderError("the provider signed url is not a wss:// url")
+    if parts.username or parts.password:
+        raise VoiceProviderError("the provider signed url carries userinfo")
+    host = (parts.hostname or "").lower()
+    if not host:
+        raise VoiceProviderError("the provider signed url has no host")
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        address = None
+    if address is not None:
+        # An IP literal is never a legitimate provider endpoint and is the SSRF vector.
+        raise VoiceProviderError("the provider signed url targets an IP literal")
+    if host not in allowed_hosts:
+        raise VoiceProviderError("the provider signed url host is not on the allow-list")
+    try:
+        port = parts.port if parts.port is not None else 443
+    except ValueError as exc:
+        raise VoiceProviderError("the provider signed url has an invalid port") from exc
+    if port in _UNSAFE_WS_PORTS or not (1 <= port <= 65_535):
+        raise VoiceProviderError("the provider signed url uses an unsafe port")
+    return ValidatedWsTarget(url=url, host=host, port=port)
 
 
 def verify_elevenlabs_style_signature(

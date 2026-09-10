@@ -17,6 +17,7 @@ from fastapi import APIRouter, Query, Request, Response, status
 from nexus_ai.api.authorization import VoiceConfigureDep, VoiceReadDep, VoiceUseDep
 from nexus_ai.api.dependencies import TenantContextDep, get_resources
 from nexus_ai.voice.entities import (
+    ConfirmHandoffRequest,
     CreateVoiceAccountRequest,
     CreateVoiceProfileRequest,
     RequestHandoffRequest,
@@ -271,7 +272,28 @@ async def request_handoff(
     _authorized: VoiceUseDep,
     request: Request,
 ) -> VoiceSessionView:
+    """Request an AI->human handoff: moves the session to ``PENDING_HUMAN`` and emits
+    ``voice.handoff.requested`` only. ``voice.handoff.completed`` / the ``HUMAN`` state
+    require a separate authoritative confirmation (``/handoff/confirm``)."""
     session = await get_resources(request).voice.request_handoff(
+        context.organization_id, session_id, payload
+    )
+    return session.public_view()
+
+
+@voice_router.post("/sessions/{session_id}/handoff/confirm", response_model=VoiceSessionView)
+async def confirm_handoff(
+    session_id: UUID,
+    payload: ConfirmHandoffRequest,
+    context: TenantContextDep,
+    _authorized: VoiceUseDep,
+    request: Request,
+) -> VoiceSessionView:
+    """Record an authoritative confirmation that the human bridge is live: moves the
+    session ``PENDING_HUMAN -> HUMAN`` and emits ``voice.handoff.completed``. Tenant-scoped;
+    rejects any state other than ``PENDING_HUMAN``. The seam a future NXS-P17
+    bridge-completion callback uses — P12 never self-advances to ``HUMAN``."""
+    session = await get_resources(request).voice.confirm_handoff(
         context.organization_id, session_id, payload
     )
     return session.public_view()

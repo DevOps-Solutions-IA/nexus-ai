@@ -1,6 +1,8 @@
 # ADR-0088: P11 MediaSession ↔ P12 voice streaming — the media bridge and the bounded transport
 
-Status: Accepted. Part of NXS-P12 (`NXS-VOICE-001`).
+Status: Accepted; amended 2026-09-10 by the NXS-P12 independent-audit corrective
+(provider signed-URL validation + connection host/port pinning against redirect-based
+SSRF). Part of NXS-P12 (`NXS-VOICE-001`).
 
 ## The media bridge boundary
 
@@ -56,6 +58,19 @@ with every knob bounded (`open_timeout`, `close_timeout`, `max_size`, `ping_inte
 `ping_timeout`); every library exception is normalized to `NXS_VOICE_CONNECTION_FAILED`
 or `StreamClosed`. `FakeVoiceStreamTransport` scripts frames and can inject a peer close,
 an idle timeout or a malformed frame at a chosen point.
+
+**Provider-URL trust (amended 2026-09-10, NXS-P12 corrective).** A provider-supplied
+signed WebSocket URL is never opened on the strength of its `wss://` scheme alone. The
+adapter runs `validate_provider_ws_url` first (scheme, no userinfo, host on the provider
+allow-list, no IP literal, no loopback / RFC1918 / link-local / multicast / metadata
+address, no unsafe port) and passes the validated `(host, port)` to
+`connect(..., pin_host=, pin_port=)`. The transport then sets an explicit `host` / `port`
+on the `websockets` client, which makes the library **refuse any cross-origin redirect**;
+`WEBSOCKETS_MAX_REDIRECTS` bounds same-origin redirects. A caller cannot select the
+provider REST origin either — it is `settings.voice.elevenlabs_api_base`, carried on
+`VoiceSessionSpec.provider_api_base`, never a request field. Test/fake endpoints are
+reached only through dependency injection (`transport_factory`, the `fake` provider),
+never a public request option.
 
 ## The session runtime loop
 

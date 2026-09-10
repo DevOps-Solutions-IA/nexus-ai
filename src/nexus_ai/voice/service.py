@@ -45,6 +45,7 @@ from nexus_ai.voice.account_config import validate_voice_account_configuration
 from nexus_ai.voice.audio import normalize_audio_format
 from nexus_ai.voice.bridge import MediaBridgePlan, plan_media_bridge
 from nexus_ai.voice.entities import (
+    ConfirmHandoffRequest,
     CreateVoiceAccountRequest,
     CreateVoiceProfileRequest,
     RequestHandoffRequest,
@@ -367,6 +368,8 @@ class VoiceService:
             provider_model_ref=profile.provider_model_ref,
             input_format=profile.input_format,
             output_format=profile.output_format,
+            # Trusted provider REST origin from SERVER config only — never a request.
+            provider_api_base=self._settings.voice.elevenlabs_api_base,
             options=dict(request.options),
             correlation_id=request.correlation_id,
         )
@@ -410,6 +413,14 @@ class VoiceService:
         self, organization_id: UUID, session_id: UUID, request: StopVoiceSessionRequest
     ) -> VoiceSession:
         del request
+        return await self._cancel_and_terminalize(organization_id, session_id)
+
+    async def _cancel_and_terminalize(
+        self, organization_id: UUID, session_id: UUID
+    ) -> VoiceSession:
+        """Cancel the background runtime task (awaiting it so the transport / media
+        channel are closed) and move the session to a CANCELLED terminal state in this
+        service's own tenant transaction. Idempotent for an already-terminal session."""
         task = self._tasks.get(session_id)
         if task is not None and not task.done():
             task.cancel()
@@ -438,37 +449,69 @@ class VoiceService:
     async def request_handoff(
         self, organization_id: UUID, session_id: UUID, request: RequestHandoffRequest
     ) -> VoiceSession:
+        """Request an AI -> human handoff. Moves ``handoff_state`` AI -> PENDING_HUMAN,
+        emits ``voice.handoff.requested`` and detaches the AI voice stream. It does NOT
+        emit ``voice.handoff.completed`` and does NOT claim HUMAN — only
+        :meth:`confirm_handoff`, driven by an authoritative confirmation of the actual
+        human bridge (a future NXS-P17 responsibility), may do that. Idempotent; a
+        terminal session is rejected."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             repo = VoiceSessionRepository(tenant)
             session = await repo.by_id(session_id, for_update=True)
             if session is None:
                 raise VoiceSessionNotFoundError("no such voice session in this Organization")
-            if is_terminal(session.state):
+            if session.handoff_state is not VoiceHandoffState.AI:
+                # already PENDING_HUMAN or HUMAN — idempotent, no duplicate event, and a
+                # now-terminal AI stream is expected (it was detached on the first call).
+                pass
+            elif is_terminal(session.state):
                 raise VoiceInvalidStateError("the voice session has already ended")
+            else:
+                moved = await repo.apply(
+                    session_id, {"handoff_state": VoiceHandoffState.PENDING_HUMAN.value}
+                )
+                assert moved is not None  # noqa: S101
+                await self._enqueue_named_event(
+                    tenant.session,
+                    organization_id,
+                    "voice.handoff.requested",
+                    moved,
+                    target=request.target,
+                )
+        # Detach the AI voice stream and end the voice session — NXS-P11 owns the actual
+        # call bridge to the human. The handoff_state (PENDING_HUMAN) is preserved.
+        await self._cancel_and_terminalize(organization_id, session_id)
+        return await self._require_session(organization_id, session_id)
+
+    async def confirm_handoff(
+        self, organization_id: UUID, session_id: UUID, request: ConfirmHandoffRequest
+    ) -> VoiceSession:
+        """Record an AUTHORITATIVE confirmation that the human bridge is live. Moves
+        ``handoff_state`` PENDING_HUMAN -> HUMAN and emits ``voice.handoff.completed``.
+        Tenant-scoped (a caller can only confirm a session in its own Organization);
+        rejects any state other than PENDING_HUMAN. This is the seam a future NXS-P17
+        bridge-completion callback calls — P12 never advances to HUMAN on its own."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            repo = VoiceSessionRepository(tenant)
+            session = await repo.by_id(session_id, for_update=True)
+            if session is None:
+                raise VoiceSessionNotFoundError("no such voice session in this Organization")
             if session.handoff_state is VoiceHandoffState.HUMAN:
-                return session
+                return session  # idempotent
+            if session.handoff_state is not VoiceHandoffState.PENDING_HUMAN:
+                raise VoiceInvalidStateError(
+                    "the voice session is not awaiting a human bridge confirmation"
+                )
             updated = await repo.apply(session_id, {"handoff_state": VoiceHandoffState.HUMAN.value})
             assert updated is not None  # noqa: S101
-            await self._enqueue_named_event(
-                tenant.session,
-                organization_id,
-                "voice.handoff.requested",
-                updated,
-                target=request.target,
-            )
             await self._enqueue_named_event(
                 tenant.session,
                 organization_id,
                 "voice.handoff.completed",
                 updated,
                 target=request.target,
+                bridge_reference=request.bridge_reference,
             )
-        # Detach the AI voice stream — NXS-P11 owns the actual call bridge to the human.
-        task = self._tasks.get(session_id)
-        if task is not None and not task.done():
-            task.cancel()
-            with contextlib.suppress(asyncio.CancelledError, Exception):
-                await task
         return updated
 
     async def shutdown(self) -> None:
@@ -520,7 +563,10 @@ class VoiceService:
                 on_connected=_on_connected,
             )
         except asyncio.CancelledError:
-            await self._finalize(ctx, RuntimeOutcome(disposition=VoiceSessionDisposition.CANCELLED))
+            # The terminal transition + connection cleanup for a cancelled session are
+            # the CALLER's job (stop_session / request_handoff hold their own tenant
+            # transaction). Doing DB work here would run inside a cancelled coroutine
+            # and can leak a pooled connection.
             raise
         except NxsError as exc:
             await self._finalize(
@@ -863,8 +909,23 @@ class VoiceService:
         )
 
     async def _enqueue_named_event(
-        self, session: Any, organization_id: UUID, name: str, row: VoiceSession, *, target: str
+        self,
+        session: Any,
+        organization_id: UUID,
+        name: str,
+        row: VoiceSession,
+        *,
+        target: str,
+        bridge_reference: str | None = None,
     ) -> None:
+        payload: dict[str, Any] = {
+            "session_id": str(row.id),
+            "call_id": str(row.call_id),
+            "target": target,
+            "correlation_id": row.correlation_id,
+        }
+        if bridge_reference is not None:
+            payload["bridge_reference"] = bridge_reference
         await self._publisher.enqueue(
             session,
             EventEnvelope.create(
@@ -875,11 +936,6 @@ class VoiceService:
                 producer=self._settings.service_name,
                 organization_id=organization_id,
                 correlation_id=row.correlation_id,
-                payload={
-                    "session_id": str(row.id),
-                    "call_id": str(row.call_id),
-                    "target": target,
-                    "correlation_id": row.correlation_id,
-                },
+                payload=payload,
             ),
         )

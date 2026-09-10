@@ -198,6 +198,103 @@ async def test_unsigned_and_replayed_callbacks_are_refused(
         await voice_stack.inbound.receive("fake", "not-a-real-token", unsigned)
 
 
+# --- BLOCKER 1: WebSocket SSRF / provider URL trust ---------------------------------
+
+
+@pytest.mark.parametrize(
+    "signed_url",
+    [
+        "wss://127.0.0.1/stream",  # loopback
+        "wss://[::1]/stream",  # loopback v6
+        "wss://169.254.169.254/latest/meta-data/",  # cloud metadata
+        "wss://10.1.2.3/stream",  # RFC1918
+        "wss://172.16.9.9/stream",  # RFC1918
+        "wss://192.168.0.10/stream",  # RFC1918
+        "wss://100.64.0.1/stream",  # CGNAT / carrier-grade
+        "wss://224.0.0.1/stream",  # multicast
+        "wss://internal.corp.local/stream",  # unauthorised private hostname
+        "wss://elevenlabs.io.evil.example/stream",  # look-alike host
+        "wss://api.elevenlabs.io.evil.example/stream",  # suffix attack
+        "wss://user:pw@api.elevenlabs.io/stream",  # userinfo
+        "wss://api.elevenlabs.io:22/stream",  # unsafe port (ssh)
+        "wss://api.elevenlabs.io:5432/stream",  # unsafe port (postgres)
+        "wss://api.elevenlabs.io:6379/stream",  # unsafe port (redis)
+        "ws://api.elevenlabs.io/stream",  # plaintext ws
+        "https://api.elevenlabs.io/stream",  # not a websocket scheme
+        "not-a-url",
+    ],
+)
+def test_validate_provider_ws_url_refuses_every_ssrf_class(signed_url: str) -> None:
+    from nexus_ai.voice.errors import VoiceProviderError
+    from nexus_ai.voice.providers.base import validate_provider_ws_url
+
+    with pytest.raises(VoiceProviderError):
+        validate_provider_ws_url(signed_url, allowed_hosts=frozenset({"api.elevenlabs.io"}))
+
+
+def test_validate_provider_ws_url_accepts_only_the_official_host() -> None:
+    from nexus_ai.voice.providers.base import validate_provider_ws_url
+
+    target = validate_provider_ws_url(
+        "wss://api.elevenlabs.io/v1/convai/conversation?token=abc123",
+        allowed_hosts=frozenset({"api.elevenlabs.io"}),
+    )
+    assert target.host == "api.elevenlabs.io"
+    assert target.port == 443
+
+
+async def test_a_malicious_rest_signed_url_cannot_reach_an_arbitrary_host(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    """End to end: even if the ElevenLabs REST leg is compromised and returns a
+    signed_url pointing at an internal target, the adapter refuses it before the
+    transport is touched — and the REST origin itself is the server-configured one,
+    never anything a caller supplied."""
+    from nexus_ai.integrations.credentials import CredentialType, SecretMaterial
+    from nexus_ai.voice.audio import AudioFormat, VoiceCodec
+    from nexus_ai.voice.errors import VoiceProviderError
+    from nexus_ai.voice.providers.base import HttpResponse, VoiceSessionSpec
+    from nexus_ai.voice.providers.elevenlabs import ElevenLabsVoiceAdapter
+
+    fmt = AudioFormat(codec=VoiceCodec.PCM_S16LE, sample_rate=16_000)
+    # the spec is built EXACTLY as VoiceService.start_session builds it
+    spec = VoiceSessionSpec(
+        provider="elevenlabs",
+        external_account_id="acct-1",
+        provider_voice_ref="agent_1",
+        provider_model_ref=None,
+        input_format=fmt,
+        output_format=fmt,
+        provider_api_base=voice_stack.settings.voice.elevenlabs_api_base,
+    )
+    assert spec.provider_api_base.startswith("https://")
+
+    class _CompromisedRest:
+        async def request(self, *, method, url, headers, body, timeout_seconds=None):  # type: ignore[no-untyped-def]
+            assert url.startswith(voice_stack.settings.voice.elevenlabs_api_base)
+            return HttpResponse(
+                200, {}, json.dumps({"signed_url": "wss://169.254.169.254/x"}).encode()
+            )
+
+    secret = SecretMaterial(CredentialType.PROVIDER_SECRET_SET, {"api_key": "sk-x"})
+    with pytest.raises(VoiceProviderError):
+        await ElevenLabsVoiceAdapter().open_session(spec, secret, _CompromisedRest())
+
+
+def test_start_session_request_cannot_smuggle_a_provider_endpoint() -> None:
+    from pydantic import ValidationError
+
+    for banned in ("api_base", "url", "endpoint", "ws_url", "signed_url", "host", "api_key"):
+        with pytest.raises(ValidationError):
+            StartVoiceSessionRequest(
+                call_id=uuid4(),
+                media_session_id=uuid4(),
+                provider_account_id=uuid4(),
+                voice_profile_id=uuid4(),
+                options={banned: "wss://evil.example"},
+            )
+
+
 async def test_start_session_never_takes_tenant_from_the_request(
     voice_stack: Any, make_organization: Any
 ) -> None:

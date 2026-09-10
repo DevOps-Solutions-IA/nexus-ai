@@ -1,6 +1,9 @@
 # ADR-0089: Voice-session lifecycle, idempotency, failure semantics and the AI↔human handoff
 
-Status: Accepted. Part of NXS-P12 (`NXS-VOICE-001`, `NXS-EL-001`).
+Status: Accepted; amended 2026-09-10 by the NXS-P12 independent-audit corrective — the
+AI↔human handoff is now a truthful three-state lifecycle (`AI → PENDING_HUMAN → HUMAN`)
+and no longer fabricates `voice.handoff.completed`. Part of NXS-P12 (`NXS-VOICE-001`,
+`NXS-EL-001`).
 
 ## Lifecycle
 
@@ -23,7 +26,8 @@ state machine (ADR-0085)** — deterministic, monotonic, fail-closed:
 
 The live lifecycle is linear, so rank is a bijection with the live state and there is no
 "illegal live transition". `NXS_VOICE_INVALID_STATE` is raised only by the API surface
-(`request_handoff` on an already-terminal session).
+(`request_handoff` on an already-terminal session; `confirm_handoff` on a session not
+awaiting a human bridge).
 
 `start_session` is a **fast synchronous** operation: it validates, persists (idempotent),
 transitions `PENDING → CONNECTING`, emits `voice.session.created` /
@@ -81,10 +85,27 @@ and ends. A retry under the same key replays the recorded session.
 
 ## AI↔human handoff (`NXS-VOICE-001`)
 
-`request_handoff` is **control-plane only**: it transitions `handoff_state`
-`AI → HUMAN`, emits `voice.handoff.requested` / `voice.handoff.completed`, and detaches
-the AI voice stream (cancels the runtime task). **NXS-P11 owns the actual call bridge**
-to the human agent; P12 records the intent and stops producing AI audio. P12 decides
+`handoff_state` is a **truthful three-state machine**: `AI → PENDING_HUMAN → HUMAN`
+(`CHECK`-constrained on `voice_sessions.handoff_state`).
+
+* `request_handoff` is **control-plane only**. Under the session row `FOR UPDATE` it
+  atomically moves `handoff_state` `AI → PENDING_HUMAN`, emits `voice.handoff.requested`,
+  then detaches the AI voice stream (cancels the runtime task, terminalizing the voice
+  session `CANCELLED`). It does **NOT** emit `voice.handoff.completed` and does **NOT**
+  claim `HUMAN` — P12 neither builds nor verifies the human bridge, so "completed" would
+  be a lie. It is idempotent: a second call, at any later state (including a now-terminal
+  voice session), is a no-op with no duplicate event; the initial `AI → PENDING_HUMAN`
+  transition rejects an already-terminal session with `NXS_VOICE_INVALID_STATE`. Under
+  concurrent callers exactly one `voice.handoff.requested` is emitted.
+* `confirm_handoff` is the **authoritative-confirmation seam**. Tenant-scoped, under
+  `FOR UPDATE`, it moves `PENDING_HUMAN → HUMAN` and emits `voice.handoff.completed` only
+  when handed an authoritative `bridge_reference`. Any state other than `PENDING_HUMAN` is
+  refused (`NXS_VOICE_INVALID_STATE`), `HUMAN` is idempotent, and a caller can only
+  confirm a session in its own Organization. This is the contract a future NXS-P17
+  bridge-completion callback drives — **P12 never advances to `HUMAN` on its own**.
+
+**NXS-P11 owns the actual call bridge** to the human agent; P12 records the intent, stops
+producing AI audio, and waits for the future authoritative confirmation. P12 decides
 nothing about *what* the AI says or does — that is NXS-P13.
 
 ## Persistence

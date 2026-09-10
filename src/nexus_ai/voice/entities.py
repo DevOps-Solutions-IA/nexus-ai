@@ -375,9 +375,18 @@ class UpdateVoiceProfileRequest(BaseModel):
     )
 
 
+#: The ONLY provider-neutral session-option keys a caller may set. Deliberately excludes
+#: anything that could select a provider endpoint / URL / host / credential.
+ALLOWED_SESSION_OPTION_KEYS: frozenset[str] = frozenset(
+    {"language", "first_message", "greeting", "prompt_variant", "max_duration_hint"}
+)
+
+
 class StartVoiceSessionRequest(BaseModel):
     """The one governed way to attach a real-time voice stream to an ACTIVE NXS-P11 media
-    session. No raw provider config, no WebSocket URL, no API key, no ARI command."""
+    session. No raw provider config, no WebSocket URL, no API key, no ARI command, and
+    NO endpoint selection — ``options`` keys are a fixed allow-list
+    (:data:`ALLOWED_SESSION_OPTION_KEYS`)."""
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -396,8 +405,11 @@ class StartVoiceSessionRequest(BaseModel):
         if len(self.options) > MAX_OPTION_KEYS:
             raise ValueError(f"at most {MAX_OPTION_KEYS} options are allowed")
         for key in self.options:
-            if not (1 <= len(key) <= 64) or not key.replace("_", "a").replace("-", "a").isalnum():
-                raise ValueError(f"option key {key!r} is not a valid identifier")
+            if key not in ALLOWED_SESSION_OPTION_KEYS:
+                raise ValueError(
+                    f"session option {key!r} is not permitted "
+                    f"(allowed: {sorted(ALLOWED_SESSION_OPTION_KEYS)})"
+                )
         return self
 
 
@@ -414,6 +426,18 @@ class RequestHandoffRequest(BaseModel):
     #: future phase performs the actual bridge.
     target: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]{1,63}$")] = "human_agent"
     note: Annotated[str, StringConstraints(max_length=200)] | None = None
+
+
+class ConfirmHandoffRequest(BaseModel):
+    """An AUTHORITATIVE confirmation that the human bridge is live — the only thing that
+    moves a session PENDING_HUMAN -> HUMAN. In P12 this is a deliberate governed call
+    (the seam a future NXS-P17 bridge-completion callback uses); P12 never self-advances."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    target: Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_-]{1,63}$")] = "human_agent"
+    #: A bounded opaque reference to the confirmed bridge (e.g. a P11 call-leg / bridge id).
+    bridge_reference: Annotated[str, StringConstraints(min_length=1, max_length=200)]
 
 
 # --- views -------------------------------------------------------------------------

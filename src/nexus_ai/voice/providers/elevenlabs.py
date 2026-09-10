@@ -3,30 +3,47 @@
 Speaks the ElevenLabs Conversational AI real-time API behind the Nexus-neutral
 :class:`VoiceProviderAdapter`. Nothing outside this module imports an ElevenLabs shape.
 
-OFFICIAL CONTRACT USED (documented; treat every line as an ASSUMPTION to be reconciled
-against the live docs at https://elevenlabs.io/docs — if the real contract differs, ONLY
-this file changes, never the Nexus architecture or a security control):
+CONTRACT-RECONCILIATION RECORD — reconciled 2026-09-10 against the ElevenLabs
+Conversational AI docs (https://elevenlabs.io/docs/conversational-ai). Still
+**CONTRACT-CERTIFIED, NOT LIVE-PROVIDER-CERTIFIED** until a real API key is exercised.
 
-* REST auth: ``xi-api-key: <api key>`` header on ``{api_base}/v1/...``.
+REST
+* Auth: ``xi-api-key: <api key>`` header on ``{provider_api_base}/v1/...``. The origin is
+  trusted server configuration (``settings.voice.elevenlabs_api_base``) — NEVER a caller.
 * Signed WebSocket URL: ``GET {api_base}/v1/convai/conversation/get-signed-url?agent_id=<id>``
-  with ``xi-api-key`` returns ``{"signed_url": "wss://..."}``. The signed URL carries the
-  auth token in its query string; it is opened by the transport and NEVER logged,
-  evented or persisted (``redact_ws_url``).
-* WebSocket protocol (JSON text frames):
-    - client -> ``{"type":"conversation_initiation_client_data", ...}`` first;
-    - client -> ``{"user_audio_chunk":"<base64 pcm>"}`` for input audio;
-    - client -> ``{"type":"pong","event_id":<n>}`` in reply to a ``ping``;
-    - server -> ``conversation_initiation_metadata`` (carries ``conversation_id``);
-    - server -> ``{"type":"audio","audio_event":{"audio_base_64":"...","event_id":<n>}}``;
-    - server -> ``{"type":"user_transcript","user_transcription_event":{...}}``;
-    - server -> ``{"type":"agent_response","agent_response_event":{"agent_response":"..."}}``;
-    - server -> ``{"type":"interruption","interruption_event":{...}}``;
-    - server -> ``{"type":"ping","ping_event":{"event_id":<n>}}``.
-* Audio format: 16-bit PCM mono (``pcm_16000`` / ``pcm_8000``) or G.711 ``ulaw_8000``,
-  chosen by the agent config; the adapter carries the profile's negotiated
-  :class:`AudioFormat` and does not transcode.
-* Post-call webhook: ``ElevenLabs-Signature: t=<unix>,v0=<hex hmac_sha256("<t>." + body)>``
-  with a shared webhook secret; timestamp freshness is enforced.
+  returns ``{"signed_url": "wss://api.elevenlabs.io/..."}``. Before the transport opens
+  it, the host is checked against ``_ELEVENLABS_WS_HOSTS`` and the target is refused if it
+  is an IP literal / loopback / private / metadata / unsafe-port host
+  (:func:`validate_provider_ws_url`). The signed URL carries the auth token in its query
+  string; it is opened by the transport and NEVER logged, evented or persisted.
+
+WebSocket JSON frames (the supported subset):
+* client -> ``conversation_initiation_client_data`` (first), ``{"user_audio_chunk":"<b64>"}``,
+  ``{"type":"pong","event_id":<n>}`` in reply to a ``ping``.
+* server, NORMALIZED:
+    - ``conversation_initiation_metadata``     -> SESSION_STARTED (carries ``conversation_id``)
+    - ``audio`` (``audio_event.audio_base_64``) -> AUDIO_OUTPUT
+    - ``user_transcript``                       -> TRANSCRIPT (final)
+    - ``agent_response``                        -> AGENT_TEXT (final)
+    - ``agent_response_correction``             -> AGENT_TEXT (the corrected text; a
+      transport-level fact — P12 does not reason over it)
+    - ``interruption``                          -> INTERRUPTION
+    - ``ping``                                  -> KEEPALIVE (a ``pong`` is sent)
+    - ``error``                                 -> ERROR
+* server, DOCUMENTED-BUT-OUT-OF-SCOPE (safely ignored, never malformed, never acted on):
+    - ``client_tool_call`` / ``client_tool_result`` — P12 does **NOT** execute client
+      tools; that is NXS-P13 / the Tool Engine. The frame is dropped.
+    - ``mcp_connection_status`` / ``mcp_tool_call`` / ``mcp_tool_result``
+    - ``internal_tentative_agent_response`` / ``vad_score`` / ``asr_initiation_metadata``
+    - ``contextual_update`` (a client->server frame; ignored if echoed)
+* A frame type not on either list -> ``NXS_VOICE_PROTOCOL_ERROR`` (fail closed).
+
+Audio: 16-bit PCM mono (``pcm_16000`` / ``pcm_8000``) or G.711 ``ulaw_8000``, chosen by
+the agent config; the adapter carries the profile's negotiated :class:`AudioFormat` and
+does not transcode.
+
+Post-call webhook: ``ElevenLabs-Signature: t=<unix>,v0=<hex hmac_sha256("<t>." + body)>``
+with a shared webhook secret; timestamp freshness is enforced.
 """
 
 from __future__ import annotations
@@ -52,11 +69,30 @@ from nexus_ai.voice.providers.base import (
     WebhookContext,
     WebhookParseResult,
     provider_rest_error,
+    validate_provider_ws_url,
     verify_elevenlabs_style_signature,
 )
 
-_API_BASE_OPTION = "api_base"
-_DEFAULT_API_BASE = "https://api.elevenlabs.io"
+#: The ElevenLabs real-time WebSocket host allow-list. A regional endpoint (if ElevenLabs
+#: introduces one) is added here — never through a caller or a provider response.
+_ELEVENLABS_WS_HOSTS: frozenset[str] = frozenset({"api.elevenlabs.io"})
+
+#: Documented ElevenLabs server frames that P12 deliberately drops (never acts on, never
+#: treats as a protocol error). ``client_tool_call`` is here because tool execution is
+#: NXS-P13 / the Tool Engine, not P12.
+_IGNORED_FRAMES: frozenset[str] = frozenset(
+    {
+        "client_tool_call",
+        "client_tool_result",
+        "mcp_connection_status",
+        "mcp_tool_call",
+        "mcp_tool_result",
+        "internal_tentative_agent_response",
+        "vad_score",
+        "asr_initiation_metadata",
+        "contextual_update",
+    }
+)
 
 
 class ElevenLabsVoiceAdapter:
@@ -66,9 +102,12 @@ class ElevenLabsVoiceAdapter:
         self, spec: VoiceSessionSpec, secret: Any, http: VoiceHttpTransport
     ) -> ProviderSessionInit:
         api_key = _api_key(secret)
-        api_base = spec.options.get(_API_BASE_OPTION, _DEFAULT_API_BASE).rstrip("/")
+        api_base = (spec.provider_api_base or "").rstrip("/")
         if not api_base.startswith("https://"):
-            raise VoiceConfigInvalidError("the ElevenLabs API base must be an https origin")
+            raise VoiceConfigInvalidError(
+                "the ElevenLabs API base is not configured as an https origin "
+                "(it comes from server configuration, never a request)"
+            )
         url = (
             f"{api_base}/v1/convai/conversation/get-signed-url"
             f"?agent_id={_qp(spec.provider_voice_ref)}"
@@ -100,12 +139,14 @@ class ElevenLabsVoiceAdapter:
             signed_url = str(body["signed_url"])
         except (json.JSONDecodeError, KeyError, TypeError, ValueError) as exc:
             raise VoiceProviderError("ElevenLabs returned no usable signed url") from exc
-        if not signed_url.startswith("wss://"):
-            raise VoiceProviderError("ElevenLabs returned a non-wss signed url")
+        # Every signed WebSocket destination is validated before the transport touches it.
+        target = validate_provider_ws_url(signed_url, allowed_hosts=_ELEVENLABS_WS_HOSTS)
         return ProviderSessionInit(
-            url=signed_url,
+            url=target.url,
             headers={},
             negotiated_format=spec.output_format,
+            ws_host=target.host,
+            ws_port=target.port,
             provider_session_id=None,  # arrives on conversation_initiation_metadata
         )
 
@@ -183,10 +224,21 @@ class ElevenLabsVoiceAdapter:
                 role=TranscriptRole.AGENT,
                 is_final=True,
             )
+        if frame_type == "agent_response_correction":
+            event = payload.get("agent_response_correction_event") or {}
+            corrected = event.get("corrected_agent_response") or event.get("agent_response")
+            return VoiceProviderEvent(
+                kind=VoiceProviderEventKind.AGENT_TEXT,
+                text=str(corrected or "")[:8_192],
+                role=TranscriptRole.AGENT,
+                is_final=True,
+            )
         if frame_type == "interruption":
             return VoiceProviderEvent(kind=VoiceProviderEventKind.INTERRUPTION)
-        if frame_type in ("internal_tentative_agent_response", "vad_score"):
-            return None  # informational frames Nexus ignores at the transport layer
+        if frame_type in _IGNORED_FRAMES:
+            # A documented-but-out-of-scope frame (incl. client_tool_call — P12 NEVER
+            # executes client tools; that is NXS-P13). Dropped, not a protocol error.
+            return None
         if frame_type == "error":
             return VoiceProviderEvent(
                 kind=VoiceProviderEventKind.ERROR,

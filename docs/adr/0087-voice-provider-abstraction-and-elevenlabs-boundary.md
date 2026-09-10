@@ -1,7 +1,10 @@
 # ADR-0087: NXS voice provider abstraction + the ElevenLabs boundary
 
-Status: Accepted. Establishes NXS-P12 (`NXS-VOICE-001`, `NXS-EL-001`): the permanent,
-provider-neutral real-time voice layer:
+Status: Accepted; amended 2026-09-10 by the NXS-P12 independent-audit corrective
+(WebSocket SSRF / provider-URL trust hardening, truthful `AI → PENDING_HUMAN → HUMAN`
+handoff lifecycle, and a dated ElevenLabs protocol-reconciliation record). Establishes
+NXS-P12 (`NXS-VOICE-001`, `NXS-EL-001`): the permanent, provider-neutral real-time voice
+layer:
 
     PSTN / SIP -> Asterisk 22 LTS / ARI -> NXS-P11 Telephony Foundation
         -> Call + ACTIVE MediaSession -> NXS-P12 Voice Gateway -> ElevenLabs
@@ -34,21 +37,45 @@ provider implements the same contract. Every provider REST call goes through an 
 `GovernedHttpExecutor` (SSRF-safe, TLS-verified, bounded). Every WebSocket goes through a
 `VoiceStreamTransport` (ADR-0088).
 
-**ElevenLabs boundary — official contract used (CONTRACT-CERTIFIED).** The adapter speaks
-the ElevenLabs Conversational AI real-time API. Every contract element below is
-**documented and treated as an ASSUMPTION** to reconcile against the live docs
-(https://elevenlabs.io/docs); if the real contract differs, **only
-`providers/elevenlabs.py` changes** — never the Nexus architecture or a security control:
+**ElevenLabs boundary — contract-reconciliation record (reconciled 2026-09-10).** The
+adapter speaks the ElevenLabs Conversational AI real-time API, reconciled on 2026-09-10
+against the official Conversational AI documentation
+(https://elevenlabs.io/docs/conversational-ai). This is a dated record of the exact
+supported protocol subset, not a list of open assumptions. If the live contract later
+differs, **only `providers/elevenlabs.py` changes** — never the Nexus architecture or a
+security control.
 
-* REST auth: `xi-api-key: <api key>` header on `{api_base}/v1/...`.
+* REST auth: `xi-api-key: <api key>` header on `{provider_api_base}/v1/...`. The origin
+  is **trusted server configuration** (`settings.voice.elevenlabs_api_base`, a bare
+  `https://` origin) carried on `VoiceSessionSpec.provider_api_base` — **never a caller**.
+  `StartVoiceSessionRequest` has no endpoint field and its `options` map is a fixed
+  allow-list (`ALLOWED_SESSION_OPTION_KEYS`) that cannot name `api_base` / `url` /
+  `endpoint` / `host` / `ws_url` / `signed_url` / `api_key`.
 * Signed WebSocket URL: `GET {api_base}/v1/convai/conversation/get-signed-url?agent_id=<id>`
-  returns `{"signed_url": "wss://..."}`. The signed URL carries the auth token in its
-  query string; it is opened by the transport and **never logged, evented or persisted**
-  (`redact_ws_url`).
-* WebSocket JSON protocol: client → `conversation_initiation_client_data`, then
-  `{"user_audio_chunk": "<base64 pcm>"}`; client → `{"type":"pong","event_id":n}` on a
-  `ping`. Server → `conversation_initiation_metadata` (`conversation_id`), `audio`
-  (`audio_base_64`), `user_transcript`, `agent_response`, `interruption`, `ping`.
+  returns `{"signed_url": "wss://api.elevenlabs.io/..."}`. **Every signed destination is
+  validated before the transport is touched** (`validate_provider_ws_url`): scheme must be
+  `wss://`; no userinfo; the host must be on `_ELEVENLABS_WS_HOSTS`
+  (`{"api.elevenlabs.io"}` today — a regional endpoint is added *here*, never via a caller
+  or a provider response); an IP literal (loopback, RFC1918, CGNAT, link-local, multicast,
+  `169.254.169.254`) is refused outright; unsafe ports (22/23/25/3306/5432/6379/…) are
+  refused. The validated `(host, port)` is **pinned** on the `WebsocketVoiceStreamTransport`
+  connection so a cross-origin redirect cannot escape (`websockets` refuses a cross-origin
+  redirect when an explicit host/port is set; `WEBSOCKETS_MAX_REDIRECTS` bounds the rest).
+  The signed URL carries the auth token in its query string; it is opened by the transport
+  and **never logged, evented or persisted** (`redact_ws_url`).
+* WebSocket JSON protocol — the **supported subset**: client → `conversation_initiation_client_data`,
+  then `{"user_audio_chunk": "<base64 pcm>"}`; client → `{"type":"pong","event_id":n}` on
+  a `ping`. Server frames NORMALIZED: `conversation_initiation_metadata` (`conversation_id`)
+  → SESSION_STARTED; `audio` (`audio_event.audio_base_64`) → AUDIO_OUTPUT; `user_transcript`
+  → TRANSCRIPT; `agent_response` → AGENT_TEXT; `agent_response_correction`
+  (`corrected_agent_response`) → AGENT_TEXT (a transport-level fact — P12 does not reason
+  over it); `interruption` → INTERRUPTION; `ping` → KEEPALIVE; `error` → ERROR.
+* WebSocket frames DOCUMENTED-BUT-OUT-OF-SCOPE — safely dropped (`_IGNORED_FRAMES`), never
+  treated as malformed protocol, never acted on: `client_tool_call` / `client_tool_result`
+  (**P12 does NOT execute client tools — that is NXS-P13 / the Tool Engine**),
+  `mcp_connection_status` / `mcp_tool_call` / `mcp_tool_result`,
+  `internal_tentative_agent_response`, `vad_score`, `asr_initiation_metadata`,
+  `contextual_update`. A frame on neither list → `NXS_VOICE_PROTOCOL_ERROR` (fail closed).
 * Audio: 16-bit PCM mono / G.711 `ulaw_8000`, chosen by agent config; the adapter carries
   the profile's negotiated `AudioFormat` and does not transcode.
 * Post-call webhook: `ElevenLabs-Signature: t=<unix>,v0=<hex hmac_sha256("<t>." + body)>`
@@ -56,8 +83,21 @@ the ElevenLabs Conversational AI real-time API. Every contract element below is
 
 Because no ElevenLabs credential or live account was available in this phase, the
 integration is **CONTRACT-CERTIFIED** (fake provider + canned-frame adapter unit tests +
-full lifecycle on real PostgreSQL), **not LIVE-PROVIDER-CERTIFIED**. Enabling a real key
-requires no code change beyond storing the credential in the vault.
+SSRF matrix + full lifecycle on real PostgreSQL), **not LIVE-PROVIDER-CERTIFIED**.
+Enabling a real key requires no code change beyond storing the credential in the vault.
+
+**Controlled AI↔human handoff — truthful lifecycle.** `handoff_state` is a three-state
+machine: `AI → PENDING_HUMAN → HUMAN`. `request_handoff` atomically moves `AI →
+PENDING_HUMAN`, emits `voice.handoff.requested`, and detaches / cancels the AI voice
+stream — it does **NOT** emit `voice.handoff.completed` and does **NOT** claim `HUMAN`,
+because P12 neither performs nor verifies the actual human bridge. Only `confirm_handoff`
+— the tenant-scoped seam a future NXS-P17 bridge-completion callback invokes with an
+authoritative `bridge_reference` — moves `PENDING_HUMAN → HUMAN` and emits
+`voice.handoff.completed`. `request_handoff` is idempotent (a second call is a no-op, no
+duplicate event), rejects a terminal session for the initial transition, and is
+deterministic under concurrent callers (row `FOR UPDATE`; exactly one
+`voice.handoff.requested`). `confirm_handoff` refuses any state other than
+`PENDING_HUMAN` and cannot cross tenants.
 
 **Voice profile / voice-id governance.** A caller never supplies a raw `voice_id` /
 `agent_id` / `model` — those are an Organization-owned `voice_profiles` row referenced by

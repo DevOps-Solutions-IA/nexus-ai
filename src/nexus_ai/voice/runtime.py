@@ -137,7 +137,11 @@ class VoiceSessionRuntime:
         try:
             connect_start = _now()
             await transport.connect(
-                url=init.url, headers=init.headers, open_timeout=cfg.connect_timeout_seconds
+                url=init.url,
+                headers=init.headers,
+                open_timeout=cfg.connect_timeout_seconds,
+                pin_host=init.ws_host,
+                pin_port=init.ws_port,
             )
             outcome.connected = True
             connect_ms = _ms(connect_start, _now())

@@ -107,6 +107,24 @@ async def test_start_session_with_unknown_ids_is_not_found_or_forbidden(voice_ap
     assert resp.json()["type"].startswith("https://docs.nexus-ai.dev/errors/NXS_VOICE_")
 
 
+async def test_handoff_confirm_endpoint_validates_and_maps_errors(voice_api: Any) -> None:
+    # bridge_reference is mandatory on the confirmation contract
+    bad = await voice_api.post(
+        f"/voice/sessions/{uuid.uuid4()}/handoff/confirm", {"target": "human_agent"}
+    )
+    assert bad.status_code == 422
+    # a well-formed confirmation for an unknown session is a governed NXS_VOICE_* 404
+    missing = await voice_api.post(
+        f"/voice/sessions/{uuid.uuid4()}/handoff/confirm",
+        {"target": "human_agent", "bridge_reference": "p11-leg-1"},
+    )
+    assert missing.status_code in (403, 404)
+    assert missing.json()["type"].startswith("https://docs.nexus-ai.dev/errors/NXS_VOICE_")
+    # request_handoff on an unknown session is likewise governed
+    req = await voice_api.post(f"/voice/sessions/{uuid.uuid4()}/handoff", {"target": "human_agent"})
+    assert req.status_code in (403, 404)
+
+
 async def test_voice_endpoints_require_auth(auth_client: Any) -> None:
     for method, path in (
         ("get", "/api/v1/voice/accounts"),

@@ -35,7 +35,9 @@ from nexus_ai.voice.entities import (
 from nexus_ai.voice.errors import (
     VoiceConfigInvalidError,
     VoiceIdempotencyConflictError,
+    VoiceInvalidStateError,
     VoiceMediaNotReadyError,
+    VoiceSessionNotFoundError,
 )
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
@@ -317,12 +319,120 @@ async def test_stop_session_is_terminal_safe_and_idempotent(
     assert again.state is VoiceSessionState.CANCELLED
 
 
-async def test_request_handoff_detaches_ai_and_emits_events(
+async def _handoff_events(voice_stack: Any, org_id: Any) -> list[str]:
+    async with voice_stack.database.tenant_transaction(org_id) as tenant:
+        return [
+            r.event_type
+            for r in (
+                await tenant.session.execute(
+                    text(
+                        "SELECT event_type FROM event_outbox "
+                        "WHERE event_type LIKE 'voice.handoff%' ORDER BY created_at"
+                    )
+                )
+            ).all()
+        ]
+
+
+async def _started_session(voice_stack: Any, org_id: Any) -> Any:
+    account, profile, call_id, media_id = await ready_voice_call(voice_stack, org_id)
+    voice_stack.script["hold"] = True
+    return await voice_stack.service.start_session(
+        org_id,
+        StartVoiceSessionRequest(
+            call_id=call_id,
+            media_session_id=media_id,
+            provider_account_id=account.id,
+            voice_profile_id=profile.id,
+        ),
+    )
+
+
+async def test_request_handoff_moves_to_pending_human_not_completed(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    org = await make_organization()
+    session = await _started_session(voice_stack, org.id)
+
+    handed = await voice_stack.service.request_handoff(
+        org.id, session.id, RequestHandoffRequest(target="human_agent")
+    )
+    # PENDING_HUMAN — never HUMAN — and the AI stream is detached (session terminal)
+    assert handed.handoff_state is VoiceHandoffState.PENDING_HUMAN
+    assert handed.state in (VoiceSessionState.CANCELLED, VoiceSessionState.FAILED)
+    assert await _handoff_events(voice_stack, org.id) == ["voice.handoff.requested"]
+
+    # repeated request is idempotent — no second requested event, still PENDING_HUMAN
+    again = await voice_stack.service.request_handoff(
+        org.id, session.id, RequestHandoffRequest(target="human_agent")
+    )
+    assert again.handoff_state is VoiceHandoffState.PENDING_HUMAN
+    assert await _handoff_events(voice_stack, org.id) == ["voice.handoff.requested"]
+
+
+async def test_confirm_handoff_is_the_only_path_to_human(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    from nexus_ai.voice.entities import ConfirmHandoffRequest
+
+    org = await make_organization()
+    session = await _started_session(voice_stack, org.id)
+
+    # cannot confirm before request — session is still AI
+    with pytest.raises(VoiceInvalidStateError):
+        await voice_stack.service.confirm_handoff(
+            org.id, session.id, ConfirmHandoffRequest(bridge_reference="p11-leg-1")
+        )
+
+    await voice_stack.service.request_handoff(org.id, session.id, RequestHandoffRequest())
+    confirmed = await voice_stack.service.confirm_handoff(
+        org.id, session.id, ConfirmHandoffRequest(bridge_reference="p11-leg-1")
+    )
+    assert confirmed.handoff_state is VoiceHandoffState.HUMAN
+    assert await _handoff_events(voice_stack, org.id) == [
+        "voice.handoff.requested",
+        "voice.handoff.completed",
+    ]
+    # the completed event carries the authoritative bridge reference for audit
+    async with voice_stack.database.tenant_transaction(org.id) as tenant:
+        completed = (
+            await tenant.session.execute(
+                text(
+                    "SELECT envelope FROM event_outbox WHERE event_type = 'voice.handoff.completed'"
+                )
+            )
+        ).scalar_one()
+    assert completed["payload"]["bridge_reference"] == "p11-leg-1"
+    # confirm is idempotent
+    again = await voice_stack.service.confirm_handoff(
+        org.id, session.id, ConfirmHandoffRequest(bridge_reference="p11-leg-1")
+    )
+    assert again.handoff_state is VoiceHandoffState.HUMAN
+    assert (await _handoff_events(voice_stack, org.id)).count("voice.handoff.completed") == 1
+
+
+async def test_confirm_handoff_cannot_cross_tenants(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    from nexus_ai.voice.entities import ConfirmHandoffRequest
+
+    org_a = await make_organization()
+    org_b = await make_organization()
+    session = await _started_session(voice_stack, org_a.id)
+    await voice_stack.service.request_handoff(org_a.id, session.id, RequestHandoffRequest())
+
+    with pytest.raises(VoiceSessionNotFoundError):
+        await voice_stack.service.confirm_handoff(
+            org_b.id, session.id, ConfirmHandoffRequest(bridge_reference="x")
+        )
+
+
+async def test_terminal_voice_session_rejects_handoff(
     voice_stack: Any, make_organization: Any
 ) -> None:
     org = await make_organization()
     account, profile, call_id, media_id = await ready_voice_call(voice_stack, org.id)
-    voice_stack.script["hold"] = True  # session stays live until stopped
+    voice_stack.script["frames"] = ['{"type": "session_ended"}']
     session = await voice_stack.service.start_session(
         org.id,
         StartVoiceSessionRequest(
@@ -332,22 +442,28 @@ async def test_request_handoff_detaches_ai_and_emits_events(
             voice_profile_id=profile.id,
         ),
     )
-    handed = await voice_stack.service.request_handoff(
-        org.id, session.id, RequestHandoffRequest(target="human_agent")
+    await voice_stack.service.join(session.id)
+    with pytest.raises(VoiceInvalidStateError):
+        await voice_stack.service.request_handoff(org.id, session.id, RequestHandoffRequest())
+
+
+async def test_concurrent_handoff_requests_are_deterministic(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    import asyncio
+
+    org = await make_organization()
+    session = await _started_session(voice_stack, org.id)
+    results = await asyncio.gather(
+        *(
+            voice_stack.service.request_handoff(org.id, session.id, RequestHandoffRequest())
+            for _ in range(6)
+        ),
+        return_exceptions=True,
     )
-    assert handed.handoff_state is VoiceHandoffState.HUMAN
-    async with voice_stack.database.tenant_transaction(org.id) as tenant:
-        events = {
-            r.event_type
-            for r in (
-                await tenant.session.execute(
-                    text(
-                        "SELECT event_type FROM event_outbox WHERE event_type LIKE 'voice.handoff%'"
-                    )
-                )
-            ).all()
-        }
-    assert events == {"voice.handoff.requested", "voice.handoff.completed"}
+    assert all(not isinstance(r, Exception) for r in results)
+    assert {r.handoff_state for r in results} == {VoiceHandoffState.PENDING_HUMAN}
+    assert await _handoff_events(voice_stack, org.id) == ["voice.handoff.requested"]
 
 
 async def test_disabled_subsystem_refuses_start(voice_stack: Any, make_organization: Any) -> None:

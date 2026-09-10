@@ -81,7 +81,15 @@ class _BlockingStreamTransport:
     def __init__(self) -> None:
         self.connected = False
 
-    async def connect(self, *, url: str, headers: dict[str, str], open_timeout: float) -> None:
+    async def connect(
+        self,
+        *,
+        url: str,
+        headers: dict[str, str],
+        open_timeout: float,
+        pin_host: str | None = None,
+        pin_port: int | None = None,
+    ) -> None:
         self.connected = True
 
     async def send(self, message: bytes | str) -> None:

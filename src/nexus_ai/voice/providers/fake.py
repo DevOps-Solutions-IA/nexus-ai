@@ -65,6 +65,8 @@ class FakeVoiceProvider:
             url="wss://fake.voice.local/v1/stream",
             headers={},
             negotiated_format=spec.output_format,
+            ws_host="fake.voice.local",
+            ws_port=443,
             provider_session_id=f"fake-sess-{spec.external_account_id[:8]}",
         )
 

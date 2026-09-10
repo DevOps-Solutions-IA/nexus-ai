@@ -57,6 +57,25 @@ def test_session_states_directions_codecs_and_providers_are_frozen() -> None:
     }
 
 
+def test_handoff_state_machine_is_truthful() -> None:
+    from nexus_ai.voice.entities import VoiceHandoffState
+
+    # a three-state lifecycle: request only moves to PENDING_HUMAN; HUMAN needs an
+    # authoritative confirmation (a future NXS-P17 responsibility).
+    assert [s.value for s in VoiceHandoffState] == ["AI", "PENDING_HUMAN", "HUMAN"]
+
+
+def test_start_session_options_are_a_fixed_allow_list_never_an_endpoint() -> None:
+    from nexus_ai.voice.entities import ALLOWED_SESSION_OPTION_KEYS
+
+    for banned in ("api_base", "url", "endpoint", "host", "ws_url", "signed_url", "api_key"):
+        assert banned not in ALLOWED_SESSION_OPTION_KEYS
+    # the ElevenLabs adapter never reads an endpoint from options
+    source = (_ROOT / "src" / "nexus_ai" / "voice" / "providers" / "elevenlabs.py").read_text()
+    assert 'options.get("api_base"' not in source
+    assert "options[" not in source or "api_base" not in source
+
+
 def test_provider_adapter_contract_is_provider_neutral() -> None:
     methods = {name for name, _ in inspect.getmembers(VoiceProviderAdapter, inspect.isfunction)}
     assert {

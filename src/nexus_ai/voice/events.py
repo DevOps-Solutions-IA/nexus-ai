@@ -167,6 +167,9 @@ class VoiceHandoffCompletedV1(EventPayload):
     session_id: UUID
     call_id: UUID
     target: str
+    #: The bounded opaque reference to the confirmed human bridge (from the authoritative
+    #: confirmation — a future NXS-P17 responsibility). Never a URL / endpoint / credential.
+    bridge_reference: str | None = None
     correlation_id: str | None = None
 
 
