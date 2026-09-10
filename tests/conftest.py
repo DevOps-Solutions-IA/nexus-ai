@@ -1219,3 +1219,119 @@ async def telephony_stack(
             self.event_platform = event_platform
 
     return _TelephonyStack()
+
+
+class FakeVoiceHttpTransport:
+    """An in-memory governed-HTTP stand-in for the voice provider REST leg. Records every
+    request; returns a programmed response or raises a programmed ``HttpError``."""
+
+    def __init__(self) -> None:
+        self.requests: list[dict[str, Any]] = []
+        self._handler: Callable[..., Any] | None = None
+
+    def set_handler(self, handler: Callable[..., Any]) -> None:
+        self._handler = handler
+
+    async def request(
+        self,
+        *,
+        method: str,
+        url: str,
+        headers: Any,
+        body: bytes | None,
+        timeout_seconds: float | None = None,
+    ) -> Any:
+        from nexus_ai.voice.providers.base import HttpError, HttpResponse
+
+        entry = {"method": method, "url": url, "headers": dict(headers), "body": body}
+        self.requests.append(entry)
+        outcome = self._handler(entry) if self._handler is not None else (200, {"signed_url": None})
+        if isinstance(outcome, HttpError):
+            raise outcome
+        status_code, payload = outcome
+        raw = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
+        return HttpResponse(status_code=status_code, headers={}, body=raw)
+
+
+@pytest.fixture
+async def voice_stack(telephony_stack: Any) -> Any:
+    """The voice subsystem wired against the real DB + event outbox, composed on the
+    telephony stack (real NXS-P11 calls + media sessions). The provider REST leg uses a
+    fake HTTP transport; the real-time WebSocket uses a scripted fake stream transport;
+    the media side is an in-memory loopback. No socket."""
+    import asyncpg
+
+    from nexus_ai.domain.voice.repository import VoiceSecretStore
+    from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
+    from nexus_ai.voice.media import LoopbackMediaChannel
+    from nexus_ai.voice.service import VoiceService
+    from nexus_ai.voice.transport import FakeVoiceStreamTransport
+    from nexus_ai.voice.webhooks import InboundVoiceService
+
+    from cryptography.fernet import Fernet
+
+    stack = telephony_stack
+    vault = LocalEncryptedVault(
+        VoiceSecretStore(stack.database), build_fernet([Fernet.generate_key().decode()])
+    )
+    http = FakeVoiceHttpTransport()
+
+    state: dict[str, Any] = {
+        "frames": ['{"type": "session_started", "session_id": "prov-sess-1"}'],
+        "close_after": None,
+        "timeout_after": None,
+        "media": None,
+    }
+
+    def _transport_factory() -> FakeVoiceStreamTransport:
+        return FakeVoiceStreamTransport(
+            list(state["frames"]),
+            close_after=state["close_after"],
+            timeout_after=state["timeout_after"],
+        )
+
+    def _media_factory(plan: Any, ctx: Any) -> LoopbackMediaChannel:
+        channel = state["media"] or LoopbackMediaChannel()
+        state["last_media"] = channel
+        return channel
+
+    service = VoiceService(
+        stack.settings,
+        stack.database,
+        stack.event_platform.publisher,
+        vault,
+        http,
+        transport_factory=_transport_factory,
+        media_channel_factory=_media_factory,
+    )
+    inbound = InboundVoiceService(
+        stack.settings, stack.database, stack.event_platform.publisher, vault
+    )
+
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE voice_usage_records, voice_provider_events, voice_sessions, "
+            "voice_profiles, voice_secrets, voice_provider_accounts CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _VoiceStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.inbound = inbound
+            self.http = http
+            self.vault = vault
+            self.database = stack.database
+            self.settings = stack.settings
+            self.event_platform = stack.event_platform
+            self.telephony = stack.service
+            self.telephony_inbound = stack.inbound
+            self.telephony_transport = stack.transport
+            self.script = state
+
+    yield _VoiceStack()
+    await service.shutdown()

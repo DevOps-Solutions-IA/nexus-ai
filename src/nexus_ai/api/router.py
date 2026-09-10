@@ -14,6 +14,7 @@ from nexus_ai.api.otp import otp_router
 from nexus_ai.api.system import system_router
 from nexus_ai.api.telephony import telephony_router, telephony_webhooks_router
 from nexus_ai.api.tools import tools_router
+from nexus_ai.api.voice import voice_router, voice_webhooks_router
 
 api_v1_router = APIRouter(prefix="/api/v1")
 api_v1_router.include_router(system_router)
@@ -28,3 +29,5 @@ api_v1_router.include_router(messaging_webhooks_router)
 api_v1_router.include_router(otp_router)
 api_v1_router.include_router(telephony_router)
 api_v1_router.include_router(telephony_webhooks_router)
+api_v1_router.include_router(voice_router)
+api_v1_router.include_router(voice_webhooks_router)

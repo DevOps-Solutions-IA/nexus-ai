@@ -154,7 +154,7 @@ def test_p10_and_later_phases_remain_planned() -> None:
 
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    for later in ("NXS-P12", "NXS-P13", "NXS-P14", "NXS-P16"):
+    for later in ("NXS-P13", "NXS-P14", "NXS-P16"):
         assert phases[later]["status"] == "PLANNED", later
     # P09 provides the generic SMS delivery mechanism but no OTP semantics
     import nexus_ai.messaging.providers.sms as sms_module

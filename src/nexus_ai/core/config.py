@@ -481,6 +481,51 @@ class TelephonySettings(BaseModel):
     default_country: str = Field(default="1", pattern=r"^[1-9][0-9]{0,2}$")
 
 
+class VoiceSettings(BaseModel):
+    """ElevenLabs Voice configuration (NXS-P12: NXS-VOICE-001 / NXS-EL-001).
+
+    The voice subsystem connects a real-time provider (ElevenLabs) to an ACTIVE NXS-P11
+    media session. It never owns call state, tenancy or routing. Every provider REST call
+    routes through the NXS-P07 governed HTTP executor and every WebSocket through the
+    bounded :class:`~nexus_ai.voice.transport.VoiceStreamTransport`. No provider API key
+    is configured here — it lives in the encrypted vault. These bounds are about
+    real-time transport safety (frame / queue / message ceilings and every timeout).
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    #: Hard ceiling on a provider control REST call (signed-URL fetch, session create).
+    provider_timeout_seconds: float = Field(default=15.0, gt=0, le=60)
+    #: WebSocket open / handshake ceiling.
+    connect_timeout_seconds: float = Field(default=10.0, gt=0, le=60)
+    #: No provider frame for this long ends the session (idle guard).
+    idle_timeout_seconds: float = Field(default=30.0, gt=0, le=300)
+    #: Absolute lifetime ceiling for a single real-time session.
+    max_session_seconds: float = Field(default=3_600.0, gt=0, le=14_400)
+    #: Largest single inbound provider WebSocket message.
+    max_message_bytes: int = Field(default=131_072, ge=1_024, le=1_048_576)
+    #: Largest single decoded audio frame handed to / from the media side.
+    max_audio_frame_bytes: int = Field(default=32_768, ge=256, le=262_144)
+    #: Bounded depth of the inbound and the outbound audio queues (backpressure).
+    audio_queue_depth: int = Field(default=64, ge=4, le=1_024)
+    #: Inbound provider webhook (ElevenLabs post-call) body ceiling.
+    max_webhook_body_bytes: int = Field(default=1_048_576, ge=1_024, le=8_388_608)
+    #: Freshness window for a signed provider webhook whose timestamp is HMAC-bound.
+    webhook_timestamp_tolerance_seconds: int = Field(default=300, ge=30, le=3_600)
+    #: Durable retention for the provider-event idempotency log (seconds).
+    event_idempotency_retention_seconds: int = Field(default=604_800, ge=3_600, le=2_592_000)
+    #: Bounds for a voice provider account's free-form ``configuration`` object.
+    max_account_config_keys: int = Field(default=12, ge=1, le=64)
+    max_account_config_key_length: int = Field(default=64, ge=8, le=256)
+    max_account_config_value_length: int = Field(default=1_024, ge=16, le=8_192)
+    max_account_config_bytes: int = Field(default=8_192, ge=256, le=65_536)
+    #: The ElevenLabs REST API origin. A bare https origin — never a per-call URL surface.
+    elevenlabs_api_base: str = Field(
+        default="https://api.elevenlabs.io", pattern=r"^https://[a-z0-9.-]+(?::[0-9]{1,5})?$"
+    )
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -639,6 +684,7 @@ class Settings(BaseSettings):
     channels: ChannelsSettings = Field(default_factory=ChannelsSettings)
     otp: OtpSettings = Field(default_factory=OtpSettings)
     telephony: TelephonySettings = Field(default_factory=TelephonySettings)
+    voice: VoiceSettings = Field(default_factory=VoiceSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

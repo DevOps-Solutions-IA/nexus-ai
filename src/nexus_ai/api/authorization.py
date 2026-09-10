@@ -120,3 +120,8 @@ TelephonyHangupDep = Annotated[
 TelephonyConfigureDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.TELEPHONY_CONFIGURE))
 ]
+VoiceReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.VOICE_READ))]
+VoiceUseDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.VOICE_USE))]
+VoiceConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.VOICE_CONFIGURE))
+]

@@ -815,6 +815,7 @@ dependencies = [
     { name = "starlette" },
     { name = "structlog" },
     { name = "uvicorn", extra = ["standard"] },
+    { name = "websockets" },
 ]
 
 [package.dev-dependencies]
@@ -852,6 +853,7 @@ requires-dist = [
     { name = "starlette", specifier = "==1.6.0" },
     { name = "structlog", specifier = "==26.1.0" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.35.0" },
+    { name = "websockets", specifier = "==17.1" },
 ]
 
 [package.metadata.requires-dev]

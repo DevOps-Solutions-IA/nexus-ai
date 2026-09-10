@@ -71,6 +71,10 @@ class PermissionKey(StrEnum):
     TELEPHONY_CALL = "telephony:call"
     TELEPHONY_HANGUP = "telephony:hangup"
     TELEPHONY_CONFIGURE = "telephony:configure"
+    # P12 additions (seeded by the P12 migration):
+    VOICE_READ = "voice:read"
+    VOICE_USE = "voice:use"
+    VOICE_CONFIGURE = "voice:configure"
 
 
 class RoleKey(StrEnum):
@@ -155,6 +159,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.TELEPHONY_CALL: UUID("b2000000-0000-7000-8000-000000000027"),
     PermissionKey.TELEPHONY_HANGUP: UUID("b2000000-0000-7000-8000-000000000028"),
     PermissionKey.TELEPHONY_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000029"),
+    PermissionKey.VOICE_READ: UUID("b2000000-0000-7000-8000-00000000002a"),
+    PermissionKey.VOICE_USE: UUID("b2000000-0000-7000-8000-00000000002b"),
+    PermissionKey.VOICE_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000002c"),
 }
 
 _CATALOG_SQL = """
