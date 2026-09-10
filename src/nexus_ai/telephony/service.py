@@ -69,6 +69,7 @@ from nexus_ai.telephony.errors import (
     TelephonyIdempotencyConflictError,
     TelephonyInvalidStateError,
     TelephonyNumberNotFoundError,
+    TelephonyProviderTimeoutError,
 )
 from nexus_ai.telephony.events import STATE_EVENT_TYPE
 from nexus_ai.telephony.providers.base import OutboundCallSpec, TelephonyTransport
@@ -284,7 +285,10 @@ class TelephonyService:
         try:
             async with asyncio.timeout(config.provider_timeout_seconds):
                 result = await adapter.create_outbound_call(spec, secret, self._transport)
-        except TimeoutError as exc:
+        except (TimeoutError, TelephonyProviderTimeoutError) as exc:
+            # A timeout AFTER the create request was dispatched is AMBIGUOUS — the
+            # provider may already be ringing the call. Represent it explicitly and
+            # NEVER place a second call under this idempotency key.
             await self._mark_ambiguous(organization_id, call_id)
             raise AmbiguousProviderTimeoutError(
                 "the call creation request timed out; the call state is ambiguous and "
