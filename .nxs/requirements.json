@@ -1466,7 +1466,26 @@
       "target_phase": "NXS-P12",
       "title": "Realtime AI voice",
       "validation_evidence": [
-        ".nxs/evidence/NXS-P12/quality-matrix.json"
+        ".nxs/evidence/NXS-P12/clean-room.json",
+        ".nxs/evidence/NXS-P12/concurrency.json",
+        ".nxs/evidence/NXS-P12/contracts.json",
+        ".nxs/evidence/NXS-P12/coverage.json",
+        ".nxs/evidence/NXS-P12/database-roles.json",
+        ".nxs/evidence/NXS-P12/docker.json",
+        ".nxs/evidence/NXS-P12/git.json",
+        ".nxs/evidence/NXS-P12/github-ci.json",
+        ".nxs/evidence/NXS-P12/migration.json",
+        ".nxs/evidence/NXS-P12/multiarch.json",
+        ".nxs/evidence/NXS-P12/preflight.json",
+        ".nxs/evidence/NXS-P12/quality-gates.json",
+        ".nxs/evidence/NXS-P12/quality-matrix.json",
+        ".nxs/evidence/NXS-P12/resilience.json",
+        ".nxs/evidence/NXS-P12/schema-validator.json",
+        ".nxs/evidence/NXS-P12/security-scan.json",
+        ".nxs/evidence/NXS-P12/security.json",
+        ".nxs/evidence/NXS-P12/tests.json",
+        ".nxs/evidence/NXS-P12/unit-primitives.json",
+        ".nxs/evidence/NXS-P12/voice-integration.json"
       ]
     },
     {
@@ -1530,7 +1549,26 @@
       "target_phase": "NXS-P12",
       "title": "ElevenLabs provider",
       "validation_evidence": [
-        ".nxs/evidence/NXS-P12/quality-matrix.json"
+        ".nxs/evidence/NXS-P12/clean-room.json",
+        ".nxs/evidence/NXS-P12/concurrency.json",
+        ".nxs/evidence/NXS-P12/contracts.json",
+        ".nxs/evidence/NXS-P12/coverage.json",
+        ".nxs/evidence/NXS-P12/database-roles.json",
+        ".nxs/evidence/NXS-P12/docker.json",
+        ".nxs/evidence/NXS-P12/git.json",
+        ".nxs/evidence/NXS-P12/github-ci.json",
+        ".nxs/evidence/NXS-P12/migration.json",
+        ".nxs/evidence/NXS-P12/multiarch.json",
+        ".nxs/evidence/NXS-P12/preflight.json",
+        ".nxs/evidence/NXS-P12/quality-gates.json",
+        ".nxs/evidence/NXS-P12/quality-matrix.json",
+        ".nxs/evidence/NXS-P12/resilience.json",
+        ".nxs/evidence/NXS-P12/schema-validator.json",
+        ".nxs/evidence/NXS-P12/security-scan.json",
+        ".nxs/evidence/NXS-P12/security.json",
+        ".nxs/evidence/NXS-P12/tests.json",
+        ".nxs/evidence/NXS-P12/unit-primitives.json",
+        ".nxs/evidence/NXS-P12/voice-integration.json"
       ]
     },
     {

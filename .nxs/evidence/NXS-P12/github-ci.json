@@ -1,0 +1,30 @@
+{
+  "base_main_sha": "8b163f35fe517590f3110a200805883d693e6300",
+  "closure_commit": "pending \u2014 the closure commit",
+  "implementation_commit": "af52e245ec4ac3562346c1f1c7af1eccb6f03264",
+  "merged": false,
+  "phase": "NXS-P12",
+  "pull_request": 22,
+  "record_green_ci_head": "pending \u2014 the record-green commit",
+  "recorded_at": "2026-09-10T07:10:00Z",
+  "result": "PENDING",
+  "runs": {
+    "implementation_af52e24": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "note": "quality re-ran green after one transient pip-audit PyPI connection reset (Class A infra)",
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    }
+  },
+  "schema_version": "1.0.0"
+}

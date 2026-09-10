@@ -187,7 +187,7 @@
     "websockets_pinned_direct_dep_no_new_lock_entry": "PASS"
   },
   "phase": "NXS-P12",
-  "recorded_at": "2026-09-10T06:40:00Z",
+  "recorded_at": "2026-09-10T07:20:00Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
