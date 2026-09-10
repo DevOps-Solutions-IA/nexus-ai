@@ -1279,6 +1279,7 @@ async def voice_stack(telephony_stack: Any) -> Any:
         "frames": ['{"type": "session_started", "session_id": "prov-sess-1"}'],
         "close_after": None,
         "timeout_after": None,
+        "hold": False,
         "media": None,
     }
 
@@ -1287,6 +1288,7 @@ async def voice_stack(telephony_stack: Any) -> Any:
             list(state["frames"]),
             close_after=state["close_after"],
             timeout_after=state["timeout_after"],
+            hold=state["hold"],
         )
 
     def _media_factory(plan: Any, ctx: Any) -> LoopbackMediaChannel:

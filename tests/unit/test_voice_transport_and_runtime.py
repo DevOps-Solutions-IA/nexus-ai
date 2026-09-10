@@ -265,3 +265,39 @@ async def test_runtime_cancellation_leaves_no_tasks() -> None:
 
 async def _noop() -> None:
     return None
+
+
+async def test_runtime_forwards_media_inbound_audio_to_the_provider() -> None:
+    runtime = VoiceSessionRuntime(_SETTINGS)
+    transport = FakeVoiceStreamTransport(
+        [json.dumps({"type": "session_started", "session_id": "s"})],
+        close_after=2,
+    )
+    media_closed_after = LoopbackMediaChannel()
+    # feed then close so the writer terminates deterministically
+    for frame in (b"\x01\x02", b"\x03\x04"):
+        media_closed_after.feed(frame)
+    await media_closed_after.aclose()
+    outcome = await runtime.run(
+        ctx=_ctx(),
+        spec=_spec(),
+        adapter=FakeVoiceProvider(),
+        transport=transport,
+        media=media_closed_after,
+        http=_Http(),
+        secret=None,
+        on_event=_drain,
+    )
+    provider_audio_msgs = [m for m in transport.sent if isinstance(m, str) and "audio_in" in m]
+    assert len(provider_audio_msgs) == 2
+    assert outcome.usage.audio_seconds_in > 0
+
+
+def test_bounded_frame_queue_close_unblocks_a_waiting_getter() -> None:
+    async def _run() -> None:
+        q = BoundedFrameQueue(depth=2, max_frame_bytes=64)
+        q.close()
+        with pytest.raises(StreamClosed):
+            await q.get(timeout=1)
+
+    asyncio.run(_run())

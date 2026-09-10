@@ -199,10 +199,12 @@ class FakeVoiceStreamTransport:
         *,
         close_after: int | None = None,
         timeout_after: int | None = None,
+        hold: bool = False,
     ) -> None:
         self._inbound: deque[bytes | str] = deque(inbound or ())
         self._close_after = close_after
         self._timeout_after = timeout_after
+        self._hold = hold
         self._recv_count = 0
         self._connected = False
         self.sent: list[bytes | str] = []
@@ -232,6 +234,8 @@ class FakeVoiceStreamTransport:
         if self._close_after is not None and self._recv_count > self._close_after:
             raise StreamClosed("scripted peer close", by_peer=True)
         if not self._inbound:
+            if self._hold:
+                await asyncio.Event().wait()  # stays live until cancelled
             raise StreamClosed("scripted stream exhausted", by_peer=True)
         return self._inbound.popleft()
 

@@ -60,8 +60,7 @@ async def test_concurrent_two_starts_on_one_media_session_yield_one_live_session
 ) -> None:
     org = await make_organization()
     account, profile, call_id, media_id = await ready_voice_call(voice_stack, org.id)
-    voice_stack.script["frames"] = ['{"type": "agent_response", "text": "hi"}']
-    voice_stack.script["timeout_after"] = 1
+    voice_stack.script["hold"] = True  # session stays live until stopped
 
     async def _one(key: str) -> Any:
         return await voice_stack.service.start_session(

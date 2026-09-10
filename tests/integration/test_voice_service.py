@@ -272,8 +272,7 @@ async def test_start_session_idempotency_replays_and_conflicts(
 async def test_one_live_session_per_media_session(voice_stack: Any, make_organization: Any) -> None:
     org = await make_organization()
     account, profile, call_id, media_id = await ready_voice_call(voice_stack, org.id)
-    voice_stack.script["frames"] = ['{"type": "agent_response", "text": "hi"}']  # keeps it live
-    voice_stack.script["timeout_after"] = 1
+    voice_stack.script["hold"] = True  # winner session stays live until stopped
 
     first = await voice_stack.service.start_session(
         org.id,
@@ -302,8 +301,7 @@ async def test_stop_session_is_terminal_safe_and_idempotent(
 ) -> None:
     org = await make_organization()
     account, profile, call_id, media_id = await ready_voice_call(voice_stack, org.id)
-    voice_stack.script["frames"] = ['{"type": "agent_response", "text": "hi"}']
-    voice_stack.script["timeout_after"] = 1
+    voice_stack.script["hold"] = True  # session stays live until stopped
     session = await voice_stack.service.start_session(
         org.id,
         StartVoiceSessionRequest(
@@ -324,8 +322,7 @@ async def test_request_handoff_detaches_ai_and_emits_events(
 ) -> None:
     org = await make_organization()
     account, profile, call_id, media_id = await ready_voice_call(voice_stack, org.id)
-    voice_stack.script["frames"] = ['{"type": "agent_response", "text": "hi"}']
-    voice_stack.script["timeout_after"] = 1
+    voice_stack.script["hold"] = True  # session stays live until stopped
     session = await voice_stack.service.start_session(
         org.id,
         StartVoiceSessionRequest(
@@ -367,5 +364,78 @@ async def test_disabled_subsystem_refuses_start(voice_stack: Any, make_organizat
                 media_session_id=media_id,
                 provider_account_id=account.id,
                 voice_profile_id=profile.id,
+            ),
+        )
+
+
+async def test_account_and_profile_management_endpoints(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    from nexus_ai.voice.entities import (
+        UpdateVoiceProfileRequest,
+        VoiceProfileStatus,
+    )
+
+    org = await make_organization()
+    account, profile, _call, _media = await ready_voice_call(voice_stack, org.id)
+
+    updated = await voice_stack.service.update_account(
+        org.id, account.id, {"media_gateway_host": "10.5.5.5", "media_gateway_port": 41000}
+    )
+    assert updated.configuration["media_gateway_host"] == "10.5.5.5"
+    assert len(await voice_stack.service.list_accounts(org.id, limit=10)) == 1
+
+    prof = await voice_stack.service.update_profile(
+        org.id, profile.id, UpdateVoiceProfileRequest(display_name="Renamed")
+    )
+    assert prof.display_name == "Renamed"
+    disabled = await voice_stack.service.set_profile_status(
+        org.id, profile.id, VoiceProfileStatus.DISABLED
+    )
+    assert disabled.status is VoiceProfileStatus.DISABLED
+    assert len(await voice_stack.service.list_profiles(org.id, limit=10)) == 1
+
+    sessions = await voice_stack.service.list_sessions(
+        org.id, account_id=account.id, call_id=None, limit=10
+    )
+    assert sessions == []
+
+
+async def test_delete_account_without_profiles(voice_stack: Any, make_organization: Any) -> None:
+    org = await make_organization()
+    created = await voice_stack.service.create_account(
+        org.id,
+        CreateVoiceAccountRequest(
+            provider=VoiceProvider.FAKE,
+            slug=f"del-{uuid4().hex[:8]}",
+            external_account_id=uuid4().hex,
+            configuration={"media_gateway_host": "10.7.7.7", "media_gateway_port": 40000},
+        ),
+    )
+    await voice_stack.service.store_account_credential(org.id, created.id, _VOICE_SECRET)
+    await voice_stack.service.delete_account(org.id, created.id)
+    from nexus_ai.voice.errors import VoiceAccountNotFoundError
+
+    with pytest.raises(VoiceAccountNotFoundError):
+        await voice_stack.service.get_account(org.id, created.id)
+
+
+async def test_unsupported_audio_format_is_rejected_at_profile_create(
+    voice_stack: Any, make_organization: Any
+) -> None:
+    from nexus_ai.voice.errors import VoiceUnsupportedAudioError
+
+    org = await make_organization()
+    account, _profile, _call, _media = await ready_voice_call(voice_stack, org.id)
+    with pytest.raises(VoiceUnsupportedAudioError):
+        await voice_stack.service.create_profile(
+            org.id,
+            CreateVoiceProfileRequest(
+                account_id=account.id,
+                slug=f"bad-{uuid4().hex[:8]}",
+                display_name="Bad",
+                provider_voice_ref="agent_x",
+                input_format={"codec": "opus", "sample_rate": 48_000},
+                output_format={"codec": "pcm_16000", "sample_rate": 16_000},
             ),
         )
