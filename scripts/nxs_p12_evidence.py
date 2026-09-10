@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-EVIDENCE = ROOT / ".nxs" / "evidence" / "NXS-P11"
+EVIDENCE = ROOT / ".nxs" / "evidence" / "NXS-P12"
 PHASE = "NXS-P12"
 BRANCH = "feat/nxs-p12-elevenlabs"
 
