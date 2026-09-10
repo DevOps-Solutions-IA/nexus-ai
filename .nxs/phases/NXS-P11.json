@@ -2,13 +2,34 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p11-telephony",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P04"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P11/clean-room.json",
+    ".nxs/evidence/NXS-P11/concurrency.json",
+    ".nxs/evidence/NXS-P11/contracts.json",
+    ".nxs/evidence/NXS-P11/coverage.json",
+    ".nxs/evidence/NXS-P11/database-roles.json",
+    ".nxs/evidence/NXS-P11/docker.json",
+    ".nxs/evidence/NXS-P11/git.json",
+    ".nxs/evidence/NXS-P11/github-ci.json",
+    ".nxs/evidence/NXS-P11/migration.json",
+    ".nxs/evidence/NXS-P11/multiarch.json",
+    ".nxs/evidence/NXS-P11/preflight.json",
+    ".nxs/evidence/NXS-P11/quality-gates.json",
+    ".nxs/evidence/NXS-P11/quality-matrix.json",
+    ".nxs/evidence/NXS-P11/resilience.json",
+    ".nxs/evidence/NXS-P11/schema-validator.json",
+    ".nxs/evidence/NXS-P11/security-scan.json",
+    ".nxs/evidence/NXS-P11/security.json",
+    ".nxs/evidence/NXS-P11/telephony-integration.json",
+    ".nxs/evidence/NXS-P11/tests.json",
+    ".nxs/evidence/NXS-P11/unit-primitives.json"
+  ],
   "id": "NXS-P11",
-  "implementation_commit": null,
+  "implementation_commit": "5a84fdcc3ce4fd16dd26d06a0cdb10539cd6efe1",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -50,9 +71,9 @@
     "NXS-TEL-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-10T01:57:21Z",
     "started_at": "2026-09-10T00:52:48Z"
   },
   "title": "Telephony Foundation"

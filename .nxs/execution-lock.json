@@ -1,10 +1,10 @@
 {
-  "actor": "claude-code",
-  "branch": "feat/nxs-p11-telephony",
-  "expires_at": "2026-09-10T04:52:48Z",
-  "phase": "NXS-P11",
-  "repository_commit": "420d6696e6fc6fbef995879fc13d848c3aa4096d",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-10T00:52:48Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

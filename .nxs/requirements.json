@@ -1377,7 +1377,7 @@
         "tests/unit/test_telephony_primitives.py"
       ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P11",
       "title": "Asterisk telephony foundation",
       "validation_evidence": [
