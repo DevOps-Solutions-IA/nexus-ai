@@ -131,6 +131,17 @@ def test_error_taxonomy_is_stable_unique_and_rfc9457() -> None:
     timeout_block = service_src.split("except TimeoutError:", 1)[1].split("except asyncio", 1)[0]
     assert "\n                raise\n" not in timeout_block  # no bare re-raise of TimeoutError
 
+    # audit corrective #3: terminal-state absorption at the DATABASE boundary, and the
+    # whole-turn deadline is bounded by the session's remaining absolute lifetime.
+    finish_body = service_src.split("async def _finish_turn", 1)[1].split("\n    async def ", 1)[0]
+    assert "session_is_terminal(refreshed.state)" in finish_body  # re-checked after FOR UPDATE
+    assert "_discard_stale_turn" in finish_body  # stale outcome discarded, not committed
+    assert "_remaining_session_lifetime" in service_src
+    submit_body = service_src.split("async def submit_turn", 1)[1].split("\n    async def ", 1)[0]
+    assert "max(remaining, 0.0)" in submit_body  # effective deadline includes the lifetime
+    assert "_expire_session_now" in submit_body  # mid-flight expiry terminalises EXPIRED
+    assert "raise AgentSessionExpiredError(" in submit_body
+
 
 def test_p04_agent_events_are_registered_and_strict() -> None:
     import nexus_ai.agents.events  # noqa: F401 - registration

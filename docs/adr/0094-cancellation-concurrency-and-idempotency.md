@@ -1,10 +1,12 @@
 # ADR-0094: Cancellation, concurrency and idempotency in the agent runtime
 
 Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by
-independent-audit corrective #1 (the tool-call idempotency key is a pure semantic
-identity — no `tool_call_id`, no iteration index) and corrective #2 (the per-Agent turn
-deadline, the enforced absolute session lifetime with a truthful `EXPIRED` terminal, and
-the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy — see the deadline section).
+independent-audit corrective #1 (semantic tool-call idempotency key), corrective #2 (the
+per-Agent turn deadline, the enforced absolute session lifetime with a truthful `EXPIRED`
+terminal, the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy) and corrective #3 (terminal-state
+absorption at the DATABASE boundary — `_finish_turn` never resurrects a session another
+worker terminalised — and the whole-turn deadline bounded by the session's *remaining*
+absolute lifetime so a turn opened just before expiry cannot outlive it).
 
 ## Context
 
@@ -27,29 +29,76 @@ terminal proposal always wins from a live state, an undeclared live edge is a no
 (`COMPLETED`), error (`FAILED`), nor barge-in / client cancellation (`CANCELLED`);
 migration `c9e0f1a2b3c4` adds it to the state domain.
 
-### Two independent time bounds
+### The whole-turn deadline
 
-* **Per-turn deadline** — `min(agent.timeout_seconds, settings.agents.turn_deadline_seconds)`
-  (`AgentService._effective_turn_deadline`). `agent.timeout_seconds` is the per-Agent
-  maximum total-turn execution deadline; a tenant value may only *tighten* the global
-  safety ceiling, never widen it. `submit_turn` wraps the whole `_run_turn` task in
-  `asyncio.timeout(effective_deadline)` — model calls, the tool loop and continuation
-  combined. On expiry the task is cancelled + drained (no stale response committed), the
-  turn is persisted `FAILED` with `NXS_AGENT_TURN_TIMEOUT`, `agent.turn.failed` is
+`submit_turn` wraps the whole `_run_turn` task (model calls + tool loop + continuation)
+in `asyncio.timeout(effective_deadline)`, where
+
+```
+effective_deadline = min(
+    settings.agents.turn_deadline_seconds,      # global safety ceiling
+    agent.timeout_seconds  (if configured),     # per-Agent total-turn deadline; tightens only
+    remaining_session_lifetime,                 # started_at + max_session_seconds - now
+)
+```
+
+`agent.timeout_seconds` may only *tighten*, never widen, the global ceiling. Including
+`remaining_session_lifetime` (`_remaining_session_lifetime`) makes `max_session_seconds`
+a true **absolute** ceiling — a turn opened just before expiry is bounded so it cannot
+run models / tools past `started_at + max_session_seconds`.
+
+On the deadline the task is cancelled + drained (no stale response committed, no further
+model / Tool Engine call). The handler then distinguishes:
+
+* the **session lifetime** elapsed (`_lifetime_exceeded(session, now)`) → the session is
+  terminalised `EXPIRED` (`_expire_session_now`, own `FOR UPDATE` transaction), the turn
+  is `CANCELLED` with `NXS_AGENT_SESSION_EXPIRED`, and `AgentSessionExpiredError` (409) is
+  raised — the canonical session-expired semantics, **not** a misleading turn / provider
+  timeout;
+* otherwise → the turn is `FAILED` with `NXS_AGENT_TURN_TIMEOUT`, `agent.turn.failed` is
   emitted, the **session returns to `ACTIVE`** (a fresh turn is allowed), and
-  `AgentTurnTimeoutError` (504) is raised — **never a bare `TimeoutError`**. A single
-  model provider call that times out inside `_run_turn` remains a distinct
-  `AgentProviderTimeoutError` (`NXS_AGENT_PROVIDER_TIMEOUT`).
+  `AgentTurnTimeoutError` (504) is raised — **never a bare `TimeoutError`**.
 
-* **Absolute session lifetime** — `started_at + settings.agents.max_session_seconds`.
-  `_open_turn` checks `_lifetime_exceeded(session, now)` (inclusive: `now >= deadline`)
-  under the `SELECT … FOR UPDATE` session-row lock, **before** any model or Tool Engine
-  call. Once exceeded the session is terminalised `EXPIRED` + `ended_at` +
-  `error_code = NXS_AGENT_SESSION_EXPIRED` in that same locked transaction,
-  `agent.session.expired` is emitted, and `AgentSessionExpiredError` (409) is raised —
-  no turn row opens, no model call begins, and the terminal is absorbing (no
-  resurrection). Concurrent submits serialise on the row lock, so a late turn cannot slip
-  through.
+A single model provider call that times out inside `_run_turn` remains a distinct
+`AgentProviderTimeoutError` (`NXS_AGENT_PROVIDER_TIMEOUT`).
+
+### Absolute session lifetime — enforced at admission AND in flight
+
+`started_at + settings.agents.max_session_seconds` is the absolute ceiling.
+
+* **At admission** — `_open_turn` checks `_lifetime_exceeded(session, now)` (inclusive:
+  `now >= deadline`) under the `SELECT … FOR UPDATE` session-row lock, **before** any turn
+  row is inserted. Once exceeded, the session is terminalised `EXPIRED` + `ended_at` +
+  `error_code` in that same locked transaction, `agent.session.expired` is emitted, and
+  `AgentSessionExpiredError` (409) is raised — no turn opens, no model call begins.
+
+* **In flight** — the deadline above bounds the running turn (see the whole-turn
+  deadline); when it fires because the lifetime elapsed, the session is terminalised
+  `EXPIRED` and no continuation runs.
+
+### Terminal-state absorption is a DATABASE property, not a process-lock property
+
+The per-session `asyncio.Lock` is process-local — it does not serialise multiple Nexus
+backend workers / replicas. Every state transition that writes session state **after a
+long external operation** re-reads the row `SELECT … FOR UPDATE`, re-validates the
+persisted state, applies the canonical fold, and lets the terminal win:
+
+* `_finish_turn` — after the model task returns, it re-reads the session `FOR UPDATE`. If
+  `session_is_terminal(refreshed.state)` (a concurrent worker terminalised it — `EXPIRED`
+  / `CANCELLED` / `FAILED` / `COMPLETED`), the stale outcome is **discarded**: the turn is
+  marked `CANCELLED` with the session's terminal `error_code` (`_discard_stale_turn`), no
+  `response_text` is written, **no `agent.response.ready` is published**, the session is
+  **not** resurrected, and `AgentSessionExpiredError` / `AgentInvalidStateError` is
+  raised. Otherwise the session move to `ACTIVE` goes through `fold_agent_session_state`.
+* `_fail_turn` — already guarded (`not session_is_terminal(session.state)` before any
+  `ACTIVE` write).
+* `_terminalize` / `_terminalize_expired` — fold-guarded; a no-op on an already-terminal
+  row.
+
+Proven with **two independent `AgentService` instances sharing one PostgreSQL database**:
+worker A opens a turn and blocks in the model; worker B expires the shared row; worker A
+resumes into `_finish_turn` and the row stays `EXPIRED` — never `EXPIRED → ACTIVE`, no
+stale `response_text`, no `agent.response.ready`.
 
 ### Concurrency
 

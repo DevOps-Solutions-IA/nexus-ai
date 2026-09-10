@@ -63,6 +63,7 @@ from nexus_ai.agents.runtime import AgentRuntime, TurnContext, TurnOutcome
 from nexus_ai.agents.state_machine import (
     AgentSessionState,
     AgentTurnState,
+    FoldOutcome,
     fold_agent_session_state,
     session_is_terminal,
     session_rank,
@@ -482,7 +483,12 @@ class AgentService:
                 return self._response_from_turn(turn)
 
             agent = await self.get_agent(organization_id, session.agent_id)
-            deadline = self._effective_turn_deadline(agent)
+            # The whole-turn deadline is bounded by the global ceiling, the per-Agent
+            # timeout AND the session's remaining absolute lifetime — max_session_seconds
+            # is an ABSOLUTE ceiling, not merely a new-turn admission check, so a turn
+            # opened just before expiry cannot run models / tools past it.
+            remaining = self._remaining_session_lifetime(session, dt.datetime.now(dt.UTC))
+            deadline = min(self._effective_turn_deadline(agent), max(remaining, 0.0))
 
             task: asyncio.Task[TurnOutcome] = asyncio.create_task(
                 self._run_turn(organization_id, session, turn, request, agent)
@@ -492,12 +498,27 @@ class AgentService:
                 async with asyncio.timeout(deadline):
                     outcome = await task
             except TimeoutError:
-                # the WHOLE-turn deadline elapsed — cancel + drain the task so no stale
-                # model response is committed, persist FAILED, and raise the stable
-                # taxonomy error (never a bare TimeoutError).
+                # A deadline elapsed — cancel + drain the task so no stale model response
+                # is committed and no further model / Tool Engine call can begin, then
+                # raise the stable taxonomy error (never a bare TimeoutError).
                 task.cancel()
                 with contextlib.suppress(asyncio.CancelledError, Exception):
                     await task
+                if self._lifetime_exceeded(session, dt.datetime.now(dt.UTC)):
+                    # the ABSOLUTE session lifetime expired during the turn — terminalise
+                    # the session EXPIRED and surface the canonical session-expired
+                    # semantics, not a misleading turn / provider timeout.
+                    await self._expire_session_now(organization_id, session_id)
+                    await self._fail_turn(
+                        organization_id,
+                        session_id,
+                        turn.id,
+                        "NXS_AGENT_SESSION_EXPIRED",
+                        cancelled=True,
+                    )
+                    raise AgentSessionExpiredError(
+                        "the agent session reached its lifetime ceiling during the turn"
+                    ) from None
                 await self._fail_turn(
                     organization_id, session_id, turn.id, "NXS_AGENT_TURN_TIMEOUT"
                 )
@@ -617,20 +638,42 @@ class AgentService:
         """``True`` once ``started_at + max_session_seconds`` has passed — the absolute
         session lifetime ceiling. A session with no ``started_at`` (never happens after
         ``start_session``) is treated as not expired."""
+        return self._remaining_session_lifetime(session, now) <= 0.0
+
+    def _remaining_session_lifetime(self, session: AgentSession, now: dt.datetime) -> float:
+        """Seconds left before ``started_at + max_session_seconds`` — the absolute
+        lifetime ceiling. ``<= 0`` means the session has expired. No ``started_at`` (never
+        after ``start_session``) yields the full budget."""
         started = session.started_at
         if started is None:
-            return False
-        return now >= started + dt.timedelta(seconds=self._cfg.max_session_seconds)
+            return float(self._cfg.max_session_seconds)
+        deadline = started + dt.timedelta(seconds=self._cfg.max_session_seconds)
+        return (deadline - now).total_seconds()
+
+    async def _expire_session_now(self, organization_id: UUID, session_id: UUID) -> None:
+        """Terminalise the session EXPIRED from OUTSIDE the per-session process lock (the
+        caller holds it). Its own ``SELECT … FOR UPDATE`` transaction so the terminal
+        wins at the DATABASE boundary across independent workers; a no-op if the row is
+        already terminal."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            repo = AgentSessionRepository(tenant)
+            current = await repo.by_id(session_id, for_update=True)
+            if current is None or session_is_terminal(current.state):
+                return
+            await self._terminalize_expired(tenant.session, organization_id, current)
 
     async def _terminalize_expired(
         self, session_conn: Any, organization_id: UUID, session: AgentSession
     ) -> None:
         """Persist the EXPIRED terminal + ``ended_at`` and emit ``agent.session.expired``,
-        within the caller's already-locked transaction."""
+        within the caller's already-locked transaction. The canonical fold guards it: a
+        session that is already terminal is left untouched (terminal is absorbing)."""
+        fold = fold_agent_session_state(current=session.state, proposed=AgentSessionState.EXPIRED)
+        if fold.outcome is not FoldOutcome.APPLIED:
+            return
         repo = AgentSessionRepository(
             cast(TenantSession, _TenantShim(session_conn, organization_id))
         )
-        fold = fold_agent_session_state(current=session.state, proposed=AgentSessionState.EXPIRED)
         updated = await repo.apply(
             session.id,
             {
@@ -754,84 +797,146 @@ class AgentService:
     ) -> AgentResponse:
         now = dt.datetime.now(dt.UTC)
         content = outcome.content[: self._cfg.max_output_chars]
+        stale_state: AgentSessionState | None = None
         async with self._db.tenant_transaction(organization_id) as tenant:
-            turn_repo = AgentTurnRepository(tenant)
-            updated_turn = await turn_repo.apply(
-                turn.id,
-                {
-                    "state": AgentTurnState.COMPLETED.value,
-                    "response_text": content,
-                    "response_char_count": len(content),
-                    "model": None,
-                    "finish_reason": outcome.finish_reason,
-                    "input_tokens": outcome.usage.input_tokens,
-                    "output_tokens": outcome.usage.output_tokens,
-                    "tool_iterations": outcome.tool_iterations,
-                    "latency_ms": _elapsed_ms(turn.created_at, now),
-                },
-            )
-            assert updated_turn is not None  # noqa: S101
             session_repo = AgentSessionRepository(tenant)
             refreshed = await session_repo.by_id(session.id, for_update=True)
             assert refreshed is not None  # noqa: S101
-            new_session = await session_repo.apply(
-                session.id,
-                {
-                    "state": AgentSessionState.ACTIVE.value,
-                    "state_rank": session_rank(AgentSessionState.ACTIVE),
-                    "input_tokens": refreshed.input_tokens + outcome.usage.input_tokens,
-                    "output_tokens": refreshed.output_tokens + outcome.usage.output_tokens,
-                    "tool_call_count": refreshed.tool_call_count + len(outcome.tool_calls),
-                    "last_activity_at": now,
-                },
-            )
-            assert new_session is not None  # noqa: S101
-            await self._emit_turn_event(
-                tenant.session,
-                organization_id,
-                new_session,
-                updated_turn,
-                "agent.turn.completed",
-                {
-                    "finish_reason": outcome.finish_reason,
-                    "tool_iterations": outcome.tool_iterations,
-                    "input_tokens": outcome.usage.input_tokens,
-                    "output_tokens": outcome.usage.output_tokens,
-                    "latency_ms": updated_turn.latency_ms,
-                },
-            )
-            await self._publisher.enqueue(
-                tenant.session,
-                EventEnvelope.create(
-                    event_type="agent.response.ready",
-                    event_version=1,
-                    aggregate_type="agent_session",
-                    aggregate_id=str(session.id),
-                    producer=self._settings.service_name,
-                    organization_id=organization_id,
-                    correlation_id=ctx_correlation(request, session),
-                    payload={
-                        "session_id": str(session.id),
-                        "turn_id": str(turn.id),
-                        "channel": session.channel.value,
+            # DATABASE-level terminal absorption: a concurrent worker / replica may have
+            # terminalised this session (EXPIRED / CANCELLED / FAILED / COMPLETED) while
+            # this turn's model task was running. A terminal state is absorbing at the
+            # transition boundary, not merely through the process-local asyncio lock — so
+            # the stale outcome is discarded, the session is NOT resurrected, no
+            # response_text is written and NO agent.response.ready is published.
+            if session_is_terminal(refreshed.state):
+                await self._discard_stale_turn(tenant, organization_id, turn, refreshed, now)
+                stale_state = refreshed.state
+            else:
+                turn_repo = AgentTurnRepository(tenant)
+                updated_turn = await turn_repo.apply(
+                    turn.id,
+                    {
+                        "state": AgentTurnState.COMPLETED.value,
+                        "response_text": content,
                         "response_char_count": len(content),
+                        "model": None,
                         "finish_reason": outcome.finish_reason,
-                        "correlation_id": ctx_correlation(request, session),
+                        "input_tokens": outcome.usage.input_tokens,
+                        "output_tokens": outcome.usage.output_tokens,
+                        "tool_iterations": outcome.tool_iterations,
+                        "latency_ms": _elapsed_ms(turn.created_at, now),
                     },
-                ),
+                )
+                assert updated_turn is not None  # noqa: S101
+                live = fold_agent_session_state(
+                    current=refreshed.state, proposed=AgentSessionState.ACTIVE
+                ).state
+                new_session = await session_repo.apply(
+                    session.id,
+                    {
+                        "state": live.value,
+                        "state_rank": session_rank(live),
+                        "input_tokens": refreshed.input_tokens + outcome.usage.input_tokens,
+                        "output_tokens": refreshed.output_tokens + outcome.usage.output_tokens,
+                        "tool_call_count": refreshed.tool_call_count + len(outcome.tool_calls),
+                        "last_activity_at": now,
+                    },
+                )
+                assert new_session is not None  # noqa: S101
+                await self._emit_turn_event(
+                    tenant.session,
+                    organization_id,
+                    new_session,
+                    updated_turn,
+                    "agent.turn.completed",
+                    {
+                        "finish_reason": outcome.finish_reason,
+                        "tool_iterations": outcome.tool_iterations,
+                        "input_tokens": outcome.usage.input_tokens,
+                        "output_tokens": outcome.usage.output_tokens,
+                        "latency_ms": updated_turn.latency_ms,
+                    },
+                )
+                await self._publisher.enqueue(
+                    tenant.session,
+                    EventEnvelope.create(
+                        event_type="agent.response.ready",
+                        event_version=1,
+                        aggregate_type="agent_session",
+                        aggregate_id=str(session.id),
+                        producer=self._settings.service_name,
+                        organization_id=organization_id,
+                        correlation_id=ctx_correlation(request, session),
+                        payload={
+                            "session_id": str(session.id),
+                            "turn_id": str(turn.id),
+                            "channel": session.channel.value,
+                            "response_char_count": len(content),
+                            "finish_reason": outcome.finish_reason,
+                            "correlation_id": ctx_correlation(request, session),
+                        },
+                    ),
+                )
+                await self._record_usage(tenant.session, organization_id, new_session)
+                return AgentResponse(
+                    session_id=session.id,
+                    turn_id=turn.id,
+                    content=content,
+                    finish_reason=outcome.finish_reason,
+                    tool_calls=len(outcome.tool_calls),
+                    input_tokens=outcome.usage.input_tokens,
+                    output_tokens=outcome.usage.output_tokens,
+                    total_tokens=outcome.usage.total_tokens,
+                    latency_ms=updated_turn.latency_ms,
+                    correlation_id=ctx_correlation(request, session),
+                )
+        # reached only on the stale path — the discarded turn was committed above.
+        if stale_state is AgentSessionState.EXPIRED:
+            raise AgentSessionExpiredError(
+                "the agent session reached its lifetime ceiling during the turn"
             )
-            await self._record_usage(tenant.session, organization_id, new_session)
-        return AgentResponse(
-            session_id=session.id,
-            turn_id=turn.id,
-            content=content,
-            finish_reason=outcome.finish_reason,
-            tool_calls=len(outcome.tool_calls),
-            input_tokens=outcome.usage.input_tokens,
-            output_tokens=outcome.usage.output_tokens,
-            total_tokens=outcome.usage.total_tokens,
-            latency_ms=updated_turn.latency_ms,
-            correlation_id=ctx_correlation(request, session),
+        raise AgentInvalidStateError("the agent session ended before the turn could be committed")
+
+    async def _discard_stale_turn(
+        self,
+        tenant: TenantSession,
+        organization_id: UUID,
+        turn: AgentTurn,
+        session_row: AgentSession,
+        now: dt.datetime,
+    ) -> None:
+        """The session went terminal (concurrently) while this turn ran. Mark the turn
+        CANCELLED with the session's terminal reason and emit ``agent.turn.failed`` —
+        within the caller's transaction. No ``response_text``, no session write, no
+        ``agent.response.ready``, no usage (that was recorded at terminalisation)."""
+        error_code = session_row.error_code or "NXS_AGENT_SESSION_EXPIRED"
+        updated = await AgentTurnRepository(tenant).apply(
+            turn.id,
+            {
+                "state": AgentTurnState.CANCELLED.value,
+                "error_code": error_code,
+                "latency_ms": _elapsed_ms(turn.created_at, now),
+            },
+        )
+        assert updated is not None  # noqa: S101
+        await self._publisher.enqueue(
+            tenant.session,
+            EventEnvelope.create(
+                event_type="agent.turn.failed",
+                event_version=1,
+                aggregate_type="agent_session",
+                aggregate_id=str(session_row.id),
+                producer=self._settings.service_name,
+                organization_id=organization_id,
+                payload={
+                    "session_id": str(session_row.id),
+                    "turn_id": str(turn.id),
+                    "sequence": updated.sequence,
+                    "error_code": error_code,
+                    "latency_ms": updated.latency_ms,
+                    "correlation_id": session_row.correlation_id,
+                },
+            ),
         )
 
     async def _fail_turn(

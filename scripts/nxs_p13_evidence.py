@@ -184,7 +184,10 @@ def main() -> int:
     )
     pytest_evidence(
         "concurrency",
-        ["tests/concurrency/test_agent_concurrency.py"],
+        [
+            "tests/concurrency/test_agent_concurrency.py",
+            "tests/concurrency/test_agent_lifecycle_race.py",
+        ],
     )
     pytest_evidence(
         "resilience",
