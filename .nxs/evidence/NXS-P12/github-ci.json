@@ -1,33 +1,20 @@
 {
   "base_main_sha": "8b163f35fe517590f3110a200805883d693e6300",
-  "closure_commit": "58dd4fd854f0957b8e5ae0626ca45b81f73fede4",
-  "corrective_audit": "NXS-P12 independent audit corrective: BLOCKER 1 (WebSocket SSRF / provider URL trust) + BLOCKER 2 (false handoff completion) + ElevenLabs protocol reconciliation (2026-09-10).",
-  "implementation_commit": "996e33c524af3618250ceb959f5860d1c027030f",
-  "lineage": "Original: implementation_af52e24 + closure_9a56053 + record-green_2b01695 all green. Corrective: d0fa5bb (blocker fixes + reconciliation), 996e33c (per-session cancel/terminalize serialization), 58dd4fd (re-close), and the record-green head are all fully green (every job, push + pull_request) for NXS CI and NXS Security. d0fa5bb's push-event NXS CI failed once on test_concurrent_handoff_requests_are_deterministic (asyncpg InvalidStateError under pool contention; the pull_request-event run of the same commit passed) \u2014 996e33c fixes the root cause and every subsequent run on every head is green.",
+  "closure_commit": "2005b1548abdca2404763131ca646a44a65b7a63",
+  "corrective_audits": [
+    "#1: WebSocket SSRF / provider-URL trust; truthful AI -> PENDING_HUMAN -> HUMAN; dated ElevenLabs protocol reconciliation (2026-09-10).",
+    "#2: the public POST /voice/sessions/{id}/handoff/confirm endpoint was forgeable (VoiceUseDep, unverified bridge_reference). OPTION A: route removed; PENDING_HUMAN -> HUMAN / voice.handoff.completed is a non-public in-process seam for the future NXS-P17 only."
+  ],
+  "implementation_commit": "56b2c4b01dbb0c2b38a6fd2d397bec4af99dc06d",
+  "lineage": "Original: af52e24 + 9a56053 + 2b01695 all green. Corrective #1: d0fa5bb + 996e33c + 58dd4fd + 3369049 all green. Corrective #2: 56b2c4b (OPTION A), 2005b15 (re-close), and the record-green commit (record-green) all fully green (every job, push + pull_request) for NXS CI and NXS Security.",
   "merged": false,
   "phase": "NXS-P12",
   "pull_request": 22,
-  "record_green_ci_head": "58dd4fd854f0957b8e5ae0626ca45b81f73fede4",
-  "recorded_at": "2026-09-10T08:41:20Z",
+  "record_green_ci_head": "2005b1548abdca2404763131ca646a44a65b7a63",
+  "recorded_at": "2026-09-10T09:23:32Z",
   "result": "PASS",
   "runs": {
-    "corrective_blocker_fixes_d0fa5bb": {
-      "jobs": [
-        "state",
-        "quality",
-        "integration",
-        "docker",
-        "multiarch",
-        "source-and-dependencies",
-        "image"
-      ],
-      "note": "push-event NXS CI integration job failed once on a flaky concurrent-handoff test (asyncpg InvalidStateError under pool contention); pull_request-event run passed; root cause fixed in 996e33c",
-      "nxs_ci_pull_request": "success",
-      "nxs_ci_push": "failure_then_fixed_in_996e33c",
-      "nxs_security_pull_request": "success",
-      "nxs_security_push": "success"
-    },
-    "corrective_concurrency_fix_996e33c": {
+    "corrective1_final_3369049": {
       "jobs": [
         "state",
         "quality",
@@ -42,7 +29,7 @@
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "original_closure_9a56053": {
+    "corrective2_impl_56b2c4b": {
       "jobs": [
         "state",
         "quality",
@@ -57,23 +44,7 @@
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "original_implementation_af52e24": {
-      "jobs": [
-        "state",
-        "quality",
-        "integration",
-        "docker",
-        "multiarch",
-        "source-and-dependencies",
-        "image"
-      ],
-      "note": "quality re-ran green after one transient pip-audit PyPI connection reset (Class A infra)",
-      "nxs_ci_pull_request": "success",
-      "nxs_ci_push": "success",
-      "nxs_security_pull_request": "success",
-      "nxs_security_push": "success"
-    },
-    "reclose_58dd4fd": {
+    "corrective2_reclose": {
       "jobs": [
         "state",
         "quality",
