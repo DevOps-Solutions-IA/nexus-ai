@@ -1,14 +1,30 @@
 {
   "base_main_sha": "8b163f35fe517590f3110a200805883d693e6300",
-  "closure_commit": "pending \u2014 the closure commit",
+  "closure_commit": "9a56053b7498c96b3d5ac9a79226f4c056ebed07",
   "implementation_commit": "af52e245ec4ac3562346c1f1c7af1eccb6f03264",
+  "lineage": "implementation_af52e24 and closure_9a56053: both fully green (all jobs, push + pull_request). One transient pip-audit PyPI ConnectionResetError on af52e24's quality job was cleared by `gh run rerun --failed` (Class A infra, not a code regression).",
   "merged": false,
   "phase": "NXS-P12",
   "pull_request": 22,
-  "record_green_ci_head": "pending \u2014 the record-green commit",
-  "recorded_at": "2026-09-10T07:10:00Z",
-  "result": "PENDING",
+  "record_green_ci_head": "9a56053b7498c96b3d5ac9a79226f4c056ebed07",
+  "recorded_at": "2026-09-10T07:45:00Z",
+  "result": "PASS",
   "runs": {
+    "closure_9a56053": {
+      "jobs": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ],
+      "nxs_ci_pull_request": "success",
+      "nxs_ci_push": "success",
+      "nxs_security_pull_request": "success",
+      "nxs_security_push": "success"
+    },
     "implementation_af52e24": {
       "jobs": [
         "state",
