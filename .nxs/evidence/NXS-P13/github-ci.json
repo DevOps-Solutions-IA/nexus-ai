@@ -1,34 +1,35 @@
 {
   "base_main_sha": "8224e6ca9800ab0ba1425d2a2bc3442bb5ba7e1a",
-  "closure_commit": "ae5b3da8dcbb537243c85730102e6ecea988da63",
+  "closure_commit": "5e4393e026c67879f08601efee5cbdf6c62decbd",
   "corrective_audits": [
-    "#1 (audited head 38c6dc7): (1) turn-wide semantic tool deduplication across all model iterations, with a P08 idempotency key that is a pure semantic identity (session:turn_seq:tool_key:arg_hash) and excludes the model tool_call_id and the iteration index; (2) max_tool_calls_per_turn is a true turn-wide budget counting every requested call, enforced before the Tool Engine, plus a distinct max_tool_calls_per_response structural bound; (3) bound_reinjection makes the final re-injected object byte-exact within max_tool_result_bytes for ASCII and arbitrary Unicode, code-point safe, wrapper overhead included. Corrective impl 938ffe3, re-close ae5b3da."
+    "#1 (audited head 38c6dc7): turn-wide semantic tool deduplication; a true turn-wide tool-call budget + distinct max_tool_calls_per_response; byte-exact Unicode tool-result bound. Corrective impl 938ffe3, re-close ae5b3da, record-green feaefaf.",
+    "#2 (audited head feaefaf): (1) agent.timeout_seconds is the enforced per-Agent total-turn deadline = min(agent value, global turn_deadline_seconds); (2) max_session_seconds is enforced as an absolute session lifetime under the FOR UPDATE row lock before any model/tool call, terminalising the session to a new truthful EXPIRED state (migration c9e0f1a2b3c4) with agent.session.expired; (3) the whole-turn deadline raises the new stable AgentTurnTimeoutError (NXS_AGENT_TURN_TIMEOUT, 504) instead of a bare TimeoutError, distinct from NXS_AGENT_PROVIDER_TIMEOUT. Corrective impl 0b2aa3e, reopen+gate+evidence 3ef1457, re-close 5e4393e."
   ],
-  "implementation_commit": "938ffe3d9268c15e0276540fc179c7aa9492a093",
-  "lineage": "Original: activation 80a36ba, impl 9fa14d7, gate+evidence 429fc48, close 05f5c8b, phase-ladder fix 330ffd1, record-green 38c6dc7 (all green). Corrective #1: impl 938ffe3, reopen+gate+evidence 6fd43ef, re-close ae5b3da, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head ae5b3da.",
+  "implementation_commit": "0b2aa3e904bbf131a1cb7d9af04046165c7581ff",
+  "lineage": "Original close 05f5c8b, phase-ladder fix 330ffd1, record-green 38c6dc7. Corrective #1: impl 938ffe3, re-close ae5b3da, record-green feaefaf. Corrective #2: impl 0b2aa3e, reopen+gate+evidence 3ef1457, re-close 5e4393e, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 5e4393e.",
   "merged": false,
   "phase": "NXS-P13",
   "pull_request": 24,
-  "record_green_ci_head": "ae5b3da8dcbb537243c85730102e6ecea988da63",
-  "recorded_at": "2026-09-10T18:20:00Z",
+  "record_green_ci_head": "5e4393e026c67879f08601efee5cbdf6c62decbd",
+  "recorded_at": "2026-09-10T20:05:00Z",
   "result": "PASS",
   "runs": {
-    "original_final_38c6dc7": {
+    "corrective1_final_feaefaf": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective1_impl_938ffe3": {
+    "corrective2_impl_0b2aa3e": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
-      "note": "carried on 6fd43ef / ae5b3da which contain 938ffe3.",
+      "note": "carried on 3ef1457 / 5e4393e which contain 0b2aa3e.",
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective1_reclose_ae5b3da": {
+    "corrective2_reclose_5e4393e": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
