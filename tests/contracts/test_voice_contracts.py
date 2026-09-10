@@ -1,6 +1,6 @@
 """Voice stable contracts — session states, provider-neutral adapter, request/response
 schemas, error taxonomy, P04 event schemas, RBAC scopes, OpenAPI governed surface, and
-the hard boundary that NXS-P13 stays PLANNED and P12 carries no autonomous reasoning."""
+the hard boundary that P12 carries no autonomous reasoning (P13+ own that)."""
 
 from __future__ import annotations
 
@@ -231,20 +231,22 @@ async def test_openapi_voice_surface_is_governed_only(app_client) -> None:  # ty
         assert banned not in blob
 
 
-def test_p13_stays_planned_and_p12_has_no_reasoning() -> None:
+def test_p14_stays_planned_and_p12_has_no_reasoning() -> None:
     registry = json.loads((_ROOT / ".nxs" / "phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    assert phases["NXS-P13"]["status"] == "PLANNED"
+    # NXS-P13 (AI Agent Runtime) is an authorized in-progress phase; P14+ stay PLANNED.
     assert phases["NXS-P13"]["branch"] == "feat/nxs-p13-agent-runtime"
+    assert phases["NXS-P14"]["status"] == "PLANNED"
 
-    # the voice package never imports the tool engine, an agent runtime or a workflow
-    # engine — P12 is transport, not reasoning.
+    # the voice package never imports the tool engine, the agent runtime or a workflow
+    # engine — P12 is transport, not reasoning. P13 consumes P12 output, never the reverse.
     for path in (_ROOT / "src" / "nexus_ai" / "voice").rglob("*.py"):
         for line in path.read_text().splitlines():
             stripped = line.strip()
             if stripped.startswith(("import ", "from ")):
                 for banned in (
                     "nexus_ai.tools",
+                    "nexus_ai.agents",
                     "agent_runtime",
                     "nexus_ai.workflows",
                     "nexus_ai.campaigns",

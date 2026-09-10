@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
+from nexus_ai.api.agents import agents_router
 from nexus_ai.api.auth import auth_router
 from nexus_ai.api.conversations import conversations_router
 from nexus_ai.api.customers import customers_router
@@ -31,3 +32,4 @@ api_v1_router.include_router(telephony_router)
 api_v1_router.include_router(telephony_webhooks_router)
 api_v1_router.include_router(voice_router)
 api_v1_router.include_router(voice_webhooks_router)
+api_v1_router.include_router(agents_router)

@@ -526,6 +526,61 @@ class VoiceSettings(BaseModel):
     )
 
 
+class AgentRuntimeSettings(BaseModel):
+    """AI Agent Runtime configuration (NXS-P13: NXS-AGENT-001).
+
+    P13 orchestrates provider-neutral model reasoning and governed NXS-P08 Tool Engine
+    execution. It never opens a network connection itself — every model REST call routes
+    through the NXS-P07 governed HTTP executor and every external action through the Tool
+    Engine — so these bounds are about the reasoning loop: context size, the tool loop
+    ceiling, generation limits and every timeout. The model never receives a credential.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    #: Hard ceiling on a single model provider REST call (connection + response).
+    model_connect_timeout_seconds: float = Field(default=10.0, gt=0, le=60)
+    model_response_timeout_seconds: float = Field(default=60.0, gt=0, le=300)
+    #: Absolute deadline for one agent turn (model calls + tool loop combined).
+    turn_deadline_seconds: float = Field(default=120.0, gt=0, le=600)
+    #: Absolute lifetime ceiling for a single agent session.
+    max_session_seconds: float = Field(default=3_600.0, gt=0, le=86_400)
+    #: Bounded tool loop: model -> tool -> model -> ... terminates deterministically.
+    max_tool_iterations: int = Field(default=6, ge=0, le=32)
+    #: Largest number of tool calls a single model response may request.
+    max_tool_calls_per_turn: int = Field(default=8, ge=1, le=32)
+    #: Largest model-supplied tool-call argument object (bytes of canonical JSON).
+    max_tool_arguments_bytes: int = Field(default=32_768, ge=256, le=262_144)
+    #: Largest tool result re-injected into the model context (bytes of JSON).
+    max_tool_result_bytes: int = Field(default=32_768, ge=256, le=262_144)
+    #: Largest single assistant text block accepted from the model.
+    max_output_chars: int = Field(default=32_768, ge=256, le=262_144)
+    #: Largest single channel-neutral user input accepted into a turn.
+    max_input_chars: int = Field(default=32_768, ge=1, le=262_144)
+    #: Deterministic conversation-history window (most-recent messages).
+    max_context_messages: int = Field(default=20, ge=1, le=200)
+    #: Largest single history message included in the assembled context.
+    max_context_message_chars: int = Field(default=4_096, ge=64, le=32_768)
+    #: Total assembled context ceiling (bytes of the serialized prompt payload).
+    max_context_bytes: int = Field(default=131_072, ge=1_024, le=1_048_576)
+    #: Largest inbound model WebSocket / SSE stream frame (bytes).
+    max_stream_frame_bytes: int = Field(default=65_536, ge=256, le=1_048_576)
+    #: Bounded depth of the model stream chunk queue (backpressure).
+    stream_queue_depth: int = Field(default=64, ge=4, le=1_024)
+    #: Nesting-depth ceiling for a model-supplied tool-argument JSON object.
+    max_tool_argument_depth: int = Field(default=8, ge=1, le=32)
+    #: Ceiling on an agent's tool allow-list.
+    max_agent_tools: int = Field(default=32, ge=0, le=256)
+    #: Bounds for an agent's system-instruction resource.
+    max_system_instruction_chars: int = Field(default=16_384, ge=1, le=65_536)
+    #: Durable retention for the turn idempotency log (seconds).
+    turn_idempotency_retention_seconds: int = Field(default=604_800, ge=3_600, le=2_592_000)
+    #: Bounds for a model provider account's free-form ``configuration`` object.
+    max_account_config_keys: int = Field(default=12, ge=1, le=64)
+    max_account_config_value_length: int = Field(default=1_024, ge=16, le=8_192)
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -685,6 +740,7 @@ class Settings(BaseSettings):
     otp: OtpSettings = Field(default_factory=OtpSettings)
     telephony: TelephonySettings = Field(default_factory=TelephonySettings)
     voice: VoiceSettings = Field(default_factory=VoiceSettings)
+    agents: AgentRuntimeSettings = Field(default_factory=AgentRuntimeSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property
