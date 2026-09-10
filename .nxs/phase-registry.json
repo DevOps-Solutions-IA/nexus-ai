@@ -132,13 +132,13 @@
     },
     {
       "branch": "feat/nxs-p13-agent-runtime",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P08",
         "NXS-P12"
       ],
       "id": "NXS-P13",
-      "status": "VALIDATING",
+      "status": "READY",
       "title": "AI Agent Runtime"
     },
     {
