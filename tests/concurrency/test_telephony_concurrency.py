@@ -203,6 +203,62 @@ async def test_concurrent_identical_outbound_idempotent_create_is_one_call(
     assert len(sends) == 1
 
 
+async def test_concurrent_same_key_different_caller_id_is_a_deterministic_conflict(
+    telephony_stack: Any, make_organization: Any
+) -> None:
+    org = await make_organization()
+    account = await _account(telephony_stack, org.id)
+    number_a = await _number(telephony_stack, org.id, account, "+14155550100")
+    number_b = await _number(telephony_stack, org.id, account, "+14155550200")
+    key = "tel-key-caller-race-1"
+
+    async def _one(from_number_id: Any) -> Any:
+        return await telephony_stack.service.create_call(
+            org.id,
+            None,
+            CreateCallRequest(
+                provider_account_id=account.id,
+                from_number_id=from_number_id,
+                destination="+14155550199",
+                idempotency_key=key,
+            ),
+        )
+
+    calls = [number_a.id if i % 2 == 0 else number_b.id for i in range(8)]
+    results = await asyncio.gather(*(_one(nid) for nid in calls), return_exceptions=True)
+
+    ok = [r for r in results if not isinstance(r, Exception)]
+    conflicts = [r for r in results if isinstance(r, TelephonyIdempotencyConflictError)]
+    other = [
+        r
+        for r in results
+        if isinstance(r, Exception) and not isinstance(r, TelephonyIdempotencyConflictError)
+    ]
+    assert not other
+    # exactly one caller-ID wins the key; every request for the other caller ID conflicts
+    assert ok, "one request must win the idempotency key"
+    assert len({r.id for r in ok}) == 1
+    winner_number = ok[0].from_number_id
+    assert {winner_number} == {number_a.id} or {winner_number} == {number_b.id}
+    assert len(conflicts) >= 1
+    assert len(ok) + len(conflicts) == 8
+
+    # exactly one row and exactly one provider send — the losing caller ID is never dialed
+    async with telephony_stack.database.tenant_transaction(org.id) as tenant:
+        rows = (
+            await tenant.session.execute(
+                text("SELECT count(*) FROM telephony_calls WHERE idempotency_key = :k"), {"k": key}
+            )
+        ).scalar_one()
+    assert rows == 1
+    sends = [
+        r
+        for r in telephony_stack.transport.requests
+        if r["method"] == "POST" and "calls" in r["url"]
+    ]
+    assert len(sends) == 1
+
+
 async def test_same_external_call_id_across_two_orgs_stays_isolated(
     telephony_stack: Any, make_organization: Any
 ) -> None:

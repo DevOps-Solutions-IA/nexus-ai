@@ -172,6 +172,10 @@ class TelephonyCallRecord(TenantOwnedMixin, Base):
     legs: Mapped[list[object]] = mapped_column(JSONB, nullable=False)
     correlation_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    #: Canonical hash of the semantic outbound-call fields — every idempotency path
+    #: compares this so a re-used key with a different caller ID / destination / account
+    #: / metadata is a deterministic conflict, not a silent replay.
+    request_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
     error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
     provider_timestamp: Mapped[dt.datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True

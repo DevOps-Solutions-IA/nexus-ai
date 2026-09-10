@@ -4,6 +4,7 @@ account configuration, and strict request models (NXS-P11)."""
 from __future__ import annotations
 
 import datetime as dt
+import uuid
 
 import pytest
 from pydantic import ValidationError
@@ -27,10 +28,15 @@ from nexus_ai.telephony.errors import (
     TelephonyConfigInvalidError,
     TelephonyInvalidDestinationError,
 )
+from nexus_ai.telephony.idempotency import outbound_call_fingerprint
 from nexus_ai.telephony.state_machine import FoldOutcome, fold_state, is_terminal, state_rank
 
 _SETTINGS = TelephonySettings()
 _UUID = "01a08800-0000-7000-8000-000000000001"
+_ACCOUNT_A = uuid.UUID("01a08800-0000-7000-8000-0000000000a1")
+_ACCOUNT_B = uuid.UUID("01a08800-0000-7000-8000-0000000000b2")
+_NUMBER_A = uuid.UUID("01a08800-0000-7000-8000-0000000000c3")
+_NUMBER_B = uuid.UUID("01a08800-0000-7000-8000-0000000000d4")
 
 
 def _fold(current: CallState, proposed: CallState, **kw: object) -> object:
@@ -78,6 +84,55 @@ def test_same_rank_events_use_timestamp_precedence() -> None:
     # COMPLETED then a same-rank FAILED that is OLDER -> keep COMPLETED
     r = _fold(CallState.COMPLETED, CallState.FAILED, current_ts=late, proposed_ts=early)
     assert r.outcome is FoldOutcome.IGNORED and r.state is CallState.COMPLETED
+
+
+def test_provider_sequence_precedence_is_enforced() -> None:
+    # A higher-rank BRIDGED whose provider sequence is BELOW the recorded ANSWERED
+    # sequence is a reordered stale callback -> ignored, state does not advance.
+    stale = _fold(CallState.ANSWERED, CallState.BRIDGED, current_seq=5, proposed_seq=3)
+    assert stale.outcome is FoldOutcome.IGNORED
+    assert stale.state is CallState.ANSWERED
+    assert stale.reason == "stale-provider-order"
+
+    # A genuinely newer BRIDGED (higher sequence) advances the call.
+    fresh = _fold(CallState.ANSWERED, CallState.BRIDGED, current_seq=5, proposed_seq=9)
+    assert fresh.outcome is FoldOutcome.APPLIED
+    assert fresh.state is CallState.BRIDGED
+
+    # Absent sequences, a strictly older provider timestamp is the tie-breaker.
+    early = dt.datetime(2026, 1, 1, tzinfo=dt.UTC)
+    late = dt.datetime(2026, 1, 2, tzinfo=dt.UTC)
+    ts_stale = _fold(CallState.ANSWERED, CallState.BRIDGED, current_ts=late, proposed_ts=early)
+    assert ts_stale.outcome is FoldOutcome.IGNORED and ts_stale.state is CallState.ANSWERED
+
+    # A terminal outcome is exempt: it always wins regardless of provider order.
+    terminal = _fold(CallState.ANSWERED, CallState.COMPLETED, current_seq=5, proposed_seq=1)
+    assert terminal.outcome is FoldOutcome.APPLIED and terminal.state is CallState.COMPLETED
+
+
+def test_outbound_call_fingerprint_binds_every_semantic_field() -> None:
+    base = {
+        "provider_account_id": _ACCOUNT_A,
+        "from_number_id": _NUMBER_A,
+        "destination": "+14155550199",
+        "metadata": {"campaign": "x", "team": "y"},
+    }
+    fp = outbound_call_fingerprint(**base)
+
+    # Identical request (metadata key order does not matter) -> same fingerprint.
+    assert fp == outbound_call_fingerprint(
+        provider_account_id=_ACCOUNT_A,
+        from_number_id=_NUMBER_A,
+        destination="+14155550199",
+        metadata={"team": "y", "campaign": "x"},
+    )
+
+    # Any semantic change -> different fingerprint.
+    assert fp != outbound_call_fingerprint(**{**base, "provider_account_id": _ACCOUNT_B})
+    assert fp != outbound_call_fingerprint(**{**base, "from_number_id": _NUMBER_B})
+    assert fp != outbound_call_fingerprint(**{**base, "destination": "+14155550188"})
+    assert fp != outbound_call_fingerprint(**{**base, "metadata": {"campaign": "z", "team": "y"}})
+    assert fp != outbound_call_fingerprint(**{**base, "metadata": {}})
 
 
 @pytest.mark.parametrize(

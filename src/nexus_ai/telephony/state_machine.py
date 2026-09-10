@@ -1,22 +1,26 @@
 """The telephony call state machine (NXS-P11, ADR-0085).
 
 Deterministic, monotonic and fail-closed. A provider callback proposes a
-:class:`CallState`; :func:`fold_state` decides whether it is applied, ignored (stale /
-out-of-order / duplicate) or rejected (illegal live transition).
+:class:`CallState`; :func:`fold_state` decides whether it is applied or ignored (stale /
+out-of-order / duplicate / post-terminal).
 
 **Monotonic rank.** Every state has a rank. A proposed state is applied only if its rank
 is strictly greater than the current rank, OR it is a legal same-rank refinement. A
 terminal state is rank-max: once terminal, nothing moves the call — a delayed RINGING
 after COMPLETED is a no-op, a second COMPLETED is a no-op.
 
-**Legal live transitions.** Below the terminal band the machine still enforces a legal
-edge set so a provider cannot, say, jump CREATED -> BRIDGED without ANSWERED. An
-out-of-order but higher-rank event (ANSWERED before a late RINGING) is accepted and the
-late lower-rank event is then ignored.
+**The live lifecycle is linear** (CREATED -> RINGING -> EARLY_MEDIA -> ANSWERED ->
+BRIDGED -> ENDING), so rank is a bijection with the live state and there is no "illegal
+live transition": a higher-rank event applies (inferring any reordered / dropped
+intermediate — ANSWERED before a late RINGING is accepted, the late RINGING then
+ignored), a lower-rank one is ignored as stale.
 
-**Precedence for equal information.** When two events carry the same rank the one with
-the earlier provider timestamp / lower provider sequence is authoritative; ties keep the
-current state (idempotent).
+**Provider-order precedence (enforced).** A provider event the provider itself orders
+BEFORE the fact we have already recorded — a strictly lower ``provider_sequence`` when
+both events carry one, otherwise a strictly older ``provider_timestamp`` when both carry
+one — is a reordered stale callback and is ignored EVEN IF its rank is higher: we already
+hold newer information. A terminal outcome still always wins regardless of order. When
+neither ordering signal is comparable, monotonic rank alone governs.
 """
 
 from __future__ import annotations
@@ -120,19 +124,23 @@ def fold_state(
     if proposed == current:
         return FoldResult(FoldOutcome.IGNORED, current, None, "duplicate-state")
 
+    # A non-terminal event the provider orders BEFORE our recorded fact (lower sequence,
+    # else older timestamp) is a reordered stale callback — ignore it even at higher
+    # rank; we already hold newer information. A terminal always wins (checked below).
+    if proposed not in _TERMINAL and _provider_order_precedes(
+        proposed_provider_ts, proposed_sequence, current_provider_ts, current_sequence
+    ):
+        return FoldResult(FoldOutcome.IGNORED, current, None, "stale-provider-order")
+
     # Lower rank than the current live state — a stale / reordered event.
     if proposed_rank < current_rank:
         return FoldResult(FoldOutcome.IGNORED, current, None, "stale-lower-rank")
 
-    # Equal rank, different state at the same level — keep the earlier-timestamped fact.
+    # Equal rank, different state. Unreachable for live states (rank is a bijection with
+    # the live state, and proposed == current is handled above); kept as a defensive
+    # idempotent no-op for any future non-linear state.
     if proposed_rank == current_rank:
-        if _timestamp_precedes(
-            proposed_provider_ts, proposed_sequence, current_provider_ts, current_sequence
-        ):
-            # The proposed event is actually the earlier authoritative fact but names a
-            # different same-rank state; treat as a no-op refinement (idempotent).
-            return FoldResult(FoldOutcome.IGNORED, current, None, "same-rank-earlier")
-        return FoldResult(FoldOutcome.IGNORED, current, None, "same-rank-not-newer")
+        return FoldResult(FoldOutcome.IGNORED, current, None, "same-rank-no-change")
 
     # Higher rank: a terminal outcome is always reachable from a live state.
     if proposed in _TERMINAL:
@@ -149,12 +157,15 @@ def fold_state(
     return FoldResult(FoldOutcome.APPLIED, proposed, None, "forward-transition")
 
 
-def _timestamp_precedes(
+def _provider_order_precedes(
     ts_a: dt.datetime | None,
     seq_a: int | None,
     ts_b: dt.datetime | None,
     seq_b: int | None,
 ) -> bool:
+    """True only when event A is PROVABLY earlier than event B in the provider's own
+    ordering: a strictly lower sequence (both present) or, failing that, a strictly
+    older timestamp (both present). Otherwise the events are not comparable."""
     if seq_a is not None and seq_b is not None:
         return seq_a < seq_b
     if ts_a is not None and ts_b is not None:

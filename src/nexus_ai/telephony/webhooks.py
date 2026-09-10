@@ -292,6 +292,7 @@ class InboundTelephonyService:
             current=call.state,
             current_rank=call.state_rank,
             current_provider_ts=call.provider_timestamp,
+            current_sequence=call.provider_sequence,
             proposed=event.state,
             proposed_provider_ts=event.provider_timestamp,
             proposed_sequence=event.provider_sequence,

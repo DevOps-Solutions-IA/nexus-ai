@@ -2,8 +2,10 @@
 
 Status: Accepted. Part of NXS-P11 (`NXS-TEL-001`).
 
-**Tables** (migration `e3f4a5b6c7d8`, revises `d2e3f4a5b6c7`) — 6, all TENANT-OWNED with
-forced RLS, `nexus_runtime` as the non-bypass role, tenant schema guard clean:
+**Tables** (migration `e3f4a5b6c7d8`, revises `d2e3f4a5b6c7`; the corrective migration
+`f4a5b6c7d8e9` adds the nullable `telephony_calls.request_fingerprint` column) — 6, all
+TENANT-OWNED with forced RLS, `nexus_runtime` as the non-bypass role, tenant schema
+guard clean:
 
 | Table | Purpose |
 |---|---|
@@ -27,11 +29,27 @@ the claim back and the provider retry reprocesses. A callback that references a
 `provider_call_id` not yet visible is **deferred** (no claim committed), never dropped.
 
 **Outbound idempotency.** `telephony_calls.idempotency_key` unique per `organization_id`.
-`create_call` recognises a losing concurrent same-key request on three paths (top-of-txn
-`by_idempotency_key`, `IntegrityError` handler with a bounded retry, and the top-level
-`_replay`) and returns the winner's call — a concurrent identical create is exactly one
-logical call and one provider send, never `NXS_TELEPHONY_IDEMPOTENCY_CONFLICT` (that is
-reserved for the same key + a different account / destination).
+Two `create_call` requests under one key are the SAME logical call only when a canonical
+**request fingerprint** matches — a SHA-256 over the semantic fields:
+
+    provider_account_id · from_number_id · canonical destination · normalized metadata
+
+`organization_id` is implicit (tenant scope + the per-organization unique key).
+`correlation_id` is **observational** — a trace-propagation hint that never changes the
+call placed — and is excluded. The fingerprint is persisted on
+`telephony_calls.request_fingerprint` (`nexus_ai.telephony.idempotency`,
+`OUTBOUND_FINGERPRINT_VERSION = 1`) and **all four** idempotency paths compare exactly
+that one value — the top-level `_replay`, the top-of-transaction `by_idempotency_key`
+check, the `IntegrityError` winner resolution, and the bounded-retry winner lookup —
+never a partial subset.
+
+* same key + **identical** fingerprint → the winner's call is replayed; a concurrent
+  identical create is exactly one logical call and one provider send.
+* same key + **any** semantic difference (a different caller-ID number, destination,
+  provider account, or metadata) → deterministic `NXS_TELEPHONY_IDEMPOTENCY_CONFLICT`;
+  a changed caller ID is never silently replayed onto the original call. Proven
+  sequentially and under a concurrent same-key / different-`from_number_id` race
+  (deterministic single winner + conflicting loser + exactly one provider send).
 
 **Failure semantics.**
 

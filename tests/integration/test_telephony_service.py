@@ -180,6 +180,140 @@ async def test_outbound_idempotency_replays_without_a_second_provider_call(
         )
 
 
+async def test_outbound_idempotency_fingerprint_rejects_every_semantic_change(
+    telephony_stack: Any, make_organization: Any
+) -> None:
+    org = await make_organization()
+    account_a = await _account(telephony_stack, org.id)
+    account_b = await _account(telephony_stack, org.id)
+    number_a = await _number(telephony_stack, org.id, account_a, e164="+14155550101")
+    number_b = await _number(telephony_stack, org.id, account_a, e164="+14155550102")
+    number_on_b = await _number(telephony_stack, org.id, account_b, e164="+14155550103")
+
+    key = "tel-fp-key-000111"
+    original = await telephony_stack.service.create_call(
+        org.id,
+        None,
+        CreateCallRequest(
+            provider_account_id=account_a.id,
+            from_number_id=number_a.id,
+            destination="+14155550199",
+            idempotency_key=key,
+            metadata={"campaign": "spring"},
+        ),
+    )
+    sends_after_original = len(telephony_stack.transport.requests)
+
+    # 2. same key + different from_number_id -> conflict, never replays the wrong caller ID
+    with pytest.raises(TelephonyIdempotencyConflictError):
+        await telephony_stack.service.create_call(
+            org.id,
+            None,
+            CreateCallRequest(
+                provider_account_id=account_a.id,
+                from_number_id=number_b.id,
+                destination="+14155550199",
+                idempotency_key=key,
+                metadata={"campaign": "spring"},
+            ),
+        )
+
+    # 4. same key + different provider_account_id -> conflict
+    with pytest.raises(TelephonyIdempotencyConflictError):
+        await telephony_stack.service.create_call(
+            org.id,
+            None,
+            CreateCallRequest(
+                provider_account_id=account_b.id,
+                from_number_id=number_on_b.id,
+                destination="+14155550199",
+                idempotency_key=key,
+                metadata={"campaign": "spring"},
+            ),
+        )
+
+    # 5. same key + different semantic metadata -> conflict
+    with pytest.raises(TelephonyIdempotencyConflictError):
+        await telephony_stack.service.create_call(
+            org.id,
+            None,
+            CreateCallRequest(
+                provider_account_id=account_a.id,
+                from_number_id=number_a.id,
+                destination="+14155550199",
+                idempotency_key=key,
+                metadata={"campaign": "autumn"},
+            ),
+        )
+
+    # an identical replay (only correlation_id differs — observational) still replays
+    replay = await telephony_stack.service.create_call(
+        org.id,
+        None,
+        CreateCallRequest(
+            provider_account_id=account_a.id,
+            from_number_id=number_a.id,
+            destination="+14155550199",
+            idempotency_key=key,
+            correlation_id="a-different-trace-id",
+            metadata={"campaign": "spring"},
+        ),
+    )
+    assert replay.id == original.id
+    # not one of the rejected variants placed a second provider call
+    assert len(telephony_stack.transport.requests) == sends_after_original
+
+
+async def test_stale_provider_sequence_does_not_advance_call_state(
+    telephony_stack: Any, make_organization: Any
+) -> None:
+    org = await make_organization()
+    account = await _account(telephony_stack, org.id)
+    number = await _number(telephony_stack, org.id, account)
+    call = await telephony_stack.service.create_call(
+        org.id,
+        None,
+        CreateCallRequest(
+            provider_account_id=account.id, from_number_id=number.id, destination="+14155550199"
+        ),
+    )
+
+    async def _event(name: str, sequence: int) -> None:
+        await telephony_stack.inbound.receive(
+            "fake",
+            account.webhook_token,
+            _ctx(
+                {
+                    "event_id": uuid4().hex,
+                    "call_id": call.provider_call_id,
+                    "event": name,
+                    "sequence": sequence,
+                }
+            ),
+        )
+
+    await _event("ANSWERED", 5)
+    # a BRIDGED the provider orders BEFORE the recorded ANSWERED -> ignored
+    await _event("BRIDGED", 3)
+    async with telephony_stack.database.tenant_transaction(org.id) as tenant:
+        state = (
+            await tenant.session.execute(
+                text("SELECT state FROM telephony_calls WHERE id = :i"), {"i": call.id}
+            )
+        ).scalar_one()
+    assert state == "ANSWERED"
+
+    # a genuinely newer BRIDGED advances the call
+    await _event("BRIDGED", 9)
+    async with telephony_stack.database.tenant_transaction(org.id) as tenant:
+        state = (
+            await tenant.session.execute(
+                text("SELECT state FROM telephony_calls WHERE id = :i"), {"i": call.id}
+            )
+        ).scalar_one()
+    assert state == "BRIDGED"
+
+
 async def test_hangup_is_terminal_safe_and_idempotent(
     telephony_stack: Any, make_organization: Any
 ) -> None:

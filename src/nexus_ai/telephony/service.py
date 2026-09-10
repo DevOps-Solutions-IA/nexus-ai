@@ -72,6 +72,7 @@ from nexus_ai.telephony.errors import (
     TelephonyProviderTimeoutError,
 )
 from nexus_ai.telephony.events import STATE_EVENT_TYPE
+from nexus_ai.telephony.idempotency import outbound_call_fingerprint
 from nexus_ai.telephony.providers.base import OutboundCallSpec, TelephonyTransport
 from nexus_ai.telephony.providers.registry import resolve_provider
 from nexus_ai.telephony.state_machine import is_terminal, state_rank
@@ -257,16 +258,25 @@ class TelephonyService:
         destination = canonicalize_destination(request.destination, default_country=default_country)
         to_address = destination.value
 
+        # The canonical fingerprint of every field that defines this logical call. All
+        # four idempotency paths below compare exactly this value — a re-used key with a
+        # different caller ID / destination / account / metadata is a deterministic
+        # conflict, never a silent replay onto the original call.
+        fingerprint = outbound_call_fingerprint(
+            provider_account_id=account.id,
+            from_number_id=number.id,
+            destination=to_address,
+            metadata=request.metadata,
+        )
+
         if request.idempotency_key is not None:
-            replay = await self._replay(
-                organization_id, request.idempotency_key, account.id, to_address
-            )
+            replay = await self._replay(organization_id, request.idempotency_key, fingerprint)
             if replay is not None:
                 return replay
 
         call_id = uuid.uuid7()
         claim = await self._persist_created(
-            organization_id, call_id, account, number, destination, to_address, request
+            organization_id, call_id, account, number, destination, to_address, request, fingerprint
         )
         if not claim.is_owner:
             return claim.call
@@ -408,15 +418,15 @@ class TelephonyService:
         return await self._vault.get_secret(organization_id, account.credential_ref)
 
     async def _replay(
-        self, organization_id: UUID, idempotency_key: str, account_id: UUID, to_address: str
+        self, organization_id: UUID, idempotency_key: str, fingerprint: str
     ) -> Call | None:
         async with self._db.tenant_transaction(organization_id) as tenant:
             existing = await TelephonyCallRepository(tenant).by_idempotency_key(idempotency_key)
         if existing is None:
             return None
-        if existing.account_id != account_id or existing.to_address != to_address:
+        if existing.request_fingerprint != fingerprint:
             raise TelephonyIdempotencyConflictError(
-                "this idempotency key was already used for a different call"
+                "this idempotency key was already used for a semantically different call"
             )
         return existing
 
@@ -429,6 +439,7 @@ class TelephonyService:
         destination: Any,
         to_address: str,
         request: CreateCallRequest,
+        fingerprint: str,
     ) -> _CallClaim:
         ctx = current_context()
         a_leg = CallLeg(
@@ -446,15 +457,18 @@ class TelephonyService:
             role=CallLegRole.B_LEG,
             participant=CallParticipant(kind=b_kind, address=to_address),
         )
+        # Only persisted (and compared) when the call is idempotent.
+        stored_fingerprint = fingerprint if request.idempotency_key is not None else None
         try:
             async with self._db.tenant_transaction(organization_id) as tenant:
                 repo = TelephonyCallRepository(tenant)
                 if request.idempotency_key is not None:
                     prior = await repo.by_idempotency_key(request.idempotency_key)
                     if prior is not None:
-                        if prior.account_id != account.id or prior.to_address != to_address:
+                        if prior.request_fingerprint != fingerprint:
                             raise TelephonyIdempotencyConflictError(
-                                "this idempotency key was already used for a different call"
+                                "this idempotency key was already used for a "
+                                "semantically different call"
                             )
                         return _CallClaim(call=prior, is_owner=False)
                 call = await repo.insert(
@@ -472,6 +486,7 @@ class TelephonyService:
                     correlation_id=request.correlation_id
                     or (None if ctx is None else ctx.correlation_id),
                     idempotency_key=request.idempotency_key,
+                    request_fingerprint=stored_fingerprint,
                     provider_timestamp=None,
                     provider_sequence=None,
                 )
@@ -479,7 +494,7 @@ class TelephonyService:
         except IntegrityError as exc:
             if request.idempotency_key is not None:
                 winner = await self._await_idempotency_winner(
-                    organization_id, request.idempotency_key, account.id, to_address
+                    organization_id, request.idempotency_key, fingerprint
                 )
                 if winner is not None:
                     return _CallClaim(call=winner, is_owner=False)
@@ -489,11 +504,11 @@ class TelephonyService:
         return _CallClaim(call=call, is_owner=True)
 
     async def _await_idempotency_winner(
-        self, organization_id: UUID, idempotency_key: str, account_id: UUID, to_address: str
+        self, organization_id: UUID, idempotency_key: str, fingerprint: str
     ) -> Call | None:
         delay = 0.01
         for attempt in range(8):
-            winner = await self._replay(organization_id, idempotency_key, account_id, to_address)
+            winner = await self._replay(organization_id, idempotency_key, fingerprint)
             if winner is not None:
                 return winner
             if attempt < 7:

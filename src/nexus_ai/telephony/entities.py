@@ -290,8 +290,12 @@ class Call(BaseModel):
     legs: tuple[CallLeg, ...]
     correlation_id: str | None
     idempotency_key: str | None
+    #: Canonical fingerprint of the semantic outbound request (internal — not exposed).
+    request_fingerprint: str | None
     error_code: str | None
     provider_timestamp: dt.datetime | None
+    #: The provider's own ordering signal for the last applied event (internal).
+    provider_sequence: int | None
     ringing_at: dt.datetime | None
     answered_at: dt.datetime | None
     ended_at: dt.datetime | None
