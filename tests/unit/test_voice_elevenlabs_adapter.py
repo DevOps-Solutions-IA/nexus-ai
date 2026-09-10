@@ -166,3 +166,24 @@ def test_verify_webhook_enforces_signature_and_freshness() -> None:
             _SECRET,
             tolerance_seconds=300,
         )
+
+
+def test_fake_provider_parses_and_serializes_the_neutral_protocol() -> None:
+    import base64
+    import json as _json
+
+    from nexus_ai.voice.providers.fake import FakeVoiceProvider
+
+    p = FakeVoiceProvider()
+    audio = p.parse_frame(
+        _json.dumps({"type": "audio", "chunk": base64.b64encode(b"abcd").decode()})
+    )
+    assert audio is not None and audio.audio == b"abcd"
+    err = p.parse_frame(_json.dumps({"type": "error", "reason": "bad"}))
+    assert err is not None and err.error_label == "bad"
+    ended = p.parse_frame(_json.dumps({"type": "session_ended"}))
+    assert ended is not None and ended.kind.name == "SESSION_ENDED"
+    with pytest.raises(VoiceProtocolError):
+        p.parse_frame(_json.dumps({"type": "nonsense"}))
+    assert "user_audio" not in p.serialize_audio(b"x")  # fake uses its own shape
+    assert _json.loads(p.keepalive_reply(9))["event_id"] == 9

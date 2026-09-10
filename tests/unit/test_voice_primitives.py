@@ -216,3 +216,21 @@ def test_redaction_hides_secrets_and_query_strings() -> None:
     assert redact_ws_url("wss://api.elevenlabs.io/v1/convai?token=SECRET&x=1") == (
         "wss://api.elevenlabs.io/v1/convai"
     )
+
+
+def test_redaction_safe_log_fields_and_bytes() -> None:
+    from nexus_ai.voice.redaction import redact_mapping, safe_session_log_fields
+
+    fields = safe_session_log_fields(
+        organization_id=_A,
+        session_id=_B,
+        call_id=_C,
+        media_session_id=_A,
+        provider="elevenlabs",
+        state="STREAMING",
+        error_code="NXS_VOICE_PROVIDER_ERROR",
+        correlation_id="corr-1",
+    )
+    assert fields["provider"] == "elevenlabs" and fields["error_code"] == "NXS_VOICE_PROVIDER_ERROR"
+    m = redact_mapping({"blob": b"\x00\x01\x02", "note": "x" * 500})
+    assert m["blob"] == "<bytes:3>" and len(m["note"]) == 200
