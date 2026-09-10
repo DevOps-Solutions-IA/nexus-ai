@@ -1,0 +1,9 @@
+{
+  "branch": "feat/nxs-p11-telephony",
+  "clean_tree": false,
+  "head_sha": "912b4078a1d036db2a8003f2bb0c0ff5257dd43f",
+  "phase": "NXS-P11",
+  "recorded_at": "2026-09-10T02:42:23Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

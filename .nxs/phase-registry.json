@@ -112,12 +112,12 @@
     },
     {
       "branch": "feat/nxs-p11-telephony",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P04"
       ],
       "id": "NXS-P11",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Telephony Foundation"
     },
     {

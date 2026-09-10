@@ -1128,3 +1128,94 @@ async def otp_stack(messaging_stack: Any) -> Any:
             self.conversations = stack.conversations
 
     return _OtpStack()
+
+
+class FakeTelephonyTransport:
+    """An in-memory telephony transport. Records every request; returns a programmed
+    response, or raises a programmed :class:`TransportError`. An awaitable handler result
+    is awaited (barrier tests)."""
+
+    def __init__(self) -> None:
+        self.requests: list[dict[str, Any]] = []
+        self._handler: Callable[..., Any] | None = None
+        self._n = 0
+
+    def set_handler(self, handler: Callable[..., Any]) -> None:
+        self._handler = handler
+
+    async def request(
+        self,
+        *,
+        method: str,
+        url: str,
+        headers: Any,
+        body: bytes | None,
+        timeout_seconds: float | None = None,
+    ) -> Any:
+        from nexus_ai.telephony.providers.base import TransportError, TransportResponse
+
+        self._n += 1
+        entry = {"method": method, "url": url, "headers": dict(headers), "body": body}
+        self.requests.append(entry)
+        if self._handler is not None:
+            outcome = self._handler(entry)
+            if inspect.isawaitable(outcome):
+                outcome = await outcome
+        else:
+            outcome = (200, {"id": f"fake-chan-{self._n}"})
+        if isinstance(outcome, TransportError):
+            raise outcome
+        status_code, payload = outcome
+        raw = payload if isinstance(payload, bytes) else json.dumps(payload).encode()
+        return TransportResponse(status_code=status_code, headers={}, body=raw)
+
+
+@pytest.fixture
+async def telephony_stack(
+    tenant_database: Any,
+    event_platform: Any,
+    truncate_event_tables: Any,
+    integration_env: Callable[..., Settings],
+) -> Any:
+    """A fully wired telephony subsystem against the real DB + event outbox with a fake
+    provider transport (no socket)."""
+    import asyncpg
+    from cryptography.fernet import Fernet
+
+    from nexus_ai.domain.telephony.repository import TelephonySecretStore
+    from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
+    from nexus_ai.telephony.service import TelephonyService
+    from nexus_ai.telephony.webhooks import InboundTelephonyService
+
+    settings = integration_env()
+    vault = LocalEncryptedVault(
+        TelephonySecretStore(tenant_database), build_fernet([Fernet.generate_key().decode()])
+    )
+    transport = FakeTelephonyTransport()
+    service = TelephonyService(
+        settings, tenant_database, event_platform.publisher, vault, transport
+    )
+    inbound = InboundTelephonyService(settings, tenant_database, event_platform.publisher, vault)
+
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE telephony_media_sessions, telephony_call_events, telephony_calls, "
+            "telephony_phone_numbers, telephony_secrets, telephony_accounts CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _TelephonyStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.inbound = inbound
+            self.transport = transport
+            self.vault = vault
+            self.database = tenant_database
+            self.settings = settings
+            self.event_platform = event_platform
+
+    return _TelephonyStack()

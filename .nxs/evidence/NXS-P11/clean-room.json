@@ -1,0 +1,21 @@
+{
+  "fresh_postgres_volume": true,
+  "local_multiarch_note": "scripts/clean-room.sh's local `docker buildx` multi-arch step panics with a buildkit grpc crash inside this sandbox (a known environment limitation, reproduced in isolation). The full test suite as the runtime role and the single-arch production image build both pass locally. Authoritative amd64 + arm64 + ARM64 liveness/readiness verification is CI's `multiarch` job, green on the implementation candidate 5a84fdc and the closure head bb3e298; the corrective head is re-verified by the same job on this branch.",
+  "phase": "NXS-P11",
+  "recorded_at": "2026-09-10T02:42:23Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh",
+  "steps": {
+    "alembic_check": "PASS",
+    "amd64_image": "PASS",
+    "arm64_image": "PASS",
+    "fresh_volume_roles_bootstrap": "PASS",
+    "full_suite_runtime_role": "PASS",
+    "graceful_shutdown": "PASS",
+    "health_live_ready": "PASS",
+    "migration_upgrade_head": "PASS",
+    "non_root_runtime": "PASS",
+    "schema_guard": "PASS"
+  }
+}

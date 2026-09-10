@@ -1,0 +1,80 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p11-telephony",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P04"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P11/clean-room.json",
+    ".nxs/evidence/NXS-P11/concurrency.json",
+    ".nxs/evidence/NXS-P11/contracts.json",
+    ".nxs/evidence/NXS-P11/coverage.json",
+    ".nxs/evidence/NXS-P11/database-roles.json",
+    ".nxs/evidence/NXS-P11/docker.json",
+    ".nxs/evidence/NXS-P11/git.json",
+    ".nxs/evidence/NXS-P11/github-ci.json",
+    ".nxs/evidence/NXS-P11/migration.json",
+    ".nxs/evidence/NXS-P11/multiarch.json",
+    ".nxs/evidence/NXS-P11/preflight.json",
+    ".nxs/evidence/NXS-P11/quality-gates.json",
+    ".nxs/evidence/NXS-P11/quality-matrix.json",
+    ".nxs/evidence/NXS-P11/resilience.json",
+    ".nxs/evidence/NXS-P11/schema-validator.json",
+    ".nxs/evidence/NXS-P11/security-scan.json",
+    ".nxs/evidence/NXS-P11/security.json",
+    ".nxs/evidence/NXS-P11/telephony-integration.json",
+    ".nxs/evidence/NXS-P11/tests.json",
+    ".nxs/evidence/NXS-P11/unit-primitives.json"
+  ],
+  "id": "NXS-P11",
+  "implementation_commit": "912b4078a1d036db2a8003f2bb0c0ff5257dd43f",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Defined in the phase branch contract"
+  ],
+  "objective": "Deliver the Telephony Foundation phase per its branch contract and requirements.",
+  "requirements_implemented": [
+    "NXS-TEL-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-10T02:49:16Z",
+    "started_at": "2026-09-10T00:52:48Z"
+  },
+  "title": "Telephony Foundation"
+}

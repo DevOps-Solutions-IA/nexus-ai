@@ -39,6 +39,7 @@ from nexus_ai.domain.messaging.repository import MessagingSecretStore
 from nexus_ai.domain.organizations.service import OrganizationService
 from nexus_ai.domain.provisioning import events as provisioning_events  # noqa: F401
 from nexus_ai.domain.provisioning.service import OrganizationProvisioner
+from nexus_ai.domain.telephony.repository import TelephonySecretStore
 from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
 from nexus_ai.events.service import EventPlatform
 from nexus_ai.infrastructure.cache import Cache
@@ -60,6 +61,10 @@ from nexus_ai.messaging.service import MessagingService
 from nexus_ai.messaging.webhooks import InboundMessagingService
 from nexus_ai.otp import events as otp_events  # noqa: F401 - payload registration
 from nexus_ai.otp.service import OtpService
+from nexus_ai.telephony import events as telephony_events  # noqa: F401 - payload registration
+from nexus_ai.telephony.providers.registry import GovernedTelephonyTransport
+from nexus_ai.telephony.service import TelephonyService
+from nexus_ai.telephony.webhooks import InboundTelephonyService
 from nexus_ai.tools import events as tool_events  # noqa: F401 - payload registration
 from nexus_ai.tools.permissions import ToolPermissionGuard
 from nexus_ai.tools.registry import ToolRegistry
@@ -101,6 +106,8 @@ class Resources:
     channels: MessagingService
     channel_webhooks: InboundMessagingService
     otp: OtpService
+    telephony: TelephonyService
+    telephony_webhooks: InboundTelephonyService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -277,6 +284,22 @@ class ApplicationLifespan:
             customer_service,
             conversation_service,
         )
+        telephony_vault: VaultClient = LocalEncryptedVault(
+            TelephonySecretStore(database), build_fernet(vault_keys)
+        )
+        telephony_service = TelephonyService(
+            settings,
+            database,
+            event_platform.publisher,
+            telephony_vault,
+            GovernedTelephonyTransport(
+                http_executor,
+                timeout_seconds=settings.telephony.provider_timeout_seconds,
+            ),
+        )
+        telephony_webhooks = InboundTelephonyService(
+            settings, database, event_platform.publisher, telephony_vault
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -306,6 +329,8 @@ class ApplicationLifespan:
             channels=channel_service,
             channel_webhooks=channel_webhooks,
             otp=otp_service,
+            telephony=telephony_service,
+            telephony_webhooks=telephony_webhooks,
         )
         await logger.ainfo(
             "runtime_started",

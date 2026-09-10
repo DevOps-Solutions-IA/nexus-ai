@@ -66,6 +66,11 @@ class PermissionKey(StrEnum):
     OTP_READ = "otp:read"
     OTP_ISSUE = "otp:issue"
     OTP_VERIFY = "otp:verify"
+    # P11 additions (seeded by the P11 migration):
+    TELEPHONY_READ = "telephony:read"
+    TELEPHONY_CALL = "telephony:call"
+    TELEPHONY_HANGUP = "telephony:hangup"
+    TELEPHONY_CONFIGURE = "telephony:configure"
 
 
 class RoleKey(StrEnum):
@@ -146,6 +151,10 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.OTP_READ: UUID("b2000000-0000-7000-8000-000000000023"),
     PermissionKey.OTP_ISSUE: UUID("b2000000-0000-7000-8000-000000000024"),
     PermissionKey.OTP_VERIFY: UUID("b2000000-0000-7000-8000-000000000025"),
+    PermissionKey.TELEPHONY_READ: UUID("b2000000-0000-7000-8000-000000000026"),
+    PermissionKey.TELEPHONY_CALL: UUID("b2000000-0000-7000-8000-000000000027"),
+    PermissionKey.TELEPHONY_HANGUP: UUID("b2000000-0000-7000-8000-000000000028"),
+    PermissionKey.TELEPHONY_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000029"),
 }
 
 _CATALOG_SQL = """

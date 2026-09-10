@@ -444,6 +444,43 @@ class OtpSettings(BaseModel):
         return self
 
 
+class TelephonySettings(BaseModel):
+    """Telephony Foundation configuration (NXS-P11: NXS-TEL-001).
+
+    The telephony subsystem never opens a raw socket or runs a shell — every provider
+    call routes through the NXS-P07 governed HTTP executor (ARI / provider REST) — so
+    these bounds are about provider-call timeouts, inbound webhook size / freshness and
+    the bounded account configuration surface. No SIP password, ARI credential or
+    provider token is ever configured here: those live in the encrypted vault.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    enabled: bool = True
+    #: Hard upper bound on any single provider control operation (create call, hangup,
+    #: send DTMF). The stricter of this and the P07 executor timeout wins.
+    provider_timeout_seconds: float = Field(default=15.0, gt=0, le=60)
+    #: Inbound provider webhook body ceiling.
+    max_webhook_body_bytes: int = Field(default=262_144, ge=1_024, le=4_194_304)
+    #: Freshness window for a signed inbound provider webhook whose timestamp is part of
+    #: the HMAC. A correctly-signed callback outside +/- this window is a replay.
+    webhook_timestamp_tolerance_seconds: int = Field(default=300, ge=30, le=3_600)
+    #: Durable retention for the provider-event idempotency log (seconds).
+    event_idempotency_retention_seconds: int = Field(default=604_800, ge=3_600, le=2_592_000)
+    #: Durable retention for an outbound-call idempotency claim (seconds).
+    outbound_idempotency_retention_seconds: int = Field(default=86_400, ge=60, le=2_592_000)
+    #: Maximum DTMF sequence length accepted in one request.
+    max_dtmf_sequence_length: int = Field(default=32, ge=1, le=128)
+    #: Bounds for a telephony account's free-form ``configuration`` object.
+    max_account_config_keys: int = Field(default=12, ge=1, le=64)
+    max_account_config_key_length: int = Field(default=64, ge=8, le=256)
+    max_account_config_value_length: int = Field(default=512, ge=16, le=8_192)
+    max_account_config_bytes: int = Field(default=4_096, ge=256, le=65_536)
+    #: The default country (E.164 calling code digits) used to canonicalize a national
+    #: destination number when an account does not override it.
+    default_country: str = Field(default="1", pattern=r"^[1-9][0-9]{0,2}$")
+
+
 class LoggingSettings(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -601,6 +638,7 @@ class Settings(BaseSettings):
     tools: ToolsSettings = Field(default_factory=ToolsSettings)
     channels: ChannelsSettings = Field(default_factory=ChannelsSettings)
     otp: OtpSettings = Field(default_factory=OtpSettings)
+    telephony: TelephonySettings = Field(default_factory=TelephonySettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

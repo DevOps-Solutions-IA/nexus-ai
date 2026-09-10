@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".............                                                            [100%]\n13 passed in 1.74s",
+  "passed": 13,
+  "phase": "NXS-P11",
+  "recorded_at": "2026-09-10T02:31:48Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/security/test_telephony_security.py"
+  ]
+}
