@@ -2,7 +2,7 @@
   "image": "nexus-ai:clean-room",
   "non_root_user": "65532:65532",
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T17:16:36Z",
+  "recorded_at": "2026-09-11T17:55:31Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
