@@ -1,16 +1,17 @@
 {
   "failed": 0,
   "marker": null,
-  "output_tail": ".....................                                                    [100%]\n21 passed in 25.49s",
-  "passed": 21,
+  "output_tail": "..........................                                               [100%]\n26 passed in 31.65s",
+  "passed": 26,
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T06:13:49Z",
+  "recorded_at": "2026-09-11T15:00:22Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "tests": [
     "tests/concurrency/test_agent_concurrency.py",
     "tests/concurrency/test_agent_lifecycle_race.py",
     "tests/concurrency/test_agent_idempotency_race.py",
-    "tests/concurrency/test_agent_cross_worker_cancellation.py"
+    "tests/concurrency/test_agent_cross_worker_cancellation.py",
+    "tests/concurrency/test_agent_tool_dispatch_fencing.py"
   ]
 }
