@@ -54,14 +54,20 @@ from nexus_ai.core.logging import get_logger
 from nexus_ai.domain.auth.entities import Principal
 
 ToolCallback = Callable[[str, ToolCallOutcome, int], Awaitable[None]]
-#: audit corrective #6 — a DB-authoritative checkpoint. Raises (any exception; the caller
-#: decides its taxonomy) the moment this session/turn is no longer the authoritative
-#: execution target; returns ``None`` when execution may proceed. Called at every natural
-#: loop boundary (never per streamed token / per model chunk): before each model
-#: continuation and immediately before each tool dispatch — both already bounded by
-#: ``max_tool_iterations`` / ``max_tool_calls_per_turn``, so this stays a bounded,
-#: production-safe number of extra round trips per turn, not an unbounded one.
-CheckAuthority = Callable[[], Awaitable[None]]
+#: audit corrective #8 — the LINEARIZATION POINT for a NEW model-provider invocation.
+#: Takes ``(iteration, model)``; raises (any exception; the caller decides its taxonomy)
+#: iff the durable authorization was REJECTED (a concurrent cancellation's commit won the
+#: race) — a permit was never created and the caller MUST NOT call the provider. Returns
+#: ``None`` iff the durable authorization was WON (a permit was committed) — the caller
+#: may now call the provider, and that call remains valid even if a cancellation commits
+#: a moment later. REPLACES corrective #6's plain, unlocked continuation checkpoint
+#: (`AgentService._check_execution_authority`, removed by corrective #8): that was a
+#: check-then-act read that narrowed the model-invocation TOCTOU window but did not close
+#: it — mirrors ``AuthorizeTool`` below, corrective #7's identical mechanism for the OTHER
+#: class of external work. Called once per loop iteration, before ``_call_model`` —
+#: already bounded by ``max_tool_iterations``, so this stays a bounded, production-safe
+#: number of extra round trips per turn, not an unbounded one.
+AuthorizeModel = Callable[[int, str], Awaitable[None]]
 #: audit corrective #7 — the LINEARIZATION POINT for a NEW semantic P08 tool dispatch.
 #: Takes ``(tool_key, arguments_hash, sequence)``; raises (any exception; the caller
 #: decides its taxonomy) iff the durable authorization was REJECTED (a concurrent
@@ -118,7 +124,7 @@ class AgentRuntime:
         secret: Any,
         http: ModelHttpTransport,
         on_tool: ToolCallback,
-        check_authority: CheckAuthority,
+        authorize_model: AuthorizeModel,
         authorize_tool: AuthorizeTool,
     ) -> TurnOutcome:
         messages = build_messages(
@@ -140,12 +146,13 @@ class AgentRuntime:
         tool_calls_requested = 0
 
         for iteration in range(ctx.max_tool_iterations + 1):
-            # audit corrective #6 (INV-CANCEL-001/006): every continuation iteration is a
-            # checkpoint — an authoritative cancellation/terminalisation committed by ANY
-            # worker since the last checkpoint stops the loop here, before the next model
-            # call begins. An in-flight call already dispatched before this point is not
-            # retracted (see ADR-0094); nothing NEW starts once revoked.
-            await check_authority()
+            # audit corrective #8 (INV-EXEC-001/003/005/006/007/008): the durable
+            # LINEARIZATION POINT for a NEW model-provider invocation — every
+            # continuation iteration is a checkpoint. Replaces corrective #6's plain
+            # check_authority() read, which only narrowed this exact TOCTOU window
+            # (see ADR-0094). An in-flight call already dispatched before this point is
+            # not retracted; nothing NEW starts once authorization is rejected.
+            await authorize_model(iteration, ctx.model)
             response = await self._call_model(ctx, adapter, secret, http, messages)
             self._validate_response(response)
             usage_total = ModelUsage(

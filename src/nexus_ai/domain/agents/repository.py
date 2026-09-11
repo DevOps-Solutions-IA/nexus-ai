@@ -34,6 +34,7 @@ from nexus_ai.agents.state_machine import (
     AgentTurnState,
 )
 from nexus_ai.domain.agents.models import (
+    AiAgentModelDispatchPermitRecord,
     AiAgentRecord,
     AiAgentSessionRecord,
     AiAgentToolCallRecord,
@@ -595,6 +596,22 @@ class AgentToolDispatchPermitRepository(_Base):
 
     async def insert(self, record_values: dict[str, Any]) -> None:
         record = AiAgentToolDispatchPermitRecord(
+            id=uuid.uuid7(),
+            organization_id=self._org,
+            created_at=dt.datetime.now(dt.UTC),
+            **record_values,
+        )
+        self._session.add(record)
+        await self._session.flush()
+
+
+class AgentModelDispatchPermitRepository(_Base):
+    """The model-invocation linearization-point repository (audit corrective #8).
+    ``insert`` MUST be called inside a transaction that already holds the owning
+    session's ``FOR UPDATE`` lock, matching :class:`AgentToolDispatchPermitRepository`."""
+
+    async def insert(self, record_values: dict[str, Any]) -> None:
+        record = AiAgentModelDispatchPermitRecord(
             id=uuid.uuid7(),
             organization_id=self._org,
             created_at=dt.datetime.now(dt.UTC),

@@ -191,6 +191,7 @@ def main() -> int:
             "tests/concurrency/test_agent_idempotency_race.py",
             "tests/concurrency/test_agent_cross_worker_cancellation.py",
             "tests/concurrency/test_agent_tool_dispatch_fencing.py",
+            "tests/concurrency/test_agent_model_dispatch_fencing.py",
         ],
     )
     pytest_evidence(

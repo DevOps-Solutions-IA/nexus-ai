@@ -79,6 +79,7 @@ from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import NxsError
 from nexus_ai.core.logging import get_logger
 from nexus_ai.domain.agents.repository import (
+    AgentModelDispatchPermitRepository,
     AgentRepository,
     AgentSessionRepository,
     AgentToolCallRepository,
@@ -105,14 +106,17 @@ ModelProviderFactory = Callable[[ModelProvider], ModelProviderAdapter]
 
 
 class ExecutionRevoked(Exception):
-    """Internal control-flow signal (audit corrective #6) — NEVER an ``NxsError``, never
-    surfaced to a caller directly. Raised by :meth:`AgentService._check_execution_authority`
-    the moment a DB-authoritative checkpoint (called at every model-continuation and
-    tool-dispatch boundary inside :meth:`AgentRuntime.run_turn`) observes that this
-    session has become terminal — a cross-worker ``cancel_session`` / ``stop_session`` /
-    lifetime expiry that committed since the turn started. Carries the terminal session
-    row so the caller raises the TRUTHFUL taxonomy error (never a generic cancellation)
-    via the same logic ``_finish_turn``'s terminal-absorption path already uses."""
+    """Internal control-flow signal (audit corrective #6, superseded at both call sites
+    by the durable linearization points added in correctives #7/#8) — NEVER an
+    ``NxsError``, never surfaced to a caller directly. Raised by
+    :meth:`AgentService._authorize_model_dispatch` / :meth:`_authorize_tool_dispatch`
+    the moment their DB-authoritative linearization transaction (called before every
+    NEW model-provider invocation and every NEW tool-dispatch boundary inside
+    :meth:`AgentRuntime.run_turn`) observes that this session has already become
+    terminal — a cross-worker ``cancel_session`` / ``stop_session`` / lifetime expiry
+    that committed since the turn started. Carries the terminal session row so the
+    caller raises the TRUTHFUL taxonomy error (never a generic cancellation) via the
+    same logic ``_finish_turn``'s terminal-absorption path already uses."""
 
     def __init__(self, session_row: AgentSession) -> None:
         super().__init__("execution authority revoked by a cross-worker terminalisation")
@@ -876,12 +880,20 @@ class AgentService:
                 organization_id, session, turn, outcome, iteration, tool_seq["n"], call_id
             )
 
-        async def _check_authority() -> None:
-            await self._check_execution_authority(organization_id, session.id)
+        async def _authorize_model(iteration: int, model: str) -> None:
+            await self._authorize_model_dispatch(
+                organization_id, session.id, turn.id, turn.execution_owner_id, iteration, model
+            )
 
         async def _authorize_tool(tool_key: str, arguments_hash: str, sequence: int) -> None:
             await self._authorize_tool_dispatch(
-                organization_id, session.id, turn.id, tool_key, arguments_hash, sequence
+                organization_id,
+                session.id,
+                turn.id,
+                turn.execution_owner_id,
+                tool_key,
+                arguments_hash,
+                sequence,
             )
 
         return await self._runtime.run_turn(
@@ -890,48 +902,122 @@ class AgentService:
             secret=secret,
             http=self._http,
             on_tool=_on_tool,
-            check_authority=_check_authority,
+            authorize_model=_authorize_model,
             authorize_tool=_authorize_tool,
         )
 
-    async def _check_execution_authority(self, organization_id: UUID, session_id: UUID) -> None:
-        """The DB-authoritative CONTINUATION checkpoint (audit corrective #6,
-        INV-CANCEL-001/002/003): a cheap, UNLOCKED read of the session's CURRENT
-        committed state, called before every model-continuation loop iteration. This is
-        freshness, not fencing — it exists to avoid a WASTED model call once cancellation
-        has already committed; it is NOT the linearization point for a NEW external P08
-        side effect (that guarantee is :meth:`_authorize_tool_dispatch`, audit corrective
-        #7). Raises :class:`ExecutionRevoked` the instant the session is observed
-        terminal — never retracting a model call already dispatched before this ran (see
-        ADR-0094's documented already-dispatched boundary)."""
+    async def _assert_turn_authority(
+        self, tenant: TenantSession, turn_id: UUID, expected_execution_owner_id: UUID | None
+    ) -> None:
+        """Shared turn-ownership / terminal-turn fencing check (audit corrective #8,
+        INV-EXEC-006/007/008/014), used by BOTH :meth:`_authorize_model_dispatch` and
+        :meth:`_authorize_tool_dispatch` so every class of external dispatch shares
+        identical fencing rigor. Called INSIDE the caller's already-open transaction,
+        after it has already confirmed the SESSION is live under its ``FOR UPDATE`` lock.
+
+        UNREACHABLE in the current codebase — nothing today reassigns a turn's
+        ``execution_owner_id`` (corrective #6) after claim, and nothing externally
+        terminalises a turn out from under its own ``_run_turn`` — but this is the
+        FENCING CONTRACT a future NXS-P25 orphan-recovery mechanism depends on (turn
+        authority audit, corrective #8 §8): if Worker A owns turn T, Worker A dies, and
+        a future P25 mechanism reclaims/replaces ownership of T, a stale Worker A that
+        unexpectedly resumes MUST NOT be able to authorize further model or tool work.
+        This check makes that true PROVIDED any future reassignment of
+        ``execution_owner_id`` (or external terminalisation of a turn) is committed
+        under the SAME session-row ``FOR UPDATE`` lock this method's caller already
+        holds — see ADR-0094 "Turn authority and future P25 fencing compatibility" for
+        the exact contract a P25 implementation must honour."""
+        turn_row = await AgentTurnRepository(tenant).by_id(turn_id)
+        if turn_row is None or turn_is_terminal(turn_row.state):
+            raise AgentInvalidStateError("the turn is no longer active")
+        if (
+            expected_execution_owner_id is None
+            or turn_row.execution_owner_id != expected_execution_owner_id
+        ):
+            raise AgentInvalidStateError(
+                "this worker is no longer the authoritative owner of this turn"
+            )
+
+    async def _authorize_model_dispatch(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        turn_id: UUID,
+        execution_owner_id: UUID | None,
+        iteration: int,
+        model: str,
+    ) -> None:
+        """The durable LINEARIZATION POINT for a NEW model-provider invocation (audit
+        corrective #8, INV-EXEC-001/003/005/006/007/008). The model-invocation
+        counterpart to :meth:`_authorize_tool_dispatch` — identical mechanism, applied
+        to the OTHER class of external work P13 can dispatch. REPLACES corrective #6's
+        plain, unlocked continuation checkpoint (`_check_execution_authority`, now
+        removed): that was freshness, not fencing, and left the exact same TOCTOU gap
+        for model calls that corrective #7 already closed for tool calls.
+
+        Takes ``SELECT … FOR UPDATE`` on the OWNING SESSION ROW — the identical lock
+        :meth:`_terminalize` and :meth:`_authorize_tool_dispatch` take — and, only if
+        the session is still live AND this worker still holds turn authority
+        (:meth:`_assert_turn_authority`), inserts a durable
+        ``ai_agent_model_dispatch_permits`` row IN THE SAME TRANSACTION before
+        committing. Two transactions contending for one row lock are serialized by
+        PostgreSQL: whichever commits first is the objective, durable answer to "did
+        this model call's authorization or the cancellation happen first":
+
+        * this transaction's lock wins → session observed ACTIVE → permit persisted and
+          committed → the caller may now call the provider, and that call remains valid
+          EVEN IF cancellation commits a moment later (INV-EXEC-005);
+        * a concurrent cancellation's lock wins and commits first → this transaction
+          observes the session already terminal → :class:`ExecutionRevoked` is raised
+          and NO permit is ever created → the caller never calls the provider
+          (INV-EXEC-003).
+
+        The transaction is short and is NEVER held open across the network call to the
+        model provider — only this DB round trip; ``AgentRuntime._call_model`` always
+        runs entirely outside it. Persists NO prompt, context, or credential material —
+        only enough to prove this iteration was authorized (see migration
+        ``a3b4c5d6e7f8``)."""
         async with self._db.tenant_transaction(organization_id) as tenant:
-            session_row = await AgentSessionRepository(tenant).by_id(session_id)
-        if session_row is not None and session_is_terminal(session_row.state):
-            raise ExecutionRevoked(session_row)
+            session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
+            if session_row is not None and session_is_terminal(session_row.state):
+                raise ExecutionRevoked(session_row)
+            await self._assert_turn_authority(tenant, turn_id, execution_owner_id)
+            with contextlib.suppress(IntegrityError):
+                async with tenant.session.begin_nested():
+                    await AgentModelDispatchPermitRepository(tenant).insert(
+                        {
+                            "session_id": session_id,
+                            "turn_id": turn_id,
+                            "iteration": iteration,
+                            "model": model[:96],
+                        }
+                    )
 
     async def _authorize_tool_dispatch(
         self,
         organization_id: UUID,
         session_id: UUID,
         turn_id: UUID,
+        execution_owner_id: UUID | None,
         tool_key: str,
         arguments_hash: str,
         sequence: int,
     ) -> None:
         """The durable LINEARIZATION POINT for a NEW semantic P08 tool dispatch (audit
-        corrective #7, INV-FENCE-001..004). A plain re-check immediately before dispatch
+        corrective #7, INV-FENCE-001..004; turn-authority check added by corrective #8,
+        INV-EXEC-002/006/007/008). A plain re-check immediately before dispatch
         (corrective #6's approach) narrows the TOCTOU window but does not close it — this
-        replaces that approach for the tool-dispatch checkpoint specifically (the
-        model-continuation checkpoint above is unaffected and still a cheap read; a
-        wasted model call is not the class of harm an external side effect is).
+        replaces that approach for the tool-dispatch checkpoint specifically.
 
         Takes ``SELECT … FOR UPDATE`` on the OWNING SESSION ROW — the identical lock
         :meth:`_terminalize` (stop / cancel / expire) takes — and, only if the session is
-        still live, inserts a durable ``ai_agent_tool_dispatch_permits`` row IN THE SAME
-        TRANSACTION before committing. Two transactions contending for one row lock are
-        serialized by PostgreSQL: whichever commits first is the objective, durable
-        answer to "did this operation's authorization or the cancellation happen first" —
-        not a race won by chance timing:
+        still live AND this worker still holds turn authority
+        (:meth:`_assert_turn_authority`), inserts a durable
+        ``ai_agent_tool_dispatch_permits`` row IN THE SAME TRANSACTION before committing.
+        Two transactions contending for one row lock are serialized by PostgreSQL:
+        whichever commits first is the objective, durable answer to "did this
+        operation's authorization or the cancellation happen first" — not a race won by
+        chance timing:
 
         * this transaction's lock wins → session observed ACTIVE → permit persisted and
           committed → the caller may now dispatch to the Tool Engine, and that dispatch
@@ -947,6 +1033,7 @@ class AgentService:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)
+            await self._assert_turn_authority(tenant, turn_id, execution_owner_id)
             # defense-in-depth (INV-FENCE-011): a turn is already exclusively owned by
             # one worker (correctives #1/#4), so a genuine duplicate authorization
             # attempt for the identical semantic call should be unreachable — but if it

@@ -331,6 +331,9 @@ _ALLOWED_EXACTLY_ONCE_LINES = (
     # audit corrective #7 — a NEGATIVE claim (explicitly disclaiming an exactly-once
     # physical-effect guarantee for the crash-window P1/P2 cases), not an overclaim.
     '**No claim of "exactly-once" physical external effect** is made anywhere in this',
+    # audit corrective #8 — the identical negative-claim pattern, for the model-dispatch
+    # crash-window M1/M2/M3 cases.
+    '**No claim of "exactly-once" physical provider inference** is made anywhere in this',
 )
 
 

@@ -399,6 +399,49 @@ class AiAgentToolDispatchPermitRecord(TenantOwnedMixin, Base):
     )
 
 
+class AiAgentModelDispatchPermitRecord(TenantOwnedMixin, Base):
+    """The durable LINEARIZATION POINT for a NEW model-provider invocation (audit
+    corrective #8) — the model-invocation counterpart to
+    :class:`AiAgentToolDispatchPermitRecord`. Same mechanism: inserted inside the SAME
+    transaction that takes ``SELECT … FOR UPDATE`` on the owning ``ai_agent_sessions``
+    row, so its commit order relative to a concurrent cancellation is a genuine,
+    PostgreSQL-enforced happens-before relationship. Deliberately carries NO prompt /
+    context / credential material — only enough to prove a specific turn iteration was
+    authorized to call the provider."""
+
+    __tablename__ = "ai_agent_model_dispatch_permits"
+    __table_args__ = (  # type: ignore[assignment]
+        UniqueConstraint("organization_id", "id", name="uq_ai_agent_model_dispatch_permits_org_id"),
+        ForeignKeyConstraint(
+            ["organization_id", "turn_id"],
+            ["ai_agent_turns.organization_id", "ai_agent_turns.id"],
+            name="fk_ai_agent_model_dispatch_permits_org_turn",
+            ondelete="CASCADE",
+        ),
+        Index("ix_ai_agent_model_dispatch_permits_organization_id", "organization_id"),
+        Index("ix_ai_agent_model_dispatch_permits_turn", "organization_id", "turn_id"),
+        Index(
+            "uq_ai_agent_model_dispatch_permits_iteration",
+            "organization_id",
+            "turn_id",
+            "iteration",
+            unique=True,
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
+    session_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
+    turn_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
+    iteration: Mapped[int] = mapped_column(Integer, nullable=False)
+    model: Mapped[str] = mapped_column(String(96), nullable=False)
+    authorized_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    created_at: Mapped[dt.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
 class AiModelUsageRecord(TenantOwnedMixin, Base):
     __tablename__ = "ai_model_usage"
     __table_args__ = (  # type: ignore[assignment]

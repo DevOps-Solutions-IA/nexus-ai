@@ -23,7 +23,16 @@ before a NEW tool dispatch narrowed the TOCTOU window between authorization and 
 but did not close it; a durable `ai_agent_tool_dispatch_permits` linearization point —
 serialized on the SAME row lock cancellation uses — now makes the ordering between a new
 tool's authorization and a concurrent cancellation a PROVABLE, PostgreSQL-enforced fact
-rather than a probabilistic one).
+rather than a probabilistic one), and corrective #8 (linearizable model-dispatch
+authority — the FINAL external-execution authority certification: corrective #6's plain,
+unlocked continuation checkpoint, `_check_execution_authority`, was NEVER closed the way
+corrective #7 closed it for tool dispatch — a NEW model-provider invocation had the
+IDENTICAL TOCTOU exposure. `_check_execution_authority` is removed; a durable
+`ai_agent_model_dispatch_permits` linearization point — the model-invocation
+counterpart to corrective #7's tool permit, using the identical session-row lock — now
+makes model-call authorization provably ordered against cancellation too. Also adds a
+turn-authority / stale-worker fencing check shared by both linearization points,
+establishing the contract a future NXS-P25 orphan-recovery mechanism must honour).
 
 ## Context
 
@@ -229,6 +238,17 @@ defect. `tool_call_count` **is** backfilled from the durable `ai_agent_tool_call
 the same migration, so no pre-existing turn regresses to a wrong `0`.
 
 ### Distributed cancellation — execution control across workers (corrective #6)
+
+> **Superseded (read together with correctives #7 and #8 below).** The
+> `check_authority` / `_check_execution_authority` mechanism this section describes was
+> the FIRST cross-worker cancellation defense and is preserved here as historical
+> record of the reasoning that led to it — but it no longer exists in the code.
+> Corrective #7 replaced it at the tool-dispatch checkpoint with a durable
+> linearization point; corrective #8 replaced it at the model-continuation checkpoint
+> the same way and removed `_check_execution_authority` entirely (both checkpoints now
+> share one mechanism, not two). Every invariant this section states (INV-CANCEL-*)
+> still holds — corrective #7/#8 only made the ENFORCEMENT provable rather than
+> probabilistic; nothing here was weakened.
 
 Corrective #3 made a terminal SESSION absorbing at `_finish_turn`'s DATABASE boundary — a
 stale worker's FINAL response is always discarded. That is **not sufficient**: between
@@ -514,6 +534,141 @@ created, that manifest's `requirements_implemented` list will be REQUIRED to inc
 `NXS-AGENT-002` remains un-`VALIDATED`**, since NXS-P30 depends (transitively, through the
 phase dependency chain) on NXS-P25's own closure gate now including this requirement.
 
+### Model-dispatch linearization (corrective #8)
+
+**The gap corrective #7 left open.** Corrective #7 closed the TOCTOU race for NEW P08
+tool dispatches. It deliberately left the MODEL-continuation checkpoint
+(`_check_execution_authority`, a cheap unlocked read) untouched, reasoning at the time
+that "a wasted model call is not the class of harm an external side effect is." On
+reflection (corrective #8's mandate) that reasoning under-weighted two things: a model
+call is itself external data disclosure (the assembled context leaves the tenant
+boundary to a third-party provider) and a real cost (tokens, latency, money) — the SAME
+class of irreversible, externally-visible side effect a P08 tool call is, just to a
+different kind of external system. The TOCTOU exposure was IDENTICAL in shape to
+corrective #7's: an unlocked SELECT does not block on another transaction's uncommitted
+`FOR UPDATE` lock, so a stale worker's model call could begin after a concurrent
+cancellation had already started (and was about to commit) but had not yet been
+observed.
+
+**The fix — the model-invocation counterpart to corrective #7, not a new architecture
+(Option B, dedicated table).** `AgentService._authorize_model_dispatch` is
+`_authorize_tool_dispatch`'s mechanism applied to the OTHER class of external work:
+takes `SELECT … FOR UPDATE` on the SAME session row, and — only if the session is still
+live under that lock — inserts a durable `ai_agent_model_dispatch_permits` row
+(migration `a3b4c5d6e7f8`) before committing. `_check_execution_authority` is REMOVED
+(it had exactly one call site, now replaced); `AgentRuntime.run_turn`'s
+`check_authority` parameter is replaced by `authorize_model`, called once per loop
+iteration, immediately before `_call_model`.
+
+**Why a dedicated table (Option B) over a generic `dispatch_kind` column on one shared
+table (Option A), an execution-generation/epoch shared by model+tool (Option C), or
+moving authorization into the model transport (Option D):** a dedicated table mirrors
+`ai_agent_tool_dispatch_permits` exactly — same columns shape, same unique-index
+discipline, same RLS posture — at ZERO risk to corrective #7's already-audited table (no
+refactor, no migration touching existing rows, no new nullable "kind"-discriminated
+columns to reconcile). A generic table would reduce two small tables to one, but at the
+cost of re-touching and re-auditing an already-certified structure for a benefit that is
+purely aesthetic — correctness, auditability and migration safety are all IDENTICAL
+either way, and the directive's own governance explicitly discourages unnecessary
+refactoring of an already-accepted corrective. An epoch shared by model+tool would
+duplicate the session row's own authority without closing anything the row lock
+doesn't already close (same argument corrective #7 made against Option B/C/D for tool
+dispatch). Moving authorization into the model transport (`GovernedModelHttpTransport`)
+would put a DATABASE-shaped decision inside an HTTP transport abstraction that has no
+current reason to know about turns, sessions, or PostgreSQL at all — a much larger,
+riskier change for no additional guarantee.
+
+**Model-dispatch permit schema** (`ai_agent_model_dispatch_permits`):
+`(organization_id, session_id, turn_id, iteration, model, authorized_at, created_at)`,
+unique on `(organization_id, turn_id, iteration)`. Deliberately carries NO prompt, no
+assembled context, no provider credential, no hidden reasoning — `model` is the
+resolved model identifier string (e.g. `"gpt-4o-mini"`), not account or credential
+material; the permit proves an iteration was AUTHORIZED, it does not duplicate what the
+turn/context tables already store.
+
+**Iteration identity, not a request fingerprint.** `(session_id, turn_id, iteration)`
+already uniquely identifies "which provider call this is" within one turn — an
+iteration number is assigned deterministically by the bounded loop, never
+model-controllable. A request-content fingerprint was considered and rejected: it would
+either hash the (untrusted, potentially large) assembled prompt (a privacy/size
+concern for no correctness benefit — the iteration number is already unique) or require
+threading additional identity through `TurnContext` for no gain.
+
+### Turn authority and future P25 fencing compatibility (corrective #8 §8)
+
+**The question directive #8 requires answering precisely.** Corrective #7's tool permit
+(and now corrective #8's model permit) validate that the SESSION is live. Neither
+originally validated that the CALLING WORKER still holds authority over the SPECIFIC
+TURN. Formally: if Worker A claims turn T (`execution_owner_id` set at `_open_turn`),
+Worker A's process dies, and a FUTURE NXS-P25 mechanism reclaims or replaces ownership
+of T, can a stale Worker A that unexpectedly resumes still authorize model or tool work
+for T? Answered NO by construction, via a new shared check.
+
+**`AgentService._assert_turn_authority`** — called by BOTH `_authorize_model_dispatch`
+and `_authorize_tool_dispatch`, inside the same transaction that already holds the
+session row's `FOR UPDATE` lock, immediately after confirming the session is live: reads
+the TURN row and rejects (raises `AgentInvalidStateError`, the existing, already-stable
+taxonomy entry — no new error code was needed) if (a) the turn no longer exists or has
+independently reached a terminal state, or (b) the turn's CURRENT durably-recorded
+`execution_owner_id` does not match the value the calling worker captured when it
+originally claimed the turn (`turn.execution_owner_id`, corrective #6).
+
+**Why this is UNREACHABLE today, and why it is added anyway.** Nothing in the current
+codebase ever reassigns a turn's `execution_owner_id` after claim, and nothing
+externally terminalises a turn out from under its own `_run_turn` — the scenario this
+check guards against cannot currently be constructed through the public API. It is
+added now, ahead of NXS-P25's existence, because retrofitting a fencing check onto an
+authorization path is far riskier once that path is live in production than
+establishing it now, at zero behavioural cost (the check is a no-op for every call this
+corrective's own test suite can construct — proven directly by
+`tests/concurrency/test_agent_model_dispatch_fencing.py::test_stale_worker_cannot_authorize_model_or_tool_for_a_turn_it_no_longer_owns`,
+which invokes both authorization methods DIRECTLY with a deliberately wrong owner id to
+prove the rejection path itself is correct, since no code path in the current system can
+reach it any other way).
+
+**The CONTRACT a future NXS-P25 reclaim mechanism MUST honour for this guarantee to
+hold:** any mechanism that ever reassigns `execution_owner_id` (or externally
+terminalises a turn) MUST do so inside a transaction that ALSO takes `SELECT … FOR
+UPDATE` on the same session row `_terminalize` / `_authorize_model_dispatch` /
+`_authorize_tool_dispatch` already lock. If a future P25 implementation reassigns
+ownership WITHOUT taking that lock, a stale worker's concurrently-in-flight
+authorization attempt could read the OLD owner id before the reassignment becomes
+visible — the identical class of race corrective #7/#8 closed for cancellation. This
+document is the durable record of that requirement; P13 does not implement the P25 side
+of it, but the fencing check it adds now is only as strong as a future P25's own
+adherence to this contract.
+
+**Invariants locked by this section:** INV-EXEC-001 through INV-EXEC-014.
+
+### Model TOCTOU crash windows (M1–M5) and continuation-race integration (corrective #8)
+
+Extends the crash-window table above with the model-dispatch counterparts (M1–M5) and
+the two tool-dispatch windows already covered (T1–T2, identical to corrective #7's P1/P3
+above under new names for cross-reference):
+
+| Window | Durable state | Recovery owner | Duplicate-effect / privacy risk |
+|---|---|---|---|
+| M1: model permit commits, worker dies before the provider call | An `AUTHORIZED` permit row for that iteration with no corresponding turn progress past it | NXS-P25 (deferred) | None by itself — no provider call was ever made; the prompt was never sent |
+| M2: the provider receives the request, worker dies before the response arrives | Permit row exists; the provider may have started (or completed) generation; no local record | NXS-P25 | The SAME class of risk as M1/M2 for tool calls (P1/P2 above) — a future retry must not blindly re-send without considering this; P13 performs no such retry itself |
+| M3: the provider returns, worker dies before `_finish_turn` persists the result | Permit row exists; response was generated but never durably recorded | NXS-P25 | The provider's response is lost from this system's perspective (never billed twice locally, but the provider-side cost/generation already happened — inherent to M1/M2/M3, not specific to this corrective) |
+| M4: cancellation commits before the model-permit transaction even starts | No permit row; session CANCELLED | N/A — rejected outright | None — Case B |
+| M5: the model-permit transaction commits before cancellation commits | Permit row exists (legitimately, Case A); session may become CANCELLED moments later | Worker A itself — the provider call may still proceed (already authorized) | None — this is the documented, tested, INTENDED boundary (`test_authorize_model_before_cancel_commit_may_complete`) |
+
+The CONTINUATION race — model iteration N authorized/completes, that response requests
+a tool, cancellation races the TOOL authorization — is proven directly by
+`test_continuation_model_authorized_first_but_subsequent_tool_after_cancel_rejected`:
+the already-authorized model call is allowed to complete (Case A / M5), but the NEW tool
+authorization it then requests is correctly rejected once cancellation has committed by
+the time that specific authorization attempt runs (Case B for the tool permit) — proving
+the two linearization points compose correctly rather than merely working in isolation.
+
+**No claim of "exactly-once" physical provider inference** is made anywhere in this
+section, for the identical reason corrective #7 makes none for physical tool effects:
+M1/M2/M3 explicitly leave open that the provider may have already begun or completed
+generation even though this system never durably recorded it. This corrective's
+guarantee is that no NEW model call is EVER authorized once cancellation has linearized
+first — nothing stronger.
+
 ## Consequences
 
 * A barge-in stops generation promptly and leaves no "ghost" response.
@@ -524,8 +679,10 @@ phase dependency chain) on NXS-P25's own closure gate now including this require
 * An orphaned RUNNING turn (its worker crashed) is a durable, unambiguous fact a future
   NXS-P25 mechanism can safely recover from — P13 does not claim to recover it itself —
   and NXS-P25's own closure now REQUIRES it be solved (`NXS-AGENT-002` is mandatory).
-* A NEW tool dispatch's authorization relative to a concurrent cancellation is a provable,
-  PostgreSQL-linearized fact, not a narrowed-probability read — closing the residual
+* BOTH classes of external work P13 can dispatch — a P08 tool call and a model-provider
+  call — now share one provably-linearizable authority boundary; a NEW dispatch's
+  authorization relative to a concurrent cancellation is a provable, PostgreSQL-
+  linearized fact for either, not a narrowed-probability read — closing the residual
   TOCTOU gap corrective #6 could reduce but not eliminate.
 * A retried HTTP request, a duplicate queue delivery and a double-clicked UI all collapse
   to one effect.
