@@ -6,7 +6,9 @@ per-Agent turn deadline, the enforced absolute session lifetime with a truthful 
 terminal, the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy) and corrective #3 (terminal-state
 absorption at the DATABASE boundary — `_finish_turn` never resurrects a session another
 worker terminalised — and the whole-turn deadline bounded by the session's *remaining*
-absolute lifetime so a turn opened just before expiry cannot outlive it).
+absolute lifetime so a turn opened just before expiry cannot outlive it) and corrective #4
+(one idempotency key == one immutable logical turn == one model execution owner, decided
+at the DATABASE boundary; a truthful stale-terminal `error_code`).
 
 ## Context
 
@@ -95,6 +97,13 @@ persisted state, applies the canonical fold, and lets the terminal win:
 * `_terminalize` / `_terminalize_expired` — fold-guarded; a no-op on an already-terminal
   row.
 
+`_discard_stale_turn` labels the discarded turn with the **truthful** terminal
+`error_code` (`_stale_terminal_code`): the session's own `error_code` if it carries one,
+else `NXS_AGENT_SESSION_EXPIRED` (EXPIRED), `NXS_AGENT_CANCELLED` (CANCELLED), or
+`NXS_AGENT_INVALID_STATE` (a normal stop / COMPLETED, or FAILED) — a normal stop is
+**never** relabelled a session expiration. `_finish_turn` raises the matching error
+(`AgentSessionExpiredError` / `AgentCancelledError` / `AgentInvalidStateError`).
+
 Proven with **two independent `AgentService` instances sharing one PostgreSQL database**:
 worker A opens a turn and blocks in the model; worker B expires the shared row; worker A
 resumes into `_finish_turn` and the row stays `EXPIRED` — never `EXPIRED → ACTIVE`, no
@@ -129,10 +138,29 @@ NXS-P11/P12):
   voice_session_id` (v1). Same key + identical fingerprint → replay the winner's session;
   same key + different fingerprint → `AgentIdempotencyConflictError`; concurrent
   duplicates → exactly one session (`IntegrityError` winner resolution).
-* **submit turn** — `session_id · sha256(content)` (v1), plus a partial unique index
-  `(organization_id, session_id, idempotency_key) WHERE idempotency_key IS NOT NULL`. A
-  replay returns the completed turn; a differing body under the same key conflicts;
-  exactly one model call happens (proven).
+* **submit turn** — `session_id · sha256(content)` (v1), plus a partial UNIQUE index
+  `(organization_id, session_id, idempotency_key) WHERE idempotency_key IS NOT NULL`.
+
+  **One idempotency key names ONE immutable logical turn == ONE model execution owner**,
+  decided at the DATABASE boundary (not the process-local `asyncio.Lock`). `_open_turn`
+  runs inside a `SELECT … FOR UPDATE` session-row transaction and either inserts the turn
+  row (this worker is the **owner** — it alone runs the model / tool loop) or resolves an
+  existing key via `_resolve_existing_turn`:
+
+  | Existing turn state | Outcome |
+  |---|---|
+  | fingerprint mismatch | `AgentIdempotencyConflictError` (`NXS_AGENT_IDEMPOTENCY_CONFLICT`) |
+  | `COMPLETED` | deterministic replay of the persisted `AgentResponse` — no model / tool call |
+  | `RUNNING` / `PENDING` / `AWAITING_TOOLS` / `FINALIZING` | `AgentBusyError` — another worker owns execution; this worker never enters `_run_turn` |
+  | `FAILED` / `CANCELLED` | `AgentIdempotentReplayError` (`NXS_AGENT_IDEMPOTENT_REPLAY`, carries `extensions.original_error_code` / `turn_state`) — **never a fresh execution** |
+
+  An `IntegrityError` on the turn insert (the partial UNIQUE index — defence in depth
+  behind the row lock) is resolved to `AgentBusyError` (the claim is another worker's). A
+  loser worker never enters `_run_turn` — proven with **two independent `AgentService`
+  instances sharing one PostgreSQL database**: same org / session / key / content, worker
+  A blocks in the model, worker B gets `AgentBusyError`, only one model execution, one
+  turn row, one `agent.turn.started`, and the token / tool / session counters are not
+  doubled; a later replay returns worker A's persisted result.
 * **tool calls** — a derived semantic key
   `agt-<sha256(session:turn_sequence:tool_key:arguments_hash)>` flows into P08's durable
   idempotency (ADR-0093). It deliberately omits the model `tool_call_id` and the loop

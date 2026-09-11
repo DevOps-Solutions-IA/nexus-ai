@@ -18,6 +18,8 @@ from collections.abc import Callable
 from typing import Any, cast
 from uuid import UUID
 
+from sqlalchemy.exc import IntegrityError
+
 from nexus_ai.agents.context import AgentContextBuilder, PriorTurn
 from nexus_ai.agents.entities import (
     AgentDefinition,
@@ -44,8 +46,11 @@ from nexus_ai.agents.entities import (
 )
 from nexus_ai.agents.errors import (
     AgentBusyError,
+    AgentCancelledError,
     AgentConfigInvalidError,
     AgentDisabledError,
+    AgentIdempotencyConflictError,
+    AgentIdempotentReplayError,
     AgentInvalidStateError,
     AgentModelProfileNotFoundError,
     AgentModelProviderAccountNotFoundError,
@@ -67,6 +72,7 @@ from nexus_ai.agents.state_machine import (
     fold_agent_session_state,
     session_is_terminal,
     session_rank,
+    turn_is_terminal,
 )
 from nexus_ai.agents.toolbridge import AgentToolBridge, ToolCallOutcome
 from nexus_ai.core.config import Settings
@@ -478,8 +484,14 @@ class AgentService:
             raise AgentBusyError("a turn is already in flight for this session")
         async with lock:
             fingerprint = turn_fingerprint(session_id=session_id, content=request.content)
-            turn, session = await self._open_turn(organization_id, session_id, request, fingerprint)
-            if turn.state in (AgentTurnState.COMPLETED,):
+            turn, session, owner = await self._open_turn(
+                organization_id, session_id, request, fingerprint
+            )
+            if not owner:
+                # a matching idempotency key already resolved to a COMPLETED turn — a
+                # deterministic replay of the persisted response. This worker does NOT run
+                # the model or any tool. (RUNNING / FAILED / CANCELLED keys raised in
+                # _open_turn and never reach here.)
                 return self._response_from_turn(turn)
 
             agent = await self.get_agent(organization_id, session.agent_id)
@@ -552,14 +564,54 @@ class AgentService:
             raise AgentTurnNotFoundError("no such turn for this session")
         return turn
 
+    def _resolve_existing_turn(
+        self, existing: AgentTurn, session: AgentSession, fingerprint: str
+    ) -> tuple[AgentTurn, AgentSession, bool]:
+        """A turn already exists for ``(organization, session, idempotency_key)``. An
+        idempotency key names ONE immutable logical turn — this NEVER starts a fresh
+        execution:
+
+        * different request fingerprint → ``NXS_AGENT_IDEMPOTENCY_CONFLICT``;
+        * ``COMPLETED``                 → deterministic replay of the persisted response
+                                          (``owner = False``);
+        * still active (RUNNING / …)    → ``AgentBusyError`` — another worker owns
+                                          execution; this worker must not enter the model;
+        * ``FAILED`` / ``CANCELLED``    → ``AgentIdempotentReplayError`` carrying the
+                                          original terminal ``error_code`` — no rerun.
+        """
+        if existing.request_fingerprint != fingerprint:
+            raise AgentIdempotencyConflictError(
+                "the idempotency key was used for a different request"
+            )
+        if existing.state is AgentTurnState.COMPLETED:
+            return existing, session, False
+        if not turn_is_terminal(existing.state):
+            raise AgentBusyError(
+                "the turn for this idempotency key is already in progress — "
+                "retry to replay the completed result"
+            )
+        raise AgentIdempotentReplayError(
+            "this idempotency key already resolved to a terminally-failed turn",
+            original_error_code=existing.error_code,
+            turn_state=existing.state.value,
+        )
+
     async def _open_turn(
         self,
         organization_id: UUID,
         session_id: UUID,
         request: SubmitTurnRequest,
         fingerprint: str,
-    ) -> tuple[AgentTurn, AgentSession]:
+    ) -> tuple[AgentTurn, AgentSession, bool]:
+        """Claim execution of one logical turn. Returns ``(turn, session, owner)`` —
+        ``owner`` is ``True`` only when THIS call inserted the turn row and therefore owns
+        its execution. Ownership is decided at the DATABASE boundary: the session row is
+        held ``SELECT … FOR UPDATE`` for the whole transaction and the turn's
+        ``(organization_id, session_id, idempotency_key)`` is a partial UNIQUE index, so
+        across independent workers exactly one insert wins.
+        """
         expired = False
+        owner = False
         async with self._db.tenant_transaction(organization_id) as tenant:
             session_repo = AgentSessionRepository(tenant)
             session = await session_repo.by_id(session_id, for_update=True)
@@ -568,9 +620,8 @@ class AgentService:
             if session_is_terminal(session.state):
                 raise AgentInvalidStateError("the agent session has already ended")
             # Absolute lifetime ceiling — enforced BEFORE any model or Tool Engine call,
-            # under the FOR UPDATE session-row lock so a concurrent submit cannot slip a
-            # late turn through. Terminalise EXPIRED in THIS transaction (so it commits),
-            # then raise outside the block.
+            # under the FOR UPDATE session-row lock. Terminalise EXPIRED in THIS
+            # transaction (so it commits), then raise outside the block.
             if self._lifetime_exceeded(session, dt.datetime.now(dt.UTC)):
                 await self._terminalize_expired(tenant.session, organization_id, session)
                 expired = True
@@ -581,35 +632,34 @@ class AgentService:
                         session_id, request.idempotency_key
                     )
                     if existing is not None:
-                        if existing.request_fingerprint != fingerprint:
-                            from nexus_ai.agents.errors import AgentIdempotencyConflictError
-
-                            raise AgentIdempotencyConflictError(
-                                "the idempotency key was used for a different turn"
-                            )
-                        return existing, session
+                        return self._resolve_existing_turn(existing, session, fingerprint)
                 if await turn_repo.active_for_session(session_id) is not None:
                     raise AgentBusyError("a turn is already in flight for this session")
                 sequence = session.turn_count + 1
-                turn = await turn_repo.insert(
-                    {
-                        "session_id": session_id,
-                        "sequence": sequence,
-                        "state": AgentTurnState.RUNNING.value,
-                        "channel": session.channel.value,
-                        "input_text": request.content,
-                        "response_text": None,
-                        "input_char_count": len(request.content),
-                        "idempotency_key": request.idempotency_key,
-                        "request_fingerprint": fingerprint,
-                    }
-                )
+                try:
+                    turn = await turn_repo.insert(
+                        {
+                            "session_id": session_id,
+                            "sequence": sequence,
+                            "state": AgentTurnState.RUNNING.value,
+                            "channel": session.channel.value,
+                            "input_text": request.content,
+                            "response_text": None,
+                            "input_char_count": len(request.content),
+                            "idempotency_key": request.idempotency_key,
+                            "request_fingerprint": fingerprint,
+                        }
+                    )
+                except IntegrityError as exc:
+                    # the partial UNIQUE index on the idempotency key: a concurrent worker
+                    # claimed this key first (the FOR UPDATE session lock normally makes
+                    # this unreachable — defence in depth). The claim is theirs.
+                    raise AgentBusyError(
+                        "a concurrent worker already claimed this idempotency key"
+                    ) from exc
                 await session_repo.apply(
                     session_id,
-                    {
-                        "turn_count": sequence,
-                        "last_activity_at": dt.datetime.now(dt.UTC),
-                    },
+                    {"turn_count": sequence, "last_activity_at": dt.datetime.now(dt.UTC)},
                 )
                 await self._emit_turn_event(
                     tenant.session,
@@ -619,9 +669,10 @@ class AgentService:
                     "agent.turn.started",
                     {"input_char_count": len(request.content)},
                 )
+                owner = True
         if expired:
             raise AgentSessionExpiredError("the agent session reached its lifetime ceiling")
-        return turn, session
+        return turn, session, owner
 
     def _effective_turn_deadline(self, agent: AgentDefinition) -> float:
         """The per-turn execution deadline (model calls + tool loop + continuation).
@@ -890,11 +941,16 @@ class AgentService:
                     latency_ms=updated_turn.latency_ms,
                     correlation_id=ctx_correlation(request, session),
                 )
-        # reached only on the stale path — the discarded turn was committed above.
+        # reached only on the stale path — the discarded turn was committed above. Raise
+        # the TRUTHFUL terminal error: a concurrent EXPIRED is session-expired, a
+        # concurrent CANCELLED is cancelled, and a normal stop / COMPLETED (or FAILED) is
+        # an invalid-state — never a fabricated expiration.
         if stale_state is AgentSessionState.EXPIRED:
             raise AgentSessionExpiredError(
                 "the agent session reached its lifetime ceiling during the turn"
             )
+        if stale_state is AgentSessionState.CANCELLED:
+            raise AgentCancelledError("the agent session was cancelled during the turn")
         raise AgentInvalidStateError("the agent session ended before the turn could be committed")
 
     async def _discard_stale_turn(
@@ -906,10 +962,11 @@ class AgentService:
         now: dt.datetime,
     ) -> None:
         """The session went terminal (concurrently) while this turn ran. Mark the turn
-        CANCELLED with the session's terminal reason and emit ``agent.turn.failed`` —
-        within the caller's transaction. No ``response_text``, no session write, no
-        ``agent.response.ready``, no usage (that was recorded at terminalisation)."""
-        error_code = session_row.error_code or "NXS_AGENT_SESSION_EXPIRED"
+        CANCELLED with the session's TRUTHFUL terminal reason and emit
+        ``agent.turn.failed`` — within the caller's transaction. No ``response_text``, no
+        session write, no ``agent.response.ready``, no usage (recorded at
+        terminalisation)."""
+        error_code = _stale_terminal_code(session_row)
         updated = await AgentTurnRepository(tenant).apply(
             turn.id,
             {
@@ -1156,8 +1213,6 @@ class AgentService:
         if existing is None:
             return None
         if existing.request_fingerprint != fingerprint:
-            from nexus_ai.agents.errors import AgentIdempotencyConflictError
-
             raise AgentIdempotencyConflictError(
                 "the idempotency key was used for a different session"
             )
@@ -1265,6 +1320,23 @@ class _TenantShim:
 
 def ctx_correlation(request: SubmitTurnRequest, session: AgentSession) -> str | None:
     return request.correlation_id or session.correlation_id
+
+
+#: the truthful turn error_code when a concurrent worker terminalised the session while a
+#: turn was in flight — a normal stop / completion is NEVER labelled a session expiration.
+_STALE_TERMINAL_FALLBACK: dict[AgentSessionState, str] = {
+    AgentSessionState.EXPIRED: "NXS_AGENT_SESSION_EXPIRED",
+    AgentSessionState.CANCELLED: "NXS_AGENT_CANCELLED",
+}
+
+
+def _stale_terminal_code(session_row: AgentSession) -> str:
+    """Map a concurrently-reached terminal session state to the turn's truthful
+    ``error_code``: the session's own ``error_code`` if it carries one, else a canonical
+    per-state fallback (``NXS_AGENT_INVALID_STATE`` for a normal stop / COMPLETED)."""
+    if session_row.error_code:
+        return session_row.error_code
+    return _STALE_TERMINAL_FALLBACK.get(session_row.state, "NXS_AGENT_INVALID_STATE")
 
 
 def _elapsed_ms(start: dt.datetime, end: dt.datetime) -> int:

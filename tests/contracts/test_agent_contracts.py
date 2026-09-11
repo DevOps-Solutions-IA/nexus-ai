@@ -142,6 +142,24 @@ def test_error_taxonomy_is_stable_unique_and_rfc9457() -> None:
     assert "_expire_session_now" in submit_body  # mid-flight expiry terminalises EXPIRED
     assert "raise AgentSessionExpiredError(" in submit_body
 
+    # audit corrective #4: one idempotency key == one immutable logical turn == one model
+    # execution owner, decided at the DATABASE boundary; truthful stale-terminal codes.
+    from nexus_ai.agents.errors import AgentIdempotentReplayError
+
+    assert by_code["NXS_AGENT_IDEMPOTENT_REPLAY"] is AgentIdempotentReplayError
+    open_body = service_src.split("async def _open_turn", 1)[1].split("\n    async def ", 1)[0]
+    assert "-> tuple[AgentTurn, AgentSession, bool]" in open_body  # returns ownership
+    assert "_resolve_existing_turn" in open_body
+    assert "except IntegrityError" in open_body  # DB-level claim, not the process lock
+    assert "if not owner:" in submit_body  # a non-owner never runs the model / tools
+    resolve_body = service_src.split("def _resolve_existing_turn", 1)[1].split(
+        "\n    async def ", 1
+    )[0]
+    assert "AgentBusyError" in resolve_body  # RUNNING -> busy, do not execute
+    assert "AgentIdempotentReplayError" in resolve_body  # FAILED / CANCELLED -> no rerun
+    assert "_stale_terminal_code" in service_src  # truthful, never a fabricated expiry
+    assert 'or "NXS_AGENT_SESSION_EXPIRED"' not in service_src  # the false-code bug is gone
+
 
 def test_p04_agent_events_are_registered_and_strict() -> None:
     import nexus_ai.agents.events  # noqa: F401 - registration

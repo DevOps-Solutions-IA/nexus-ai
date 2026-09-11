@@ -176,6 +176,27 @@ class AgentIdempotencyConflictError(NxsError):
     title = "Agent Idempotency Conflict"
 
 
+class AgentIdempotentReplayError(NxsError):
+    """The idempotency key already resolved to a TERMINALLY-FAILED / CANCELLED turn. An
+    idempotency key names ONE immutable logical turn — the same key never starts a fresh
+    execution. The original terminal ``error_code`` is carried in
+    ``extensions.original_error_code`` (and ``extensions.turn_state``) for the caller. A
+    different attempt needs a different key."""
+
+    code = "NXS_AGENT_IDEMPOTENT_REPLAY"
+    status = 409
+    title = "Agent Idempotent Replay"
+    retryable = False
+
+    def __init__(
+        self, detail: str | None = None, *, original_error_code: str | None = None, turn_state: str
+    ) -> None:
+        super().__init__(detail or self.title)
+        self.extensions["turn_state"] = turn_state
+        if original_error_code is not None:
+            self.extensions["original_error_code"] = original_error_code
+
+
 class AgentCancelledError(NxsError):
     """The agent turn / session was cancelled (client cancel or voice barge-in). No
     stale model response is delivered."""
@@ -220,6 +241,7 @@ AGENT_ERRORS: tuple[type[NxsError], ...] = (
     AgentToolDeniedError,
     AgentToolLoopLimitError,
     AgentIdempotencyConflictError,
+    AgentIdempotentReplayError,
     AgentCancelledError,
     AgentNotAuthorizedError,
     AgentDisabledError,
