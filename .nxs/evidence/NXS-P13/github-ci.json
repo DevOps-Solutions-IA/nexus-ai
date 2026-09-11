@@ -1,35 +1,36 @@
 {
   "base_main_sha": "8224e6ca9800ab0ba1425d2a2bc3442bb5ba7e1a",
-  "closure_commit": "5e4393e026c67879f08601efee5cbdf6c62decbd",
+  "closure_commit": "8a590a96a77841b7c962a490ed94abd6fedd430c",
   "corrective_audits": [
     "#1 (audited head 38c6dc7): turn-wide semantic tool deduplication; a true turn-wide tool-call budget + distinct max_tool_calls_per_response; byte-exact Unicode tool-result bound. Corrective impl 938ffe3, re-close ae5b3da, record-green feaefaf.",
-    "#2 (audited head feaefaf): (1) agent.timeout_seconds is the enforced per-Agent total-turn deadline = min(agent value, global turn_deadline_seconds); (2) max_session_seconds is enforced as an absolute session lifetime under the FOR UPDATE row lock before any model/tool call, terminalising the session to a new truthful EXPIRED state (migration c9e0f1a2b3c4) with agent.session.expired; (3) the whole-turn deadline raises the new stable AgentTurnTimeoutError (NXS_AGENT_TURN_TIMEOUT, 504) instead of a bare TimeoutError, distinct from NXS_AGENT_PROVIDER_TIMEOUT. Corrective impl 0b2aa3e, reopen+gate+evidence 3ef1457, re-close 5e4393e."
+    "#2 (audited head feaefaf): agent.timeout_seconds enforced as the per-Agent total-turn deadline = min(agent, global); max_session_seconds enforced as an absolute session lifetime at admission, terminalising to a new EXPIRED state (migration c9e0f1a2b3c4) with agent.session.expired; new stable AgentTurnTimeoutError (NXS_AGENT_TURN_TIMEOUT, 504) instead of a bare TimeoutError, distinct from NXS_AGENT_PROVIDER_TIMEOUT. Corrective impl 0b2aa3e, re-close 5e4393e, record-green 6550d12.",
+    "#3 (audited head 6550d12): terminal-state absorption at the DATABASE transition boundary — _finish_turn re-checks the FOR UPDATE session state and discards a stale outcome (_discard_stale_turn) rather than resurrecting EXPIRED -> ACTIVE, no stale response_text, no agent.response.ready; and the whole-turn deadline is bounded by the session's remaining absolute lifetime (min with _remaining_session_lifetime), so a turn opened just before expiry cannot outlive started_at + max_session_seconds and an in-flight expiry surfaces AgentSessionExpiredError via _expire_session_now. Corrective impl 19134ed, reopen+gate+evidence a9181d0, re-close 8a590a9."
   ],
-  "implementation_commit": "0b2aa3e904bbf131a1cb7d9af04046165c7581ff",
-  "lineage": "Original close 05f5c8b, phase-ladder fix 330ffd1, record-green 38c6dc7. Corrective #1: impl 938ffe3, re-close ae5b3da, record-green feaefaf. Corrective #2: impl 0b2aa3e, reopen+gate+evidence 3ef1457, re-close 5e4393e, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 5e4393e.",
+  "implementation_commit": "19134edc915c6c2221f0d44b73b4a1890fff0b78",
+  "lineage": "Original close 05f5c8b, record-green 38c6dc7. Corrective #1: impl 938ffe3, re-close ae5b3da, record-green feaefaf. Corrective #2: impl 0b2aa3e, re-close 5e4393e, record-green 6550d12. Corrective #3: impl 19134ed, reopen+gate+evidence a9181d0, re-close 8a590a9, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 8a590a9.",
   "merged": false,
   "phase": "NXS-P13",
   "pull_request": 24,
-  "record_green_ci_head": "5e4393e026c67879f08601efee5cbdf6c62decbd",
-  "recorded_at": "2026-09-10T20:05:00Z",
+  "record_green_ci_head": "8a590a96a77841b7c962a490ed94abd6fedd430c",
+  "recorded_at": "2026-09-11T00:20:00Z",
   "result": "PASS",
   "runs": {
-    "corrective1_final_feaefaf": {
+    "corrective2_final_6550d12": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective2_impl_0b2aa3e": {
+    "corrective3_impl_19134ed": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
-      "note": "carried on 3ef1457 / 5e4393e which contain 0b2aa3e.",
+      "note": "carried on a9181d0 / 8a590a9 which contain 19134ed.",
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective2_reclose_5e4393e": {
+    "corrective3_reclose_8a590a9": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
