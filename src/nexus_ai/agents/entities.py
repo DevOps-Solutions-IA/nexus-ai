@@ -257,10 +257,15 @@ class AgentTurn(BaseModel):
     input_tokens: int
     output_tokens: int
     tool_iterations: int
+    #: DISTINCT tool calls actually executed — NOT tool_iterations. The fact an exact
+    #: replay reconstructs AgentResponse.tool_calls from (audit corrective #5).
+    tool_call_count: int
     latency_ms: int
     error_code: str | None
     idempotency_key: str | None
     request_fingerprint: str | None
+    #: the correlation id the ORIGINAL response published under — replayed verbatim.
+    response_correlation_id: str | None
     created_at: dt.datetime
     updated_at: dt.datetime
 
@@ -279,6 +284,7 @@ class AgentTurn(BaseModel):
             output_tokens=self.output_tokens,
             total_tokens=self.input_tokens + self.output_tokens,
             tool_iterations=self.tool_iterations,
+            tool_call_count=self.tool_call_count,
             latency_ms=self.latency_ms,
             error_code=self.error_code,
             created_at=self.created_at,
@@ -599,6 +605,7 @@ class AgentTurnView(BaseModel):
     output_tokens: int
     total_tokens: int
     tool_iterations: int
+    tool_call_count: int
     latency_ms: int
     error_code: str | None
     created_at: dt.datetime

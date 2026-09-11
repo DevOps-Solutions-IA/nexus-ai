@@ -180,6 +180,7 @@ def main() -> int:
             "tests/integration/test_agent_api.py",
             "tests/integration/test_agent_tool_budget.py",
             "tests/integration/test_agent_deadlines.py",
+            "tests/integration/test_agent_replay_fidelity.py",
         ],
     )
     pytest_evidence(

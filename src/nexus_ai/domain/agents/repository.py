@@ -146,10 +146,12 @@ def _to_turn(row: AiAgentTurnRecord) -> AgentTurn:
         input_tokens=row.input_tokens,
         output_tokens=row.output_tokens,
         tool_iterations=row.tool_iterations,
+        tool_call_count=row.tool_call_count,
         latency_ms=row.latency_ms,
         error_code=row.error_code,
         idempotency_key=row.idempotency_key,
         request_fingerprint=row.request_fingerprint,
+        response_correlation_id=row.response_correlation_id,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )

@@ -609,6 +609,15 @@ class AgentService:
         held ``SELECT … FOR UPDATE`` for the whole transaction and the turn's
         ``(organization_id, session_id, idempotency_key)`` is a partial UNIQUE index, so
         across independent workers exactly one insert wins.
+
+        HISTORICAL REPLAY LOOKUP ALWAYS PRECEDES NEW-EXECUTION ADMISSION (audit corrective
+        #5): an idempotency key names ONE immutable logical turn, and its outcome
+        (``COMPLETED`` replay, ``FAILED``/``CANCELLED`` immutable-terminal replay, or an
+        active-turn ``AgentBusyError``) is valid regardless of what has since happened to
+        the SESSION — a session that later became terminal or expired must never make a
+        historical key unreachable. Only when NO historical turn matches the key do the
+        session's current admission gates (terminal state, absolute lifetime, one turn at
+        a time) apply, because that request is a genuinely NEW execution attempt.
         """
         expired = False
         owner = False
@@ -617,6 +626,17 @@ class AgentService:
             session = await session_repo.by_id(session_id, for_update=True)
             if session is None:
                 raise AgentSessionNotFoundError("no such agent session in this Organization")
+
+            turn_repo = AgentTurnRepository(tenant)
+            if request.idempotency_key is not None:
+                existing = await turn_repo.by_session_idempotency_key(
+                    session_id, request.idempotency_key
+                )
+                if existing is not None:
+                    return self._resolve_existing_turn(existing, session, fingerprint)
+
+            # No historical turn matched this key (or none was supplied) — a NEW
+            # execution attempt, subject to the session's current admission gates.
             if session_is_terminal(session.state):
                 raise AgentInvalidStateError("the agent session has already ended")
             # Absolute lifetime ceiling — enforced BEFORE any model or Tool Engine call,
@@ -626,13 +646,6 @@ class AgentService:
                 await self._terminalize_expired(tenant.session, organization_id, session)
                 expired = True
             else:
-                turn_repo = AgentTurnRepository(tenant)
-                if request.idempotency_key is not None:
-                    existing = await turn_repo.by_session_idempotency_key(
-                        session_id, request.idempotency_key
-                    )
-                    if existing is not None:
-                        return self._resolve_existing_turn(existing, session, fingerprint)
                 if await turn_repo.active_for_session(session_id) is not None:
                     raise AgentBusyError("a turn is already in flight for this session")
                 sequence = session.turn_count + 1
@@ -875,6 +888,12 @@ class AgentService:
                         "input_tokens": outcome.usage.input_tokens,
                         "output_tokens": outcome.usage.output_tokens,
                         "tool_iterations": outcome.tool_iterations,
+                        # persisted ONCE, immutably, so a later replay is response-exact
+                        # (audit corrective #5): tool_call_count is the DISTINCT executed
+                        # tool count — never tool_iterations, a different number whenever
+                        # one model response requests more than one tool.
+                        "tool_call_count": len(outcome.tool_calls),
+                        "response_correlation_id": ctx_correlation(request, session),
                         "latency_ms": _elapsed_ms(turn.created_at, now),
                     },
                 )
@@ -1276,17 +1295,21 @@ class AgentService:
         )
 
     def _response_from_turn(self, turn: AgentTurn) -> AgentResponse:
+        """Reconstruct the EXACT ORIGINAL ``AgentResponse`` for a replay — every field is
+        read from immutable, once-persisted facts (audit corrective #5:
+        ``tool_call_count`` and ``response_correlation_id``, not the differently-scoped
+        ``tool_iterations`` or a fabricated ``None``)."""
         return AgentResponse(
             session_id=turn.session_id,
             turn_id=turn.id,
             content=turn.response_text or "",
             finish_reason=turn.finish_reason or "STOP",
-            tool_calls=turn.tool_iterations,
+            tool_calls=turn.tool_call_count,
             input_tokens=turn.input_tokens,
             output_tokens=turn.output_tokens,
             total_tokens=turn.input_tokens + turn.output_tokens,
             latency_ms=turn.latency_ms,
-            correlation_id=None,
+            correlation_id=turn.response_correlation_id,
         )
 
     def _require_enabled(self) -> None:

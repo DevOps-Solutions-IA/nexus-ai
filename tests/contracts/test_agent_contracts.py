@@ -160,6 +160,21 @@ def test_error_taxonomy_is_stable_unique_and_rfc9457() -> None:
     assert "_stale_terminal_code" in service_src  # truthful, never a fabricated expiry
     assert 'or "NXS_AGENT_SESSION_EXPIRED"' not in service_src  # the false-code bug is gone
 
+    # audit corrective #5: historical replay lookup precedes new-execution admission, and
+    # a replay reconstructs the EXACT original AgentResponse from immutable facts.
+    from nexus_ai.agents.entities import AgentTurn
+
+    assert {"tool_call_count", "response_correlation_id"} <= set(AgentTurn.model_fields)
+    key_lookup_at = open_body.index("by_session_idempotency_key")
+    terminal_check_at = open_body.index("session_is_terminal(session.state)")
+    lifetime_check_at = open_body.index("_lifetime_exceeded(session")
+    assert key_lookup_at < terminal_check_at < lifetime_check_at  # ordering is locked
+    response_body = service_src.split("def _response_from_turn", 1)[1].split("\n    def ", 1)[0]
+    assert "turn.tool_call_count" in response_body  # not tool_iterations
+    assert "turn.tool_iterations" not in response_body
+    assert "turn.response_correlation_id" in response_body  # not a fabricated None
+    assert "correlation_id=None" not in response_body
+
 
 def test_p04_agent_events_are_registered_and_strict() -> None:
     import nexus_ai.agents.events  # noqa: F401 - registration

@@ -6,9 +6,13 @@ per-Agent turn deadline, the enforced absolute session lifetime with a truthful 
 terminal, the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy) and corrective #3 (terminal-state
 absorption at the DATABASE boundary — `_finish_turn` never resurrects a session another
 worker terminalised — and the whole-turn deadline bounded by the session's *remaining*
-absolute lifetime so a turn opened just before expiry cannot outlive it) and corrective #4
+absolute lifetime so a turn opened just before expiry cannot outlive it), corrective #4
 (one idempotency key == one immutable logical turn == one model execution owner, decided
-at the DATABASE boundary; a truthful stale-terminal `error_code`).
+at the DATABASE boundary; a truthful stale-terminal `error_code`), and corrective #5
+(response-EXACT replay — `tool_call_count` / `response_correlation_id` persisted as
+immutable facts — and historical-replay-lookup ordering: the idempotency key is resolved
+BEFORE any new-execution admission gate, so a historical turn survives the session's own
+later terminalisation).
 
 ## Context
 
@@ -168,6 +172,50 @@ NXS-P11/P12):
   effect; the same call in a later turn (new sequence) is a new key and may re-run.
 
 `correlation_id` is observational and excluded from every fingerprint.
+
+### Historical-replay ordering
+
+`_open_turn` resolves the idempotency key **before** any new-execution admission gate
+(terminal state, absolute lifetime, one-turn-at-a-time). A historical turn's outcome
+(`COMPLETED` replay, `FAILED`/`CANCELLED` immutable-terminal replay, or an active-turn
+`AgentBusyError`) is valid regardless of what has since happened to the **session** — a
+session that later became `COMPLETED`/`CANCELLED`/`EXPIRED` must never make a historical
+key unreachable, because the key names the **turn**, not the session's current state.
+Only when no historical turn matches the key (a genuinely new key, or none supplied) do
+the session's admission gates apply — to that new attempt, never to a replay.
+
+### Response-exact replay
+
+The first successful response and every later replay of the same key are **field-exact**
+(`replay.model_dump() == original.model_dump()`). Two facts a replay cannot otherwise
+reconstruct are persisted once, immutably, on `ai_agent_turns` at `_finish_turn`
+completion (migration `d0e1f2a3b4c5`):
+
+* **`tool_call_count`** — the number of DISTINCT tool calls actually executed this turn
+  (`len(outcome.tool_calls)`). This is **not** `tool_iterations` (the loop-iteration
+  count) — the two differ whenever one model response requests more than one tool call at
+  once, and reconstructing `AgentResponse.tool_calls` from `tool_iterations` was corrective
+  #5's headline defect.
+* **`response_correlation_id`** — the effective correlation id the original response
+  published under (`ctx_correlation(request, session)`), so a replay never substitutes a
+  fabricated `null`.
+
+**Chosen design — persist the facts on the turn row (not derive-on-read):** `tool_call_count`
+could instead be derived at replay time from `count(*) FROM ai_agent_tool_calls WHERE
+turn_id = …` (the row count is provably identical — the runtime's `on_tool` callback fires
+exactly once per distinct executed call). Persisting was chosen over deriving because (a)
+it keeps a completed turn a **self-contained immutable record** — a future retention
+policy on `ai_agent_tool_calls` cannot silently change what a turn replays as; (b) it costs
+no extra query/transaction on the hot replay path (`_response_from_turn` stays a pure,
+synchronous reconstruction); (c) it is the natural extension of the same principle already
+applied to `input_tokens`/`output_tokens`/`latency_ms`, which are likewise persisted facts,
+not live derivations. Both new columns are non-secret operational facts (a count, a
+caller-supplied correlation id) — no chain-of-thought, no provider body, no credential.
+`response_correlation_id` cannot be backfilled for a turn that completed before this
+migration (the fact was never persisted anywhere); such a turn's replay reports
+`correlation_id: null`, exactly as it did before the fix — a non-regression, not a new
+defect. `tool_call_count` **is** backfilled from the durable `ai_agent_tool_calls` rows in
+the same migration, so no pre-existing turn regresses to a wrong `0`.
 
 ## Consequences
 

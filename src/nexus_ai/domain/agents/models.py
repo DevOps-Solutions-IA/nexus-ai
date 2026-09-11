@@ -292,10 +292,17 @@ class AiAgentTurnRecord(TenantOwnedMixin, Base):
     input_tokens: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     output_tokens: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     tool_iterations: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    #: DISTINCT tool calls actually executed this turn — NOT tool_iterations (a model
+    #: response requesting several tools at once makes these two numbers differ). The
+    #: fact an exact replay reconstructs AgentResponse.tool_calls from.
+    tool_call_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     latency_ms: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     error_code: Mapped[str | None] = mapped_column(String(64), nullable=True)
     idempotency_key: Mapped[str | None] = mapped_column(String(200), nullable=True)
     request_fingerprint: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    #: the correlation id the ORIGINAL response/agent.response.ready published under —
+    #: persisted once at completion so a replay never returns correlation_id: null.
+    response_correlation_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
