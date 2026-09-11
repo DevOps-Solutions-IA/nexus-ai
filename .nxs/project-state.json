@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": "NXS-P13",
+  "active_phase": null,
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -15,24 +15,25 @@
     "NXS-P09",
     "NXS-P10",
     "NXS-P11",
-    "NXS-P12"
+    "NXS-P12",
+    "NXS-P13"
   ],
   "current_phase": {
     "branch": "feat/nxs-p13-agent-runtime",
     "closure_commit": null,
-    "decision": "PENDING",
+    "decision": "GO",
     "id": "NXS-P13",
-    "implementation_commit": null,
-    "status": "VALIDATING"
+    "implementation_commit": "0b4137da7c8f53c454b5aa64f36a32266c8ce956",
+    "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-11T06:02:26Z",
+  "last_updated_at": "2026-09-11T06:35:27Z",
   "next_allowed_execution": {
-    "condition": "ACTIVE_PHASE_ONLY",
-    "phase": "NXS-P13"
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P14"
   },
   "product": {
     "name": "Nexus AI",
