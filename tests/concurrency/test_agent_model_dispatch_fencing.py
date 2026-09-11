@@ -66,6 +66,20 @@ async def _model_permit_iterations(stack: Any, org_id: Any, turn_id: Any) -> lis
     return [r[0] for r in rows]
 
 
+async def _wait_until_iteration_authorized(
+    stack: Any, org_id: Any, turn_id: Any, iteration: int, *, timeout: float = 5.0
+) -> None:
+    """Poll the REAL durable state (the permit row itself) instead of a fixed sleep
+    margin — a `sleep(N)` guess can flake under CI-runner load exactly the way a bare
+    `check_authority()` read could race cancellation before corrective #8; this test
+    helper must not repeat that class of mistake for its OWN synchronization."""
+    deadline = asyncio.get_running_loop().time() + timeout
+    while iteration not in await _model_permit_iterations(stack, org_id, turn_id):
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError(f"timed out waiting for iteration {iteration} to be authorized")
+        await asyncio.sleep(0.01)
+
+
 def _handler(seen: list[str], *, slow: bool = False) -> Any:
     def handle(method: str, path: str, headers: Any, body: Any) -> tuple[int, dict[str, Any]]:
         seen.append(path)
@@ -241,11 +255,27 @@ async def test_continuation_model_authorized_first_but_subsequent_tool_after_can
     task_a = asyncio.create_task(
         worker_a.submit_turn(org.id, session.id, SubmitTurnRequest(content="go"))
     )
-    await _wait_until(lambda: len(seen) >= 1)  # tool "seed" has dispatched; iteration 1's
-    # model call (hang_seconds=0.4) is now in progress — its authorize_model() ALREADY
-    # committed before the hang (authorize-then-call ordering), so it is legitimately
-    # authorized regardless of what happens next.
-    await asyncio.sleep(0.1)
+    # find the turn as soon as _open_turn has committed it (fast — well before iteration
+    # 1 is anywhere near authorized), then poll the REAL durable state for iteration 1's
+    # permit specifically — not a fixed sleep margin, which flaked under real CI-runner
+    # load (a `sleep(0.1)` guess is exactly the class of mistake this corrective's own
+    # production code no longer makes for authorization; this test must not make it
+    # either).
+    turn_id = None
+    deadline = asyncio.get_running_loop().time() + 5.0
+    while turn_id is None:
+        turns = await worker_a.list_turns(org.id, session.id, limit=1)
+        if turns:
+            turn_id = turns[0].id
+            break
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError("timed out waiting for the turn to be claimed")
+        await asyncio.sleep(0.01)
+    # iteration 1's model call (hang_seconds=0.4) starts only AFTER its authorize_model()
+    # has already committed (authorize-then-call ordering) — so once the permit for
+    # iteration 1 durably exists, it is legitimately authorized regardless of what
+    # happens next.
+    await _wait_until_iteration_authorized(agent_stack, org.id, turn_id, 1)
     cancelled = await worker_b.cancel_session(org.id, session.id)
     assert cancelled.state.value == "CANCELLED"
 
@@ -298,8 +328,21 @@ async def test_three_workers_model_and_tool_dispatch_fencing(
     task_a = asyncio.create_task(
         worker_a.submit_turn(org.id, session.id, SubmitTurnRequest(content="go"))
     )
-    await _wait_until(lambda: len(seen) >= 1)
-    await asyncio.sleep(0.1)
+    turn_id = None
+    deadline = asyncio.get_running_loop().time() + 5.0
+    while turn_id is None:
+        turns = await worker_a.list_turns(org.id, session.id, limit=1)
+        if turns:
+            turn_id = turns[0].id
+            break
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError("timed out waiting for the turn to be claimed")
+        await asyncio.sleep(0.01)
+    # poll the REAL durable state for iteration 1's permit — not a fixed sleep margin
+    # (see test_continuation_model_authorized_first_but_subsequent_tool_after_cancel_rejected's
+    # identical rationale; this structurally identical sequence must not repeat that
+    # test's observed CI flake).
+    await _wait_until_iteration_authorized(agent_stack, org.id, turn_id, 1)
 
     results = await asyncio.gather(
         worker_b.cancel_session(org.id, session.id),
