@@ -1,37 +1,38 @@
 {
   "base_main_sha": "8224e6ca9800ab0ba1425d2a2bc3442bb5ba7e1a",
-  "closure_commit": "09bd587f77f175be6193df9407f910478164e48e",
+  "closure_commit": "00217f3aad0e00aab8508eeabd51dff688a2f961",
   "corrective_audits": [
     "#1 (audited head 38c6dc7): turn-wide semantic tool deduplication; a true turn-wide tool-call budget + distinct max_tool_calls_per_response; byte-exact Unicode tool-result bound. Corrective impl 938ffe3, re-close ae5b3da, record-green feaefaf.",
-    "#2 (audited head feaefaf): agent.timeout_seconds enforced as the per-Agent total-turn deadline = min(agent, global); max_session_seconds enforced as an absolute session lifetime at admission, terminalising to a new EXPIRED state (migration c9e0f1a2b3c4) with agent.session.expired; new stable AgentTurnTimeoutError (NXS_AGENT_TURN_TIMEOUT, 504). Corrective impl 0b2aa3e, re-close 5e4393e, record-green 6550d12.",
-    "#3 (audited head 6550d12): terminal-state absorption at the DATABASE transition boundary — _finish_turn re-checks the FOR UPDATE session state and discards a stale outcome rather than resurrecting EXPIRED -> ACTIVE; the whole-turn deadline is bounded by the session's remaining absolute lifetime so a turn opened just before expiry cannot outlive it. Corrective impl 19134ed, re-close 8a590a9, record-green 3ecc221.",
-    "#4 (audited head 3ecc221): one idempotency key == one immutable logical turn == one model execution owner, decided at the DATABASE boundary — _open_turn returns (turn, session, owner); RUNNING/active -> AgentBusyError (never re-enters _run_turn); FAILED/CANCELLED -> new AgentIdempotentReplayError (NXS_AGENT_IDEMPOTENT_REPLAY, 409), no rerun; COMPLETED -> deterministic replay; an IntegrityError on the partial-unique-index insert resolves to AgentBusyError. Secondary: _stale_terminal_code maps the discarded-turn error_code truthfully (no more fabricated NXS_AGENT_SESSION_EXPIRED on a normal stop). Corrective impl 1b2ce1f, reopen+gate+evidence a8f5c6d, re-close 09bd587."
+    "#2 (audited head feaefaf): agent.timeout_seconds enforced as the per-Agent total-turn deadline; max_session_seconds enforced as an absolute session lifetime at admission, terminalising to a new EXPIRED state (migration c9e0f1a2b3c4); new stable AgentTurnTimeoutError. Corrective impl 0b2aa3e, re-close 5e4393e, record-green 6550d12.",
+    "#3 (audited head 6550d12): terminal-state absorption at the DATABASE transition boundary (_finish_turn re-checks FOR UPDATE state, discards stale outcomes, never resurrects EXPIRED -> ACTIVE); the whole-turn deadline bounded by the session's remaining absolute lifetime. Corrective impl 19134ed, re-close 8a590a9, record-green 3ecc221.",
+    "#4 (audited head 3ecc221): one idempotency key == one immutable logical turn == one model execution owner, decided at the DATABASE boundary (_open_turn returns (turn, session, owner)); new AgentIdempotentReplayError for FAILED/CANCELLED replay; truthful _stale_terminal_code (no fabricated NXS_AGENT_SESSION_EXPIRED on a normal stop). Corrective impl 1b2ce1f, re-close 09bd587, record-green e736133.",
+    "#5 EXTREME CERTIFICATION (audited head e736133): (A) response-exact replay -- migration d0e1f2a3b4c5 adds ai_agent_turns.tool_call_count (persisted len(outcome.tool_calls), backfilled from ai_agent_tool_calls for pre-existing rows, verified via isolated temp-table SQL proof) and .response_correlation_id (persisted ctx_correlation(...); non-backfillable, documented non-regression); _response_from_turn now reconstructs the EXACT original AgentResponse. (B) historical-replay ordering -- _open_turn now resolves the idempotency key BEFORE any new-execution admission gate (terminal state, absolute lifetime), so a historical COMPLETED/FAILED/CANCELLED turn survives the session's own later terminalisation; a different payload under an old key still conflicts regardless of session state. Formal invariants INV-IDEM-001..015 defined and test-locked; full turn-state x session-state x request-variant x worker-condition matrix exercised. Adversarial validation: independent red-team subagent (GO, one MEDIUM fixed + SQL-proof-verified) and independent final-auditor subagent (AUDIT: GO, zero BLOCKER/HIGH/MEDIUM, walked every mandatory checklist item explicitly, one LOW doc nit fixed). Corrective impl 5f5cd21, reopen+gate+evidence 5595dfe, re-close 00217f3."
   ],
-  "implementation_commit": "1b2ce1ffcfbc3a3ac24940e4f18d71a2be6cfb9e",
-  "lineage": "Original close 05f5c8b, record-green 38c6dc7. Corrective #1: impl 938ffe3, re-close ae5b3da, record-green feaefaf. Corrective #2: impl 0b2aa3e, re-close 5e4393e, record-green 6550d12. Corrective #3: impl 19134ed, re-close 8a590a9, record-green 3ecc221. Corrective #4: impl 1b2ce1f, reopen+gate+evidence a8f5c6d, re-close 09bd587, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 09bd587.",
+  "implementation_commit": "5f5cd21c273092158d358ab8afad30e1293c7708",
+  "lineage": "Original close 05f5c8b, record-green 38c6dc7. Corrective #1: impl 938ffe3, re-close ae5b3da, record-green feaefaf. Corrective #2: impl 0b2aa3e, re-close 5e4393e, record-green 6550d12. Corrective #3: impl 19134ed, re-close 8a590a9, record-green 3ecc221. Corrective #4: impl 1b2ce1f, re-close 09bd587, record-green e736133. Corrective #5 (extreme certification): impl 5f5cd21, reopen+gate+evidence 5595dfe, re-close 00217f3, and this record-green commit. NXS CI and NXS Security are both fully green (every job, push + pull_request) at the exact final head 00217f3.",
   "merged": false,
   "phase": "NXS-P13",
   "pull_request": 24,
-  "record_green_ci_head": "09bd587f77f175be6193df9407f910478164e48e",
-  "recorded_at": "2026-09-11T01:20:00Z",
+  "record_green_ci_head": "00217f3aad0e00aab8508eeabd51dff688a2f961",
+  "recorded_at": "2026-09-11T02:30:00Z",
   "result": "PASS",
   "runs": {
-    "corrective3_final_3ecc221": {
+    "corrective4_final_e736133": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective4_impl_1b2ce1f": {
+    "corrective5_impl_5f5cd21": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
-      "note": "carried on a8f5c6d / 09bd587 which contain 1b2ce1f.",
+      "note": "carried on 5595dfe / 00217f3 which contain 5f5cd21.",
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
       "nxs_security_pull_request": "success",
       "nxs_security_push": "success"
     },
-    "corrective4_reclose_09bd587": {
+    "corrective5_reclose_00217f3": {
       "jobs": ["state", "quality", "integration", "docker", "multiarch", "source-and-dependencies", "image"],
       "nxs_ci_pull_request": "success",
       "nxs_ci_push": "success",
