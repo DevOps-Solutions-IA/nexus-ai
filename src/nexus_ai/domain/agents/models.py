@@ -257,6 +257,14 @@ class AiAgentTurnRecord(TenantOwnedMixin, Base):
     __tablename__ = "ai_agent_turns"
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint("organization_id", "id", name="uq_ai_agent_turns_org_id"),
+        #: audit corrective #9 — lets a child table's FK be composite
+        #: ``(organization_id, session_id, turn_id)``, so PostgreSQL itself refuses to
+        #: persist a child row whose ``session_id`` disagrees with its own turn's real
+        #: parent session (INV-AUTH-ID-001). Additive: the plain org+id constraint above
+        #: is preserved for any other FK that still targets it.
+        UniqueConstraint(
+            "organization_id", "session_id", "id", name="uq_ai_agent_turns_org_session_id"
+        ),
         UniqueConstraint("organization_id", "session_id", "sequence", name="uq_ai_agent_turns_seq"),
         CheckConstraint(f"state IN {_TURN_STATES}", name="ck_ai_agent_turns_state_known"),
         CheckConstraint(f"channel IN {_CHANNELS}", name="ck_ai_agent_turns_channel_known"),
@@ -328,10 +336,22 @@ class AiAgentToolCallRecord(TenantOwnedMixin, Base):
         CheckConstraint(
             f"status IN {_TOOLCALL_STATUS}", name="ck_ai_agent_tool_calls_status_known"
         ),
+        #: audit corrective #9 (INV-AUTH-ID-001): composite, session-aware FK — a
+        #: PostgreSQL-enforced guarantee that this audit record's own ``session_id``
+        #: cannot silently disagree with the ``session_id`` of the turn it records the
+        #: effect of. ``ai_agent_tool_calls`` is the durable record of an authorized
+        #: dispatch's OUTCOME; leaving it on the old, non-session-aware FK while the
+        #: permit tables that authorize the SAME dispatch move to the composite key
+        #: would be a silent relational contradiction between "what was authorized" and
+        #: "what was recorded" (directive corrective #9 §6).
         ForeignKeyConstraint(
-            ["organization_id", "turn_id"],
-            ["ai_agent_turns.organization_id", "ai_agent_turns.id"],
-            name="fk_ai_agent_tool_calls_org_turn",
+            ["organization_id", "session_id", "turn_id"],
+            [
+                "ai_agent_turns.organization_id",
+                "ai_agent_turns.session_id",
+                "ai_agent_turns.id",
+            ],
+            name="fk_ai_agent_tool_calls_org_session_turn",
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_tool_calls_organization_id", "organization_id"),
@@ -367,10 +387,19 @@ class AiAgentToolDispatchPermitRecord(TenantOwnedMixin, Base):
     __tablename__ = "ai_agent_tool_dispatch_permits"
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint("organization_id", "id", name="uq_ai_agent_tool_dispatch_permits_org_id"),
+        #: audit corrective #9 (INV-AUTH-ID-001): composite, session-aware FK — the
+        #: DATABASE, not just Python, refuses to persist a permit whose ``session_id``
+        #: disagrees with its own turn's real parent session. "Do NOT rely only on
+        #: Python" (directive §5): this is the DB-level backstop behind
+        #: ``AgentService._assert_turn_authority``'s application-level check.
         ForeignKeyConstraint(
-            ["organization_id", "turn_id"],
-            ["ai_agent_turns.organization_id", "ai_agent_turns.id"],
-            name="fk_ai_agent_tool_dispatch_permits_org_turn",
+            ["organization_id", "session_id", "turn_id"],
+            [
+                "ai_agent_turns.organization_id",
+                "ai_agent_turns.session_id",
+                "ai_agent_turns.id",
+            ],
+            name="fk_ai_agent_tool_dispatch_permits_org_session_turn",
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_tool_dispatch_permits_organization_id", "organization_id"),
@@ -412,10 +441,17 @@ class AiAgentModelDispatchPermitRecord(TenantOwnedMixin, Base):
     __tablename__ = "ai_agent_model_dispatch_permits"
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint("organization_id", "id", name="uq_ai_agent_model_dispatch_permits_org_id"),
+        #: audit corrective #9 (INV-AUTH-ID-001): composite, session-aware FK — see the
+        #: identical rationale on ``AiAgentToolDispatchPermitRecord``; the model-permit
+        #: counterpart to the same DB-level backstop.
         ForeignKeyConstraint(
-            ["organization_id", "turn_id"],
-            ["ai_agent_turns.organization_id", "ai_agent_turns.id"],
-            name="fk_ai_agent_model_dispatch_permits_org_turn",
+            ["organization_id", "session_id", "turn_id"],
+            [
+                "ai_agent_turns.organization_id",
+                "ai_agent_turns.session_id",
+                "ai_agent_turns.id",
+            ],
+            name="fk_ai_agent_model_dispatch_permits_org_session_turn",
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_model_dispatch_permits_organization_id", "organization_id"),

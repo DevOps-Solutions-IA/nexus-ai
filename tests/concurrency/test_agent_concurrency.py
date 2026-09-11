@@ -49,18 +49,58 @@ async def test_two_simultaneous_turns_on_one_session_only_one_runs(
     assert len(turns) == 1  # the rejected turn never opened a row
 
 
+async def _model_permit_exists(stack: Any, org_id: Any, turn_id: Any, iteration: int) -> bool:
+    from sqlalchemy import text
+
+    async with stack.database.tenant_transaction(org_id) as tenant:
+        count = (
+            await tenant.session.execute(
+                text(
+                    "SELECT count(*) FROM ai_agent_model_dispatch_permits "
+                    "WHERE turn_id = :t AND iteration = :i"
+                ),
+                {"t": str(turn_id), "i": iteration},
+            )
+        ).scalar_one()
+        return bool(count > 0)
+
+
 async def test_model_response_racing_a_cancellation_leaves_no_stale_answer(
     agent_stack: Any, make_organization: Any, make_tool_principal: Any
 ) -> None:
     org = await make_organization()
     principal = await make_tool_principal(org)
     session = await _session(agent_stack, org.id, principal)
-    agent_stack.script.append(FakeModelTurn(content="late answer", hang_seconds=2))
+    # a generous hang: this test races a REAL cancellation against a REAL
+    # asyncio.sleep, with no event-gated hook to make the ordering deterministic — a
+    # short hang can finish for real before cancellation is even attempted on a heavily
+    # loaded shared machine, so a wide margin (not a tight one) is what this wall-clock
+    # race needs to stay reliable under full-suite load.
+    agent_stack.script.append(FakeModelTurn(content="late answer", hang_seconds=10))
 
     turn = asyncio.create_task(
         agent_stack.service.submit_turn(org.id, session.id, SubmitTurnRequest(content="q"))
     )
-    await asyncio.sleep(0.1)
+    # the turn row reaching `state == RUNNING` (committed inside `_open_turn`) is NOT
+    # sufficient proof that `submit_turn` has gone on to register the `_run_turn` task in
+    # `self._turn_tasks` — an intervening `await self.get_agent(...)` sits between the
+    # two. Cancelling in that window makes `_terminalize` find no task to cancel at all
+    # (`self._turn_tasks.get(session_id)` returns `None`), so the model call is never
+    # interrupted and legitimately completes — the durable model-dispatch permit for
+    # iteration 0 (corrective #8/#9) can only exist once `_run_turn` itself is already
+    # running, which is only possible after that task is registered — this is the
+    # correct, race-free readiness signal, not the turn's own state column.
+    turn_id = None
+    deadline = asyncio.get_running_loop().time() + 5.0
+    while True:
+        turns = await agent_stack.service.list_turns(org.id, session.id, limit=1)
+        if turns and turns[0].state.value == "RUNNING":
+            turn_id = turns[0].id
+            if await _model_permit_exists(agent_stack, org.id, turn_id, 0):
+                break
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError("timed out waiting for the model call to be authorized")
+        await asyncio.sleep(0.01)
     cancelled = await agent_stack.service.cancel_session(org.id, session.id)
     assert cancelled.state is AgentSessionState.CANCELLED
     with pytest.raises((AgentCancelledError, asyncio.CancelledError)):

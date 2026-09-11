@@ -13,6 +13,7 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import datetime as dt
+import enum
 import uuid
 from collections.abc import Callable
 from typing import Any, NoReturn, cast
@@ -121,6 +122,23 @@ class ExecutionRevoked(Exception):
     def __init__(self, session_row: AgentSession) -> None:
         super().__init__("execution authority revoked by a cross-worker terminalisation")
         self.session_row = session_row
+
+
+class _PermitOutcome(enum.Enum):
+    """Internal-only distinction between "this attempt durably created the permit row"
+    and "a permit for this exact semantic slot already existed" (audit corrective #9,
+    INV-AUTH-ID-002) — NEVER exposed publicly. :meth:`AgentService._authorize_model_dispatch`
+    / :meth:`_authorize_tool_dispatch` still only ever return ``None`` or raise to every
+    caller; this enum exists purely so the CREATED-vs-ALREADY_EXISTS branch inside those
+    two methods is an explicit, named decision instead of an implicit fallthrough after
+    a suppressed ``IntegrityError`` — the exact ambiguity that made "I created the
+    authorization" indistinguishable from "one already existed" before this corrective.
+    A third outcome, REJECTED (the session or turn fencing check failed before any
+    insert was attempted), is never represented here — it is always a raised exception
+    (:class:`ExecutionRevoked` / ``AgentInvalidStateError``), same as before."""
+
+    CREATED = "created"
+    ALREADY_EXISTS = "already_exists"
 
 
 class AgentService:
@@ -907,22 +925,39 @@ class AgentService:
         )
 
     async def _assert_turn_authority(
-        self, tenant: TenantSession, turn_id: UUID, expected_execution_owner_id: UUID | None
+        self,
+        tenant: TenantSession,
+        expected_session_id: UUID,
+        turn_id: UUID,
+        expected_execution_owner_id: UUID | None,
     ) -> None:
-        """Shared turn-ownership / terminal-turn fencing check (audit corrective #8,
-        INV-EXEC-006/007/008/014), used by BOTH :meth:`_authorize_model_dispatch` and
-        :meth:`_authorize_tool_dispatch` so every class of external dispatch shares
-        identical fencing rigor. Called INSIDE the caller's already-open transaction,
-        after it has already confirmed the SESSION is live under its ``FOR UPDATE`` lock.
+        """Shared turn-IDENTITY / turn-ownership / terminal-turn fencing check (audit
+        correctives #8 and #9; INV-EXEC-006/007/008/014, INV-AUTH-ID-001), used by BOTH
+        :meth:`_authorize_model_dispatch` and :meth:`_authorize_tool_dispatch` so every
+        class of external dispatch shares identical fencing rigor. Called INSIDE the
+        caller's already-open transaction, after it has already confirmed the SESSION
+        identified by ``expected_session_id`` is live under its ``FOR UPDATE`` lock.
 
-        UNREACHABLE in the current codebase — nothing today reassigns a turn's
-        ``execution_owner_id`` (corrective #6) after claim, and nothing externally
-        terminalises a turn out from under its own ``_run_turn`` — but this is the
-        FENCING CONTRACT a future NXS-P25 orphan-recovery mechanism depends on (turn
-        authority audit, corrective #8 §8): if Worker A owns turn T, Worker A dies, and
-        a future P25 mechanism reclaims/replaces ownership of T, a stale Worker A that
-        unexpectedly resumes MUST NOT be able to authorize further model or tool work.
-        This check makes that true PROVIDED any future reassignment of
+        Corrective #9: the row a caller locks FOR UPDATE and the turn it is authorizing
+        work for are two independent lookups by two independent ids — nothing before
+        this corrective proved they were the SAME session. Within one Organization, RLS
+        does not help: both a caller-supplied session and a turn's real parent session
+        belong to the same tenant, so a tenant-scoped read of either succeeds regardless
+        of whether they are actually related. Locking session A (live) while authorizing
+        a turn that actually belongs to session B (anything — even terminal) is a
+        genuine identity-confusion gap this check closes: the session that was ACTUALLY
+        locked FOR UPDATE MUST be the turn's own parent session, not merely "a" live
+        session in the same Organization. No subset of the checks in this method is
+        sufficient on its own (INV-AUTH-ID-001).
+
+        The owner-identity check (corrective #8) remains UNREACHABLE in the current
+        codebase — nothing today reassigns a turn's ``execution_owner_id`` after claim,
+        and nothing externally terminalises a turn out from under its own ``_run_turn``
+        — but is the FENCING CONTRACT a future NXS-P25 orphan-recovery mechanism depends
+        on (turn authority audit, corrective #8 §8): if Worker A owns turn T, Worker A
+        dies, and a future P25 mechanism reclaims/replaces ownership of T, a stale
+        Worker A that unexpectedly resumes MUST NOT be able to authorize further model
+        or tool work. This check makes that true PROVIDED any future reassignment of
         ``execution_owner_id`` (or external terminalisation of a turn) is committed
         under the SAME session-row ``FOR UPDATE`` lock this method's caller already
         holds — see ADR-0094 "Turn authority and future P25 fencing compatibility" for
@@ -930,6 +965,8 @@ class AgentService:
         turn_row = await AgentTurnRepository(tenant).by_id(turn_id)
         if turn_row is None or turn_is_terminal(turn_row.state):
             raise AgentInvalidStateError("the turn is no longer active")
+        if turn_row.session_id != expected_session_id:
+            raise AgentInvalidStateError("the locked session is not this turn's own parent session")
         if (
             expected_execution_owner_id is None
             or turn_row.execution_owner_id != expected_execution_owner_id
@@ -972,6 +1009,18 @@ class AgentService:
           and NO permit is ever created → the caller never calls the provider
           (INV-EXEC-003).
 
+        Corrective #9 (INV-AUTH-ID-002): unlike :meth:`_authorize_tool_dispatch`, a
+        duplicate authorization attempt (a permit for this exact ``(turn, iteration)``
+        already exists) is REJECTED here, not silently treated as success. Tool dispatch
+        can safely let a duplicate proceed because the P08 Tool Engine's own idempotency
+        key makes a second dispatch attempt a no-op re-read, never a second live side
+        effect — but a model-provider call has no such backstop in this layer; letting a
+        duplicate authorization proceed would let the caller place a SECOND real,
+        billed, independent call to the provider for an iteration that was already
+        authorized once. Only the attempt that durably CREATES the permit row may
+        proceed as a genuinely new dispatch (unreachable today — see the class-level
+        docstring — but this is the correct behaviour if that ever changes).
+
         The transaction is short and is NEVER held open across the network call to the
         model provider — only this DB round trip; ``AgentRuntime._call_model`` always
         runs entirely outside it. Persists NO prompt, context, or credential material —
@@ -981,8 +1030,9 @@ class AgentService:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)
-            await self._assert_turn_authority(tenant, turn_id, execution_owner_id)
-            with contextlib.suppress(IntegrityError):
+            await self._assert_turn_authority(tenant, session_id, turn_id, execution_owner_id)
+            outcome = _PermitOutcome.CREATED
+            try:
                 async with tenant.session.begin_nested():
                     await AgentModelDispatchPermitRepository(tenant).insert(
                         {
@@ -992,6 +1042,12 @@ class AgentService:
                             "model": model[:96],
                         }
                     )
+            except IntegrityError:
+                outcome = _PermitOutcome.ALREADY_EXISTS
+            if outcome is _PermitOutcome.ALREADY_EXISTS:
+                raise AgentInvalidStateError(
+                    "this model-provider iteration was already authorized by a prior attempt"
+                )
 
     async def _authorize_tool_dispatch(
         self,
@@ -1026,27 +1082,42 @@ class AgentService:
           observes the session already terminal → :class:`ExecutionRevoked` is raised
           and NO permit is ever created → the caller never dispatches (INV-FENCE-002).
 
-        The transaction is short and is NEVER held open across the external HTTP call —
-        only this DB round trip; ``AgentToolBridge.execute`` always runs entirely outside
-        it, matching the documented preference against long-held transactions."""
+        Corrective #9 (INV-AUTH-ID-002): the CREATED-vs-ALREADY_EXISTS distinction is
+        made explicit (see :class:`_PermitOutcome`), but — unlike
+        :meth:`_authorize_model_dispatch` — ALREADY_EXISTS is deliberately treated as
+        success here, not rejection: this call site's "dispatch" is
+        ``AgentToolBridge.execute``, which is itself keyed by the P08 Tool Engine's own
+        idempotency key (the same ``tool_key`` + ``arguments_hash`` this permit is keyed
+        by), so a second attempt reaching it is a no-op re-read of the first attempt's
+        result, never a second live external side effect. P08 idempotency MUST NOT be
+        the only reason this authorization layer is safe for tool dispatch — it is the
+        SECOND, independent layer behind the permit's own unique index; the unique index
+        alone already prevents two DIFFERENT worker/request paths from independently
+        believing they were "first". The transaction is short and is NEVER held open
+        across the external HTTP call — only this DB round trip;
+        ``AgentToolBridge.execute`` always runs entirely outside it, matching the
+        documented preference against long-held transactions."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)
-            await self._assert_turn_authority(tenant, turn_id, execution_owner_id)
+            await self._assert_turn_authority(tenant, session_id, turn_id, execution_owner_id)
             # defense-in-depth (INV-FENCE-011): a turn is already exclusively owned by
             # one worker (correctives #1/#4), so a genuine duplicate authorization
             # attempt for the identical semantic call should be unreachable — but if it
             # ever happened, the call was ALREADY authorized once; the unique-index
             # collision is treated as "already authorized", never as a fresh rejection
-            # or a second effect. A SAVEPOINT (not a bare try/except) is required here:
-            # PostgreSQL aborts the WHOLE enclosing transaction on a constraint
-            # violation, so merely catching IntegrityError in Python would leave the
-            # outer transaction un-committable — the commit at the end of this `async
-            # with` block would itself then fail. Only a nested transaction's ROLLBACK
-            # TO SAVEPOINT recovers cleanly (same pattern as
-            # ``infrastructure/event_outbox.py``'s duplicate-enqueue handling).
-            with contextlib.suppress(IntegrityError):
+            # or a second effect (safe here specifically because of the P08-idempotency
+            # argument in this method's own docstring — see _PermitOutcome.ALREADY_EXISTS
+            # below). A SAVEPOINT (not a bare try/except) is required here: PostgreSQL
+            # aborts the WHOLE enclosing transaction on a constraint violation, so merely
+            # catching IntegrityError in Python would leave the outer transaction
+            # un-committable — the commit at the end of this `async with` block would
+            # itself then fail. Only a nested transaction's ROLLBACK TO SAVEPOINT
+            # recovers cleanly (same pattern as ``infrastructure/event_outbox.py``'s
+            # duplicate-enqueue handling).
+            outcome = _PermitOutcome.CREATED
+            try:
                 async with tenant.session.begin_nested():
                     await AgentToolDispatchPermitRepository(tenant).insert(
                         {
@@ -1057,6 +1128,9 @@ class AgentService:
                             "arguments_hash": arguments_hash,
                         }
                     )
+            except IntegrityError:
+                outcome = _PermitOutcome.ALREADY_EXISTS
+            del outcome  # ALREADY_EXISTS is intentionally not rejected here; see above.
 
     async def _tool_specs(
         self, organization_id: UUID, tool_keys: tuple[str, ...]

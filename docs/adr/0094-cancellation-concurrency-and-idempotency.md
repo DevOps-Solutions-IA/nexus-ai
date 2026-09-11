@@ -669,6 +669,140 @@ generation even though this system never durably recorded it. This corrective's
 guarantee is that no NEW model call is EVER authorized once cancellation has linearized
 first — nothing stronger.
 
+### Authority identity — session/turn binding is now a proven fact, not an assumption (corrective #9)
+
+**The gap.** Correctives #7/#8 proved a durable, PostgreSQL-provable *ordering* between
+authorization and cancellation — but neither proved that the session row being locked
+`FOR UPDATE` was actually the *parent* of the turn being authorized. `_assert_turn_authority`
+checked turn-terminality and `execution_owner_id`, never `turn.session_id ==
+session_id`. Within one Organization, RLS does not help: a caller-supplied session id
+and a turn's real parent session id both belong to the same tenant, so a tenant-scoped
+read of either succeeds regardless of whether they are actually related. Concretely: an
+ACTIVE session A with nothing to do with turn B, and turn B's own real parent session B
+already CANCELLED — calling either authorization method with `session_id=A,
+turn_id=B.id, owner=B's real execution_owner_id` locked the WRONG session (live, so it
+passed the terminal check), then found turn B non-terminal with a matching owner, and
+wrongly authorized a durable permit. Reproduced directly against audited head
+`5b80cbc07010e3f7201bce40caf93c9dfdbd37b3` in
+`tests/concurrency/test_agent_authority_identity_fencing.py`.
+
+**INV-AUTH-ID-001.** A dispatch is authorized only if ALL of: `permit.organization_id ==
+turn.organization_id == session.organization_id`, `permit.session_id == turn.session_id
+== locked_session.id`, `expected_owner == turn.execution_owner_id`, the turn is
+non-terminal, and the session is non-terminal. No subset is sufficient — each clause was
+independently falsifiable before this corrective (organization equality was already
+structurally guaranteed by `TenantOwnedMixin` + tenant-scoped repositories, since both
+the session and turn reads happen through the SAME `tenant` object; the session/turn
+binding clause was not).
+
+**Two-layer fix, matching directive §5's "do NOT rely only on Python":**
+
+1. **Application layer.** `AgentService._assert_turn_authority` gained a mandatory
+   `expected_session_id` parameter and now rejects (`AgentInvalidStateError`, the same
+   already-stable taxonomy entry corrective #8 reused — no new public error code) the
+   moment `turn_row.session_id != expected_session_id`, checked inside the SAME
+   transaction that already holds the session row's `FOR UPDATE` lock, before the
+   owner-identity check.
+2. **Database layer** (migration `b4c5d6e7f8a9`). `ai_agent_turns` gains an additive
+   unique constraint on `(organization_id, session_id, id)` (the existing
+   `(organization_id, id)` constraint is preserved unchanged). `ai_agent_tool_dispatch_permits`,
+   `ai_agent_model_dispatch_permits`, and `ai_agent_tool_calls` all move their FK on
+   `turn_id` from the plain `(organization_id, turn_id) -> ai_agent_turns(organization_id,
+   id)` to the composite `(organization_id, session_id, turn_id) ->
+   ai_agent_turns(organization_id, session_id, id)`. After this migration, PostgreSQL
+   itself refuses to persist a row in any of these three tables whose `session_id`
+   disagrees with its own turn's real parent session — proven directly, independent of
+   any application code path, by
+   `test_database_constraint_rejects_mismatched_session_turn_row_even_bypassing_python`
+   (a raw SQL `INSERT` through the tenant-scoped runtime transaction, entirely bypassing
+   `AgentService`).
+
+`ai_agent_tool_calls` is included even though it is not itself an authorization gate — it
+is the durable audit record of an authorized dispatch's *effect*. Leaving it on the old,
+non-session-aware FK while the permit tables that authorize the very same dispatch moved
+to the session-aware key would have been a silent relational contradiction between "what
+was authorized" and "what was recorded."
+
+**Table audit (directive §6).** Every P13 table carrying both `session_id` and `turn_id`
+columns was enumerated directly against the ORM (`grep` over every `session_id: Mapped` /
+`turn_id: Mapped` declaration in `domain/agents/models.py`) — exactly three exist:
+
+| Table | Classification | Disposition |
+|---|---|---|
+| `ai_agent_tool_dispatch_permits` | A — authority-critical | Composite FK (migration `b4c5d6e7f8a9`) |
+| `ai_agent_model_dispatch_permits` | A — authority-critical | Composite FK (migration `b4c5d6e7f8a9`) |
+| `ai_agent_tool_calls` | A — audit-integrity, fixed to avoid a silent relational contradiction with the two tables above (directive's own explicit nudge) | Composite FK (migration `b4c5d6e7f8a9`) |
+
+`ai_model_usage` carries only `session_id` (no `turn_id`) — out of scope by construction,
+not by omission. No other P13 table carries both columns.
+
+### Permit ownership semantics — CREATED vs ALREADY_EXISTS (corrective #9)
+
+**The gap.** Both `_authorize_model_dispatch` and `_authorize_tool_dispatch` wrapped
+their permit `INSERT` in a `SAVEPOINT` + `contextlib.suppress(IntegrityError)` — a
+pattern that made "this attempt durably created the permit" indistinguishable from "a
+permit for this exact semantic slot already existed" from the caller's point of view:
+both cases simply returned `None`. For tool dispatch this is harmless — the P08 Tool
+Engine's own idempotency key (the same `tool_key` + `arguments_hash` the permit is keyed
+by) makes a second dispatch a no-op re-read, never a second live side effect. For model
+dispatch it is not: nothing else in this layer prevents a caller that received a
+duplicate "success" from placing a SECOND real, independent, billed call to the model
+provider for an iteration that was already authorized once — directive §7/§8's
+"unsafe for MODEL dispatch specifically."
+
+**INV-AUTH-ID-002.** Only the attempt that durably creates the permit row may proceed as
+a genuinely NEW dispatch.
+
+**Fix.** Both methods now make the CREATED-vs-ALREADY_EXISTS branch an explicit, named
+decision (`AgentService._PermitOutcome`, module-private — never exposed publicly; every
+caller still only ever sees "raises" or "returns `None`," so the public
+`AuthorizeModel` / `AuthorizeTool` callback contract in `runtime.py` is UNCHANGED,
+preserving correctives #7/#8's linearization architecture exactly as directed). The two
+methods diverge deliberately on what ALREADY_EXISTS means for their caller:
+
+* **Model dispatch:** ALREADY_EXISTS is REJECTED (`AgentInvalidStateError`) — the caller
+  MUST NOT independently perform a second NEW provider call. Proven by
+  `test_duplicate_model_authorization_attempt_is_rejected_not_a_second_call` (a second
+  attempt for the identical `(turn, iteration)` is rejected; the permit row count for
+  that iteration stays exactly 1).
+* **Tool dispatch:** ALREADY_EXISTS is deliberately treated as safe to proceed —
+  unchanged from corrective #7's original design (documented there as
+  `INV-FENCE-011`) — because the caller's next step, `AgentToolBridge.execute`, is
+  ITSELF keyed by the identical P08 idempotency key, making a second attempt a no-op
+  re-read. Proven end-to-end by
+  `test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect`: the permit
+  row count stays exactly 1 across repeated authorization attempts, and no external
+  call is ever made twice. P08 idempotency is explicitly documented as the SECOND,
+  independent layer behind the permit's own unique index — never the ONLY reason this
+  authorization layer is safe (directive's own wording), since the unique index alone
+  already prevents two different callers from each believing they were "first."
+
+### Crash semantics under the identity fix (durable facts only — NXS-P25 unchanged)
+
+This corrective adds no new crash-recovery behaviour and implements no reaping logic.
+The composite FK and the `expected_session_id` check change what CAN be persisted, not
+who recovers an orphaned turn: `execution_owner_id` / `lease_expires_at` (corrective #6)
+remain the only durable primitives a future NXS-P25 mechanism will read, and this
+corrective's permit tables remain exactly what they were — durable facts about WHAT was
+authorized, for a future reconciliation process to reason about, never a mechanism that
+itself redispatches on crash recovery. If a worker crashes mid-authorization, P13 fails
+closed (no ambiguous partial state a future recovery path must guess about): either the
+permit transaction committed (a genuine, provable authorization occurred) or it did not
+(nothing was authorized) — there is no third, ambiguous outcome the composite FK or the
+CREATED/ALREADY_EXISTS distinction introduces. `NXS-AGENT-002` (mandatory=true, status
+PLANNED, target NXS-P25) is left completely unchanged by this corrective.
+
+**The P25 contract, restated with the identity fix in scope.** A future reassignment of
+turn ownership MUST hold the owning session row `FOR UPDATE` for the SAME reasons
+corrective #8 already established, and additionally MUST NOT alter a turn's
+`session_id` as part of any reclaim (the composite FK now makes that structurally
+impossible to do inconsistently across the permit/audit tables in any case). A reclaimed
+owner receives a NEW `execution_owner_id`; the old owner loses all authority
+immediately (proven unreachable-but-correct today by
+`test_stale_worker_with_random_session_id_cannot_forge_authority` and the identity
+matrix tests). Historical `COMPLETED` turn replay is unaffected — replay never calls
+either authorization method (see "Response-exact replay" above).
+
 ## Consequences
 
 * A barge-in stops generation promptly and leaves no "ghost" response.
