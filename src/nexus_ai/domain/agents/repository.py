@@ -152,6 +152,8 @@ def _to_turn(row: AiAgentTurnRecord) -> AgentTurn:
         idempotency_key=row.idempotency_key,
         request_fingerprint=row.request_fingerprint,
         response_correlation_id=row.response_correlation_id,
+        execution_owner_id=row.execution_owner_id,
+        lease_expires_at=row.lease_expires_at,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )

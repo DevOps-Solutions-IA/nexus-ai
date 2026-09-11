@@ -1909,6 +1909,22 @@
       "validation_evidence": [
         ".nxs/evidence/NXS-P04/quality-gates.json"
       ]
+    },
+    {
+      "category": "RESILIENCE",
+      "dependencies": [
+        "NXS-AGENT-001"
+      ],
+      "description": "Durable, unambiguous execution-lease primitives (execution_owner_id, lease_expires_at on ai_agent_turns, established by NXS-P13 audit corrective #6) enable a future recovery mechanism to safely reap orphaned RUNNING agent turns after a worker crash, without ambiguity about whether a legitimate worker could still be executing. NXS-P13 establishes and persists these primitives only; it performs no autonomous reaping itself (deferred here).",
+      "id": "NXS-AGENT-002",
+      "implementation_evidence": [
+        "migrations/versions/20260911_1200-e1f2a3b4c5d6_agent_turn_execution_lease.py"
+      ],
+      "mandatory": false,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "title": "Orphaned agent-turn crash recovery (execution-lease reaping)",
+      "validation_evidence": []
     }
   ],
   "schema_version": "1.0.0"

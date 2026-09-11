@@ -15,7 +15,7 @@ import contextlib
 import datetime as dt
 import uuid
 from collections.abc import Callable
-from typing import Any, cast
+from typing import Any, NoReturn, cast
 from uuid import UUID
 
 from sqlalchemy.exc import IntegrityError
@@ -101,6 +101,21 @@ from nexus_ai.tools.service import ToolEngine
 _LIVE_RANK = 1
 
 ModelProviderFactory = Callable[[ModelProvider], ModelProviderAdapter]
+
+
+class ExecutionRevoked(Exception):
+    """Internal control-flow signal (audit corrective #6) — NEVER an ``NxsError``, never
+    surfaced to a caller directly. Raised by :meth:`AgentService._check_execution_authority`
+    the moment a DB-authoritative checkpoint (called at every model-continuation and
+    tool-dispatch boundary inside :meth:`AgentRuntime.run_turn`) observes that this
+    session has become terminal — a cross-worker ``cancel_session`` / ``stop_session`` /
+    lifetime expiry that committed since the turn started. Carries the terminal session
+    row so the caller raises the TRUTHFUL taxonomy error (never a generic cancellation)
+    via the same logic ``_finish_turn``'s terminal-absorption path already uses."""
+
+    def __init__(self, session_row: AgentSession) -> None:
+        super().__init__("execution authority revoked by a cross-worker terminalisation")
+        self.session_row = session_row
 
 
 class AgentService:
@@ -542,6 +557,21 @@ class AgentService:
                     organization_id, session_id, turn.id, "NXS_AGENT_CANCELLED", cancelled=True
                 )
                 raise
+            except ExecutionRevoked as exc:
+                # audit corrective #6: a checkpoint inside the runtime loop observed the
+                # session had already become terminal (a cross-worker cancel/stop/expiry)
+                # and aborted BEFORE the next model call / tool dispatch. `_fail_turn`
+                # itself no-ops the session write when the session is already terminal
+                # (see its own `not session_is_terminal(...)` guard), so this can never
+                # resurrect it — mirrors `_discard_stale_turn`'s truthful-code discipline.
+                await self._fail_turn(
+                    organization_id,
+                    session_id,
+                    turn.id,
+                    _stale_terminal_code(exc.session_row),
+                    cancelled=True,
+                )
+                _raise_for_stale_session(exc.session_row.state)
             except NxsError as exc:
                 await self._fail_turn(organization_id, session_id, turn.id, exc.code)
                 raise
@@ -649,6 +679,17 @@ class AgentService:
                 if await turn_repo.active_for_session(session_id) is not None:
                     raise AgentBusyError("a turn is already in flight for this session")
                 sequence = session.turn_count + 1
+                claim_now = dt.datetime.now(dt.UTC)
+                # audit corrective #6: a conservative UPPER BOUND on how long a
+                # LEGITIMATE worker could still be executing this turn — the global
+                # deadline ceiling (never the tighter per-Agent override, unknown here)
+                # bounded by the session's remaining absolute lifetime, plus a grace
+                # margin. NOT read by P13 to make any decision; see migration
+                # e1f2a3b4c5d6 / ADR-0094 "Orphaned RUNNING turn recovery".
+                lease_bound = min(
+                    self._cfg.turn_deadline_seconds,
+                    max(self._remaining_session_lifetime(session, claim_now), 0.0),
+                )
                 try:
                     turn = await turn_repo.insert(
                         {
@@ -661,6 +702,11 @@ class AgentService:
                             "input_char_count": len(request.content),
                             "idempotency_key": request.idempotency_key,
                             "request_fingerprint": fingerprint,
+                            "execution_owner_id": uuid.uuid7(),
+                            "lease_expires_at": claim_now
+                            + dt.timedelta(
+                                seconds=lease_bound + self._cfg.execution_lease_grace_seconds
+                            ),
                         }
                     )
                 except IntegrityError as exc:
@@ -829,9 +875,32 @@ class AgentService:
                 organization_id, session, turn, outcome, iteration, tool_seq["n"], call_id
             )
 
+        async def _check_authority() -> None:
+            await self._check_execution_authority(organization_id, session.id)
+
         return await self._runtime.run_turn(
-            ctx=ctx, adapter=adapter, secret=secret, http=self._http, on_tool=_on_tool
+            ctx=ctx,
+            adapter=adapter,
+            secret=secret,
+            http=self._http,
+            on_tool=_on_tool,
+            check_authority=_check_authority,
         )
+
+    async def _check_execution_authority(self, organization_id: UUID, session_id: UUID) -> None:
+        """The DB-authoritative checkpoint (audit corrective #6, INV-CANCEL-001/002/003):
+        a cheap, UNLOCKED read of the session's CURRENT committed state — freshness, not
+        mutual exclusion, is what a checkpoint needs; ``PostgreSQL``'s read-committed
+        isolation means any transaction that has already COMMITTED a terminal state (a
+        cross-worker ``cancel_session`` / ``stop_session`` / lifetime expiry) is visible
+        here even without a row lock. Raises :class:`ExecutionRevoked` the instant the
+        session is terminal, so the runtime loop aborts before its NEXT model call or
+        tool dispatch — never retracting work already dispatched before this call ran
+        (see ADR-0094's documented already-dispatched boundary)."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_row = await AgentSessionRepository(tenant).by_id(session_id)
+        if session_row is not None and session_is_terminal(session_row.state):
+            raise ExecutionRevoked(session_row)
 
     async def _tool_specs(
         self, organization_id: UUID, tool_keys: tuple[str, ...]
@@ -961,16 +1030,12 @@ class AgentService:
                     correlation_id=ctx_correlation(request, session),
                 )
         # reached only on the stale path — the discarded turn was committed above. Raise
-        # the TRUTHFUL terminal error: a concurrent EXPIRED is session-expired, a
-        # concurrent CANCELLED is cancelled, and a normal stop / COMPLETED (or FAILED) is
-        # an invalid-state — never a fabricated expiration.
-        if stale_state is AgentSessionState.EXPIRED:
-            raise AgentSessionExpiredError(
-                "the agent session reached its lifetime ceiling during the turn"
-            )
-        if stale_state is AgentSessionState.CANCELLED:
-            raise AgentCancelledError("the agent session was cancelled during the turn")
-        raise AgentInvalidStateError("the agent session ended before the turn could be committed")
+        # the TRUTHFUL terminal error via the shared helper (also used by the mid-turn
+        # ExecutionRevoked path, audit corrective #6): a concurrent EXPIRED is
+        # session-expired, a concurrent CANCELLED is cancelled, and a normal stop /
+        # COMPLETED (or FAILED) is an invalid-state — never a fabricated expiration.
+        assert stale_state is not None  # noqa: S101
+        _raise_for_stale_session(stale_state)
 
     async def _discard_stale_turn(
         self,
@@ -1360,6 +1425,21 @@ def _stale_terminal_code(session_row: AgentSession) -> str:
     if session_row.error_code:
         return session_row.error_code
     return _STALE_TERMINAL_FALLBACK.get(session_row.state, "NXS_AGENT_INVALID_STATE")
+
+
+def _raise_for_stale_session(state: AgentSessionState) -> NoReturn:
+    """Raise the TRUTHFUL taxonomy error for a turn that lost its session to a
+    CONCURRENT terminalisation — whether discovered at final-commit time
+    (``_finish_turn``'s terminal-absorption) or mid-turn, at a runtime checkpoint
+    (``ExecutionRevoked``, audit corrective #6). Never a fabricated expiration, never a
+    generic cancellation for a normal stop."""
+    if state is AgentSessionState.EXPIRED:
+        raise AgentSessionExpiredError(
+            "the agent session reached its lifetime ceiling during the turn"
+        )
+    if state is AgentSessionState.CANCELLED:
+        raise AgentCancelledError("the agent session was cancelled during the turn")
+    raise AgentInvalidStateError("the agent session ended before the turn could be committed")
 
 
 def _elapsed_ms(start: dt.datetime, end: dt.datetime) -> int:

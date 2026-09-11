@@ -266,6 +266,11 @@ class AgentTurn(BaseModel):
     request_fingerprint: str | None
     #: the correlation id the ORIGINAL response published under — replayed verbatim.
     response_correlation_id: str | None
+    #: durable execution-lease primitives (audit corrective #6) — internal operational
+    #: facts, never exposed on the public view. See ADR-0094 "Orphaned RUNNING turn
+    #: recovery"; NOT read by P13 to make any decision.
+    execution_owner_id: UUID | None
+    lease_expires_at: dt.datetime | None
     created_at: dt.datetime
     updated_at: dt.datetime
 

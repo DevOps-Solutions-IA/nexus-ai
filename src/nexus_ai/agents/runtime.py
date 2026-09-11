@@ -54,6 +54,14 @@ from nexus_ai.core.logging import get_logger
 from nexus_ai.domain.auth.entities import Principal
 
 ToolCallback = Callable[[str, ToolCallOutcome, int], Awaitable[None]]
+#: audit corrective #6 — a DB-authoritative checkpoint. Raises (any exception; the caller
+#: decides its taxonomy) the moment this session/turn is no longer the authoritative
+#: execution target; returns ``None`` when execution may proceed. Called at every natural
+#: loop boundary (never per streamed token / per model chunk): before each model
+#: continuation and immediately before each tool dispatch — both already bounded by
+#: ``max_tool_iterations`` / ``max_tool_calls_per_turn``, so this stays a bounded,
+#: production-safe number of extra round trips per turn, not an unbounded one.
+CheckAuthority = Callable[[], Awaitable[None]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,6 +106,7 @@ class AgentRuntime:
         secret: Any,
         http: ModelHttpTransport,
         on_tool: ToolCallback,
+        check_authority: CheckAuthority,
     ) -> TurnOutcome:
         messages = build_messages(
             agent_instructions=ctx.agent_instructions,
@@ -118,6 +127,12 @@ class AgentRuntime:
         tool_calls_requested = 0
 
         for iteration in range(ctx.max_tool_iterations + 1):
+            # audit corrective #6 (INV-CANCEL-001/006): every continuation iteration is a
+            # checkpoint — an authoritative cancellation/terminalisation committed by ANY
+            # worker since the last checkpoint stops the loop here, before the next model
+            # call begins. An in-flight call already dispatched before this point is not
+            # retracted (see ADR-0094); nothing NEW starts once revoked.
+            await check_authority()
             response = await self._call_model(ctx, adapter, secret, http, messages)
             self._validate_response(response)
             usage_total = ModelUsage(
@@ -161,6 +176,12 @@ class AgentRuntime:
                 key = (call.name, arguments_hash(call.arguments))
                 outcome = executed.get(key)
                 if outcome is None:
+                    # audit corrective #6 (INV-CANCEL-001/005/006, INV-CANCEL-009): the
+                    # freshest possible check IMMEDIATELY before handing a NEW external
+                    # side effect to the Tool Engine — a deduplicated (already-executed)
+                    # call never reaches here at all, so this is exactly "before every
+                    # Tool Engine invocation", not before every requested call.
+                    await check_authority()
                     outcome = await self._tools.execute(
                         principal=ctx.principal,
                         allow_list=ctx.allow_list,

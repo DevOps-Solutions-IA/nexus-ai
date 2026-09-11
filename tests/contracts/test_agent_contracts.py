@@ -319,3 +319,34 @@ def test_views_carry_no_credential_or_raw_prompt() -> None:
     for view in (AgentSessionView, AgentTurnView):
         for banned in ("api_key", "system_instructions", "prompt", "endpoint", "credential"):
             assert banned not in view.model_fields
+
+
+#: every "exactly once" / "exactly-once" occurrence found in the agents source tree and
+#: ADR-0094 as of audit corrective #6 — narrowly scoped, verified true by two independent
+#: subagents. A NEW occurrence not on this list fails the test below: it must be reviewed
+#: for overclaiming (audit corrective #6, final-auditor LOW finding — claim discipline had
+#: no automated regression protection) before being added here.
+_ALLOWED_EXACTLY_ONCE_LINES = (
+    "exactly once per distinct executed call). Persisting was chosen over deriving because (a)",
+)
+
+
+def test_exactly_once_claims_are_locked_to_the_known_narrow_scoped_set() -> None:
+    """Claim discipline (audit corrective #6 §16): no system-wide 'exactly once' guarantee
+    is ever claimed — only this one, narrowly scoped statement about the ``on_tool``
+    callback's per-distinct-call invocation count. A future PR introducing a NEW
+    unscoped 'exactly once' claim anywhere in the agents source tree or ADR-0094 fails
+    this test rather than silently drifting into an overclaim."""
+    targets = [
+        *(_ROOT / "src" / "nexus_ai" / "agents").rglob("*.py"),
+        _ROOT / "docs" / "adr" / "0094-cancellation-concurrency-and-idempotency.md",
+    ]
+    found: list[str] = []
+    for path in targets:
+        for line in path.read_text().splitlines():
+            if "exactly once" in line.lower() or "exactly-once" in line.lower():
+                found.append(line.strip())
+    assert found, "the one known-safe occurrence is expected to still exist"
+    for line in found:
+        assert line in _ALLOWED_EXACTLY_ONCE_LINES, line
+    assert len(found) == len(_ALLOWED_EXACTLY_ONCE_LINES)

@@ -303,6 +303,16 @@ class AiAgentTurnRecord(TenantOwnedMixin, Base):
     #: the correlation id the ORIGINAL response/agent.response.ready published under —
     #: persisted once at completion so a replay never returns correlation_id: null.
     response_correlation_id: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    #: durable execution-lease primitives (audit corrective #6) — NOT read by P13 to make
+    #: any decision; a foundation for future NXS-P25 crash recovery only. Set once at
+    #: claim time, never renewed, never backfilled for pre-corrective rows. See
+    #: migration e1f2a3b4c5d6 and ADR-0094 "Orphaned RUNNING turn recovery".
+    execution_owner_id: Mapped[uuid.UUID | None] = mapped_column(
+        PgUUID(as_uuid=True), nullable=True
+    )
+    lease_expires_at: Mapped[dt.datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

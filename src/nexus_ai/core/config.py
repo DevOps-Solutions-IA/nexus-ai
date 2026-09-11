@@ -582,6 +582,13 @@ class AgentRuntimeSettings(BaseModel):
     max_system_instruction_chars: int = Field(default=16_384, ge=1, le=65_536)
     #: Durable retention for the turn idempotency log (seconds).
     turn_idempotency_retention_seconds: int = Field(default=604_800, ge=3_600, le=2_592_000)
+    #: Grace buffer added on top of a turn's own deadline bound when computing its
+    #: execution lease (audit corrective #6). A RUNNING turn whose lease has expired is an
+    #: UNAMBIGUOUS orphan signal: the owning worker's own ``asyncio.timeout`` would already
+    #: have stopped it if it were alive, so no legitimate worker can still be extending the
+    #: lease past this margin. P13 does not act on this itself (durable primitive only,
+    #: recovery deferred to NXS-P25 — see ADR-0094 "Orphaned RUNNING turn recovery").
+    execution_lease_grace_seconds: float = Field(default=30.0, gt=0, le=600)
     #: Bounds for a model provider account's free-form ``configuration`` object.
     max_account_config_keys: int = Field(default=12, ge=1, le=64)
     max_account_config_value_length: int = Field(default=1_024, ge=16, le=8_192)

@@ -12,7 +12,12 @@ at the DATABASE boundary; a truthful stale-terminal `error_code`), and correctiv
 (response-EXACT replay — `tool_call_count` / `response_correlation_id` persisted as
 immutable facts — and historical-replay-lookup ordering: the idempotency key is resolved
 BEFORE any new-execution admission gate, so a historical turn survives the session's own
-later terminalisation).
+later terminalisation), and corrective #6 (distributed execution control: an
+authoritative cancellation/terminalisation committed by ANY worker stops model
+continuation and tool dispatch for a DIFFERENT worker's in-flight turn at the next
+checkpoint — not merely at final-commit time — plus the durable `execution_owner_id` /
+`lease_expires_at` primitives an orphaned-RUNNING-turn recovery mechanism will need,
+deferred to NXS-P25 per requirement `NXS-AGENT-002`).
 
 ## Context
 
@@ -217,9 +222,158 @@ migration (the fact was never persisted anywhere); such a turn's replay reports
 defect. `tool_call_count` **is** backfilled from the durable `ai_agent_tool_calls` rows in
 the same migration, so no pre-existing turn regresses to a wrong `0`.
 
+### Distributed cancellation — execution control across workers (corrective #6)
+
+Corrective #3 made a terminal SESSION absorbing at `_finish_turn`'s DATABASE boundary — a
+stale worker's FINAL response is always discarded. That is **not sufficient**: between
+the moment a DIFFERENT worker commits a cancellation and the moment the stale worker
+reaches `_finish_turn`, the stale worker could still call the model again AND dispatch
+NEW tool calls to the NXS-P08 Tool Engine — real external side effects a discarded
+response cannot undo.
+
+**Chosen architecture — PostgreSQL authoritative, checkpoint-based, no pub/sub
+dependency (a variant of Option B, "durable turn claim", not Option D/E's NATS
+propagation):** `AgentRuntime.run_turn` accepts a `check_authority` callback
+(`AgentService._check_execution_authority`) and calls it at every natural loop boundary:
+
+* at the **top of every continuation iteration**, before the next model call;
+* **immediately** before every NEW tool dispatch (never before a deduplicated,
+  already-executed call — that never reaches the Tool Engine at all).
+
+The checkpoint is a single UNLOCKED read of the session's current committed `state`.
+PostgreSQL's read-committed isolation means any worker's already-COMMITTED terminal
+transition (`cancel_session` / `stop_session` / lifetime expiry — all still `SELECT …
+FOR UPDATE`, unchanged from corrective #3) is visible to this read without a row lock; a
+row lock buys mutual exclusion, which a freshness check does not need. The moment the
+session is terminal, the checkpoint raises an internal `ExecutionRevoked(session_row)` —
+never an `NxsError`, never surfaced directly — which unwinds `run_turn` and is caught in
+`submit_turn`, which fails the turn through the SAME `_fail_turn` path corrective #4/#5
+already use (its own `not session_is_terminal(...)` guard means it can never resurrect
+the session) and raises the TRUTHFUL taxonomy error via the shared `_raise_for_stale_session`
+helper — the identical function `_finish_turn`'s pre-existing terminal-absorption tail
+now also calls, so there is exactly one place that decides "EXPIRED → session-expired,
+CANCELLED → cancelled, else → invalid-state", used by both the final-commit path and the
+new mid-turn path.
+
+**Why NOT a NATS fast-path (Option D/E) in this corrective:** every checkpoint is already
+bounded by `max_tool_iterations` (≤ 32) and `max_tool_calls_per_turn` (≤ 32) — a
+single-digit-to-low-double-digit number of extra lightweight SELECTs per turn, not a
+per-streamed-token cost. This closes the required races within the stated tolerance
+without adding a pub/sub delivery dependency to a correctness path; a NATS fast-path
+would only shrink the already-small window between a commit and the next checkpoint
+observing it — a latency optimisation, not a correctness requirement — and is left for
+future work if operational experience ever shows the checkpoint cadence insufficient.
+PostgreSQL alone remains authoritative either way, matching the mandate that correctness
+never depend exclusively on pub/sub delivery.
+
+**Fencing / TOCTOU — precisely what is, and is not, guaranteed.** Between the checkpoint
+observing "not yet terminal" and the actual `await self._tools.execute(...)` call there
+is an irreducible gap — no process can atomically read a remote database and dispatch a
+remote call in the same instant without holding a lock across the external I/O, which
+this design deliberately does not do (holding a DB row lock across a Tool Engine HTTP
+call would serialize unrelated turns against it). The documented, tested boundary is:
+
+> Operations DISPATCHED before the authoritative cancellation commits may complete —
+> they are not retracted. No operation is DISPATCHED after the authoritative
+> cancellation has committed and been observed by this turn's next checkpoint.
+
+`tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches`
+proves the first half (a real in-flight HTTP call to the mock Tool Engine backend, mid-
+flight when cancellation commits, is allowed to finish) and every cross-worker test in
+that file proves the second half (the NEXT dispatch — the checkpoint immediately
+preceding it — is blocked once cancellation has committed). This is the same class of
+unavoidable race every check-then-act distributed system has; no claim of zero-gap
+fencing is made, and none is needed to satisfy INV-CANCEL-001/005/006/009.
+
+**Why P08 itself is not extended:** the checkpoint sits entirely in P13, immediately
+before `AgentToolBridge.execute` is ever called — the Tool Engine never receives a call
+for a turn whose session was already observed terminal. Extending P08 with its own
+fencing context would duplicate this check for no additional guarantee the immediately-
+preceding P13 checkpoint doesn't already provide, and was explicitly out of scope.
+
+**Voice barge-in (P12 → P13):** a barge-in reaches the SAME generic `cancel_session` API
+any other worker would call — P13 has no voice-specific cancellation path, so the
+guarantee above applies identically to a `VOICE` channel turn with no ElevenLabs-specific
+structure added to P13 (proven by
+`test_voice_channel_barge_in_cross_worker_cancel`).
+
+**Invariants locked by this section:** INV-CANCEL-001 through INV-CANCEL-009 (the state-
+matrix / crash-window discipline established in corrective #3/#5 continues to hold —
+this section only adds the mid-turn checkpoint; it changes no terminal-absorption or
+replay semantics already proven).
+
+### Orphaned RUNNING turn recovery — durable primitives now, autonomous reaping deferred to NXS-P25 (corrective #6)
+
+**The problem:** `_open_turn` commits a turn `RUNNING` and returns; if the CLAIMING
+worker's PROCESS then dies (not merely cancels a task — an actual crash, OOM-kill, or
+hard network partition), nothing ever calls `_fail_turn` / `_finish_turn` for that row.
+`AgentTurnRepository.active_for_session` treats any non-terminal turn as active, so:
+same idempotency key → `AgentBusyError` forever; a brand-new key → also `AgentBusyError`
+forever (`active_for_session` blocks admission regardless of key). The session is
+BUSY indefinitely — this is a real, currently-unsolved limitation, not fixed by P13.
+
+**Decision — Option B:** establish the minimum durable primitives an eventual recovery
+mechanism needs, defer the recovery mechanism itself to **NXS-P25 (Resilience)**, and do
+NOT claim crash recovery from P13. Requirement `NXS-AGENT-002` (target phase NXS-P25,
+`status: PLANNED`, `dependencies: [NXS-AGENT-001]`) records this machine-readably in
+`.nxs/requirements.json` — pure forward-looking governance metadata, no execution state
+mutated, following the identical precedent set by `NXS-AGENT-001` itself when P13's own
+governance blocker was corrected.
+
+**The primitives (migration `e1f2a3b4c5d6`, `ai_agent_turns`):**
+
+* **`execution_owner_id`** — a random token minted once, at claim time. P13 never reads
+  it to make a decision (a turn is already claimed exclusively at the DATABASE boundary
+  by the partial UNIQUE index / `active_for_session` check — this column does not change
+  that). It exists purely so a future reaper can label which attempt it recovered from.
+* **`lease_expires_at`** — set once, at claim time, to `now() + min(the global turn
+  deadline ceiling, the session's remaining absolute lifetime) + execution_lease_grace_seconds`
+  (default grace 30s). This is a conservative UPPER BOUND on how long a LEGITIMATE worker
+  could still be executing: `submit_turn` wraps the ENTIRE model+tool loop in
+  `asyncio.timeout` using that same bound (a tenant's `agent.timeout_seconds` can only
+  TIGHTEN it further, so the lease may slightly OVERESTIMATE — which only delays safe-reap
+  eligibility, never falsely shortens it). **A `RUNNING` turn whose `lease_expires_at` has
+  passed is therefore an UNAMBIGUOUS signal**: no legitimately-alive worker can still be
+  executing it, because its own `asyncio.timeout` would already have fired and driven it
+  to a terminal state if it were alive. `test_orphaned_running_turn_is_unambiguous_but_p13_does_not_reap_it`
+  proves both halves: the signal is unambiguous AND P13 provably does not act on it (the
+  session stays `AgentBusyError` after the lease has expired).
+
+**No permanent ambiguity — the backfill asymmetry is deliberate and documented:** both
+columns are nullable and NOT backfilled (migration `e1f2a3b4c5d6`); a turn created before
+this corrective has `execution_owner_id IS NULL` / `lease_expires_at IS NULL` forever. A
+future NXS-P25 reaper MUST treat `lease_expires_at IS NULL` as "unknown deadline — do not
+assume safe to reap", never as "safe to reap" and never as "never expires" — this is the
+same non-ambiguous-null discipline already used for `response_correlation_id`.
+
+**The margin is a practical engineering buffer, not a formally proven bound (corrective
+#6 final-audit LOW finding):** `lease_bound` is proven `<=` the real enforced
+`asyncio.timeout` deadline by construction (both are `min(global ceiling, remaining
+session lifetime)`, and the effective deadline can only be tighter via a per-Agent
+override). The `execution_lease_grace_seconds` margin added on top (default 30s) is sized
+to absorb the residual scheduling gap between claiming the row and `asyncio.timeout`
+actually starting, plus the time `_fail_turn` / `_expire_session_now` need to commit
+after a legitimate timeout fires — but that absorption is an operational judgement, not a
+mathematical proof. Because P13 performs no reaping on this signal today, the distinction
+has no current effect. A future NXS-P25 reaper MUST NOT treat `lease_expires_at` as an
+instant-safe cutoff — it should apply its OWN additional operational safety margin on top
+before treating an expired lease as reapable, rather than trusting this bound as exact.
+
+**What P13 certification does NOT claim:** it does not claim autonomous crash recovery,
+does not reap orphaned turns, and does not change `active_for_session`'s current
+behaviour. `INV-CRASH-001` ("worker crash produces a recoverable, not ambiguous, durable
+state") is satisfied at the PRIMITIVE level — the state IS unambiguous and IS
+recoverable — not at the AUTOMATION level, which NXS-P25 owns.
+
 ## Consequences
 
 * A barge-in stops generation promptly and leaves no "ghost" response.
+* A CROSS-WORKER barge-in / cancel / stop / expiry stops a DIFFERENT worker's model
+  continuation and tool dispatch at the next checkpoint, not merely at final commit — an
+  external side effect already dispatched before that commit may still complete (a
+  precisely documented and tested boundary), but nothing NEW starts after it.
+* An orphaned RUNNING turn (its worker crashed) is a durable, unambiguous fact a future
+  NXS-P25 mechanism can safely recover from — P13 does not claim to recover it itself.
 * A retried HTTP request, a duplicate queue delivery and a double-clicked UI all collapse
   to one effect.
 * Because context assembly is deterministic (ADR-0092), a turn replay is a true replay.
