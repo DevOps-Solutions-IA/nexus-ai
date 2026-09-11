@@ -62,6 +62,18 @@ ToolCallback = Callable[[str, ToolCallOutcome, int], Awaitable[None]]
 #: ``max_tool_iterations`` / ``max_tool_calls_per_turn``, so this stays a bounded,
 #: production-safe number of extra round trips per turn, not an unbounded one.
 CheckAuthority = Callable[[], Awaitable[None]]
+#: audit corrective #7 — the LINEARIZATION POINT for a NEW semantic P08 tool dispatch.
+#: Takes ``(tool_key, arguments_hash, sequence)``; raises (any exception; the caller
+#: decides its taxonomy) iff the durable authorization was REJECTED (a concurrent
+#: cancellation's commit won the race) — a permit was never created and the caller MUST
+#: NOT dispatch. Returns ``None`` iff the durable authorization was WON (a permit was
+#: committed) — the caller may now dispatch, and that dispatch remains valid even if a
+#: cancellation commits a moment later. This REPLACES a plain freshness check for this
+#: specific checkpoint: a check-then-act read (corrective #6) narrows the TOCTOU window
+#: before ``AgentToolBridge.execute``; it does not close it. Called only on the
+#: cache-miss branch (a deduplicated call never reaches the Tool Engine, so it is never
+#: authorized a second time).
+AuthorizeTool = Callable[[str, str, int], Awaitable[None]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,6 +119,7 @@ class AgentRuntime:
         http: ModelHttpTransport,
         on_tool: ToolCallback,
         check_authority: CheckAuthority,
+        authorize_tool: AuthorizeTool,
     ) -> TurnOutcome:
         messages = build_messages(
             agent_instructions=ctx.agent_instructions,
@@ -176,12 +189,14 @@ class AgentRuntime:
                 key = (call.name, arguments_hash(call.arguments))
                 outcome = executed.get(key)
                 if outcome is None:
-                    # audit corrective #6 (INV-CANCEL-001/005/006, INV-CANCEL-009): the
-                    # freshest possible check IMMEDIATELY before handing a NEW external
-                    # side effect to the Tool Engine — a deduplicated (already-executed)
-                    # call never reaches here at all, so this is exactly "before every
-                    # Tool Engine invocation", not before every requested call.
-                    await check_authority()
+                    # audit corrective #7 (INV-FENCE-001..004): the durable
+                    # LINEARIZATION POINT immediately before handing a NEW external side
+                    # effect to the Tool Engine — a deduplicated (already-executed) call
+                    # never reaches here at all, so this authorizes exactly "every NEW
+                    # Tool Engine invocation", never a repeat. Replaces corrective #6's
+                    # plain check_authority() read for this specific checkpoint — that
+                    # read only narrowed the TOCTOU window; this closes it.
+                    await authorize_tool(call.name, key[1], tool_calls_requested)
                     outcome = await self._tools.execute(
                         principal=ctx.principal,
                         allow_list=ctx.allow_list,

@@ -82,6 +82,7 @@ from nexus_ai.domain.agents.repository import (
     AgentRepository,
     AgentSessionRepository,
     AgentToolCallRepository,
+    AgentToolDispatchPermitRepository,
     AgentTurnRepository,
     ModelProfileRepository,
     ModelProviderAccountRepository,
@@ -878,6 +879,11 @@ class AgentService:
         async def _check_authority() -> None:
             await self._check_execution_authority(organization_id, session.id)
 
+        async def _authorize_tool(tool_key: str, arguments_hash: str, sequence: int) -> None:
+            await self._authorize_tool_dispatch(
+                organization_id, session.id, turn.id, tool_key, arguments_hash, sequence
+            )
+
         return await self._runtime.run_turn(
             ctx=ctx,
             adapter=adapter,
@@ -885,22 +891,85 @@ class AgentService:
             http=self._http,
             on_tool=_on_tool,
             check_authority=_check_authority,
+            authorize_tool=_authorize_tool,
         )
 
     async def _check_execution_authority(self, organization_id: UUID, session_id: UUID) -> None:
-        """The DB-authoritative checkpoint (audit corrective #6, INV-CANCEL-001/002/003):
-        a cheap, UNLOCKED read of the session's CURRENT committed state — freshness, not
-        mutual exclusion, is what a checkpoint needs; ``PostgreSQL``'s read-committed
-        isolation means any transaction that has already COMMITTED a terminal state (a
-        cross-worker ``cancel_session`` / ``stop_session`` / lifetime expiry) is visible
-        here even without a row lock. Raises :class:`ExecutionRevoked` the instant the
-        session is terminal, so the runtime loop aborts before its NEXT model call or
-        tool dispatch — never retracting work already dispatched before this call ran
-        (see ADR-0094's documented already-dispatched boundary)."""
+        """The DB-authoritative CONTINUATION checkpoint (audit corrective #6,
+        INV-CANCEL-001/002/003): a cheap, UNLOCKED read of the session's CURRENT
+        committed state, called before every model-continuation loop iteration. This is
+        freshness, not fencing — it exists to avoid a WASTED model call once cancellation
+        has already committed; it is NOT the linearization point for a NEW external P08
+        side effect (that guarantee is :meth:`_authorize_tool_dispatch`, audit corrective
+        #7). Raises :class:`ExecutionRevoked` the instant the session is observed
+        terminal — never retracting a model call already dispatched before this ran (see
+        ADR-0094's documented already-dispatched boundary)."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             session_row = await AgentSessionRepository(tenant).by_id(session_id)
         if session_row is not None and session_is_terminal(session_row.state):
             raise ExecutionRevoked(session_row)
+
+    async def _authorize_tool_dispatch(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        turn_id: UUID,
+        tool_key: str,
+        arguments_hash: str,
+        sequence: int,
+    ) -> None:
+        """The durable LINEARIZATION POINT for a NEW semantic P08 tool dispatch (audit
+        corrective #7, INV-FENCE-001..004). A plain re-check immediately before dispatch
+        (corrective #6's approach) narrows the TOCTOU window but does not close it — this
+        replaces that approach for the tool-dispatch checkpoint specifically (the
+        model-continuation checkpoint above is unaffected and still a cheap read; a
+        wasted model call is not the class of harm an external side effect is).
+
+        Takes ``SELECT … FOR UPDATE`` on the OWNING SESSION ROW — the identical lock
+        :meth:`_terminalize` (stop / cancel / expire) takes — and, only if the session is
+        still live, inserts a durable ``ai_agent_tool_dispatch_permits`` row IN THE SAME
+        TRANSACTION before committing. Two transactions contending for one row lock are
+        serialized by PostgreSQL: whichever commits first is the objective, durable
+        answer to "did this operation's authorization or the cancellation happen first" —
+        not a race won by chance timing:
+
+        * this transaction's lock wins → session observed ACTIVE → permit persisted and
+          committed → the caller may now dispatch to the Tool Engine, and that dispatch
+          remains valid EVEN IF cancellation commits a moment later (INV-FENCE-003);
+        * a concurrent cancellation's lock wins and commits first → this transaction
+          observes the session already terminal → :class:`ExecutionRevoked` is raised
+          and NO permit is ever created → the caller never dispatches (INV-FENCE-002).
+
+        The transaction is short and is NEVER held open across the external HTTP call —
+        only this DB round trip; ``AgentToolBridge.execute`` always runs entirely outside
+        it, matching the documented preference against long-held transactions."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
+            if session_row is not None and session_is_terminal(session_row.state):
+                raise ExecutionRevoked(session_row)
+            # defense-in-depth (INV-FENCE-011): a turn is already exclusively owned by
+            # one worker (correctives #1/#4), so a genuine duplicate authorization
+            # attempt for the identical semantic call should be unreachable — but if it
+            # ever happened, the call was ALREADY authorized once; the unique-index
+            # collision is treated as "already authorized", never as a fresh rejection
+            # or a second effect. A SAVEPOINT (not a bare try/except) is required here:
+            # PostgreSQL aborts the WHOLE enclosing transaction on a constraint
+            # violation, so merely catching IntegrityError in Python would leave the
+            # outer transaction un-committable — the commit at the end of this `async
+            # with` block would itself then fail. Only a nested transaction's ROLLBACK
+            # TO SAVEPOINT recovers cleanly (same pattern as
+            # ``infrastructure/event_outbox.py``'s duplicate-enqueue handling).
+            with contextlib.suppress(IntegrityError):
+                async with tenant.session.begin_nested():
+                    await AgentToolDispatchPermitRepository(tenant).insert(
+                        {
+                            "session_id": session_id,
+                            "turn_id": turn_id,
+                            "sequence": sequence,
+                            "tool_key": tool_key,
+                            "arguments_hash": arguments_hash,
+                        }
+                    )
 
     async def _tool_specs(
         self, organization_id: UUID, tool_keys: tuple[str, ...]

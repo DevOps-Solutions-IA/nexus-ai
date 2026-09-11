@@ -1915,12 +1915,12 @@
       "dependencies": [
         "NXS-AGENT-001"
       ],
-      "description": "Durable, unambiguous execution-lease primitives (execution_owner_id, lease_expires_at on ai_agent_turns, established by NXS-P13 audit corrective #6) enable a future recovery mechanism to safely reap orphaned RUNNING agent turns after a worker crash, without ambiguity about whether a legitimate worker could still be executing. NXS-P13 establishes and persists these primitives only; it performs no autonomous reaping itself (deferred here).",
+      "description": "Durable, unambiguous execution-lease primitives (execution_owner_id, lease_expires_at on ai_agent_turns, established by NXS-P13 audit corrective #6) enable a future recovery mechanism to safely reap orphaned RUNNING agent turns after a worker crash, without ambiguity about whether a legitimate worker could still be executing. NXS-P13 establishes and persists these primitives only; it performs no autonomous reaping itself (deferred here). Promoted to mandatory by audit corrective #7: an orphaned RUNNING turn causing PERMANENT session unavailability (AgentBusyError forever, no recovery path) is a genuine production resilience gap, not optional. NXS-P25 cannot reach READY/GO without validating this requirement, and NXS-P30 (Backend Certification) cannot certify backend production readiness while it remains unvalidated.",
       "id": "NXS-AGENT-002",
       "implementation_evidence": [
         "migrations/versions/20260911_1200-e1f2a3b4c5d6_agent_turn_execution_lease.py"
       ],
-      "mandatory": false,
+      "mandatory": true,
       "status": "PLANNED",
       "target_phase": "NXS-P25",
       "title": "Orphaned agent-turn crash recovery (execution-lease reaping)",

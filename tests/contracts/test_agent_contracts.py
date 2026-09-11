@@ -328,6 +328,9 @@ def test_views_carry_no_credential_or_raw_prompt() -> None:
 #: no automated regression protection) before being added here.
 _ALLOWED_EXACTLY_ONCE_LINES = (
     "exactly once per distinct executed call). Persisting was chosen over deriving because (a)",
+    # audit corrective #7 — a NEGATIVE claim (explicitly disclaiming an exactly-once
+    # physical-effect guarantee for the crash-window P1/P2 cases), not an overclaim.
+    '**No claim of "exactly-once" physical external effect** is made anywhere in this',
 )
 
 
