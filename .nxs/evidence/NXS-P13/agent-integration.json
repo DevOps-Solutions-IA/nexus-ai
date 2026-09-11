@@ -1,16 +1,17 @@
 {
   "failed": 0,
   "marker": null,
-  "output_tail": ".................................                                        [100%]\n33 passed in 23.50s",
-  "passed": 33,
+  "output_tail": "...........................................                              [100%]\n43 passed in 28.22s",
+  "passed": 43,
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T01:12:50Z",
+  "recorded_at": "2026-09-11T03:19:59Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "tests": [
     "tests/integration/test_agent_service.py",
     "tests/integration/test_agent_api.py",
     "tests/integration/test_agent_tool_budget.py",
-    "tests/integration/test_agent_deadlines.py"
+    "tests/integration/test_agent_deadlines.py",
+    "tests/integration/test_agent_replay_fidelity.py"
   ]
 }

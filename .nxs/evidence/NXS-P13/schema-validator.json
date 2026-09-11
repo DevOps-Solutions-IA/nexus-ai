@@ -1,7 +1,7 @@
 {
   "output_tail": "{\n  \"ok\": true,\n  \"tables_checked\": [\n    \"ai_agent_sessions\",\n    \"ai_agent_tool_calls\",\n    \"ai_agent_turns\",\n    \"ai_agents\",\n    \"ai_model_profiles\",\n    \"ai_model_provider_accounts\",\n    \"ai_model_secrets\",\n    \"ai_model_usage\",\n    \"conversation_activities\",\n    \"conversation_participants\",\n    \"conversations\",\n    \"customer_identities\",\n    \"customers\",\n    \"dashboard_configurations\",\n    \"event_dead_letters\",\n    \"event_outbox\",\n    \"integration_execution_records\",\n    \"integration_idempotency_records\",\n    \"integration_operations\",\n    \"integration_secrets\",\n    \"integrations\",\n    \"memberships\",\n    \"messaging_accounts\",\n    \"messaging_inbound_receipts\",\n    \"messaging_messages\",\n    \"messaging_secrets\",\n    \"messaging_send_idempotency\",\n    \"organization_settings\",\n    \"organizations\",\n    \"otp_challenges\",\n    \"refresh_sessions\",\n    \"role_assignments\",\n    \"telephony_accounts\",\n    \"telephony_call_events\",\n    \"telephony_calls\",\n    \"telephony_media_sessions\",\n    \"telephony_phone_numbers\",\n    \"telephony_secrets\",\n    \"tool_definitions\",\n    \"tool_execution_records\",\n    \"tool_idempotency_records\",\n    \"voice_profiles\",\n    \"voice_provider_accounts\",\n    \"voice_provider_events\",\n    \"voice_secrets\",\n    \"voice_sessions\",\n    \"voice_usage_records\",\n    \"webhook_endpoints\",\n    \"webhook_receipts\"\n  ],\n  \"violations\": []\n}",
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T01:12:17Z",
+  "recorded_at": "2026-09-11T03:19:22Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }
