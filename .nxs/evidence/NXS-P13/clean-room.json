@@ -1,7 +1,7 @@
 {
   "fresh_postgres_volume": true,
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T00:14:08Z",
+  "recorded_at": "2026-09-11T01:27:03Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "script": "scripts/clean-room.sh",
