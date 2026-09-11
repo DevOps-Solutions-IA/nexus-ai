@@ -116,12 +116,29 @@ async def test_stop_during_a_turn_terminalizes_and_rejects_further_turns(
     org = await make_organization()
     principal = await make_tool_principal(org)
     session = await _session(agent_stack, org.id, principal)
-    agent_stack.script.append(FakeModelTurn(content="answer", hang_seconds=1))
+    # see test_model_response_racing_a_cancellation_leaves_no_stale_answer's identical
+    # rationale: a fixed sleep is not sufficient proof that submit_turn has registered
+    # the _run_turn task in self._turn_tasks (an intervening await self.get_agent(...)
+    # sits between the turn row's own commit and that registration) — wait for the
+    # durable model-dispatch permit instead, which can only exist once the task is
+    # already registered.
+    agent_stack.script.append(FakeModelTurn(content="answer", hang_seconds=10))
 
     turn = asyncio.create_task(
         agent_stack.service.submit_turn(org.id, session.id, SubmitTurnRequest(content="q"))
     )
-    await asyncio.sleep(0.1)
+    deadline = asyncio.get_running_loop().time() + 5.0
+    while True:
+        turns = await agent_stack.service.list_turns(org.id, session.id, limit=1)
+        if (
+            turns
+            and turns[0].state.value == "RUNNING"
+            and await _model_permit_exists(agent_stack, org.id, turns[0].id, 0)
+        ):
+            break
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError("timed out waiting for the model call to be authorized")
+        await asyncio.sleep(0.01)
     stopped = await agent_stack.service.stop_session(org.id, session.id, StopAgentSessionRequest())
     assert stopped.state is AgentSessionState.COMPLETED
     with pytest.raises(BaseException):  # noqa: B017

@@ -355,7 +355,9 @@ class AiAgentToolCallRecord(TenantOwnedMixin, Base):
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_tool_calls_organization_id", "organization_id"),
-        Index("ix_ai_agent_tool_calls_turn", "organization_id", "turn_id"),
+        #: audit corrective #9: leads with the SAME column order as the composite FK
+        #: above, matching the identical reasoning applied to the two permit tables.
+        Index("ix_ai_agent_tool_calls_turn", "organization_id", "session_id", "turn_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
@@ -403,7 +405,15 @@ class AiAgentToolDispatchPermitRecord(TenantOwnedMixin, Base):
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_tool_dispatch_permits_organization_id", "organization_id"),
-        Index("ix_ai_agent_tool_dispatch_permits_turn", "organization_id", "turn_id"),
+        #: audit corrective #9: leads with the SAME column order as the composite FK
+        #: above, so the FK's own cascade-delete lookup (and any query filtering on the
+        #: full triple) can use this index directly rather than a partial match.
+        Index(
+            "ix_ai_agent_tool_dispatch_permits_turn",
+            "organization_id",
+            "session_id",
+            "turn_id",
+        ),
         Index(
             "uq_ai_agent_tool_dispatch_permits_semantic",
             "organization_id",
@@ -455,7 +465,15 @@ class AiAgentModelDispatchPermitRecord(TenantOwnedMixin, Base):
             ondelete="CASCADE",
         ),
         Index("ix_ai_agent_model_dispatch_permits_organization_id", "organization_id"),
-        Index("ix_ai_agent_model_dispatch_permits_turn", "organization_id", "turn_id"),
+        #: audit corrective #9: leads with the SAME column order as the composite FK
+        #: above, so the FK's own cascade-delete lookup (and any query filtering on the
+        #: full triple) can use this index directly rather than a partial match.
+        Index(
+            "ix_ai_agent_model_dispatch_permits_turn",
+            "organization_id",
+            "session_id",
+            "turn_id",
+        ),
         Index(
             "uq_ai_agent_model_dispatch_permits_iteration",
             "organization_id",

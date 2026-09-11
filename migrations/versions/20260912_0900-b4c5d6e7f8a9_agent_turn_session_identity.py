@@ -33,6 +33,11 @@ the DATABASE-level backstop:
   tables that authorize the very same dispatch move to the session-aware key would be a
   silent relational contradiction between "what was authorized" and "what was recorded"
   (directive corrective #9 §6).
+* The three tables' existing ``ix_*_turn`` lookup indexes (``(organization_id,
+  turn_id)``) are recreated as ``(organization_id, session_id, turn_id)`` — the SAME
+  column order as their new composite FK — so the FK's own cascade-delete lookup, and
+  any query filtering on the full triple, can use the index directly rather than a
+  partial match (independent-audit LOW finding, addressed before closure).
 
 No other table currently has a foreign key on ``ai_agent_turns(organization_id, id)`` —
 verified directly against the ORM (``grep`` over every ``ForeignKeyConstraint`` in
@@ -89,6 +94,14 @@ def upgrade() -> None:
         ["organization_id", "session_id", "id"],
         ondelete="CASCADE",
     )
+    op.drop_index(
+        "ix_ai_agent_tool_dispatch_permits_turn", table_name="ai_agent_tool_dispatch_permits"
+    )
+    op.create_index(
+        "ix_ai_agent_tool_dispatch_permits_turn",
+        "ai_agent_tool_dispatch_permits",
+        ["organization_id", "session_id", "turn_id"],
+    )
 
     # 3) ai_agent_model_dispatch_permits: identical swap.
     op.drop_constraint(
@@ -103,6 +116,14 @@ def upgrade() -> None:
         ["organization_id", "session_id", "turn_id"],
         ["organization_id", "session_id", "id"],
         ondelete="CASCADE",
+    )
+    op.drop_index(
+        "ix_ai_agent_model_dispatch_permits_turn", table_name="ai_agent_model_dispatch_permits"
+    )
+    op.create_index(
+        "ix_ai_agent_model_dispatch_permits_turn",
+        "ai_agent_model_dispatch_permits",
+        ["organization_id", "session_id", "turn_id"],
     )
 
     # 4) ai_agent_tool_calls: identical swap — the audit-record table, not an
@@ -120,9 +141,19 @@ def upgrade() -> None:
         ["organization_id", "session_id", "id"],
         ondelete="CASCADE",
     )
+    op.drop_index("ix_ai_agent_tool_calls_turn", table_name="ai_agent_tool_calls")
+    op.create_index(
+        "ix_ai_agent_tool_calls_turn",
+        "ai_agent_tool_calls",
+        ["organization_id", "session_id", "turn_id"],
+    )
 
 
 def downgrade() -> None:
+    op.drop_index("ix_ai_agent_tool_calls_turn", table_name="ai_agent_tool_calls")
+    op.create_index(
+        "ix_ai_agent_tool_calls_turn", "ai_agent_tool_calls", ["organization_id", "turn_id"]
+    )
     op.drop_constraint(
         "fk_ai_agent_tool_calls_org_session_turn",
         "ai_agent_tool_calls",
@@ -137,6 +168,14 @@ def downgrade() -> None:
         ondelete="CASCADE",
     )
 
+    op.drop_index(
+        "ix_ai_agent_model_dispatch_permits_turn", table_name="ai_agent_model_dispatch_permits"
+    )
+    op.create_index(
+        "ix_ai_agent_model_dispatch_permits_turn",
+        "ai_agent_model_dispatch_permits",
+        ["organization_id", "turn_id"],
+    )
     op.drop_constraint(
         "fk_ai_agent_model_dispatch_permits_org_session_turn",
         "ai_agent_model_dispatch_permits",
@@ -151,6 +190,14 @@ def downgrade() -> None:
         ondelete="CASCADE",
     )
 
+    op.drop_index(
+        "ix_ai_agent_tool_dispatch_permits_turn", table_name="ai_agent_tool_dispatch_permits"
+    )
+    op.create_index(
+        "ix_ai_agent_tool_dispatch_permits_turn",
+        "ai_agent_tool_dispatch_permits",
+        ["organization_id", "turn_id"],
+    )
     op.drop_constraint(
         "fk_ai_agent_tool_dispatch_permits_org_session_turn",
         "ai_agent_tool_dispatch_permits",
