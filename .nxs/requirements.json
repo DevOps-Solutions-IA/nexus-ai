@@ -1591,7 +1591,8 @@
     {
       "category": "WORKFLOW",
       "dependencies": [
-        "NXS-TOOL-001"
+        "NXS-TOOL-001",
+        "NXS-AGENT-001"
       ],
       "description": "Versioned workflows coordinate idempotent tools, communication and recoverable long-running work.",
       "id": "NXS-WF-001",
