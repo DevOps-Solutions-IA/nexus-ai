@@ -304,21 +304,22 @@ async def test_duplicate_model_authorization_attempt_is_rejected_not_a_second_ca
             await task
 
 
-async def test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect(
+async def test_duplicate_tool_authorization_attempt_is_rejected_not_a_second_call(
     agent_stack: Any, make_organization: Any, make_tool_principal: Any, mock_http_server: Any
 ) -> None:
-    """The mandatory tool duplicate-permit test (corrective #9 §11, INV-AUTH-ID-002).
-
-    Tool dispatch DELIBERATELY treats a duplicate authorization attempt as safe to
-    proceed — the P08 Tool Engine's own idempotency key (the identical tool_key +
-    arguments_hash this permit is keyed by) makes a second dispatch attempt a no-op
-    re-read of the first attempt's already-recorded result, never a second live
-    external side effect. This test proves BOTH halves of that claim end-to-end
-    (P08 idempotency MUST NOT be the only reason this layer is safe): the permit row
-    count for the semantic call stays exactly 1 no matter how many authorization
-    attempts are made, AND the actual external call count (the mock server's hit
-    count / ``tool_execution_records`` rows) stays exactly 1 even though
-    ``_authorize_tool_dispatch`` is invoked twice for the identical semantic call."""
+    """SUPERSEDED by audit corrective #10 (INV-TOOL-PERMIT-001/002/003) — see
+    ``tests/concurrency/test_agent_tool_permit_claim_ownership.py`` for the full
+    dispatch-boundary certification (``AgentToolBridge.execute`` entry-count proof,
+    two-worker proof). This test previously asserted tool dispatch's ALREADY_EXISTS
+    outcome was safe to let proceed (P08's own idempotency key made a second
+    ``AgentToolBridge.execute`` entry harmless). Corrective #10 determined that
+    reasoning was correct about the EFFECT but insufficient for PERMIT-OWNERSHIP
+    semantics — a caller receiving a bare "success" for a duplicate would still
+    genuinely re-enter ``AgentToolBridge.execute`` / the Tool Engine, merely relying on
+    P08 to make that entry harmless. Tool dispatch now REJECTS ALREADY_EXISTS
+    identically to model dispatch: only the permit-creating attempt may proceed.
+    Retained here (updated) as the corrective #9 regression file's own tool
+    duplicate-permit test, so this file's own §11 requirement stays self-contained."""
     org = await make_organization()
     principal = await make_tool_principal(org)
     await _register_tool(agent_stack, org.id, mock_http_server)
@@ -334,7 +335,18 @@ async def test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect(
     task, turn = await _claim_running_turn(worker, org.id, session.id)
 
     try:
-        for _ in range(2):
+        await worker._authorize_tool_dispatch(
+            org.id,
+            session.id,
+            turn.id,
+            turn.execution_owner_id,
+            "crm.get",
+            "deadbeefcafe",
+            77,
+        )
+        assert await _tool_permit_count(agent_stack, org.id, turn.id) == 1
+
+        with pytest.raises(AgentInvalidStateError):
             await worker._authorize_tool_dispatch(
                 org.id,
                 session.id,
@@ -342,14 +354,12 @@ async def test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect(
                 turn.execution_owner_id,
                 "crm.get",
                 "deadbeefcafe",
-                77,
+                78,
             )
-        # exactly one durable permit — the second attempt hit the unique index and was
-        # absorbed, NOT a second row.
+        # the permit row count is UNCHANGED — the rejected duplicate created nothing.
         assert await _tool_permit_count(agent_stack, org.id, turn.id) == 1
         # neither attempt actually dispatched anything itself (authorization is
-        # distinct from execution) — this test proves the AUTHORIZATION layer's
-        # duplicate-safety, not the Tool Engine's; the mock server was never hit.
+        # distinct from execution) — the mock server was never hit.
         assert seen == []
         assert await _execs(agent_stack, org.id) == 0
     finally:

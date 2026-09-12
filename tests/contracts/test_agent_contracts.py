@@ -334,6 +334,11 @@ _ALLOWED_EXACTLY_ONCE_LINES = (
     # audit corrective #8 — the identical negative-claim pattern, for the model-dispatch
     # crash-window M1/M2/M3 cases.
     '**No claim of "exactly-once" physical provider inference** is made anywhere in this',
+    # audit corrective #10 — the identical negative-claim pattern, for tool-dispatch
+    # permit claim ownership (a crash between permit-commit and the actual HTTP call
+    # remains possible; only the permit ATTEMPT is exactly-once, never the physical
+    # external effect).
+    '**No claim of "exactly-once" physical tool-call execution** is made anywhere in this',
 )
 
 

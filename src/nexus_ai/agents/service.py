@@ -135,7 +135,17 @@ class _PermitOutcome(enum.Enum):
     authorization" indistinguishable from "one already existed" before this corrective.
     A third outcome, REJECTED (the session or turn fencing check failed before any
     insert was attempted), is never represented here — it is always a raised exception
-    (:class:`ExecutionRevoked` / ``AgentInvalidStateError``), same as before."""
+    (:class:`ExecutionRevoked` / ``AgentInvalidStateError``), same as before.
+
+    As of audit corrective #10, BOTH :meth:`_authorize_model_dispatch` and
+    :meth:`_authorize_tool_dispatch` reject ALREADY_EXISTS identically (only the
+    permit-CREATING attempt may proceed as a new dispatch) — model and tool dispatch
+    now share the identical claim-ownership rule. Before corrective #10, tool dispatch
+    deliberately let ALREADY_EXISTS proceed, reasoning that P08's own idempotency key
+    made a second attempt harmless; that reasoning was correct about the EFFECT but
+    insufficient for permit-OWNERSHIP semantics, since the caller would still genuinely
+    enter ``AgentToolBridge.execute`` / the Tool Engine a second time (INV-TOOL-PERMIT
+    -001/002/003, ADR-0094 "Tool permit claim ownership")."""
 
     CREATED = "created"
     ALREADY_EXISTS = "already_exists"
@@ -1082,34 +1092,38 @@ class AgentService:
           observes the session already terminal → :class:`ExecutionRevoked` is raised
           and NO permit is ever created → the caller never dispatches (INV-FENCE-002).
 
-        Corrective #9 (INV-AUTH-ID-002): the CREATED-vs-ALREADY_EXISTS distinction is
-        made explicit (see :class:`_PermitOutcome`), but — unlike
-        :meth:`_authorize_model_dispatch` — ALREADY_EXISTS is deliberately treated as
-        success here, not rejection: this call site's "dispatch" is
-        ``AgentToolBridge.execute``, which is itself keyed by the P08 Tool Engine's own
-        idempotency key (the same ``tool_key`` + ``arguments_hash`` this permit is keyed
-        by), so a second attempt reaching it is a no-op re-read of the first attempt's
-        result, never a second live external side effect. P08 idempotency MUST NOT be
-        the only reason this authorization layer is safe for tool dispatch — it is the
-        SECOND, independent layer behind the permit's own unique index; the unique index
-        alone already prevents two DIFFERENT worker/request paths from independently
-        believing they were "first". The transaction is short and is NEVER held open
-        across the external HTTP call — only this DB round trip;
-        ``AgentToolBridge.execute`` always runs entirely outside it, matching the
-        documented preference against long-held transactions."""
+        Corrective #10 (INV-TOOL-PERMIT-001/002/003): the CREATED-vs-ALREADY_EXISTS
+        distinction is explicit (see :class:`_PermitOutcome`), and — as of this
+        corrective, matching :meth:`_authorize_model_dispatch` — ALREADY_EXISTS is
+        REJECTED, not treated as success. A prior version of this method reasoned that
+        because this call site's "dispatch" is ``AgentToolBridge.execute``, which is
+        itself keyed by the P08 Tool Engine's own idempotency key (the same
+        ``tool_key`` + ``arguments_hash`` this permit is keyed by), a second attempt
+        reaching it would only ever be a no-op re-read, never a second live external
+        side effect — true about the EFFECT, but not sufficient for PERMIT-OWNERSHIP
+        semantics: ``AgentRuntime`` still does ``await authorize_tool(...); await
+        self._tools.execute(...)`` unconditionally, so a second identical semantic
+        attempt that received a bare "success" here would still genuinely ENTER
+        ``AgentToolBridge.execute`` / the Tool Engine, merely relying on P08 to make
+        that entry harmless. P08 idempotency remains DEFENSE-IN-DEPTH — the SECOND,
+        independent layer behind the permit's own unique index — but is no longer the
+        ONLY thing standing between a duplicate authorization attempt and a live
+        Tool Engine invocation: only the attempt that durably CREATES the permit row
+        may proceed as a genuinely NEW dispatch (unreachable today — a turn is already
+        exclusively owned by one worker, correctives #1/#4 — but this is the correct
+        behaviour if that ever changes, identical in spirit to
+        :meth:`_authorize_model_dispatch`'s own ALREADY_EXISTS rejection).
+
+        The transaction is short and is NEVER held open across the external HTTP call
+        — only this DB round trip; ``AgentToolBridge.execute`` always runs entirely
+        outside it, matching the documented preference against long-held
+        transactions."""
         async with self._db.tenant_transaction(organization_id) as tenant:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)
             await self._assert_turn_authority(tenant, session_id, turn_id, execution_owner_id)
-            # defense-in-depth (INV-FENCE-011): a turn is already exclusively owned by
-            # one worker (correctives #1/#4), so a genuine duplicate authorization
-            # attempt for the identical semantic call should be unreachable — but if it
-            # ever happened, the call was ALREADY authorized once; the unique-index
-            # collision is treated as "already authorized", never as a fresh rejection
-            # or a second effect (safe here specifically because of the P08-idempotency
-            # argument in this method's own docstring — see _PermitOutcome.ALREADY_EXISTS
-            # below). A SAVEPOINT (not a bare try/except) is required here: PostgreSQL
+            # A SAVEPOINT (not a bare try/except) is required here: PostgreSQL
             # aborts the WHOLE enclosing transaction on a constraint violation, so merely
             # catching IntegrityError in Python would leave the outer transaction
             # un-committable — the commit at the end of this `async with` block would
@@ -1130,7 +1144,10 @@ class AgentService:
                     )
             except IntegrityError:
                 outcome = _PermitOutcome.ALREADY_EXISTS
-            del outcome  # ALREADY_EXISTS is intentionally not rejected here; see above.
+            if outcome is _PermitOutcome.ALREADY_EXISTS:
+                raise AgentInvalidStateError(
+                    "this semantic tool dispatch was already authorized by a prior attempt"
+                )
 
     async def _tool_specs(
         self, organization_id: UUID, tool_keys: tuple[str, ...]

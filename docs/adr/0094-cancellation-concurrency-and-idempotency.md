@@ -32,7 +32,20 @@ IDENTICAL TOCTOU exposure. `_check_execution_authority` is removed; a durable
 counterpart to corrective #7's tool permit, using the identical session-row lock — now
 makes model-call authorization provably ordered against cancellation too. Also adds a
 turn-authority / stale-worker fencing check shared by both linearization points,
-establishing the contract a future NXS-P25 orphan-recovery mechanism must honour).
+establishing the contract a future NXS-P25 orphan-recovery mechanism must honour), and
+corrective #9 (durable authority identity: neither correctives #7 nor #8 proved the
+session row locked `FOR UPDATE` was actually the authorized turn's OWN parent session
+— fixed at both the application layer, `_assert_turn_authority` gaining an
+`expected_session_id` check, and the database layer, a composite
+`(organization_id, session_id, turn_id)` foreign key on every P13 table carrying both
+columns; also made the CREATED-vs-ALREADY_EXISTS permit outcome an explicit decision
+for the first time), and corrective #10 (tool permit claim ownership: corrective #9's
+CREATED-vs-ALREADY_EXISTS distinction fixed model dispatch's duplicate-permit ambiguity
+but deliberately left tool dispatch's ALREADY_EXISTS outcome as "safe to proceed" —
+this corrective determined that reasoning, while correct about the EXTERNAL EFFECT
+being deduplicated by P08, did not satisfy PERMIT-OWNERSHIP semantics: a duplicate
+authorization attempt would still genuinely enter `AgentToolBridge.execute` / the Tool
+Engine. Tool dispatch now rejects ALREADY_EXISTS identically to model dispatch).
 
 ## Context
 
@@ -736,46 +749,34 @@ columns was enumerated directly against the ORM (`grep` over every `session_id: 
 `ai_model_usage` carries only `session_id` (no `turn_id`) — out of scope by construction,
 not by omission. No other P13 table carries both columns.
 
-### Permit ownership semantics — CREATED vs ALREADY_EXISTS (corrective #9)
+### Permit ownership semantics — CREATED vs ALREADY_EXISTS (corrective #9; tool dispatch corrected by corrective #10)
 
 **The gap.** Both `_authorize_model_dispatch` and `_authorize_tool_dispatch` wrapped
 their permit `INSERT` in a `SAVEPOINT` + `contextlib.suppress(IntegrityError)` — a
 pattern that made "this attempt durably created the permit" indistinguishable from "a
 permit for this exact semantic slot already existed" from the caller's point of view:
-both cases simply returned `None`. For tool dispatch this is harmless — the P08 Tool
-Engine's own idempotency key (the same `tool_key` + `arguments_hash` the permit is keyed
-by) makes a second dispatch a no-op re-read, never a second live side effect. For model
-dispatch it is not: nothing else in this layer prevents a caller that received a
-duplicate "success" from placing a SECOND real, independent, billed call to the model
-provider for an iteration that was already authorized once — directive §7/§8's
-"unsafe for MODEL dispatch specifically."
+both cases simply returned `None`.
 
-**INV-AUTH-ID-002.** Only the attempt that durably creates the permit row may proceed as
-a genuinely NEW dispatch.
+**INV-AUTH-ID-002 / INV-TOOL-PERMIT-001.** Only the attempt that durably creates the
+permit row may proceed as a genuinely NEW dispatch — for BOTH model and tool dispatch.
 
-**Fix.** Both methods now make the CREATED-vs-ALREADY_EXISTS branch an explicit, named
+**Fix.** Both methods make the CREATED-vs-ALREADY_EXISTS branch an explicit, named
 decision (`AgentService._PermitOutcome`, module-private — never exposed publicly; every
 caller still only ever sees "raises" or "returns `None`," so the public
 `AuthorizeModel` / `AuthorizeTool` callback contract in `runtime.py` is UNCHANGED,
-preserving correctives #7/#8's linearization architecture exactly as directed). The two
-methods diverge deliberately on what ALREADY_EXISTS means for their caller:
+preserving correctives #7/#8's linearization architecture exactly as directed). As of
+corrective #10, model and tool dispatch reject ALREADY_EXISTS **identically**:
 
 * **Model dispatch:** ALREADY_EXISTS is REJECTED (`AgentInvalidStateError`) — the caller
   MUST NOT independently perform a second NEW provider call. Proven by
   `test_duplicate_model_authorization_attempt_is_rejected_not_a_second_call` (a second
   attempt for the identical `(turn, iteration)` is rejected; the permit row count for
   that iteration stays exactly 1).
-* **Tool dispatch:** ALREADY_EXISTS is deliberately treated as safe to proceed —
-  unchanged from corrective #7's original design (documented there as
-  `INV-FENCE-011`) — because the caller's next step, `AgentToolBridge.execute`, is
-  ITSELF keyed by the identical P08 idempotency key, making a second attempt a no-op
-  re-read. Proven end-to-end by
-  `test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect`: the permit
-  row count stays exactly 1 across repeated authorization attempts, and no external
-  call is ever made twice. P08 idempotency is explicitly documented as the SECOND,
-  independent layer behind the permit's own unique index — never the ONLY reason this
-  authorization layer is safe (directive's own wording), since the unique index alone
-  already prevents two different callers from each believing they were "first."
+* **Tool dispatch:** ALREADY_EXISTS is now ALSO REJECTED (`AgentInvalidStateError`) —
+  see "Tool permit claim ownership (corrective #10)" below for the full history and
+  rationale for this change. `INV-FENCE-011` (corrective #7's original "duplicate is
+  absorbed as already-authorized" defense-in-depth note) is SUPERSEDED by
+  `INV-TOOL-PERMIT-001/002/003` below.
 
 ### Crash semantics under the identity fix (durable facts only — NXS-P25 unchanged)
 
@@ -802,6 +803,108 @@ immediately (proven unreachable-but-correct today by
 `test_stale_worker_with_random_session_id_cannot_forge_authority` and the identity
 matrix tests). Historical `COMPLETED` turn replay is unaffected — replay never calls
 either authorization method (see "Response-exact replay" above).
+
+### Tool permit claim ownership (corrective #10)
+
+**The gap.** Corrective #9 made the CREATED-vs-ALREADY_EXISTS permit outcome an
+explicit decision for both dispatch classes, and rejected ALREADY_EXISTS for MODEL
+dispatch — but deliberately let TOOL dispatch's ALREADY_EXISTS outcome return
+normally, reasoning that `AgentToolBridge.execute` is itself keyed by the P08 Tool
+Engine's own idempotency key (the same `tool_key` + `arguments_hash` the permit is
+keyed by), so a second attempt reaching it would only ever be a no-op re-read of the
+first attempt's result, never a second live external side effect.
+
+That reasoning is correct about the EFFECT — P08 genuinely does deduplicate — but it
+does not satisfy PERMIT-OWNERSHIP semantics. `AgentRuntime.run_turn` performs, for
+every requested tool call:
+
+```
+await authorize_tool(call.name, key[1], tool_calls_requested)
+outcome = await self._tools.execute(...)
+```
+
+unconditionally: `authorize_tool` returning normally (as ALREADY_EXISTS previously
+did) is the ONLY signal `run_turn` checks before calling `execute`. A second
+identical semantic attempt that received a bare "success" from `_authorize_tool_dispatch`
+would therefore still genuinely ENTER `AgentToolBridge.execute` / the NXS-P08 Tool
+Engine a second time — relying entirely on P08's own idempotency layer to make that
+entry harmless, rather than the authorization layer itself refusing the entry. A
+permit-ownership mechanism whose only enforcement is "the thing downstream happens to
+be idempotent" is not an authorization boundary; it is a hope.
+
+**INV-TOOL-PERMIT-001.** Only the attempt that durably creates the tool-dispatch
+permit may proceed as a NEW P08 dispatch.
+
+**INV-TOOL-PERMIT-002.** ALREADY_EXISTS is not dispatch authority.
+
+**INV-TOOL-PERMIT-003.** P08 idempotency is defense-in-depth, not the mechanism that
+fixes duplicate permit ownership.
+
+**Fix.** `_authorize_tool_dispatch`'s ALREADY_EXISTS branch now raises
+`AgentInvalidStateError` (the existing stable taxonomy entry — no new public error
+code), identical to `_authorize_model_dispatch`'s existing behaviour. Model and tool
+dispatch now share the IDENTICAL claim-ownership rule:
+
+* **CREATED** → the current execution attempt owns dispatch authority for this
+  semantic permit slot; it may proceed to call the provider (model) or
+  `AgentToolBridge.execute` (tool).
+* **ALREADY_EXISTS** → authorization was previously claimed by another attempt; the
+  current attempt does NOT own new dispatch authority and is rejected before it can
+  reach the provider or the Tool Engine.
+
+**No claim of "exactly-once" physical tool-call execution** is made anywhere in this
+section: a crash between permit-commit and the actual HTTP call is still possible, per
+the existing crash-window tables above. Permit uniqueness DOES guarantee that at most
+one P13 NEW dispatch ATTEMPT is ever granted for a given semantic permit slot, for
+both classes of external work this runtime can dispatch. P08 idempotency remains
+fully in place, unmodified, as an independent SECOND layer of defense — not removed,
+not weakened, not relied upon as the sole safety mechanism.
+
+**Why this is unreachable today, and why it is fixed anyway.** A turn is already
+exclusively owned by one worker (correctives #1/#4: one idempotency key names one
+immutable logical turn), and within that turn, corrective #1's own turn-wide semantic
+tool-call cache (`(tool_key, arguments_hash) -> prior ToolCallOutcome`) means the SAME
+semantic tool call appearing twice in normal execution is served from that cache and
+never reaches `_authorize_tool_dispatch` a second time at all — a duplicate durable
+permit attempt should not be reachable through the public API today. ALREADY_EXISTS
+therefore represents one of: a stale worker, a duplicate execution attempt, a replayed
+internal execution, a future recovery collision, or an unexpected re-entry — every one
+of which should FAIL CLOSED at the authorization layer, not be allowed through on the
+strength of a downstream idempotency guarantee. This mirrors the reasoning
+`_assert_turn_authority`'s owner-fencing check (corrective #8) already established for
+a structurally analogous "currently unreachable, load-bearing anyway" case.
+
+**Dispatch-boundary certification.** The regression suite for this corrective
+(`tests/concurrency/test_agent_tool_permit_claim_ownership.py`) does NOT repeat the
+insufficient proof pattern of merely calling `_authorize_tool_dispatch` twice and
+checking the permit row count — it instruments the actual dispatch boundary
+(`AgentToolBridge.execute`) with a call-counting wrapper around a live instance, so a
+regression that let a duplicate slip through would be caught even if it somehow still
+produced a permit-row count of 1. Also includes a two-worker test (two independent
+`AgentService` instances sharing one PostgreSQL database) proving no process-local
+lock is required for correctness — the durable permit's own unique index, combined
+with the now-fail-closed ALREADY_EXISTS branch, is what rejects the second worker's
+identical-identity attempt before it ever reaches its own bridge.
+
+**Crash semantics, restated for tool dispatch.** If a worker crashes after the tool
+permit commits but before `AgentToolBridge.execute` is called (or completes), a later
+execution attempt for the identical semantic slot now sees ALREADY_EXISTS and is
+correctly rejected — P13 does NOT automatically redispatch. This is a strictly
+CORRECT outcome under "fail closed, no ambiguous redispatch," even though it means a
+crash in that exact window leaves the semantic tool call never actually executed by
+this attempt. Reconciling that gap (deciding whether and how to grant a FRESH
+authorization for a provably-abandoned attempt) is explicitly NXS-P25's scope, not
+implemented here. The correct, narrower claim is: at most one P13 NEW dispatch attempt
+is granted per semantic tool permit slot.
+
+**Claim correction (directive requirement).** The corrective #9 test previously named
+`test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect` asserted the
+NOW-SUPERSEDED behaviour (a duplicate tool permit attempt returns normally) and has
+been renamed/updated in place to
+`test_duplicate_tool_authorization_attempt_is_rejected_not_a_second_call`, asserting
+the corrected behaviour; its earlier proof only checked the permit row count, never
+the actual Tool Engine entry count — exactly the class of insufficient certification
+this corrective's own dispatch-boundary test refuses to repeat.
 
 ## Consequences
 
