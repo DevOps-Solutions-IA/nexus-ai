@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+from collections.abc import AsyncIterator
 from typing import Any
 
 import pytest
@@ -38,7 +39,15 @@ from sqlalchemy import text
 from nexus_ai.agents.entities import StartAgentSessionRequest, SubmitTurnRequest
 from nexus_ai.agents.errors import AgentCancelledError, AgentInvalidStateError
 from nexus_ai.agents.idempotency import arguments_hash
-from nexus_ai.agents.models.base import ModelToolCall
+from nexus_ai.agents.models.base import (
+    ModelFinishReason,
+    ModelHttpTransport,
+    ModelRequest,
+    ModelResponse,
+    ModelStreamChunk,
+    ModelToolCall,
+    ModelUsage,
+)
 from nexus_ai.agents.models.fake import FakeModelTurn
 from nexus_ai.agents.service import ExecutionRevoked
 from nexus_ai.agents.toolbridge import AgentToolBridge
@@ -48,6 +57,41 @@ from tests.concurrency.test_agent_tool_dispatch_fencing import _execs, _wait_unt
 from tests.integration.test_agent_service import _provision, _register_tool
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
+
+
+class _ToolResponseGate:
+    key = "fake"
+
+    def __init__(self) -> None:
+        self.entered = asyncio.Event()
+        self.release = asyncio.Event()
+        self.calls: list[ModelRequest] = []
+
+    async def generate(
+        self, request: ModelRequest, secret: Any, http: ModelHttpTransport
+    ) -> ModelResponse:
+        del secret, http
+        self.calls.append(request)
+        self.entered.set()
+        await self.release.wait()
+        return ModelResponse(
+            assistant_content="",
+            tool_calls=(
+                ModelToolCall(
+                    id="cancel-first-tool", name="crm.get", arguments={"path_params": {"id": "z1"}}
+                ),
+            ),
+            finish_reason=ModelFinishReason.TOOL_CALLS,
+            usage=ModelUsage(input_tokens=11, output_tokens=7),
+            provider_request_id="cancel-first-gate",
+        )
+
+    async def stream(
+        self, request: ModelRequest, secret: Any, http: ModelHttpTransport
+    ) -> AsyncIterator[ModelStreamChunk]:
+        del request, secret, http
+        raise AssertionError("the agent runtime must use the non-streaming provider boundary")
+        yield ModelStreamChunk()  # pragma: no cover
 
 
 async def _permit_count_for_semantic(
@@ -62,6 +106,18 @@ async def _permit_count_for_semantic(
                         "WHERE turn_id = :t AND tool_key = :k AND arguments_hash = :h"
                     ),
                     {"t": str(turn_id), "k": tool_key, "h": arg_hash},
+                )
+            ).scalar_one()
+        )
+
+
+async def _model_permit_count_for_turn(stack: Any, org_id: Any, turn_id: Any) -> int:
+    async with stack.database.tenant_transaction(org_id) as tenant:
+        return int(
+            (
+                await tenant.session.execute(
+                    text("SELECT count(*) FROM ai_agent_model_dispatch_permits WHERE turn_id = :t"),
+                    {"t": str(turn_id)},
                 )
             ).scalar_one()
         )
@@ -358,23 +414,49 @@ async def test_cancel_first_still_blocks_tool_permit_and_dispatch(
     org = await make_organization()
     principal = await make_tool_principal(org)
     await _register_tool(agent_stack, org.id, mock_http_server)
+    seen: list[str] = []
+
+    def handler(method: str, path: str, headers: Any, body: Any) -> tuple[int, dict[str, Any]]:
+        del method, headers, body
+        seen.append(path)
+        return 200, {"id": path.rsplit("/", 1)[-1]}
+
+    mock_http_server.set_handler(handler)
     worker = agent_stack.service
+    cancelling_worker, _provider_b = _second_service(agent_stack)
     agent = await _provision(agent_stack, org.id, tool_keys=("crm.get",))
     session = await worker.start_session(
         org.id, principal, StartAgentSessionRequest(agent_id=agent.id)
     )
-    agent_stack.script.append(FakeModelTurn(content="hang", hang_seconds=5.0))
-    task, turn = await _model_turn_hang(worker, org.id, session.id)
+    gate = _ToolResponseGate()
+    worker._provider_factory = lambda _provider: gate
+    bridge_calls = _wrap_bridge_execute_counter(worker._bridge)
+    task = asyncio.create_task(
+        worker.submit_turn(org.id, session.id, SubmitTurnRequest(content="go"))
+    )
 
     try:
-        cancelled = await worker.cancel_session(org.id, session.id)
-        assert cancelled.state.value == "CANCELLED"
+        await asyncio.wait_for(gate.entered.wait(), timeout=5.0)
+        turns = await worker.list_turns(org.id, session.id, limit=1)
+        turn = turns[0]
+        assert turn.execution_owner_id is not None
+        assert turn.lease_expires_at is not None
+        assert session.id in worker._turn_tasks
+        assert session.id not in cancelling_worker._turn_tasks
+        assert not task.done()
+        assert await _model_permit_count_for_turn(agent_stack, org.id, turn.id) == 1
 
-        # cancel_session's direct task.cancel() on the tracked _run_turn task makes
-        # submit_turn's own `except asyncio.CancelledError: ...; raise` bare-reraise
-        # the ORIGINAL CancelledError (not AgentCancelledError) — matching the exact
-        # precedent in tests/concurrency/test_agent_concurrency.py.
-        with pytest.raises((AgentCancelledError, asyncio.CancelledError)):
+        # Worker B cannot cancel Worker A's process-local task. Its PostgreSQL commit is
+        # therefore the objective ordering point: CANCELLED is durable while Worker A is
+        # still blocked immediately before returning the tool request.
+        cancelled = await cancelling_worker.cancel_session(org.id, session.id)
+        assert cancelled.state.value == "CANCELLED"
+        durable = await worker.get_session(org.id, session.id)
+        assert durable.state.value == "CANCELLED"
+        assert not task.done()
+
+        gate.release.set()
+        with pytest.raises(AgentCancelledError):
             await task
 
         arg_hash = arguments_hash({"path_params": {"id": "z1"}})
@@ -385,6 +467,15 @@ async def test_cancel_first_still_blocks_tool_permit_and_dispatch(
         assert (
             await _permit_count_for_semantic(agent_stack, org.id, turn.id, "crm.get", arg_hash) == 0
         )
+        assert bridge_calls[0] == 0
+        assert await _execs(agent_stack, org.id) == 0
+        assert seen == []
+        final_turn = (await worker.list_turns(org.id, session.id, limit=1))[0]
+        assert final_turn.state.value == "CANCELLED"
+        assert final_turn.error_code == "NXS_AGENT_CANCELLED"
     finally:
+        gate.release.set()
         with contextlib.suppress(asyncio.CancelledError, Exception):
             await task
+        worker._bridge.execute = AgentToolBridge.execute.__get__(worker._bridge)
+        await cancelling_worker.shutdown()
