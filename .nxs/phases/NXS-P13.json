@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p13-agent-runtime",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P08",
     "NXS-P12"
@@ -30,7 +30,7 @@
     ".nxs/evidence/NXS-P13/unit-primitives.json"
   ],
   "id": "NXS-P13",
-  "implementation_commit": "7e745afe5b06f42b7df0222e52d46b70dc42a7a5",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -72,9 +72,9 @@
     "NXS-AGENT-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-11T22:21:58Z",
+    "closed_at": null,
     "started_at": "2026-09-10T15:34:05Z"
   },
   "title": "AI Agent Runtime"

@@ -1,10 +1,10 @@
 {
   "failed": 0,
   "marker": null,
-  "output_tail": "...........................................                              [100%]\n43 passed in 28.54s",
+  "output_tail": "...........................................                              [100%]\n43 passed in 28.75s",
   "passed": 43,
   "phase": "NXS-P13",
-  "recorded_at": "2026-09-11T21:59:31Z",
+  "recorded_at": "2026-09-12T01:06:02Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "tests": [
