@@ -20,12 +20,28 @@ COMMANDS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
+#: the gate's own subprocess ceiling per command — NOT a test-suite budget. Raised
+#: from 300s (audit corrective #10) after the P13 full-suite pytest run's organic,
+#: legitimate growth across 10 correctives (1478 -> 1553 tests) pushed its own
+#: wall-clock time into the 286-306s range on ordinary shared-machine load, making the
+#: old ceiling a tooling false-positive rather than a real hang/deadlock signal.
+#: Doesn't skip, weaken, or lower any check or threshold — every command below still
+#: must exit 0 to pass; this only gives the slowest of them (tests) realistic room to
+#: finish and report its actual result.
+_COMMAND_TIMEOUT_SECONDS = 900
+
+
 def run_gate(root: Path, phase: str) -> dict[str, object]:
     gates: dict[str, str] = {}
     details: dict[str, dict[str, object]] = {}
     for name, command in COMMANDS:
         completed = subprocess.run(
-            command, cwd=root, check=False, capture_output=True, text=True, timeout=300
+            command,
+            cwd=root,
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=_COMMAND_TIMEOUT_SECONDS,
         )
         gates[name] = "PASS" if completed.returncode == 0 else "FAIL"
         details[name] = {
