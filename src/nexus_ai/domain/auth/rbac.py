@@ -75,6 +75,10 @@ class PermissionKey(StrEnum):
     VOICE_READ = "voice:read"
     VOICE_USE = "voice:use"
     VOICE_CONFIGURE = "voice:configure"
+    # P13 additions (seeded by the P13 migration):
+    AI_READ = "ai:read"
+    AI_USE = "ai:use"
+    AI_CONFIGURE = "ai:configure"
 
 
 class RoleKey(StrEnum):
@@ -162,6 +166,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.VOICE_READ: UUID("b2000000-0000-7000-8000-00000000002a"),
     PermissionKey.VOICE_USE: UUID("b2000000-0000-7000-8000-00000000002b"),
     PermissionKey.VOICE_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000002c"),
+    PermissionKey.AI_READ: UUID("b2000000-0000-7000-8000-00000000002d"),
+    PermissionKey.AI_USE: UUID("b2000000-0000-7000-8000-00000000002e"),
+    PermissionKey.AI_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000002f"),
 }
 
 _CATALOG_SQL = """

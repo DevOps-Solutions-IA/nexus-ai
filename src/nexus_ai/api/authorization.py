@@ -125,3 +125,6 @@ VoiceUseDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.V
 VoiceConfigureDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.VOICE_CONFIGURE))
 ]
+AiReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_READ))]
+AiUseDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_USE))]
+AiConfigureDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_CONFIGURE))]

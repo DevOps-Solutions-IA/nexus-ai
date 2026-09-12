@@ -6,6 +6,16 @@ imported all domain models. Add one import per new model module.
 
 from __future__ import annotations
 
+from nexus_ai.domain.agents.models import (
+    AiAgentRecord,
+    AiAgentSessionRecord,
+    AiAgentToolCallRecord,
+    AiAgentTurnRecord,
+    AiModelProfileRecord,
+    AiModelProviderAccountRecord,
+    AiModelSecretRecord,
+    AiModelUsageRecord,
+)
 from nexus_ai.domain.auth.models import (
     MembershipRecord,
     PermissionRecord,
@@ -75,6 +85,14 @@ from nexus_ai.domain.voice.models import (
 )
 
 __all__ = [
+    "AiAgentRecord",
+    "AiAgentSessionRecord",
+    "AiAgentToolCallRecord",
+    "AiAgentTurnRecord",
+    "AiModelProfileRecord",
+    "AiModelProviderAccountRecord",
+    "AiModelSecretRecord",
+    "AiModelUsageRecord",
     "ConsumerReceiptRecord",
     "ConversationActivityRecord",
     "ConversationParticipantRecord",

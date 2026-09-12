@@ -1,0 +1,81 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p13-agent-runtime",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P08",
+    "NXS-P12"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P13/agent-integration.json",
+    ".nxs/evidence/NXS-P13/clean-room.json",
+    ".nxs/evidence/NXS-P13/concurrency.json",
+    ".nxs/evidence/NXS-P13/contracts.json",
+    ".nxs/evidence/NXS-P13/coverage.json",
+    ".nxs/evidence/NXS-P13/database-roles.json",
+    ".nxs/evidence/NXS-P13/docker.json",
+    ".nxs/evidence/NXS-P13/git.json",
+    ".nxs/evidence/NXS-P13/github-ci.json",
+    ".nxs/evidence/NXS-P13/migration.json",
+    ".nxs/evidence/NXS-P13/multiarch.json",
+    ".nxs/evidence/NXS-P13/preflight.json",
+    ".nxs/evidence/NXS-P13/quality-gates.json",
+    ".nxs/evidence/NXS-P13/quality-matrix.json",
+    ".nxs/evidence/NXS-P13/resilience.json",
+    ".nxs/evidence/NXS-P13/schema-validator.json",
+    ".nxs/evidence/NXS-P13/security-scan.json",
+    ".nxs/evidence/NXS-P13/security.json",
+    ".nxs/evidence/NXS-P13/tests.json",
+    ".nxs/evidence/NXS-P13/unit-primitives.json"
+  ],
+  "id": "NXS-P13",
+  "implementation_commit": "92084fc062d9d1be572ba3f4d1ad09668779b0a6",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Defined in the phase branch contract"
+  ],
+  "objective": "Deliver the AI Agent Runtime phase per its branch contract and requirements.",
+  "requirements_implemented": [
+    "NXS-AGENT-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-12T07:20:26Z",
+    "started_at": "2026-09-10T15:34:05Z"
+  },
+  "title": "AI Agent Runtime"
+}

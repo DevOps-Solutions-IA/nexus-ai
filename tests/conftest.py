@@ -1336,3 +1336,83 @@ async def voice_stack(telephony_stack: Any) -> Any:
 
     yield _VoiceStack()
     await service.shutdown()
+
+
+@pytest.fixture
+async def agent_stack(tool_engine: Any) -> Any:
+    """The AI Agent Runtime wired against the real DB + event outbox + a real NXS-P08
+    Tool Engine. The model provider is a scripted deterministic fake (no socket); the
+    governed model HTTP transport is unused by the fake."""
+    import asyncpg
+    from cryptography.fernet import Fernet
+
+    from nexus_ai.agents.models.fake import FakeModelProvider
+    from nexus_ai.agents.service import AgentService
+    from nexus_ai.domain.agents.repository import ModelSecretStore
+    from nexus_ai.domain.customers.service import ConversationService, CustomerService
+    from nexus_ai.integrations.credentials import LocalEncryptedVault, build_fernet
+    from nexus_ai.integrations.destination import DestinationPolicy
+
+    te = tool_engine
+    customers = CustomerService(te.settings, te.database, te.event_platform.publisher)
+    conversations = ConversationService(te.settings, te.database, te.event_platform.publisher)
+    vault = LocalEncryptedVault(
+        ModelSecretStore(te.database), build_fernet([Fernet.generate_key().decode()])
+    )
+    fake_provider = FakeModelProvider()
+
+    def _factory(provider: Any) -> FakeModelProvider:
+        return fake_provider
+
+    class _NoHttp:
+        async def request(self, **kwargs: Any) -> Any:  # pragma: no cover - fake never calls
+            raise AssertionError("the fake model provider must not use the HTTP transport")
+
+    service = AgentService(
+        te.settings,
+        te.database,
+        te.event_platform.publisher,
+        vault,
+        te.engine,
+        te.registry,
+        _NoHttp(),
+        destination_policy=DestinationPolicy(
+            allow_loopback=True, resolver=lambda h, p: ["127.0.0.1"]
+        ),
+        model_provider_factory=_factory,
+    )
+
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE ai_model_usage, ai_agent_tool_calls, ai_agent_turns, "
+            "ai_agent_sessions, ai_agents, ai_model_profiles, ai_model_secrets, "
+            "ai_model_provider_accounts, conversation_activities, "
+            "conversation_participants, conversations, customer_identities, "
+            "customers CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _AgentStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.provider = fake_provider
+            self.script = fake_provider.script
+            self.vault = vault
+            self.database = te.database
+            self.settings = te.settings
+            self.event_platform = te.event_platform
+            self.tool_engine = te.engine
+            self.tool_registry = te.registry
+            self.hub = te.hub
+            self.customers = customers
+            self.conversations = conversations
+
+        def push(self, turn: Any) -> None:
+            fake_provider.script.append(turn)
+
+    yield _AgentStack()
+    await service.shutdown()

@@ -1,0 +1,926 @@
+# ADR-0094: Cancellation, concurrency and idempotency in the agent runtime
+
+Status: Accepted — NXS-P13 (`NXS-AGENT-001`), 2026-09-10; amended 2026-09-10 by
+independent-audit corrective #1 (semantic tool-call idempotency key), corrective #2 (the
+per-Agent turn deadline, the enforced absolute session lifetime with a truthful `EXPIRED`
+terminal, the stable `NXS_AGENT_TURN_TIMEOUT` taxonomy) and corrective #3 (terminal-state
+absorption at the DATABASE boundary — `_finish_turn` never resurrects a session another
+worker terminalised — and the whole-turn deadline bounded by the session's *remaining*
+absolute lifetime so a turn opened just before expiry cannot outlive it), corrective #4
+(one idempotency key == one immutable logical turn == one model execution owner, decided
+at the DATABASE boundary; a truthful stale-terminal `error_code`), and corrective #5
+(response-EXACT replay — `tool_call_count` / `response_correlation_id` persisted as
+immutable facts — and historical-replay-lookup ordering: the idempotency key is resolved
+BEFORE any new-execution admission gate, so a historical turn survives the session's own
+later terminalisation), and corrective #6 (distributed execution control: an
+authoritative cancellation/terminalisation committed by ANY worker stops model
+continuation and tool dispatch for a DIFFERENT worker's in-flight turn at the next
+checkpoint — not merely at final-commit time — plus the durable `execution_owner_id` /
+`lease_expires_at` primitives an orphaned-RUNNING-turn recovery mechanism will need,
+deferred to NXS-P25 per requirement `NXS-AGENT-002`), and corrective #7 (linearizable
+execution authority: the freshest-possible unlocked read corrective #6 used immediately
+before a NEW tool dispatch narrowed the TOCTOU window between authorization and dispatch
+but did not close it; a durable `ai_agent_tool_dispatch_permits` linearization point —
+serialized on the SAME row lock cancellation uses — now makes the ordering between a new
+tool's authorization and a concurrent cancellation a PROVABLE, PostgreSQL-enforced fact
+rather than a probabilistic one), and corrective #8 (linearizable model-dispatch
+authority — the FINAL external-execution authority certification: corrective #6's plain,
+unlocked continuation checkpoint, `_check_execution_authority`, was NEVER closed the way
+corrective #7 closed it for tool dispatch — a NEW model-provider invocation had the
+IDENTICAL TOCTOU exposure. `_check_execution_authority` is removed; a durable
+`ai_agent_model_dispatch_permits` linearization point — the model-invocation
+counterpart to corrective #7's tool permit, using the identical session-row lock — now
+makes model-call authorization provably ordered against cancellation too. Also adds a
+turn-authority / stale-worker fencing check shared by both linearization points,
+establishing the contract a future NXS-P25 orphan-recovery mechanism must honour), and
+corrective #9 (durable authority identity: neither correctives #7 nor #8 proved the
+session row locked `FOR UPDATE` was actually the authorized turn's OWN parent session
+— fixed at both the application layer, `_assert_turn_authority` gaining an
+`expected_session_id` check, and the database layer, a composite
+`(organization_id, session_id, turn_id)` foreign key on every P13 table carrying both
+columns; also made the CREATED-vs-ALREADY_EXISTS permit outcome an explicit decision
+for the first time), and corrective #10 (tool permit claim ownership: corrective #9's
+CREATED-vs-ALREADY_EXISTS distinction fixed model dispatch's duplicate-permit ambiguity
+but deliberately left tool dispatch's ALREADY_EXISTS outcome as "safe to proceed" —
+this corrective determined that reasoning, while correct about the EXTERNAL EFFECT
+being deduplicated by P08, did not satisfy PERMIT-OWNERSHIP semantics: a duplicate
+authorization attempt would still genuinely enter `AgentToolBridge.execute` / the Tool
+Engine. Tool dispatch now rejects ALREADY_EXISTS identically to model dispatch).
+
+## Context
+
+An agent session is long-lived and driven concurrently: a user submits turns, a voice
+barge-in cancels one mid-generation, a worker restarts, a provider delivers a duplicate
+completion. The runtime must be terminal-safe, concurrency-safe and idempotent, and must
+never surface a stale answer after a cancellation.
+
+## Decision
+
+### Session and turn state machines
+
+`AgentSessionState`: `PENDING → ACTIVE → WAITING_TOOL → RESPONDING →
+COMPLETED | FAILED | CANCELLED | EXPIRED`. `AgentTurnState`: `PENDING → RUNNING →
+AWAITING_TOOLS → FINALIZING → COMPLETED | FAILED | CANCELLED`. Folds are deterministic
+and fail-closed (same design as ADR-0085 / ADR-0089): a terminal state is absorbing, a
+terminal proposal always wins from a live state, an undeclared live edge is a no-op.
+`state` and `state_rank` are `CHECK`-constrained columns. `EXPIRED` (rank 4, disposition
+`EXPIRED`) is the truthful terminal for the absolute lifetime ceiling — neither success
+(`COMPLETED`), error (`FAILED`), nor barge-in / client cancellation (`CANCELLED`);
+migration `c9e0f1a2b3c4` adds it to the state domain.
+
+### The whole-turn deadline
+
+`submit_turn` wraps the whole `_run_turn` task (model calls + tool loop + continuation)
+in `asyncio.timeout(effective_deadline)`, where
+
+```
+effective_deadline = min(
+    settings.agents.turn_deadline_seconds,      # global safety ceiling
+    agent.timeout_seconds  (if configured),     # per-Agent total-turn deadline; tightens only
+    remaining_session_lifetime,                 # started_at + max_session_seconds - now
+)
+```
+
+`agent.timeout_seconds` may only *tighten*, never widen, the global ceiling. Including
+`remaining_session_lifetime` (`_remaining_session_lifetime`) makes `max_session_seconds`
+a true **absolute** ceiling — a turn opened just before expiry is bounded so it cannot
+run models / tools past `started_at + max_session_seconds`.
+
+On the deadline the task is cancelled + drained (no stale response committed, no further
+model / Tool Engine call). The handler then distinguishes:
+
+* the **session lifetime** elapsed (`_lifetime_exceeded(session, now)`) → the session is
+  terminalised `EXPIRED` (`_expire_session_now`, own `FOR UPDATE` transaction), the turn
+  is `CANCELLED` with `NXS_AGENT_SESSION_EXPIRED`, and `AgentSessionExpiredError` (409) is
+  raised — the canonical session-expired semantics, **not** a misleading turn / provider
+  timeout;
+* otherwise → the turn is `FAILED` with `NXS_AGENT_TURN_TIMEOUT`, `agent.turn.failed` is
+  emitted, the **session returns to `ACTIVE`** (a fresh turn is allowed), and
+  `AgentTurnTimeoutError` (504) is raised — **never a bare `TimeoutError`**.
+
+A single model provider call that times out inside `_run_turn` remains a distinct
+`AgentProviderTimeoutError` (`NXS_AGENT_PROVIDER_TIMEOUT`).
+
+### Absolute session lifetime — enforced at admission AND in flight
+
+`started_at + settings.agents.max_session_seconds` is the absolute ceiling.
+
+* **At admission** — `_open_turn` checks `_lifetime_exceeded(session, now)` (inclusive:
+  `now >= deadline`) under the `SELECT … FOR UPDATE` session-row lock, **before** any turn
+  row is inserted. Once exceeded, the session is terminalised `EXPIRED` + `ended_at` +
+  `error_code` in that same locked transaction, `agent.session.expired` is emitted, and
+  `AgentSessionExpiredError` (409) is raised — no turn opens, no model call begins.
+
+* **In flight** — the deadline above bounds the running turn (see the whole-turn
+  deadline); when it fires because the lifetime elapsed, the session is terminalised
+  `EXPIRED` and no continuation runs.
+
+### Terminal-state absorption is a DATABASE property, not a process-lock property
+
+The per-session `asyncio.Lock` is process-local — it does not serialise multiple Nexus
+backend workers / replicas. Every state transition that writes session state **after a
+long external operation** re-reads the row `SELECT … FOR UPDATE`, re-validates the
+persisted state, applies the canonical fold, and lets the terminal win:
+
+* `_finish_turn` — after the model task returns, it re-reads the session `FOR UPDATE`. If
+  `session_is_terminal(refreshed.state)` (a concurrent worker terminalised it — `EXPIRED`
+  / `CANCELLED` / `FAILED` / `COMPLETED`), the stale outcome is **discarded**: the turn is
+  marked `CANCELLED` with the session's terminal `error_code` (`_discard_stale_turn`), no
+  `response_text` is written, **no `agent.response.ready` is published**, the session is
+  **not** resurrected, and `AgentSessionExpiredError` / `AgentInvalidStateError` is
+  raised. Otherwise the session move to `ACTIVE` goes through `fold_agent_session_state`.
+* `_fail_turn` — already guarded (`not session_is_terminal(session.state)` before any
+  `ACTIVE` write).
+* `_terminalize` / `_terminalize_expired` — fold-guarded; a no-op on an already-terminal
+  row.
+
+`_discard_stale_turn` labels the discarded turn with the **truthful** terminal
+`error_code` (`_stale_terminal_code`): the session's own `error_code` if it carries one,
+else `NXS_AGENT_SESSION_EXPIRED` (EXPIRED), `NXS_AGENT_CANCELLED` (CANCELLED), or
+`NXS_AGENT_INVALID_STATE` (a normal stop / COMPLETED, or FAILED) — a normal stop is
+**never** relabelled a session expiration. `_finish_turn` raises the matching error
+(`AgentSessionExpiredError` / `AgentCancelledError` / `AgentInvalidStateError`).
+
+Proven with **two independent `AgentService` instances sharing one PostgreSQL database**:
+worker A opens a turn and blocks in the model; worker B expires the shared row; worker A
+resumes into `_finish_turn` and the row stays `EXPIRED` — never `EXPIRED → ACTIVE`, no
+stale `response_text`, no `agent.response.ready`.
+
+### Concurrency
+
+* One `asyncio.Lock` per session id. `submit_turn` refuses with `AgentBusyError` if the
+  lock is held or an active turn row exists (`AgentTurnRepository.active_for_session`).
+* Every session/turn state write is a `SELECT … FOR UPDATE` inside the tenant
+  transaction, so two workers serialize on the row.
+* Two simultaneous turns → exactly one runs, the other gets `AgentBusyError` and opens no
+  row (proven under a real-PostgreSQL race).
+
+### Cancellation is first-class
+
+`_terminalize` (stop / cancel) **cancels the in-flight turn task before contending for
+the per-session lock** — `submit_turn` holds that lock for the whole turn, so acquiring
+it first would make cancellation wait for the turn to finish naturally. The cancelled
+task unwinds through `submit_turn → _fail_turn(cancelled=True)`, which marks the turn
+`CANCELLED`/`FAILED` and returns the session toward the terminal transition. `_run_turn`
+does **no** database work, so a cancelled turn leaks no connection. A model answer that
+lands during cancellation is discarded — `response_text` stays `NULL` (proven).
+`shutdown()` cancels every tracked turn task and clears the locks.
+
+### Idempotency
+
+Canonical SHA-256 fingerprints (`nexus_ai.agents.idempotency`, same rigour as
+NXS-P11/P12):
+
+* **start session** — `agent_id · channel · conversation_id · customer_id · call_id ·
+  voice_session_id` (v1). Same key + identical fingerprint → replay the winner's session;
+  same key + different fingerprint → `AgentIdempotencyConflictError`; concurrent
+  duplicates → exactly one session (`IntegrityError` winner resolution).
+* **submit turn** — `session_id · sha256(content)` (v1), plus a partial UNIQUE index
+  `(organization_id, session_id, idempotency_key) WHERE idempotency_key IS NOT NULL`.
+
+  **One idempotency key names ONE immutable logical turn == ONE model execution owner**,
+  decided at the DATABASE boundary (not the process-local `asyncio.Lock`). `_open_turn`
+  runs inside a `SELECT … FOR UPDATE` session-row transaction and either inserts the turn
+  row (this worker is the **owner** — it alone runs the model / tool loop) or resolves an
+  existing key via `_resolve_existing_turn`:
+
+  | Existing turn state | Outcome |
+  |---|---|
+  | fingerprint mismatch | `AgentIdempotencyConflictError` (`NXS_AGENT_IDEMPOTENCY_CONFLICT`) |
+  | `COMPLETED` | deterministic replay of the persisted `AgentResponse` — no model / tool call |
+  | `RUNNING` / `PENDING` / `AWAITING_TOOLS` / `FINALIZING` | `AgentBusyError` — another worker owns execution; this worker never enters `_run_turn` |
+  | `FAILED` / `CANCELLED` | `AgentIdempotentReplayError` (`NXS_AGENT_IDEMPOTENT_REPLAY`, carries `extensions.original_error_code` / `turn_state`) — **never a fresh execution** |
+
+  An `IntegrityError` on the turn insert (the partial UNIQUE index — defence in depth
+  behind the row lock) is resolved to `AgentBusyError` (the claim is another worker's). A
+  loser worker never enters `_run_turn` — proven with **two independent `AgentService`
+  instances sharing one PostgreSQL database**: same org / session / key / content, worker
+  A blocks in the model, worker B gets `AgentBusyError`, only one model execution, one
+  turn row, one `agent.turn.started`, and the token / tool / session counters are not
+  doubled; a later replay returns worker A's persisted result.
+* **tool calls** — a derived semantic key
+  `agt-<sha256(session:turn_sequence:tool_key:arguments_hash)>` flows into P08's durable
+  idempotency (ADR-0093). It deliberately omits the model `tool_call_id` and the loop
+  iteration, so the identical semantic call repeated anywhere in one turn is one external
+  effect; the same call in a later turn (new sequence) is a new key and may re-run.
+
+`correlation_id` is observational and excluded from every fingerprint.
+
+### Historical-replay ordering
+
+`_open_turn` resolves the idempotency key **before** any new-execution admission gate
+(terminal state, absolute lifetime, one-turn-at-a-time). A historical turn's outcome
+(`COMPLETED` replay, `FAILED`/`CANCELLED` immutable-terminal replay, or an active-turn
+`AgentBusyError`) is valid regardless of what has since happened to the **session** — a
+session that later became `COMPLETED`/`CANCELLED`/`EXPIRED` must never make a historical
+key unreachable, because the key names the **turn**, not the session's current state.
+Only when no historical turn matches the key (a genuinely new key, or none supplied) do
+the session's admission gates apply — to that new attempt, never to a replay.
+
+### Response-exact replay
+
+The first successful response and every later replay of the same key are **field-exact**
+(`replay.model_dump() == original.model_dump()`). Two facts a replay cannot otherwise
+reconstruct are persisted once, immutably, on `ai_agent_turns` at `_finish_turn`
+completion (migration `d0e1f2a3b4c5`):
+
+* **`tool_call_count`** — the number of DISTINCT tool calls actually executed this turn
+  (`len(outcome.tool_calls)`). This is **not** `tool_iterations` (the loop-iteration
+  count) — the two differ whenever one model response requests more than one tool call at
+  once, and reconstructing `AgentResponse.tool_calls` from `tool_iterations` was corrective
+  #5's headline defect.
+* **`response_correlation_id`** — the effective correlation id the original response
+  published under (`ctx_correlation(request, session)`), so a replay never substitutes a
+  fabricated `null`.
+
+**Chosen design — persist the facts on the turn row (not derive-on-read):** `tool_call_count`
+could instead be derived at replay time from `count(*) FROM ai_agent_tool_calls WHERE
+turn_id = …` (the row count is provably identical — the runtime's `on_tool` callback fires
+exactly once per distinct executed call). Persisting was chosen over deriving because (a)
+it keeps a completed turn a **self-contained immutable record** — a future retention
+policy on `ai_agent_tool_calls` cannot silently change what a turn replays as; (b) it costs
+no extra query/transaction on the hot replay path (`_response_from_turn` stays a pure,
+synchronous reconstruction); (c) it is the natural extension of the same principle already
+applied to `input_tokens`/`output_tokens`/`latency_ms`, which are likewise persisted facts,
+not live derivations. Both new columns are non-secret operational facts (a count, a
+caller-supplied correlation id) — no chain-of-thought, no provider body, no credential.
+`response_correlation_id` cannot be backfilled for a turn that completed before this
+migration (the fact was never persisted anywhere); such a turn's replay reports
+`correlation_id: null`, exactly as it did before the fix — a non-regression, not a new
+defect. `tool_call_count` **is** backfilled from the durable `ai_agent_tool_calls` rows in
+the same migration, so no pre-existing turn regresses to a wrong `0`.
+
+### Distributed cancellation — execution control across workers (corrective #6)
+
+> **Superseded (read together with correctives #7 and #8 below).** The
+> `check_authority` / `_check_execution_authority` mechanism this section describes was
+> the FIRST cross-worker cancellation defense and is preserved here as historical
+> record of the reasoning that led to it — but it no longer exists in the code.
+> Corrective #7 replaced it at the tool-dispatch checkpoint with a durable
+> linearization point; corrective #8 replaced it at the model-continuation checkpoint
+> the same way and removed `_check_execution_authority` entirely (both checkpoints now
+> share one mechanism, not two). Every invariant this section states (INV-CANCEL-*)
+> still holds — corrective #7/#8 only made the ENFORCEMENT provable rather than
+> probabilistic; nothing here was weakened.
+
+Corrective #3 made a terminal SESSION absorbing at `_finish_turn`'s DATABASE boundary — a
+stale worker's FINAL response is always discarded. That is **not sufficient**: between
+the moment a DIFFERENT worker commits a cancellation and the moment the stale worker
+reaches `_finish_turn`, the stale worker could still call the model again AND dispatch
+NEW tool calls to the NXS-P08 Tool Engine — real external side effects a discarded
+response cannot undo.
+
+**Chosen architecture — PostgreSQL authoritative, checkpoint-based, no pub/sub
+dependency (a variant of Option B, "durable turn claim", not Option D/E's NATS
+propagation):** `AgentRuntime.run_turn` accepts a `check_authority` callback
+(`AgentService._check_execution_authority`) and calls it at every natural loop boundary:
+
+* at the **top of every continuation iteration**, before the next model call;
+* **immediately** before every NEW tool dispatch (never before a deduplicated,
+  already-executed call — that never reaches the Tool Engine at all).
+
+The checkpoint is a single UNLOCKED read of the session's current committed `state`.
+PostgreSQL's read-committed isolation means any worker's already-COMMITTED terminal
+transition (`cancel_session` / `stop_session` / lifetime expiry — all still `SELECT …
+FOR UPDATE`, unchanged from corrective #3) is visible to this read without a row lock; a
+row lock buys mutual exclusion, which a freshness check does not need. The moment the
+session is terminal, the checkpoint raises an internal `ExecutionRevoked(session_row)` —
+never an `NxsError`, never surfaced directly — which unwinds `run_turn` and is caught in
+`submit_turn`, which fails the turn through the SAME `_fail_turn` path corrective #4/#5
+already use (its own `not session_is_terminal(...)` guard means it can never resurrect
+the session) and raises the TRUTHFUL taxonomy error via the shared `_raise_for_stale_session`
+helper — the identical function `_finish_turn`'s pre-existing terminal-absorption tail
+now also calls, so there is exactly one place that decides "EXPIRED → session-expired,
+CANCELLED → cancelled, else → invalid-state", used by both the final-commit path and the
+new mid-turn path.
+
+**Why NOT a NATS fast-path (Option D/E) in this corrective:** every checkpoint is already
+bounded by `max_tool_iterations` (≤ 32) and `max_tool_calls_per_turn` (≤ 32) — a
+single-digit-to-low-double-digit number of extra lightweight SELECTs per turn, not a
+per-streamed-token cost. This closes the required races within the stated tolerance
+without adding a pub/sub delivery dependency to a correctness path; a NATS fast-path
+would only shrink the already-small window between a commit and the next checkpoint
+observing it — a latency optimisation, not a correctness requirement — and is left for
+future work if operational experience ever shows the checkpoint cadence insufficient.
+PostgreSQL alone remains authoritative either way, matching the mandate that correctness
+never depend exclusively on pub/sub delivery.
+
+**Fencing / TOCTOU — precisely what is, and is not, guaranteed.** Between the checkpoint
+observing "not yet terminal" and the actual `await self._tools.execute(...)` call there
+is an irreducible gap — no process can atomically read a remote database and dispatch a
+remote call in the same instant without holding a lock across the external I/O, which
+this design deliberately does not do (holding a DB row lock across a Tool Engine HTTP
+call would serialize unrelated turns against it). The documented, tested boundary is:
+
+> Operations DISPATCHED before the authoritative cancellation commits may complete —
+> they are not retracted. No operation is DISPATCHED after the authoritative
+> cancellation has committed and been observed by this turn's next checkpoint.
+
+`tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches`
+proves the first half (a real in-flight HTTP call to the mock Tool Engine backend, mid-
+flight when cancellation commits, is allowed to finish) and every cross-worker test in
+that file proves the second half (the NEXT dispatch — the checkpoint immediately
+preceding it — is blocked once cancellation has committed). This is the same class of
+unavoidable race every check-then-act distributed system has; no claim of zero-gap
+fencing is made, and none is needed to satisfy INV-CANCEL-001/005/006/009.
+
+**Why P08 itself is not extended:** the checkpoint sits entirely in P13, immediately
+before `AgentToolBridge.execute` is ever called — the Tool Engine never receives a call
+for a turn whose session was already observed terminal. Extending P08 with its own
+fencing context would duplicate this check for no additional guarantee the immediately-
+preceding P13 checkpoint doesn't already provide, and was explicitly out of scope.
+
+**Voice barge-in (P12 → P13):** a barge-in reaches the SAME generic `cancel_session` API
+any other worker would call — P13 has no voice-specific cancellation path, so the
+guarantee above applies identically to a `VOICE` channel turn with no ElevenLabs-specific
+structure added to P13 (proven by
+`test_voice_channel_barge_in_cross_worker_cancel`).
+
+**Invariants locked by this section:** INV-CANCEL-001 through INV-CANCEL-009 (the state-
+matrix / crash-window discipline established in corrective #3/#5 continues to hold —
+this section only adds the mid-turn checkpoint; it changes no terminal-absorption or
+replay semantics already proven).
+
+### Orphaned RUNNING turn recovery — durable primitives now, autonomous reaping deferred to NXS-P25 (corrective #6)
+
+**The problem:** `_open_turn` commits a turn `RUNNING` and returns; if the CLAIMING
+worker's PROCESS then dies (not merely cancels a task — an actual crash, OOM-kill, or
+hard network partition), nothing ever calls `_fail_turn` / `_finish_turn` for that row.
+`AgentTurnRepository.active_for_session` treats any non-terminal turn as active, so:
+same idempotency key → `AgentBusyError` forever; a brand-new key → also `AgentBusyError`
+forever (`active_for_session` blocks admission regardless of key). The session is
+BUSY indefinitely — this is a real, currently-unsolved limitation, not fixed by P13.
+
+**Decision — Option B:** establish the minimum durable primitives an eventual recovery
+mechanism needs, defer the recovery mechanism itself to **NXS-P25 (Resilience)**, and do
+NOT claim crash recovery from P13. Requirement `NXS-AGENT-002` (target phase NXS-P25,
+`status: PLANNED`, `dependencies: [NXS-AGENT-001]`) records this machine-readably in
+`.nxs/requirements.json` — pure forward-looking governance metadata, no execution state
+mutated, following the identical precedent set by `NXS-AGENT-001` itself when P13's own
+governance blocker was corrected.
+
+**The primitives (migration `e1f2a3b4c5d6`, `ai_agent_turns`):**
+
+* **`execution_owner_id`** — a random token minted once, at claim time. P13 never reads
+  it to make a decision (a turn is already claimed exclusively at the DATABASE boundary
+  by the partial UNIQUE index / `active_for_session` check — this column does not change
+  that). It exists purely so a future reaper can label which attempt it recovered from.
+* **`lease_expires_at`** — set once, at claim time, to `now() + min(the global turn
+  deadline ceiling, the session's remaining absolute lifetime) + execution_lease_grace_seconds`
+  (default grace 30s). This is a conservative UPPER BOUND on how long a LEGITIMATE worker
+  could still be executing: `submit_turn` wraps the ENTIRE model+tool loop in
+  `asyncio.timeout` using that same bound (a tenant's `agent.timeout_seconds` can only
+  TIGHTEN it further, so the lease may slightly OVERESTIMATE — which only delays safe-reap
+  eligibility, never falsely shortens it). **A `RUNNING` turn whose `lease_expires_at` has
+  passed is therefore an UNAMBIGUOUS signal**: no legitimately-alive worker can still be
+  executing it, because its own `asyncio.timeout` would already have fired and driven it
+  to a terminal state if it were alive. `test_orphaned_running_turn_is_unambiguous_but_p13_does_not_reap_it`
+  proves both halves: the signal is unambiguous AND P13 provably does not act on it (the
+  session stays `AgentBusyError` after the lease has expired).
+
+**No permanent ambiguity — the backfill asymmetry is deliberate and documented:** both
+columns are nullable and NOT backfilled (migration `e1f2a3b4c5d6`); a turn created before
+this corrective has `execution_owner_id IS NULL` / `lease_expires_at IS NULL` forever. A
+future NXS-P25 reaper MUST treat `lease_expires_at IS NULL` as "unknown deadline — do not
+assume safe to reap", never as "safe to reap" and never as "never expires" — this is the
+same non-ambiguous-null discipline already used for `response_correlation_id`.
+
+**The margin is a practical engineering buffer, not a formally proven bound (corrective
+#6 final-audit LOW finding):** `lease_bound` is proven `<=` the real enforced
+`asyncio.timeout` deadline by construction (both are `min(global ceiling, remaining
+session lifetime)`, and the effective deadline can only be tighter via a per-Agent
+override). The `execution_lease_grace_seconds` margin added on top (default 30s) is sized
+to absorb the residual scheduling gap between claiming the row and `asyncio.timeout`
+actually starting, plus the time `_fail_turn` / `_expire_session_now` need to commit
+after a legitimate timeout fires — but that absorption is an operational judgement, not a
+mathematical proof. Because P13 performs no reaping on this signal today, the distinction
+has no current effect. A future NXS-P25 reaper MUST NOT treat `lease_expires_at` as an
+instant-safe cutoff — it should apply its OWN additional operational safety margin on top
+before treating an expired lease as reapable, rather than trusting this bound as exact.
+
+**What P13 certification does NOT claim:** it does not claim autonomous crash recovery,
+does not reap orphaned turns, and does not change `active_for_session`'s current
+behaviour. `INV-CRASH-001` ("worker crash produces a recoverable, not ambiguous, durable
+state") is satisfied at the PRIMITIVE level — the state IS unambiguous and IS
+recoverable — not at the AUTOMATION level, which NXS-P25 owns.
+
+### Tool-dispatch linearization / fencing (corrective #7)
+
+**Why corrective #6 was not enough.** `_check_execution_authority` — a cheap, UNLOCKED
+read, called immediately before every new tool dispatch — narrows the TOCTOU window
+between "is this session still authoritative" and "dispatch to the Tool Engine" to the
+smallest interval that code structure allows. It does not CLOSE it: PostgreSQL's
+read-committed isolation lets that unlocked SELECT return the last COMMITTED snapshot
+even while a concurrent cancellation transaction is ALREADY IN FLIGHT (its own `SELECT …
+FOR UPDATE` already acquired, its `UPDATE` not yet issued) — an unlocked reader never
+waits on another transaction's uncommitted row lock. So a cancellation that is, in every
+meaningful sense, already "happening" can still lose an unlocked race against a read that
+started (and finished) a moment earlier. This is proven, not asserted:
+`tests/concurrency/test_agent_tool_dispatch_fencing.py::test_authorize_blocks_on_inflight_cancellation_and_correctly_rejects`
+holds a real cancellation transaction open (its `UPDATE` deliberately delayed past its
+already-acquired row lock) and shows the tool genuinely dispatches
+(`seen == ["/c/x1"]`) against the corrective-#6-only mechanism — a real, reproducible
+violation, not a hypothetical one.
+
+**The fix — a durable linearization point, not another read.** `AgentService.
+_authorize_tool_dispatch` replaces the pre-dispatch checkpoint for NEW tool calls
+specifically (the model-continuation checkpoint is untouched — see above). It:
+
+1. Opens a transaction and takes `SELECT … FOR UPDATE` on the OWNING SESSION ROW — the
+   IDENTICAL lock `_terminalize` (stop / cancel / expire) takes.
+2. If the session is already terminal under that lock, raises `ExecutionRevoked` — no
+   permit is ever created, no dispatch follows.
+3. Otherwise, INSERTS a durable `ai_agent_tool_dispatch_permits` row (migration
+   `f2a3b4c5d6e7`) — `(organization_id, session_id, turn_id, sequence, tool_key,
+   arguments_hash, authorized_at)` — and commits.
+
+Two transactions contending for the SAME row lock are serialized by PostgreSQL itself,
+not by application logic: whichever transaction's lock request is granted FIRST runs to
+completion (commit or rollback) before the other's is even granted. This makes the
+"did this tool call's authorization happen before or after the cancellation" question a
+DURABLE, OBJECTIVELY PROVABLE fact — the commit order — rather than a race decided by
+which coroutine happened to run first:
+
+* the permit transaction wins the lock → observes the session ACTIVE → commits the
+  permit → the caller may dispatch, and that dispatch remains valid even if cancellation
+  commits a moment later (**Case 1**, INV-FENCE-003);
+* the cancellation transaction wins the lock and commits first → the permit transaction,
+  once granted the lock, observes the session already terminal → rejected, no permit, no
+  dispatch (**Case 2**, INV-FENCE-002).
+
+`AgentToolBridge.execute` (the actual external HTTP call) always runs ENTIRELY OUTSIDE
+this transaction — only the DB round trip for the permit is held under the lock, matching
+the explicit preference against holding an ordinary transaction open across a remote call.
+
+**Lock-starvation tradeoff (final-audit LOW finding, made explicit):** because every
+transaction that touches the session row — `_open_turn`, `_finish_turn`, `_fail_turn`,
+`_terminalize`, and now `_authorize_tool_dispatch` — is short and DB-only (never a remote
+call held under the lock), a single stuck/slow worker cannot block other operations on the
+same session for longer than one local DB round trip. This is the SAME tradeoff correctives
+#3/#4/#6 already accept implicitly (the session row has always been a serialization point
+for terminalisation and turn-claiming); this corrective adds one more short, bounded
+contender for that same lock, not a new class of risk.
+
+**Why not an epoch/fencing-generation column (Option B), a P08-owned authorization
+reservation (Option C), or an advisory lock (Option D).** The session row itself, already
+the sole terminalisation authority since corrective #3, is the natural and sufficient
+serialization boundary — introducing a SEPARATE epoch counter or advisory-lock namespace
+would duplicate that authority without closing any additional gap: whatever advances or
+checks an epoch would itself need to serialize against the SAME session-terminalisation
+transaction to be correct, at which point the row lock already used is doing the real
+work. A P08-owned reservation (Option C) would require extending P08's own execution
+model for a guarantee P13's own row lock already provides without it — out of scope and
+unnecessary; **P08 is entirely unchanged by this corrective**, and never receives, holds
+or validates any fencing token — it continues to see exactly the same governed
+`ToolInvocation` calls it always has, and every existing P08 idempotency guarantee (ADR
+0093) is undisturbed.
+
+**Ownership / authorization semantics — precise terminology (per the directive's own
+discipline).** Four DISTINCT concepts now exist and must not be conflated:
+
+* **execution claim** — the exclusive right to run a turn's model/tool loop at all,
+  decided by the partial UNIQUE index + `SELECT … FOR UPDATE` at turn-insert time
+  (corrective #4). Unaffected by this corrective.
+* **lease** — `execution_owner_id` / `lease_expires_at` (corrective #6): a durable,
+  NEVER-RENEWED, NEVER-VALIDATED-BY-P13 upper bound for future orphan detection. Still
+  not a fencing mechanism; still not read by P13 to make any decision.
+* **fencing generation** — NOT introduced by this corrective (see above); the session
+  row lock is used directly instead of a separate generation counter.
+* **dispatch authorization / permit** — THE NEW CONCEPT this corrective introduces: a
+  durable, per-tool-call, linearization-backed record that a specific NEW external
+  dispatch was legitimately authorized at a specific, provable point relative to any
+  concurrent cancellation. This is the only one of the four that changes this corrective.
+
+**Already-authorized-operation / post-cancel guarantees.** Identical to corrective #6's
+documented boundary, now on a provably exact footing rather than a narrowed-probability
+one: an operation already DISPATCHED (its permit committed, `AgentToolBridge.execute`
+already called) before cancellation commits may complete
+(`test_authorize_before_cancel_commit_may_complete`); no operation is DISPATCHED once
+cancellation has committed and the next authorization attempt observes it
+(`test_authorize_blocks_on_inflight_cancellation_and_correctly_rejects`). A model
+response requesting several tools in the SAME iteration is authorized one at a time, in
+order — an earlier one already authorized/dispatched before cancellation commits may
+complete; a later one in the SAME response, authorized only after cancellation has
+committed, is rejected exactly like any other new dispatch
+(`test_multi_tool_same_response_only_pre_cancel_authorization_survives`).
+
+**Crash-window analysis (extends corrective #3's / #6's).**
+
+| Window | Durable state | Recovery owner | Duplicate-effect risk |
+|---|---|---|---|
+| P1: permit commits, worker dies before the external call | An `AUTHORIZED` permit row with no matching `ai_agent_tool_calls` row for the same `(turn_id, tool_key, arguments_hash)` | NXS-P25 (deferred, not implemented here) | None BY ITSELF — no external call was ever made; a future retry under a NEW attempt would need P08's own idempotency key (ADR-0093), unaffected by this corrective |
+| P2: the external call succeeds, worker dies before `ai_agent_tool_calls` is recorded | Permit row exists; the external system may have applied the effect; no local record of the outcome | NXS-P25 | Possible only if a FUTURE recovery mechanism blindly retries without consulting P08's own idempotency key — out of scope for P13, which performs no such retry |
+| P3: cancellation commits after the permit but before the external call | Permit row exists (legitimately, Case 1); session CANCELLED | Worker A itself — the external call may still be dispatched (already authorized) | None — this is the documented, tested, INTENDED boundary |
+| P4: cancellation commits before the permit transaction even starts | No permit row; session CANCELLED | N/A — rejected outright | None — Case 2 |
+| P5: a duplicate worker reuses the same tool idempotency key | Structurally unreachable in the current architecture — a turn is exclusively owned by one worker (correctives #1/#4); the permit table's unique index on `(organization_id, turn_id, tool_key, arguments_hash)` is defense-in-depth for this case regardless (INV-FENCE-011) | N/A | None — P08's own idempotency key (ADR-0093) is the final backstop even if this were ever reachable |
+| P6: a DB reconnect/retry happens around permit creation | The permit INSERT is a single, atomic, short transaction — a reconnect either lands before it (no permit, safe to retry the whole authorization) or after a successful commit (permit durably exists) | Caller (existing `submit_turn` retry semantics, unaffected) | None |
+
+**No claim of "exactly-once" physical external effect** is made anywhere in this
+section — P1/P2 explicitly leave open that a FUTURE recovery mechanism could duplicate an
+effect if it ever retried carelessly; this corrective's guarantee is that NO NEW
+dispatch is EVER authorized once cancellation has linearized first — it says nothing
+stronger about what a not-yet-built P25 recovery mechanism might one day do.
+
+**Invariants locked by this section:** INV-FENCE-001 through INV-FENCE-012.
+
+### NXS-AGENT-002 governance: mandatory=true (corrective #7 §13)
+
+Corrective #6 recorded `NXS-AGENT-002` (orphaned-turn crash recovery, target NXS-P25) as
+`mandatory: false` — appropriate at the time, since the underlying limitation (a crashed
+worker's RUNNING turn blocks its session `AgentBusyError` forever, with no recovery path)
+was newly DISCOVERED and DOCUMENTED, not yet weighed as a governance gate. Corrective #7
+re-examines this: an orphaned RUNNING turn causing PERMANENT session unavailability is a
+genuine, currently-unmitigated production resilience gap — not a nice-to-have. Per the
+corrective #7 directive, `NXS-AGENT-002.mandatory` is changed to `true`, while `status`
+stays `PLANNED` and `target_phase` stays `NXS-P25` (P13 still does not implement P25's
+work). This was validated against the repository's own lifecycle semantics
+(`scripts/nxs_control/core.py`) before being applied: the mandatory-requirement-to-phase-
+manifest consistency check (`mapped != expected` in `validate_repository_state`) only
+runs against phases that already HAVE a `.nxs/phases/NXS-Pxx.json` manifest file — NXS-P25
+has none yet (it has not started), so this change has NO effect on `nxs_validate` today,
+and no effect whatsoever on NXS-P13's own closure (P13's manifest is validated only
+against requirements whose `target_phase == "NXS-P13"`, i.e. `NXS-AGENT-001`, unaffected).
+Its effect is entirely FORWARD: when NXS-P25 is eventually started and its manifest is
+created, that manifest's `requirements_implemented` list will be REQUIRED to include
+`NXS-AGENT-002` — NXS-P25 cannot reach READY/GO without validating it. Correspondingly,
+**NXS-P30 ("Backend Certification") cannot certify backend production readiness while
+`NXS-AGENT-002` remains un-`VALIDATED`**, since NXS-P30 depends (transitively, through the
+phase dependency chain) on NXS-P25's own closure gate now including this requirement.
+
+### Model-dispatch linearization (corrective #8)
+
+**The gap corrective #7 left open.** Corrective #7 closed the TOCTOU race for NEW P08
+tool dispatches. It deliberately left the MODEL-continuation checkpoint
+(`_check_execution_authority`, a cheap unlocked read) untouched, reasoning at the time
+that "a wasted model call is not the class of harm an external side effect is." On
+reflection (corrective #8's mandate) that reasoning under-weighted two things: a model
+call is itself external data disclosure (the assembled context leaves the tenant
+boundary to a third-party provider) and a real cost (tokens, latency, money) — the SAME
+class of irreversible, externally-visible side effect a P08 tool call is, just to a
+different kind of external system. The TOCTOU exposure was IDENTICAL in shape to
+corrective #7's: an unlocked SELECT does not block on another transaction's uncommitted
+`FOR UPDATE` lock, so a stale worker's model call could begin after a concurrent
+cancellation had already started (and was about to commit) but had not yet been
+observed.
+
+**The fix — the model-invocation counterpart to corrective #7, not a new architecture
+(Option B, dedicated table).** `AgentService._authorize_model_dispatch` is
+`_authorize_tool_dispatch`'s mechanism applied to the OTHER class of external work:
+takes `SELECT … FOR UPDATE` on the SAME session row, and — only if the session is still
+live under that lock — inserts a durable `ai_agent_model_dispatch_permits` row
+(migration `a3b4c5d6e7f8`) before committing. `_check_execution_authority` is REMOVED
+(it had exactly one call site, now replaced); `AgentRuntime.run_turn`'s
+`check_authority` parameter is replaced by `authorize_model`, called once per loop
+iteration, immediately before `_call_model`.
+
+**Why a dedicated table (Option B) over a generic `dispatch_kind` column on one shared
+table (Option A), an execution-generation/epoch shared by model+tool (Option C), or
+moving authorization into the model transport (Option D):** a dedicated table mirrors
+`ai_agent_tool_dispatch_permits` exactly — same columns shape, same unique-index
+discipline, same RLS posture — at ZERO risk to corrective #7's already-audited table (no
+refactor, no migration touching existing rows, no new nullable "kind"-discriminated
+columns to reconcile). A generic table would reduce two small tables to one, but at the
+cost of re-touching and re-auditing an already-certified structure for a benefit that is
+purely aesthetic — correctness, auditability and migration safety are all IDENTICAL
+either way, and the directive's own governance explicitly discourages unnecessary
+refactoring of an already-accepted corrective. An epoch shared by model+tool would
+duplicate the session row's own authority without closing anything the row lock
+doesn't already close (same argument corrective #7 made against Option B/C/D for tool
+dispatch). Moving authorization into the model transport (`GovernedModelHttpTransport`)
+would put a DATABASE-shaped decision inside an HTTP transport abstraction that has no
+current reason to know about turns, sessions, or PostgreSQL at all — a much larger,
+riskier change for no additional guarantee.
+
+**Model-dispatch permit schema** (`ai_agent_model_dispatch_permits`):
+`(organization_id, session_id, turn_id, iteration, model, authorized_at, created_at)`,
+unique on `(organization_id, turn_id, iteration)`. Deliberately carries NO prompt, no
+assembled context, no provider credential, no hidden reasoning — `model` is the
+resolved model identifier string (e.g. `"gpt-4o-mini"`), not account or credential
+material; the permit proves an iteration was AUTHORIZED, it does not duplicate what the
+turn/context tables already store.
+
+**Iteration identity, not a request fingerprint.** `(session_id, turn_id, iteration)`
+already uniquely identifies "which provider call this is" within one turn — an
+iteration number is assigned deterministically by the bounded loop, never
+model-controllable. A request-content fingerprint was considered and rejected: it would
+either hash the (untrusted, potentially large) assembled prompt (a privacy/size
+concern for no correctness benefit — the iteration number is already unique) or require
+threading additional identity through `TurnContext` for no gain.
+
+### Turn authority and future P25 fencing compatibility (corrective #8 §8)
+
+**The question directive #8 requires answering precisely.** Corrective #7's tool permit
+(and now corrective #8's model permit) validate that the SESSION is live. Neither
+originally validated that the CALLING WORKER still holds authority over the SPECIFIC
+TURN. Formally: if Worker A claims turn T (`execution_owner_id` set at `_open_turn`),
+Worker A's process dies, and a FUTURE NXS-P25 mechanism reclaims or replaces ownership
+of T, can a stale Worker A that unexpectedly resumes still authorize model or tool work
+for T? Answered NO by construction, via a new shared check.
+
+**`AgentService._assert_turn_authority`** — called by BOTH `_authorize_model_dispatch`
+and `_authorize_tool_dispatch`, inside the same transaction that already holds the
+session row's `FOR UPDATE` lock, immediately after confirming the session is live: reads
+the TURN row and rejects (raises `AgentInvalidStateError`, the existing, already-stable
+taxonomy entry — no new error code was needed) if (a) the turn no longer exists or has
+independently reached a terminal state, or (b) the turn's CURRENT durably-recorded
+`execution_owner_id` does not match the value the calling worker captured when it
+originally claimed the turn (`turn.execution_owner_id`, corrective #6).
+
+**Why this is UNREACHABLE today, and why it is added anyway.** Nothing in the current
+codebase ever reassigns a turn's `execution_owner_id` after claim, and nothing
+externally terminalises a turn out from under its own `_run_turn` — the scenario this
+check guards against cannot currently be constructed through the public API. It is
+added now, ahead of NXS-P25's existence, because retrofitting a fencing check onto an
+authorization path is far riskier once that path is live in production than
+establishing it now, at zero behavioural cost (the check is a no-op for every call this
+corrective's own test suite can construct — proven directly by
+`tests/concurrency/test_agent_model_dispatch_fencing.py::test_stale_worker_cannot_authorize_model_or_tool_for_a_turn_it_no_longer_owns`,
+which invokes both authorization methods DIRECTLY with a deliberately wrong owner id to
+prove the rejection path itself is correct, since no code path in the current system can
+reach it any other way).
+
+**The CONTRACT a future NXS-P25 reclaim mechanism MUST honour for this guarantee to
+hold:** any mechanism that ever reassigns `execution_owner_id` (or externally
+terminalises a turn) MUST do so inside a transaction that ALSO takes `SELECT … FOR
+UPDATE` on the same session row `_terminalize` / `_authorize_model_dispatch` /
+`_authorize_tool_dispatch` already lock. If a future P25 implementation reassigns
+ownership WITHOUT taking that lock, a stale worker's concurrently-in-flight
+authorization attempt could read the OLD owner id before the reassignment becomes
+visible — the identical class of race corrective #7/#8 closed for cancellation. This
+document is the durable record of that requirement; P13 does not implement the P25 side
+of it, but the fencing check it adds now is only as strong as a future P25's own
+adherence to this contract.
+
+**Invariants locked by this section:** INV-EXEC-001 through INV-EXEC-014.
+
+### Model TOCTOU crash windows (M1–M5) and continuation-race integration (corrective #8)
+
+Extends the crash-window table above with the model-dispatch counterparts (M1–M5) and
+the two tool-dispatch windows already covered (T1–T2, identical to corrective #7's P1/P3
+above under new names for cross-reference):
+
+| Window | Durable state | Recovery owner | Duplicate-effect / privacy risk |
+|---|---|---|---|
+| M1: model permit commits, worker dies before the provider call | An `AUTHORIZED` permit row for that iteration with no corresponding turn progress past it | NXS-P25 (deferred) | None by itself — no provider call was ever made; the prompt was never sent |
+| M2: the provider receives the request, worker dies before the response arrives | Permit row exists; the provider may have started (or completed) generation; no local record | NXS-P25 | The SAME class of risk as M1/M2 for tool calls (P1/P2 above) — a future retry must not blindly re-send without considering this; P13 performs no such retry itself |
+| M3: the provider returns, worker dies before `_finish_turn` persists the result | Permit row exists; response was generated but never durably recorded | NXS-P25 | The provider's response is lost from this system's perspective (never billed twice locally, but the provider-side cost/generation already happened — inherent to M1/M2/M3, not specific to this corrective) |
+| M4: cancellation commits before the model-permit transaction even starts | No permit row; session CANCELLED | N/A — rejected outright | None — Case B |
+| M5: the model-permit transaction commits before cancellation commits | Permit row exists (legitimately, Case A); session may become CANCELLED moments later | Worker A itself — the provider call may still proceed (already authorized) | None — this is the documented, tested, INTENDED boundary (`test_authorize_model_before_cancel_commit_may_complete`) |
+
+The CONTINUATION race — model iteration N authorized/completes, that response requests
+a tool, cancellation races the TOOL authorization — is proven directly by
+`test_continuation_model_authorized_first_but_subsequent_tool_after_cancel_rejected`:
+the already-authorized model call is allowed to complete (Case A / M5), but the NEW tool
+authorization it then requests is correctly rejected once cancellation has committed by
+the time that specific authorization attempt runs (Case B for the tool permit) — proving
+the two linearization points compose correctly rather than merely working in isolation.
+
+**No claim of "exactly-once" physical provider inference** is made anywhere in this
+section, for the identical reason corrective #7 makes none for physical tool effects:
+M1/M2/M3 explicitly leave open that the provider may have already begun or completed
+generation even though this system never durably recorded it. This corrective's
+guarantee is that no NEW model call is EVER authorized once cancellation has linearized
+first — nothing stronger.
+
+### Authority identity — session/turn binding is now a proven fact, not an assumption (corrective #9)
+
+**The gap.** Correctives #7/#8 proved a durable, PostgreSQL-provable *ordering* between
+authorization and cancellation — but neither proved that the session row being locked
+`FOR UPDATE` was actually the *parent* of the turn being authorized. `_assert_turn_authority`
+checked turn-terminality and `execution_owner_id`, never `turn.session_id ==
+session_id`. Within one Organization, RLS does not help: a caller-supplied session id
+and a turn's real parent session id both belong to the same tenant, so a tenant-scoped
+read of either succeeds regardless of whether they are actually related. Concretely: an
+ACTIVE session A with nothing to do with turn B, and turn B's own real parent session B
+already CANCELLED — calling either authorization method with `session_id=A,
+turn_id=B.id, owner=B's real execution_owner_id` locked the WRONG session (live, so it
+passed the terminal check), then found turn B non-terminal with a matching owner, and
+wrongly authorized a durable permit. Reproduced directly against audited head
+`5b80cbc07010e3f7201bce40caf93c9dfdbd37b3` in
+`tests/concurrency/test_agent_authority_identity_fencing.py`.
+
+**INV-AUTH-ID-001.** A dispatch is authorized only if ALL of: `permit.organization_id ==
+turn.organization_id == session.organization_id`, `permit.session_id == turn.session_id
+== locked_session.id`, `expected_owner == turn.execution_owner_id`, the turn is
+non-terminal, and the session is non-terminal. No subset is sufficient — each clause was
+independently falsifiable before this corrective (organization equality was already
+structurally guaranteed by `TenantOwnedMixin` + tenant-scoped repositories, since both
+the session and turn reads happen through the SAME `tenant` object; the session/turn
+binding clause was not).
+
+**Two-layer fix, matching directive §5's "do NOT rely only on Python":**
+
+1. **Application layer.** `AgentService._assert_turn_authority` gained a mandatory
+   `expected_session_id` parameter and now rejects (`AgentInvalidStateError`, the same
+   already-stable taxonomy entry corrective #8 reused — no new public error code) the
+   moment `turn_row.session_id != expected_session_id`, checked inside the SAME
+   transaction that already holds the session row's `FOR UPDATE` lock, before the
+   owner-identity check.
+2. **Database layer** (migration `b4c5d6e7f8a9`). `ai_agent_turns` gains an additive
+   unique constraint on `(organization_id, session_id, id)` (the existing
+   `(organization_id, id)` constraint is preserved unchanged). `ai_agent_tool_dispatch_permits`,
+   `ai_agent_model_dispatch_permits`, and `ai_agent_tool_calls` all move their FK on
+   `turn_id` from the plain `(organization_id, turn_id) -> ai_agent_turns(organization_id,
+   id)` to the composite `(organization_id, session_id, turn_id) ->
+   ai_agent_turns(organization_id, session_id, id)`. After this migration, PostgreSQL
+   itself refuses to persist a row in any of these three tables whose `session_id`
+   disagrees with its own turn's real parent session — proven directly, independent of
+   any application code path, by
+   `test_database_constraint_rejects_mismatched_session_turn_row_even_bypassing_python`
+   (a raw SQL `INSERT` through the tenant-scoped runtime transaction, entirely bypassing
+   `AgentService`).
+
+`ai_agent_tool_calls` is included even though it is not itself an authorization gate — it
+is the durable audit record of an authorized dispatch's *effect*. Leaving it on the old,
+non-session-aware FK while the permit tables that authorize the very same dispatch moved
+to the session-aware key would have been a silent relational contradiction between "what
+was authorized" and "what was recorded."
+
+**Table audit (directive §6).** Every P13 table carrying both `session_id` and `turn_id`
+columns was enumerated directly against the ORM (`grep` over every `session_id: Mapped` /
+`turn_id: Mapped` declaration in `domain/agents/models.py`) — exactly three exist:
+
+| Table | Classification | Disposition |
+|---|---|---|
+| `ai_agent_tool_dispatch_permits` | A — authority-critical | Composite FK (migration `b4c5d6e7f8a9`) |
+| `ai_agent_model_dispatch_permits` | A — authority-critical | Composite FK (migration `b4c5d6e7f8a9`) |
+| `ai_agent_tool_calls` | A — audit-integrity, fixed to avoid a silent relational contradiction with the two tables above (directive's own explicit nudge) | Composite FK (migration `b4c5d6e7f8a9`) |
+
+`ai_model_usage` carries only `session_id` (no `turn_id`) — out of scope by construction,
+not by omission. No other P13 table carries both columns.
+
+### Permit ownership semantics — CREATED vs ALREADY_EXISTS (corrective #9; tool dispatch corrected by corrective #10)
+
+**The gap.** Both `_authorize_model_dispatch` and `_authorize_tool_dispatch` wrapped
+their permit `INSERT` in a `SAVEPOINT` + `contextlib.suppress(IntegrityError)` — a
+pattern that made "this attempt durably created the permit" indistinguishable from "a
+permit for this exact semantic slot already existed" from the caller's point of view:
+both cases simply returned `None`.
+
+**INV-AUTH-ID-002 / INV-TOOL-PERMIT-001.** Only the attempt that durably creates the
+permit row may proceed as a genuinely NEW dispatch — for BOTH model and tool dispatch.
+
+**Fix.** Both methods make the CREATED-vs-ALREADY_EXISTS branch an explicit, named
+decision (`AgentService._PermitOutcome`, module-private — never exposed publicly; every
+caller still only ever sees "raises" or "returns `None`," so the public
+`AuthorizeModel` / `AuthorizeTool` callback contract in `runtime.py` is UNCHANGED,
+preserving correctives #7/#8's linearization architecture exactly as directed). As of
+corrective #10, model and tool dispatch reject ALREADY_EXISTS **identically**:
+
+* **Model dispatch:** ALREADY_EXISTS is REJECTED (`AgentInvalidStateError`) — the caller
+  MUST NOT independently perform a second NEW provider call. Proven by
+  `test_duplicate_model_authorization_attempt_is_rejected_not_a_second_call` (a second
+  attempt for the identical `(turn, iteration)` is rejected; the permit row count for
+  that iteration stays exactly 1).
+* **Tool dispatch:** ALREADY_EXISTS is now ALSO REJECTED (`AgentInvalidStateError`) —
+  see "Tool permit claim ownership (corrective #10)" below for the full history and
+  rationale for this change. `INV-FENCE-011` (corrective #7's original "duplicate is
+  absorbed as already-authorized" defense-in-depth note) is SUPERSEDED by
+  `INV-TOOL-PERMIT-001/002/003` below.
+
+### Crash semantics under the identity fix (durable facts only — NXS-P25 unchanged)
+
+This corrective adds no new crash-recovery behaviour and implements no reaping logic.
+The composite FK and the `expected_session_id` check change what CAN be persisted, not
+who recovers an orphaned turn: `execution_owner_id` / `lease_expires_at` (corrective #6)
+remain the only durable primitives a future NXS-P25 mechanism will read, and this
+corrective's permit tables remain exactly what they were — durable facts about WHAT was
+authorized, for a future reconciliation process to reason about, never a mechanism that
+itself redispatches on crash recovery. If a worker crashes mid-authorization, P13 fails
+closed (no ambiguous partial state a future recovery path must guess about): either the
+permit transaction committed (a genuine, provable authorization occurred) or it did not
+(nothing was authorized) — there is no third, ambiguous outcome the composite FK or the
+CREATED/ALREADY_EXISTS distinction introduces. `NXS-AGENT-002` (mandatory=true, status
+PLANNED, target NXS-P25) is left completely unchanged by this corrective.
+
+**The P25 contract, restated with the identity fix in scope.** A future reassignment of
+turn ownership MUST hold the owning session row `FOR UPDATE` for the SAME reasons
+corrective #8 already established, and additionally MUST NOT alter a turn's
+`session_id` as part of any reclaim (the composite FK now makes that structurally
+impossible to do inconsistently across the permit/audit tables in any case). A reclaimed
+owner receives a NEW `execution_owner_id`; the old owner loses all authority
+immediately (proven unreachable-but-correct today by
+`test_stale_worker_with_random_session_id_cannot_forge_authority` and the identity
+matrix tests). Historical `COMPLETED` turn replay is unaffected — replay never calls
+either authorization method (see "Response-exact replay" above).
+
+### Tool permit claim ownership (corrective #10)
+
+**The gap.** Corrective #9 made the CREATED-vs-ALREADY_EXISTS permit outcome an
+explicit decision for both dispatch classes, and rejected ALREADY_EXISTS for MODEL
+dispatch — but deliberately let TOOL dispatch's ALREADY_EXISTS outcome return
+normally, reasoning that `AgentToolBridge.execute` is itself keyed by the P08 Tool
+Engine's own idempotency key (the same `tool_key` + `arguments_hash` the permit is
+keyed by), so a second attempt reaching it would only ever be a no-op re-read of the
+first attempt's result, never a second live external side effect.
+
+That reasoning is correct about the EFFECT — P08 genuinely does deduplicate — but it
+does not satisfy PERMIT-OWNERSHIP semantics. `AgentRuntime.run_turn` performs, for
+every requested tool call:
+
+```
+await authorize_tool(call.name, key[1], tool_calls_requested)
+outcome = await self._tools.execute(...)
+```
+
+unconditionally: `authorize_tool` returning normally (as ALREADY_EXISTS previously
+did) is the ONLY signal `run_turn` checks before calling `execute`. A second
+identical semantic attempt that received a bare "success" from `_authorize_tool_dispatch`
+would therefore still genuinely ENTER `AgentToolBridge.execute` / the NXS-P08 Tool
+Engine a second time — relying entirely on P08's own idempotency layer to make that
+entry harmless, rather than the authorization layer itself refusing the entry. A
+permit-ownership mechanism whose only enforcement is "the thing downstream happens to
+be idempotent" is not an authorization boundary; it is a hope.
+
+**INV-TOOL-PERMIT-001.** Only the attempt that durably creates the tool-dispatch
+permit may proceed as a NEW P08 dispatch.
+
+**INV-TOOL-PERMIT-002.** ALREADY_EXISTS is not dispatch authority.
+
+**INV-TOOL-PERMIT-003.** P08 idempotency is defense-in-depth, not the mechanism that
+fixes duplicate permit ownership.
+
+**Fix.** `_authorize_tool_dispatch`'s ALREADY_EXISTS branch now raises
+`AgentInvalidStateError` (the existing stable taxonomy entry — no new public error
+code), identical to `_authorize_model_dispatch`'s existing behaviour. Model and tool
+dispatch now share the IDENTICAL claim-ownership rule:
+
+* **CREATED** → the current execution attempt owns dispatch authority for this
+  semantic permit slot; it may proceed to call the provider (model) or
+  `AgentToolBridge.execute` (tool).
+* **ALREADY_EXISTS** → authorization was previously claimed by another attempt; the
+  current attempt does NOT own new dispatch authority and is rejected before it can
+  reach the provider or the Tool Engine.
+
+**No claim of "exactly-once" physical tool-call execution** is made anywhere in this
+section: a crash between permit-commit and the actual HTTP call is still possible, per
+the existing crash-window tables above. Permit uniqueness DOES guarantee that at most
+one P13 NEW dispatch ATTEMPT is ever granted for a given semantic permit slot, for
+both classes of external work this runtime can dispatch. P08 idempotency remains
+fully in place, unmodified, as an independent SECOND layer of defense — not removed,
+not weakened, not relied upon as the sole safety mechanism.
+
+**Why this is unreachable today, and why it is fixed anyway.** A turn is already
+exclusively owned by one worker (correctives #1/#4: one idempotency key names one
+immutable logical turn), and within that turn, corrective #1's own turn-wide semantic
+tool-call cache (`(tool_key, arguments_hash) -> prior ToolCallOutcome`) means the SAME
+semantic tool call appearing twice in normal execution is served from that cache and
+never reaches `_authorize_tool_dispatch` a second time at all — a duplicate durable
+permit attempt should not be reachable through the public API today. ALREADY_EXISTS
+therefore represents one of: a stale worker, a duplicate execution attempt, a replayed
+internal execution, a future recovery collision, or an unexpected re-entry — every one
+of which should FAIL CLOSED at the authorization layer, not be allowed through on the
+strength of a downstream idempotency guarantee. This mirrors the reasoning
+`_assert_turn_authority`'s owner-fencing check (corrective #8) already established for
+a structurally analogous "currently unreachable, load-bearing anyway" case.
+
+**Dispatch-boundary certification.** The regression suite for this corrective
+(`tests/concurrency/test_agent_tool_permit_claim_ownership.py`) does NOT repeat the
+insufficient proof pattern of merely calling `_authorize_tool_dispatch` twice and
+checking the permit row count — it instruments the actual dispatch boundary
+(`AgentToolBridge.execute`) with a call-counting wrapper around a live instance, so a
+regression that let a duplicate slip through would be caught even if it somehow still
+produced a permit-row count of 1. Also includes a two-worker test (two independent
+`AgentService` instances sharing one PostgreSQL database) proving no process-local
+lock is required for correctness — the durable permit's own unique index, combined
+with the now-fail-closed ALREADY_EXISTS branch, is what rejects the second worker's
+identical-identity attempt before it ever reaches its own bridge.
+
+**Crash semantics, restated for tool dispatch.** If a worker crashes after the tool
+permit commits but before `AgentToolBridge.execute` is called (or completes), a later
+execution attempt for the identical semantic slot now sees ALREADY_EXISTS and is
+correctly rejected — P13 does NOT automatically redispatch. This is a strictly
+CORRECT outcome under "fail closed, no ambiguous redispatch," even though it means a
+crash in that exact window leaves the semantic tool call never actually executed by
+this attempt. Reconciling that gap (deciding whether and how to grant a FRESH
+authorization for a provably-abandoned attempt) is explicitly NXS-P25's scope, not
+implemented here. The correct, narrower claim is: at most one P13 NEW dispatch attempt
+is granted per semantic tool permit slot.
+
+**Claim correction (directive requirement).** The corrective #9 test previously named
+`test_duplicate_tool_authorization_attempt_is_safe_not_a_second_effect` asserted the
+NOW-SUPERSEDED behaviour (a duplicate tool permit attempt returns normally) and has
+been renamed/updated in place to
+`test_duplicate_tool_authorization_attempt_is_rejected_not_a_second_call`, asserting
+the corrected behaviour; its earlier proof only checked the permit row count, never
+the actual Tool Engine entry count — exactly the class of insufficient certification
+this corrective's own dispatch-boundary test refuses to repeat.
+
+## Consequences
+
+* A barge-in stops generation promptly and leaves no "ghost" response.
+* A CROSS-WORKER barge-in / cancel / stop / expiry stops a DIFFERENT worker's model
+  continuation and tool dispatch at the next checkpoint, not merely at final commit — an
+  external side effect already dispatched before that commit may still complete (a
+  precisely documented and tested boundary), but nothing NEW starts after it.
+* An orphaned RUNNING turn (its worker crashed) is a durable, unambiguous fact a future
+  NXS-P25 mechanism can safely recover from — P13 does not claim to recover it itself —
+  and NXS-P25's own closure now REQUIRES it be solved (`NXS-AGENT-002` is mandatory).
+* BOTH classes of external work P13 can dispatch — a P08 tool call and a model-provider
+  call — now share one provably-linearizable authority boundary; a NEW dispatch's
+  authorization relative to a concurrent cancellation is a provable, PostgreSQL-
+  linearized fact for either, not a narrowed-probability read — closing the residual
+  TOCTOU gap corrective #6 could reduce but not eliminate.
+* A retried HTTP request, a duplicate queue delivery and a double-clicked UI all collapse
+  to one effect.
+* Because context assembly is deterministic (ADR-0092), a turn replay is a true replay.

@@ -1,0 +1,16 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": "........................................................                 [100%]\n56 passed in 0.06s",
+  "passed": 56,
+  "phase": "NXS-P13",
+  "recorded_at": "2026-09-12T01:05:26Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/unit/test_agent_primitives.py",
+    "tests/unit/test_agent_model_providers.py",
+    "tests/unit/test_agent_transport.py",
+    "tests/unit/test_agent_reinjection_bounds.py"
+  ]
+}

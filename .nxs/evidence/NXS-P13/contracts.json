@@ -1,0 +1,13 @@
+{
+  "failed": 0,
+  "marker": null,
+  "output_tail": ".............                                                            [100%]\n13 passed in 0.41s",
+  "passed": 13,
+  "phase": "NXS-P13",
+  "recorded_at": "2026-09-12T01:06:48Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": [
+    "tests/contracts/test_agent_contracts.py"
+  ]
+}

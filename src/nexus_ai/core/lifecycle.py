@@ -14,6 +14,9 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Protocol
 
+from nexus_ai.agents import events as agent_events  # noqa: F401 - payload registration
+from nexus_ai.agents.models.transport import GovernedModelHttpTransport
+from nexus_ai.agents.service import AgentService
 from nexus_ai.api.tenancy import TenantContextResolver, build_resolver
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import ConfigurationError
@@ -21,6 +24,7 @@ from nexus_ai.core.health import DependencyHealth, Probe, ReadinessEvaluator
 from nexus_ai.core.logging import configure_logging, get_logger
 from nexus_ai.core.metadata import ServiceMetadata
 from nexus_ai.core.telemetry import configure_telemetry, shutdown_telemetry
+from nexus_ai.domain.agents.repository import ModelSecretStore
 from nexus_ai.domain.auth.administration import MembershipService
 from nexus_ai.domain.auth.keys import SigningKeyProvider, build_key_provider
 from nexus_ai.domain.auth.passwords import build_password_hasher
@@ -115,6 +119,7 @@ class Resources:
     telephony_webhooks: InboundTelephonyService
     voice: VoiceService
     voice_webhooks: InboundVoiceService
+    agents: AgentService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -322,6 +327,22 @@ class ApplicationLifespan:
         voice_webhooks = InboundVoiceService(
             settings, database, event_platform.publisher, voice_vault
         )
+        agents_vault: VaultClient = LocalEncryptedVault(
+            ModelSecretStore(database), build_fernet(vault_keys)
+        )
+        agent_service = AgentService(
+            settings,
+            database,
+            event_platform.publisher,
+            agents_vault,
+            tool_engine,
+            tool_registry,
+            GovernedModelHttpTransport(
+                http_executor,
+                timeout_seconds=settings.agents.model_response_timeout_seconds,
+            ),
+            destination_policy=destination_policy,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -355,6 +376,7 @@ class ApplicationLifespan:
             telephony_webhooks=telephony_webhooks,
             voice=voice_service,
             voice_webhooks=voice_webhooks,
+            agents=agent_service,
         )
         await logger.ainfo(
             "runtime_started",
@@ -417,6 +439,10 @@ class ApplicationLifespan:
                 await self._resources.voice.shutdown()
             except Exception as exc:
                 await logger.awarning("voice_shutdown_error", error=str(exc))
+            try:
+                await self._resources.agents.shutdown()
+            except Exception as exc:
+                await logger.awarning("agents_shutdown_error", error=str(exc))
         if self._event_platform is not None:
             try:
                 await self._event_platform.stop()

@@ -1,0 +1,1693 @@
+"""The AI Agent Runtime application service (NXS-P13: NXS-AGENT-001, ADR-0090/0094).
+
+Owns: model provider account / model profile / agent CRUD; agent-session lifecycle;
+turn submission and the bounded model/tool loop; cancellation; usage accounting; and safe
+P04 event publication. It does NOT own telephony, SIP, ElevenLabs transport, direct
+integrations, credentials-at-rest, durable workflows, campaigns, the scheduler or
+human-agent operations. Every external action goes through the NXS-P08 Tool Engine; every
+model REST call goes through the NXS-P07 governed transport.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import contextlib
+import datetime as dt
+import enum
+import uuid
+from collections.abc import Callable
+from typing import Any, NoReturn, cast
+from uuid import UUID
+
+from sqlalchemy.exc import IntegrityError
+
+from nexus_ai.agents.context import AgentContextBuilder, PriorTurn
+from nexus_ai.agents.entities import (
+    AgentDefinition,
+    AgentResponse,
+    AgentSession,
+    AgentStatus,
+    AgentToolCallStatus,
+    AgentTurn,
+    CreateAgentRequest,
+    CreateModelProfileRequest,
+    ModelProfile,
+    ModelProfileStatus,
+    ModelProvider,
+    ModelProviderAccount,
+    ModelProviderAccountStatus,
+    RegisterModelProviderAccountRequest,
+    StartAgentSessionRequest,
+    StopAgentSessionRequest,
+    StoreModelCredentialRequest,
+    SubmitTurnRequest,
+    UpdateAgentRequest,
+    UpdateModelProfileRequest,
+    UpdateModelProviderAccountRequest,
+)
+from nexus_ai.agents.errors import (
+    AgentBusyError,
+    AgentCancelledError,
+    AgentConfigInvalidError,
+    AgentDisabledError,
+    AgentIdempotencyConflictError,
+    AgentIdempotentReplayError,
+    AgentInvalidStateError,
+    AgentModelProfileNotFoundError,
+    AgentModelProviderAccountNotFoundError,
+    AgentNotFoundError,
+    AgentSessionExpiredError,
+    AgentSessionNotFoundError,
+    AgentTurnNotFoundError,
+    AgentTurnTimeoutError,
+)
+from nexus_ai.agents.events import SESSION_STATE_EVENT_TYPE
+from nexus_ai.agents.idempotency import start_session_fingerprint, turn_fingerprint
+from nexus_ai.agents.models.base import ModelProviderAdapter, ModelToolSpec
+from nexus_ai.agents.models.registry import resolve_model_provider
+from nexus_ai.agents.runtime import AgentRuntime, TurnContext, TurnOutcome
+from nexus_ai.agents.state_machine import (
+    AgentSessionState,
+    AgentTurnState,
+    FoldOutcome,
+    fold_agent_session_state,
+    session_is_terminal,
+    session_rank,
+    turn_is_terminal,
+)
+from nexus_ai.agents.toolbridge import AgentToolBridge, ToolCallOutcome
+from nexus_ai.core.config import Settings
+from nexus_ai.core.errors import NxsError
+from nexus_ai.core.logging import get_logger
+from nexus_ai.domain.agents.repository import (
+    AgentModelDispatchPermitRepository,
+    AgentRepository,
+    AgentSessionRepository,
+    AgentToolCallRepository,
+    AgentToolDispatchPermitRepository,
+    AgentTurnRepository,
+    ModelProfileRepository,
+    ModelProviderAccountRepository,
+    ModelUsageRepository,
+)
+from nexus_ai.domain.auth.entities import Principal
+from nexus_ai.events.envelope import EventEnvelope
+from nexus_ai.events.publisher import EventPublisher
+from nexus_ai.infrastructure.database import Database
+from nexus_ai.infrastructure.tenant_session import TenantSession
+from nexus_ai.integrations.credentials import CredentialType, SecretMaterial, VaultClient
+from nexus_ai.integrations.destination import DestinationPolicy
+from nexus_ai.integrations.errors import IntegrationDestinationBlockedError
+from nexus_ai.tools.registry import ToolRegistry
+from nexus_ai.tools.service import ToolEngine
+
+_LIVE_RANK = 1
+
+ModelProviderFactory = Callable[[ModelProvider], ModelProviderAdapter]
+
+
+class ExecutionRevoked(Exception):
+    """Internal control-flow signal (audit corrective #6, superseded at both call sites
+    by the durable linearization points added in correctives #7/#8) — NEVER an
+    ``NxsError``, never surfaced to a caller directly. Raised by
+    :meth:`AgentService._authorize_model_dispatch` / :meth:`_authorize_tool_dispatch`
+    the moment their DB-authoritative linearization transaction (called before every
+    NEW model-provider invocation and every NEW tool-dispatch boundary inside
+    :meth:`AgentRuntime.run_turn`) observes that this session has already become
+    terminal — a cross-worker ``cancel_session`` / ``stop_session`` / lifetime expiry
+    that committed since the turn started. Carries the terminal session row so the
+    caller raises the TRUTHFUL taxonomy error (never a generic cancellation) via the
+    same logic ``_finish_turn``'s terminal-absorption path already uses."""
+
+    def __init__(self, session_row: AgentSession) -> None:
+        super().__init__("execution authority revoked by a cross-worker terminalisation")
+        self.session_row = session_row
+
+
+class _PermitOutcome(enum.Enum):
+    """Internal-only distinction between "this attempt durably created the permit row"
+    and "a permit for this exact semantic slot already existed" (audit corrective #9,
+    INV-AUTH-ID-002) — NEVER exposed publicly. :meth:`AgentService._authorize_model_dispatch`
+    / :meth:`_authorize_tool_dispatch` still only ever return ``None`` or raise to every
+    caller; this enum exists purely so the CREATED-vs-ALREADY_EXISTS branch inside those
+    two methods is an explicit, named decision instead of an implicit fallthrough after
+    a suppressed ``IntegrityError`` — the exact ambiguity that made "I created the
+    authorization" indistinguishable from "one already existed" before this corrective.
+    A third outcome, REJECTED (the session or turn fencing check failed before any
+    insert was attempted), is never represented here — it is always a raised exception
+    (:class:`ExecutionRevoked` / ``AgentInvalidStateError``), same as before.
+
+    As of audit corrective #10, BOTH :meth:`_authorize_model_dispatch` and
+    :meth:`_authorize_tool_dispatch` reject ALREADY_EXISTS identically (only the
+    permit-CREATING attempt may proceed as a new dispatch) — model and tool dispatch
+    now share the identical claim-ownership rule. Before corrective #10, tool dispatch
+    deliberately let ALREADY_EXISTS proceed, reasoning that P08's own idempotency key
+    made a second attempt harmless; that reasoning was correct about the EFFECT but
+    insufficient for permit-OWNERSHIP semantics, since the caller would still genuinely
+    enter ``AgentToolBridge.execute`` / the Tool Engine a second time (INV-TOOL-PERMIT
+    -001/002/003, ADR-0094 "Tool permit claim ownership")."""
+
+    CREATED = "created"
+    ALREADY_EXISTS = "already_exists"
+
+
+class AgentService:
+    def __init__(
+        self,
+        settings: Settings,
+        database: Database,
+        publisher: EventPublisher,
+        vault: VaultClient,
+        tool_engine: ToolEngine,
+        tool_registry: ToolRegistry,
+        model_http_transport: Any,
+        *,
+        destination_policy: DestinationPolicy | None = None,
+        model_provider_factory: ModelProviderFactory | None = None,
+    ) -> None:
+        self._settings = settings
+        self._cfg = settings.agents
+        self._db = database
+        self._publisher = publisher
+        self._vault = vault
+        self._tools = tool_engine
+        self._tool_registry = tool_registry
+        self._http = model_http_transport
+        self._destinations = destination_policy or DestinationPolicy()
+        self._provider_factory = model_provider_factory or resolve_model_provider
+        self._bridge = AgentToolBridge(tool_engine, self._cfg)
+        self._runtime = AgentRuntime(self._cfg, self._bridge)
+        self._context = AgentContextBuilder(self._cfg)
+        self._turn_tasks: dict[UUID, asyncio.Task[TurnOutcome]] = {}
+        self._locks: dict[UUID, asyncio.Lock] = {}
+        self._log = get_logger("nexus_ai.agents.service")
+
+    # -- model provider accounts --------------------------------------------------
+
+    async def create_account(
+        self, organization_id: UUID, request: RegisterModelProviderAccountRequest
+    ) -> ModelProviderAccount:
+        self._require_enabled()
+        try:
+            validated = self._destinations.validate_url(request.api_base)
+            if not validated.is_https:
+                raise AgentConfigInvalidError("the model API base must be an https origin")
+        except IntegrationDestinationBlockedError as exc:
+            reason = exc.extensions.get("reason", "blocked")
+            raise AgentConfigInvalidError(
+                f"the model API base is not an allowed destination ({reason})"
+            ) from exc
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            if await ModelProviderAccountRepository(tenant).by_slug(request.slug) is not None:
+                raise AgentConfigInvalidError("a model provider account with this slug exists")
+            return await ModelProviderAccountRepository(tenant).insert(
+                provider=request.provider,
+                slug=request.slug,
+                api_base=request.api_base,
+                external_account_id=request.external_account_id,
+                configuration=dict(request.configuration),
+            )
+
+    async def get_account(self, organization_id: UUID, account_id: UUID) -> ModelProviderAccount:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            account = await ModelProviderAccountRepository(tenant).by_id(account_id)
+        if account is None:
+            raise AgentModelProviderAccountNotFoundError("no such model provider account")
+        return account
+
+    async def list_accounts(
+        self, organization_id: UUID, *, limit: int
+    ) -> list[ModelProviderAccount]:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await ModelProviderAccountRepository(tenant).list_all(limit=limit)
+
+    async def update_account(
+        self, organization_id: UUID, account_id: UUID, request: UpdateModelProviderAccountRequest
+    ) -> ModelProviderAccount:
+        changes: dict[str, Any] = {}
+        if request.api_base is not None:
+            try:
+                if not self._destinations.validate_url(request.api_base).is_https:
+                    raise AgentConfigInvalidError("the model API base must be an https origin")
+            except IntegrationDestinationBlockedError as exc:
+                reason = exc.extensions.get("reason", "blocked")
+                raise AgentConfigInvalidError(
+                    f"the model API base is not an allowed destination ({reason})"
+                ) from exc
+            changes["api_base"] = request.api_base
+        if request.configuration is not None:
+            changes["configuration"] = dict(request.configuration)
+        if request.status is not None:
+            changes["status"] = request.status.value
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            updated = await ModelProviderAccountRepository(tenant).apply(account_id, changes)
+        if updated is None:
+            raise AgentModelProviderAccountNotFoundError("no such model provider account")
+        return updated
+
+    async def store_account_credential(
+        self, organization_id: UUID, account_id: UUID, request: StoreModelCredentialRequest
+    ) -> None:
+        account = await self.get_account(organization_id, account_id)
+        ref = account.credential_ref or f"ai-model:{account.id}"
+        material = SecretMaterial(CredentialType.PROVIDER_SECRET_SET, dict(request.fields))
+        await self._vault.store_secret(organization_id, ref, material)
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            await ModelProviderAccountRepository(tenant).apply(account_id, {"credential_ref": ref})
+
+    # -- model profiles ---------------------------------------------------------
+
+    async def create_profile(
+        self, organization_id: UUID, request: CreateModelProfileRequest
+    ) -> ModelProfile:
+        self._require_enabled()
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            account = await ModelProviderAccountRepository(tenant).by_id(request.account_id)
+            if account is None:
+                raise AgentModelProviderAccountNotFoundError("no such model provider account")
+            return await ModelProfileRepository(tenant).insert(
+                account_id=request.account_id,
+                slug=request.slug,
+                display_name=request.display_name,
+                model=request.model,
+                temperature=request.temperature,
+                max_output_tokens=request.max_output_tokens,
+            )
+
+    async def get_profile(self, organization_id: UUID, profile_id: UUID) -> ModelProfile:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            profile = await ModelProfileRepository(tenant).by_id(profile_id)
+        if profile is None:
+            raise AgentModelProfileNotFoundError("no such model profile")
+        return profile
+
+    async def list_profiles(self, organization_id: UUID, *, limit: int) -> list[ModelProfile]:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await ModelProfileRepository(tenant).list_all(limit=limit)
+
+    async def update_profile(
+        self, organization_id: UUID, profile_id: UUID, request: UpdateModelProfileRequest
+    ) -> ModelProfile:
+        changes = {
+            key: (value.value if hasattr(value, "value") else value)
+            for key, value in request.model_dump(exclude_none=True).items()
+        }
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            updated = await ModelProfileRepository(tenant).apply(profile_id, changes)
+        if updated is None:
+            raise AgentModelProfileNotFoundError("no such model profile")
+        return updated
+
+    # -- agents ---------------------------------------------------------------
+
+    async def create_agent(
+        self, organization_id: UUID, request: CreateAgentRequest
+    ) -> AgentDefinition:
+        self._require_enabled()
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            profile = await ModelProfileRepository(tenant).by_id(request.model_profile_id)
+            if profile is None:
+                raise AgentModelProfileNotFoundError("no such model profile")
+            await self._validate_tool_keys(tenant, organization_id, request.tool_keys)
+            return await AgentRepository(tenant).insert(
+                slug=request.slug,
+                display_name=request.display_name,
+                model_profile_id=request.model_profile_id,
+                system_instructions=request.system_instructions,
+                tool_keys=request.tool_keys,
+                max_tool_iterations=(
+                    request.max_tool_iterations
+                    if request.max_tool_iterations is not None
+                    else self._cfg.max_tool_iterations
+                ),
+                max_output_tokens=request.max_output_tokens,
+                temperature=request.temperature,
+                timeout_seconds=request.timeout_seconds,
+            )
+
+    async def get_agent(self, organization_id: UUID, agent_id: UUID) -> AgentDefinition:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            agent = await AgentRepository(tenant).by_id(agent_id)
+        if agent is None:
+            raise AgentNotFoundError("no such agent")
+        return agent
+
+    async def list_agents(self, organization_id: UUID, *, limit: int) -> list[AgentDefinition]:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await AgentRepository(tenant).list_all(limit=limit)
+
+    async def update_agent(
+        self, organization_id: UUID, agent_id: UUID, request: UpdateAgentRequest
+    ) -> AgentDefinition:
+        payload = request.model_dump(exclude_none=True)
+        changes: dict[str, Any] = {}
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            if "model_profile_id" in payload:
+                if await ModelProfileRepository(tenant).by_id(payload["model_profile_id"]) is None:
+                    raise AgentModelProfileNotFoundError("no such model profile")
+                changes["model_profile_id"] = payload["model_profile_id"]
+            if "tool_keys" in payload:
+                await self._validate_tool_keys(tenant, organization_id, tuple(payload["tool_keys"]))
+                changes["tool_keys"] = list(payload["tool_keys"])
+            for key in (
+                "display_name",
+                "system_instructions",
+                "max_tool_iterations",
+                "max_output_tokens",
+                "temperature",
+                "timeout_seconds",
+            ):
+                if key in payload:
+                    changes[key] = payload[key]
+            if "status" in payload:
+                changes["status"] = request.status.value if request.status else None
+            updated = await AgentRepository(tenant).apply(agent_id, changes)
+        if updated is None:
+            raise AgentNotFoundError("no such agent")
+        return updated
+
+    async def _validate_tool_keys(
+        self, tenant: Any, organization_id: UUID, tool_keys: tuple[str, ...]
+    ) -> None:
+        for key in tool_keys:
+            try:
+                await self._tool_registry.get_by_key(organization_id, key)
+            except NxsError as exc:
+                raise AgentConfigInvalidError(
+                    f"tool {key!r} is not a registered tool in this Organization"
+                ) from exc
+
+    # -- sessions -----------------------------------------------------------
+
+    async def start_session(
+        self, organization_id: UUID, principal: Principal, request: StartAgentSessionRequest
+    ) -> AgentSession:
+        self._require_enabled()
+        agent = await self.get_agent(organization_id, request.agent_id)
+        if agent.status is not AgentStatus.ACTIVE:
+            raise AgentConfigInvalidError("the agent is disabled")
+        profile = await self.get_profile(organization_id, agent.model_profile_id)
+        if profile.status is not ModelProfileStatus.ACTIVE:
+            raise AgentConfigInvalidError("the agent's model profile is disabled")
+        account = await self.get_account(organization_id, profile.account_id)
+        if account.status is not ModelProviderAccountStatus.ACTIVE:
+            raise AgentConfigInvalidError("the model provider account is disabled")
+
+        fingerprint = start_session_fingerprint(
+            agent_id=request.agent_id,
+            channel=request.channel.value,
+            conversation_id=request.conversation_id,
+            customer_id=request.customer_id,
+            call_id=request.call_id,
+            voice_session_id=request.voice_session_id,
+        )
+        if request.idempotency_key is not None:
+            replay = await self._replay_session(
+                organization_id, request.idempotency_key, fingerprint
+            )
+            if replay is not None:
+                return replay
+
+        now = dt.datetime.now(dt.UTC)
+        try:
+            async with self._db.tenant_transaction(organization_id) as tenant:
+                await self._assert_references(tenant, request)
+                session = await AgentSessionRepository(tenant).insert(
+                    {
+                        "agent_id": agent.id,
+                        "model_profile_id": profile.id,
+                        "state": AgentSessionState.ACTIVE.value,
+                        "state_rank": session_rank(AgentSessionState.ACTIVE),
+                        "disposition": None,
+                        "channel": request.channel.value,
+                        "initiator_user_id": principal.user_id,
+                        "initiator_session_id": principal.session_id,
+                        "conversation_id": request.conversation_id,
+                        "customer_id": request.customer_id,
+                        "call_id": request.call_id,
+                        "voice_session_id": request.voice_session_id,
+                        "correlation_id": request.correlation_id,
+                        "idempotency_key": request.idempotency_key,
+                        "request_fingerprint": fingerprint,
+                        "started_at": now,
+                        "last_activity_at": now,
+                    }
+                )
+                await self._emit_session_event(
+                    tenant.session, organization_id, session, "agent.session.created"
+                )
+                await self._emit_session_event(
+                    tenant.session, organization_id, session, "agent.session.started"
+                )
+        except NxsError:
+            raise
+        except Exception as exc:  # IntegrityError on the idempotency key race
+            replay = await self._replay_session(
+                organization_id, request.idempotency_key or "", fingerprint
+            )
+            if replay is not None:
+                return replay
+            raise AgentConfigInvalidError("the session could not be created") from exc
+        return session
+
+    async def get_session(self, organization_id: UUID, session_id: UUID) -> AgentSession:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session = await AgentSessionRepository(tenant).by_id(session_id)
+        if session is None:
+            raise AgentSessionNotFoundError("no such agent session in this Organization")
+        return session
+
+    async def list_sessions(
+        self, organization_id: UUID, *, agent_id: UUID | None, limit: int
+    ) -> list[AgentSession]:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await AgentSessionRepository(tenant).list_all(agent_id=agent_id, limit=limit)
+
+    async def stop_session(
+        self, organization_id: UUID, session_id: UUID, request: StopAgentSessionRequest
+    ) -> AgentSession:
+        del request
+        return await self._terminalize(
+            organization_id, session_id, AgentSessionState.COMPLETED, None
+        )
+
+    async def cancel_session(self, organization_id: UUID, session_id: UUID) -> AgentSession:
+        return await self._terminalize(
+            organization_id, session_id, AgentSessionState.CANCELLED, "NXS_AGENT_CANCELLED"
+        )
+
+    async def _terminalize(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        target: AgentSessionState,
+        error_code: str | None,
+    ) -> AgentSession:
+        # Cancellation is first-class: preempt an in-flight turn BEFORE contending for
+        # the per-session lock (submit_turn holds that lock for the whole turn). The
+        # cancelled turn task unwinds through submit_turn -> _fail_turn, which releases
+        # the lock; only then do we take it for the terminal state transition.
+        task = self._turn_tasks.get(session_id)
+        if task is not None and not task.done():
+            task.cancel()
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await task
+        lock = self._locks.setdefault(session_id, asyncio.Lock())
+        async with lock, self._db.tenant_transaction(organization_id) as tenant:
+            repo = AgentSessionRepository(tenant)
+            session = await repo.by_id(session_id, for_update=True)
+            if session is None:
+                raise AgentSessionNotFoundError("no such agent session in this Organization")
+            if session_is_terminal(session.state):
+                return session
+            fold = fold_agent_session_state(current=session.state, proposed=target)
+            updated = await repo.apply(
+                session_id,
+                {
+                    "state": fold.state.value,
+                    "state_rank": session_rank(fold.state),
+                    "disposition": (fold.disposition.value if fold.disposition else None),
+                    "error_code": error_code,
+                    "ended_at": dt.datetime.now(dt.UTC),
+                },
+            )
+            assert updated is not None  # noqa: S101
+            await self._emit_session_event(
+                tenant.session,
+                organization_id,
+                updated,
+                SESSION_STATE_EVENT_TYPE[fold.state.value],
+            )
+            await self._record_usage(tenant.session, organization_id, updated)
+        return updated
+
+    # -- turns ------------------------------------------------------------
+
+    async def submit_turn(
+        self, organization_id: UUID, session_id: UUID, request: SubmitTurnRequest
+    ) -> AgentResponse:
+        self._require_enabled()
+        lock = self._locks.setdefault(session_id, asyncio.Lock())
+        if lock.locked():
+            raise AgentBusyError("a turn is already in flight for this session")
+        async with lock:
+            fingerprint = turn_fingerprint(session_id=session_id, content=request.content)
+            turn, session, owner = await self._open_turn(
+                organization_id, session_id, request, fingerprint
+            )
+            if not owner:
+                # a matching idempotency key already resolved to a COMPLETED turn — a
+                # deterministic replay of the persisted response. This worker does NOT run
+                # the model or any tool. (RUNNING / FAILED / CANCELLED keys raised in
+                # _open_turn and never reach here.)
+                return self._response_from_turn(turn)
+
+            agent = await self.get_agent(organization_id, session.agent_id)
+            # The whole-turn deadline is bounded by the global ceiling, the per-Agent
+            # timeout AND the session's remaining absolute lifetime — max_session_seconds
+            # is an ABSOLUTE ceiling, not merely a new-turn admission check, so a turn
+            # opened just before expiry cannot run models / tools past it.
+            remaining = self._remaining_session_lifetime(session, dt.datetime.now(dt.UTC))
+            deadline = min(self._effective_turn_deadline(agent), max(remaining, 0.0))
+
+            task: asyncio.Task[TurnOutcome] = asyncio.create_task(
+                self._run_turn(organization_id, session, turn, request, agent)
+            )
+            self._turn_tasks[session_id] = task
+            try:
+                async with asyncio.timeout(deadline):
+                    outcome = await task
+            except TimeoutError:
+                # A deadline elapsed — cancel + drain the task so no stale model response
+                # is committed and no further model / Tool Engine call can begin, then
+                # raise the stable taxonomy error (never a bare TimeoutError).
+                task.cancel()
+                with contextlib.suppress(asyncio.CancelledError, Exception):
+                    await task
+                if self._lifetime_exceeded(session, dt.datetime.now(dt.UTC)):
+                    # the ABSOLUTE session lifetime expired during the turn — terminalise
+                    # the session EXPIRED and surface the canonical session-expired
+                    # semantics, not a misleading turn / provider timeout.
+                    await self._expire_session_now(organization_id, session_id)
+                    await self._fail_turn(
+                        organization_id,
+                        session_id,
+                        turn.id,
+                        "NXS_AGENT_SESSION_EXPIRED",
+                        cancelled=True,
+                    )
+                    raise AgentSessionExpiredError(
+                        "the agent session reached its lifetime ceiling during the turn"
+                    ) from None
+                await self._fail_turn(
+                    organization_id, session_id, turn.id, "NXS_AGENT_TURN_TIMEOUT"
+                )
+                raise AgentTurnTimeoutError(
+                    "the agent turn exceeded its execution deadline"
+                ) from None
+            except asyncio.CancelledError:
+                await self._fail_turn(
+                    organization_id, session_id, turn.id, "NXS_AGENT_CANCELLED", cancelled=True
+                )
+                raise
+            except ExecutionRevoked as exc:
+                # audit corrective #6: a checkpoint inside the runtime loop observed the
+                # session had already become terminal (a cross-worker cancel/stop/expiry)
+                # and aborted BEFORE the next model call / tool dispatch. `_fail_turn`
+                # itself no-ops the session write when the session is already terminal
+                # (see its own `not session_is_terminal(...)` guard), so this can never
+                # resurrect it — mirrors `_discard_stale_turn`'s truthful-code discipline.
+                await self._fail_turn(
+                    organization_id,
+                    session_id,
+                    turn.id,
+                    _stale_terminal_code(exc.session_row),
+                    cancelled=True,
+                )
+                _raise_for_stale_session(exc.session_row.state)
+            except NxsError as exc:
+                await self._fail_turn(organization_id, session_id, turn.id, exc.code)
+                raise
+            finally:
+                self._turn_tasks.pop(session_id, None)
+
+            return await self._finish_turn(organization_id, session, turn, request, outcome)
+
+    async def list_turns(
+        self, organization_id: UUID, session_id: UUID, *, limit: int
+    ) -> list[AgentTurn]:
+        await self.get_session(organization_id, session_id)
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await AgentTurnRepository(tenant).list_for_session(session_id, limit=limit)
+
+    async def get_turn(self, organization_id: UUID, session_id: UUID, turn_id: UUID) -> AgentTurn:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            turn = await AgentTurnRepository(tenant).by_id(turn_id)
+        if turn is None or turn.session_id != session_id:
+            raise AgentTurnNotFoundError("no such turn for this session")
+        return turn
+
+    def _resolve_existing_turn(
+        self, existing: AgentTurn, session: AgentSession, fingerprint: str
+    ) -> tuple[AgentTurn, AgentSession, bool]:
+        """A turn already exists for ``(organization, session, idempotency_key)``. An
+        idempotency key names ONE immutable logical turn — this NEVER starts a fresh
+        execution:
+
+        * different request fingerprint → ``NXS_AGENT_IDEMPOTENCY_CONFLICT``;
+        * ``COMPLETED``                 → deterministic replay of the persisted response
+                                          (``owner = False``);
+        * still active (RUNNING / …)    → ``AgentBusyError`` — another worker owns
+                                          execution; this worker must not enter the model;
+        * ``FAILED`` / ``CANCELLED``    → ``AgentIdempotentReplayError`` carrying the
+                                          original terminal ``error_code`` — no rerun.
+        """
+        if existing.request_fingerprint != fingerprint:
+            raise AgentIdempotencyConflictError(
+                "the idempotency key was used for a different request"
+            )
+        if existing.state is AgentTurnState.COMPLETED:
+            return existing, session, False
+        if not turn_is_terminal(existing.state):
+            raise AgentBusyError(
+                "the turn for this idempotency key is already in progress — "
+                "retry to replay the completed result"
+            )
+        raise AgentIdempotentReplayError(
+            "this idempotency key already resolved to a terminally-failed turn",
+            original_error_code=existing.error_code,
+            turn_state=existing.state.value,
+        )
+
+    async def _open_turn(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        request: SubmitTurnRequest,
+        fingerprint: str,
+    ) -> tuple[AgentTurn, AgentSession, bool]:
+        """Claim execution of one logical turn. Returns ``(turn, session, owner)`` —
+        ``owner`` is ``True`` only when THIS call inserted the turn row and therefore owns
+        its execution. Ownership is decided at the DATABASE boundary: the session row is
+        held ``SELECT … FOR UPDATE`` for the whole transaction and the turn's
+        ``(organization_id, session_id, idempotency_key)`` is a partial UNIQUE index, so
+        across independent workers exactly one insert wins.
+
+        HISTORICAL REPLAY LOOKUP ALWAYS PRECEDES NEW-EXECUTION ADMISSION (audit corrective
+        #5): an idempotency key names ONE immutable logical turn, and its outcome
+        (``COMPLETED`` replay, ``FAILED``/``CANCELLED`` immutable-terminal replay, or an
+        active-turn ``AgentBusyError``) is valid regardless of what has since happened to
+        the SESSION — a session that later became terminal or expired must never make a
+        historical key unreachable. Only when NO historical turn matches the key do the
+        session's current admission gates (terminal state, absolute lifetime, one turn at
+        a time) apply, because that request is a genuinely NEW execution attempt.
+        """
+        expired = False
+        owner = False
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_repo = AgentSessionRepository(tenant)
+            session = await session_repo.by_id(session_id, for_update=True)
+            if session is None:
+                raise AgentSessionNotFoundError("no such agent session in this Organization")
+
+            turn_repo = AgentTurnRepository(tenant)
+            if request.idempotency_key is not None:
+                existing = await turn_repo.by_session_idempotency_key(
+                    session_id, request.idempotency_key
+                )
+                if existing is not None:
+                    return self._resolve_existing_turn(existing, session, fingerprint)
+
+            # No historical turn matched this key (or none was supplied) — a NEW
+            # execution attempt, subject to the session's current admission gates.
+            if session_is_terminal(session.state):
+                raise AgentInvalidStateError("the agent session has already ended")
+            # Absolute lifetime ceiling — enforced BEFORE any model or Tool Engine call,
+            # under the FOR UPDATE session-row lock. Terminalise EXPIRED in THIS
+            # transaction (so it commits), then raise outside the block.
+            if self._lifetime_exceeded(session, dt.datetime.now(dt.UTC)):
+                await self._terminalize_expired(tenant.session, organization_id, session)
+                expired = True
+            else:
+                if await turn_repo.active_for_session(session_id) is not None:
+                    raise AgentBusyError("a turn is already in flight for this session")
+                sequence = session.turn_count + 1
+                claim_now = dt.datetime.now(dt.UTC)
+                # audit corrective #6: a conservative UPPER BOUND on how long a
+                # LEGITIMATE worker could still be executing this turn — the global
+                # deadline ceiling (never the tighter per-Agent override, unknown here)
+                # bounded by the session's remaining absolute lifetime, plus a grace
+                # margin. NOT read by P13 to make any decision; see migration
+                # e1f2a3b4c5d6 / ADR-0094 "Orphaned RUNNING turn recovery".
+                lease_bound = min(
+                    self._cfg.turn_deadline_seconds,
+                    max(self._remaining_session_lifetime(session, claim_now), 0.0),
+                )
+                try:
+                    turn = await turn_repo.insert(
+                        {
+                            "session_id": session_id,
+                            "sequence": sequence,
+                            "state": AgentTurnState.RUNNING.value,
+                            "channel": session.channel.value,
+                            "input_text": request.content,
+                            "response_text": None,
+                            "input_char_count": len(request.content),
+                            "idempotency_key": request.idempotency_key,
+                            "request_fingerprint": fingerprint,
+                            "execution_owner_id": uuid.uuid7(),
+                            "lease_expires_at": claim_now
+                            + dt.timedelta(
+                                seconds=lease_bound + self._cfg.execution_lease_grace_seconds
+                            ),
+                        }
+                    )
+                except IntegrityError as exc:
+                    # the partial UNIQUE index on the idempotency key: a concurrent worker
+                    # claimed this key first (the FOR UPDATE session lock normally makes
+                    # this unreachable — defence in depth). The claim is theirs.
+                    raise AgentBusyError(
+                        "a concurrent worker already claimed this idempotency key"
+                    ) from exc
+                await session_repo.apply(
+                    session_id,
+                    {"turn_count": sequence, "last_activity_at": dt.datetime.now(dt.UTC)},
+                )
+                await self._emit_turn_event(
+                    tenant.session,
+                    organization_id,
+                    session,
+                    turn,
+                    "agent.turn.started",
+                    {"input_char_count": len(request.content)},
+                )
+                owner = True
+        if expired:
+            raise AgentSessionExpiredError("the agent session reached its lifetime ceiling")
+        return turn, session, owner
+
+    def _effective_turn_deadline(self, agent: AgentDefinition) -> float:
+        """The per-turn execution deadline (model calls + tool loop + continuation).
+
+        ``agent.timeout_seconds`` is the per-Agent maximum total turn deadline. A tenant
+        value may only TIGHTEN the global ``turn_deadline_seconds`` safety ceiling, never
+        widen it, so the effective deadline is the minimum of the two."""
+        ceiling = self._cfg.turn_deadline_seconds
+        if agent.timeout_seconds is None:
+            return ceiling
+        return min(agent.timeout_seconds, ceiling)
+
+    def _lifetime_exceeded(self, session: AgentSession, now: dt.datetime) -> bool:
+        """``True`` once ``started_at + max_session_seconds`` has passed — the absolute
+        session lifetime ceiling. A session with no ``started_at`` (never happens after
+        ``start_session``) is treated as not expired."""
+        return self._remaining_session_lifetime(session, now) <= 0.0
+
+    def _remaining_session_lifetime(self, session: AgentSession, now: dt.datetime) -> float:
+        """Seconds left before ``started_at + max_session_seconds`` — the absolute
+        lifetime ceiling. ``<= 0`` means the session has expired. No ``started_at`` (never
+        after ``start_session``) yields the full budget."""
+        started = session.started_at
+        if started is None:
+            return float(self._cfg.max_session_seconds)
+        deadline = started + dt.timedelta(seconds=self._cfg.max_session_seconds)
+        return (deadline - now).total_seconds()
+
+    async def _expire_session_now(self, organization_id: UUID, session_id: UUID) -> None:
+        """Terminalise the session EXPIRED from OUTSIDE the per-session process lock (the
+        caller holds it). Its own ``SELECT … FOR UPDATE`` transaction so the terminal
+        wins at the DATABASE boundary across independent workers; a no-op if the row is
+        already terminal."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            repo = AgentSessionRepository(tenant)
+            current = await repo.by_id(session_id, for_update=True)
+            if current is None or session_is_terminal(current.state):
+                return
+            await self._terminalize_expired(tenant.session, organization_id, current)
+
+    async def _terminalize_expired(
+        self, session_conn: Any, organization_id: UUID, session: AgentSession
+    ) -> None:
+        """Persist the EXPIRED terminal + ``ended_at`` and emit ``agent.session.expired``,
+        within the caller's already-locked transaction. The canonical fold guards it: a
+        session that is already terminal is left untouched (terminal is absorbing)."""
+        fold = fold_agent_session_state(current=session.state, proposed=AgentSessionState.EXPIRED)
+        if fold.outcome is not FoldOutcome.APPLIED:
+            return
+        repo = AgentSessionRepository(
+            cast(TenantSession, _TenantShim(session_conn, organization_id))
+        )
+        updated = await repo.apply(
+            session.id,
+            {
+                "state": fold.state.value,
+                "state_rank": session_rank(fold.state),
+                "disposition": (fold.disposition.value if fold.disposition else None),
+                "error_code": "NXS_AGENT_SESSION_EXPIRED",
+                "ended_at": dt.datetime.now(dt.UTC),
+            },
+        )
+        assert updated is not None  # noqa: S101
+        await self._emit_session_event(
+            session_conn, organization_id, updated, "agent.session.expired"
+        )
+        await self._record_usage(session_conn, organization_id, updated)
+
+    async def _run_turn(
+        self,
+        organization_id: UUID,
+        session: AgentSession,
+        turn: AgentTurn,
+        request: SubmitTurnRequest,
+        agent: AgentDefinition,
+    ) -> TurnOutcome:
+        profile = await self.get_profile(organization_id, agent.model_profile_id)
+        account = await self.get_account(organization_id, profile.account_id)
+
+        secret: Any = None
+        if account.credential_ref is not None:
+            with contextlib.suppress(NxsError):
+                secret = await self._vault.get_secret(organization_id, account.credential_ref)
+
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            prior = [
+                PriorTurn(
+                    sequence=t.sequence,
+                    input_text=t.input_text,
+                    response_text=t.response_text,
+                )
+                for t in await AgentTurnRepository(tenant).list_for_session(
+                    session.id, limit=self._cfg.max_context_messages + 1
+                )
+                if t.id != turn.id and t.state is AgentTurnState.COMPLETED
+            ]
+            context = await self._context.build(
+                tenant=tenant,
+                session=session,
+                prior_turns=prior,
+                user_input=request.content,
+                channel=session.channel.value,
+            )
+
+        allow_list = frozenset(agent.tool_keys)
+        tool_specs = await self._tool_specs(organization_id, agent.tool_keys)
+        principal = Principal(
+            user_id=session.initiator_user_id,
+            session_id=session.initiator_session_id,
+            organization_id=organization_id,
+            token_id=uuid.uuid7(),
+            issued_at=session.created_at,
+            expires_at=session.created_at + dt.timedelta(seconds=self._cfg.max_session_seconds),
+        )
+        ctx = TurnContext(
+            model=profile.model,
+            provider_api_base=account.api_base,
+            agent_instructions=agent.system_instructions,
+            temperature=agent.temperature if agent.temperature is not None else profile.temperature,
+            max_output_tokens=(
+                agent.max_output_tokens
+                if agent.max_output_tokens is not None
+                else profile.max_output_tokens
+            ),
+            tool_specs=tool_specs,
+            allow_list=allow_list,
+            max_tool_iterations=min(agent.max_tool_iterations, self._cfg.max_tool_iterations),
+            principal=principal,
+            correlation_id=request.correlation_id or session.correlation_id,
+            idempotency_seed=f"{session.id}:{turn.sequence}",
+            context=context,
+            channel=session.channel.value,
+        )
+        adapter = self._provider_factory(account.provider)
+
+        tool_seq = {"n": 0}
+
+        async def _on_tool(call_id: str, outcome: ToolCallOutcome, iteration: int) -> None:
+            tool_seq["n"] += 1
+            await self._record_tool_call(
+                organization_id, session, turn, outcome, iteration, tool_seq["n"], call_id
+            )
+
+        async def _authorize_model(iteration: int, model: str) -> None:
+            await self._authorize_model_dispatch(
+                organization_id, session.id, turn.id, turn.execution_owner_id, iteration, model
+            )
+
+        async def _authorize_tool(tool_key: str, arguments_hash: str, sequence: int) -> None:
+            await self._authorize_tool_dispatch(
+                organization_id,
+                session.id,
+                turn.id,
+                turn.execution_owner_id,
+                tool_key,
+                arguments_hash,
+                sequence,
+            )
+
+        return await self._runtime.run_turn(
+            ctx=ctx,
+            adapter=adapter,
+            secret=secret,
+            http=self._http,
+            on_tool=_on_tool,
+            authorize_model=_authorize_model,
+            authorize_tool=_authorize_tool,
+        )
+
+    async def _assert_turn_authority(
+        self,
+        tenant: TenantSession,
+        expected_session_id: UUID,
+        turn_id: UUID,
+        expected_execution_owner_id: UUID | None,
+    ) -> None:
+        """Shared turn-IDENTITY / turn-ownership / terminal-turn fencing check (audit
+        correctives #8 and #9; INV-EXEC-006/007/008/014, INV-AUTH-ID-001), used by BOTH
+        :meth:`_authorize_model_dispatch` and :meth:`_authorize_tool_dispatch` so every
+        class of external dispatch shares identical fencing rigor. Called INSIDE the
+        caller's already-open transaction, after it has already confirmed the SESSION
+        identified by ``expected_session_id`` is live under its ``FOR UPDATE`` lock.
+
+        Corrective #9: the row a caller locks FOR UPDATE and the turn it is authorizing
+        work for are two independent lookups by two independent ids — nothing before
+        this corrective proved they were the SAME session. Within one Organization, RLS
+        does not help: both a caller-supplied session and a turn's real parent session
+        belong to the same tenant, so a tenant-scoped read of either succeeds regardless
+        of whether they are actually related. Locking session A (live) while authorizing
+        a turn that actually belongs to session B (anything — even terminal) is a
+        genuine identity-confusion gap this check closes: the session that was ACTUALLY
+        locked FOR UPDATE MUST be the turn's own parent session, not merely "a" live
+        session in the same Organization. No subset of the checks in this method is
+        sufficient on its own (INV-AUTH-ID-001).
+
+        The owner-identity check (corrective #8) remains UNREACHABLE in the current
+        codebase — nothing today reassigns a turn's ``execution_owner_id`` after claim,
+        and nothing externally terminalises a turn out from under its own ``_run_turn``
+        — but is the FENCING CONTRACT a future NXS-P25 orphan-recovery mechanism depends
+        on (turn authority audit, corrective #8 §8): if Worker A owns turn T, Worker A
+        dies, and a future P25 mechanism reclaims/replaces ownership of T, a stale
+        Worker A that unexpectedly resumes MUST NOT be able to authorize further model
+        or tool work. This check makes that true PROVIDED any future reassignment of
+        ``execution_owner_id`` (or external terminalisation of a turn) is committed
+        under the SAME session-row ``FOR UPDATE`` lock this method's caller already
+        holds — see ADR-0094 "Turn authority and future P25 fencing compatibility" for
+        the exact contract a P25 implementation must honour."""
+        turn_row = await AgentTurnRepository(tenant).by_id(turn_id)
+        if turn_row is None or turn_is_terminal(turn_row.state):
+            raise AgentInvalidStateError("the turn is no longer active")
+        if turn_row.session_id != expected_session_id:
+            raise AgentInvalidStateError("the locked session is not this turn's own parent session")
+        if (
+            expected_execution_owner_id is None
+            or turn_row.execution_owner_id != expected_execution_owner_id
+        ):
+            raise AgentInvalidStateError(
+                "this worker is no longer the authoritative owner of this turn"
+            )
+
+    async def _authorize_model_dispatch(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        turn_id: UUID,
+        execution_owner_id: UUID | None,
+        iteration: int,
+        model: str,
+    ) -> None:
+        """The durable LINEARIZATION POINT for a NEW model-provider invocation (audit
+        corrective #8, INV-EXEC-001/003/005/006/007/008). The model-invocation
+        counterpart to :meth:`_authorize_tool_dispatch` — identical mechanism, applied
+        to the OTHER class of external work P13 can dispatch. REPLACES corrective #6's
+        plain, unlocked continuation checkpoint (`_check_execution_authority`, now
+        removed): that was freshness, not fencing, and left the exact same TOCTOU gap
+        for model calls that corrective #7 already closed for tool calls.
+
+        Takes ``SELECT … FOR UPDATE`` on the OWNING SESSION ROW — the identical lock
+        :meth:`_terminalize` and :meth:`_authorize_tool_dispatch` take — and, only if
+        the session is still live AND this worker still holds turn authority
+        (:meth:`_assert_turn_authority`), inserts a durable
+        ``ai_agent_model_dispatch_permits`` row IN THE SAME TRANSACTION before
+        committing. Two transactions contending for one row lock are serialized by
+        PostgreSQL: whichever commits first is the objective, durable answer to "did
+        this model call's authorization or the cancellation happen first":
+
+        * this transaction's lock wins → session observed ACTIVE → permit persisted and
+          committed → the caller may now call the provider, and that call remains valid
+          EVEN IF cancellation commits a moment later (INV-EXEC-005);
+        * a concurrent cancellation's lock wins and commits first → this transaction
+          observes the session already terminal → :class:`ExecutionRevoked` is raised
+          and NO permit is ever created → the caller never calls the provider
+          (INV-EXEC-003).
+
+        Corrective #9 (INV-AUTH-ID-002): unlike :meth:`_authorize_tool_dispatch`, a
+        duplicate authorization attempt (a permit for this exact ``(turn, iteration)``
+        already exists) is REJECTED here, not silently treated as success. Tool dispatch
+        can safely let a duplicate proceed because the P08 Tool Engine's own idempotency
+        key makes a second dispatch attempt a no-op re-read, never a second live side
+        effect — but a model-provider call has no such backstop in this layer; letting a
+        duplicate authorization proceed would let the caller place a SECOND real,
+        billed, independent call to the provider for an iteration that was already
+        authorized once. Only the attempt that durably CREATES the permit row may
+        proceed as a genuinely new dispatch (unreachable today — see the class-level
+        docstring — but this is the correct behaviour if that ever changes).
+
+        The transaction is short and is NEVER held open across the network call to the
+        model provider — only this DB round trip; ``AgentRuntime._call_model`` always
+        runs entirely outside it. Persists NO prompt, context, or credential material —
+        only enough to prove this iteration was authorized (see migration
+        ``a3b4c5d6e7f8``)."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
+            if session_row is not None and session_is_terminal(session_row.state):
+                raise ExecutionRevoked(session_row)
+            await self._assert_turn_authority(tenant, session_id, turn_id, execution_owner_id)
+            outcome = _PermitOutcome.CREATED
+            try:
+                async with tenant.session.begin_nested():
+                    await AgentModelDispatchPermitRepository(tenant).insert(
+                        {
+                            "session_id": session_id,
+                            "turn_id": turn_id,
+                            "iteration": iteration,
+                            "model": model[:96],
+                        }
+                    )
+            except IntegrityError:
+                outcome = _PermitOutcome.ALREADY_EXISTS
+            if outcome is _PermitOutcome.ALREADY_EXISTS:
+                raise AgentInvalidStateError(
+                    "this model-provider iteration was already authorized by a prior attempt"
+                )
+
+    async def _authorize_tool_dispatch(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        turn_id: UUID,
+        execution_owner_id: UUID | None,
+        tool_key: str,
+        arguments_hash: str,
+        sequence: int,
+    ) -> None:
+        """The durable LINEARIZATION POINT for a NEW semantic P08 tool dispatch (audit
+        corrective #7, INV-FENCE-001..004; turn-authority check added by corrective #8,
+        INV-EXEC-002/006/007/008). A plain re-check immediately before dispatch
+        (corrective #6's approach) narrows the TOCTOU window but does not close it — this
+        replaces that approach for the tool-dispatch checkpoint specifically.
+
+        Takes ``SELECT … FOR UPDATE`` on the OWNING SESSION ROW — the identical lock
+        :meth:`_terminalize` (stop / cancel / expire) takes — and, only if the session is
+        still live AND this worker still holds turn authority
+        (:meth:`_assert_turn_authority`), inserts a durable
+        ``ai_agent_tool_dispatch_permits`` row IN THE SAME TRANSACTION before committing.
+        Two transactions contending for one row lock are serialized by PostgreSQL:
+        whichever commits first is the objective, durable answer to "did this
+        operation's authorization or the cancellation happen first" — not a race won by
+        chance timing:
+
+        * this transaction's lock wins → session observed ACTIVE → permit persisted and
+          committed → the caller may now dispatch to the Tool Engine, and that dispatch
+          remains valid EVEN IF cancellation commits a moment later (INV-FENCE-003);
+        * a concurrent cancellation's lock wins and commits first → this transaction
+          observes the session already terminal → :class:`ExecutionRevoked` is raised
+          and NO permit is ever created → the caller never dispatches (INV-FENCE-002).
+
+        Corrective #10 (INV-TOOL-PERMIT-001/002/003): the CREATED-vs-ALREADY_EXISTS
+        distinction is explicit (see :class:`_PermitOutcome`), and — as of this
+        corrective, matching :meth:`_authorize_model_dispatch` — ALREADY_EXISTS is
+        REJECTED, not treated as success. A prior version of this method reasoned that
+        because this call site's "dispatch" is ``AgentToolBridge.execute``, which is
+        itself keyed by the P08 Tool Engine's own idempotency key (the same
+        ``tool_key`` + ``arguments_hash`` this permit is keyed by), a second attempt
+        reaching it would only ever be a no-op re-read, never a second live external
+        side effect — true about the EFFECT, but not sufficient for PERMIT-OWNERSHIP
+        semantics: ``AgentRuntime`` still does ``await authorize_tool(...); await
+        self._tools.execute(...)`` unconditionally, so a second identical semantic
+        attempt that received a bare "success" here would still genuinely ENTER
+        ``AgentToolBridge.execute`` / the Tool Engine, merely relying on P08 to make
+        that entry harmless. P08 idempotency remains DEFENSE-IN-DEPTH — the SECOND,
+        independent layer behind the permit's own unique index — but is no longer the
+        ONLY thing standing between a duplicate authorization attempt and a live
+        Tool Engine invocation: only the attempt that durably CREATES the permit row
+        may proceed as a genuinely NEW dispatch (unreachable today — a turn is already
+        exclusively owned by one worker, correctives #1/#4 — but this is the correct
+        behaviour if that ever changes, identical in spirit to
+        :meth:`_authorize_model_dispatch`'s own ALREADY_EXISTS rejection).
+
+        The transaction is short and is NEVER held open across the external HTTP call
+        — only this DB round trip; ``AgentToolBridge.execute`` always runs entirely
+        outside it, matching the documented preference against long-held
+        transactions."""
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
+            if session_row is not None and session_is_terminal(session_row.state):
+                raise ExecutionRevoked(session_row)
+            await self._assert_turn_authority(tenant, session_id, turn_id, execution_owner_id)
+            # A SAVEPOINT (not a bare try/except) is required here: PostgreSQL
+            # aborts the WHOLE enclosing transaction on a constraint violation, so merely
+            # catching IntegrityError in Python would leave the outer transaction
+            # un-committable — the commit at the end of this `async with` block would
+            # itself then fail. Only a nested transaction's ROLLBACK TO SAVEPOINT
+            # recovers cleanly (same pattern as ``infrastructure/event_outbox.py``'s
+            # duplicate-enqueue handling).
+            outcome = _PermitOutcome.CREATED
+            try:
+                async with tenant.session.begin_nested():
+                    await AgentToolDispatchPermitRepository(tenant).insert(
+                        {
+                            "session_id": session_id,
+                            "turn_id": turn_id,
+                            "sequence": sequence,
+                            "tool_key": tool_key,
+                            "arguments_hash": arguments_hash,
+                        }
+                    )
+            except IntegrityError:
+                outcome = _PermitOutcome.ALREADY_EXISTS
+            if outcome is _PermitOutcome.ALREADY_EXISTS:
+                raise AgentInvalidStateError(
+                    "this semantic tool dispatch was already authorized by a prior attempt"
+                )
+
+    async def _tool_specs(
+        self, organization_id: UUID, tool_keys: tuple[str, ...]
+    ) -> tuple[ModelToolSpec, ...]:
+        specs: list[ModelToolSpec] = []
+        for key in tool_keys:
+            try:
+                tool = await self._tool_registry.get_by_key(organization_id, key)
+            except NxsError:
+                continue
+            specs.append(
+                ModelToolSpec(
+                    name=tool.tool_key,
+                    description=tool.description or tool.name,
+                    parameters=tool.input_schema,
+                )
+            )
+        return tuple(specs)
+
+    async def _finish_turn(
+        self,
+        organization_id: UUID,
+        session: AgentSession,
+        turn: AgentTurn,
+        request: SubmitTurnRequest,
+        outcome: TurnOutcome,
+    ) -> AgentResponse:
+        now = dt.datetime.now(dt.UTC)
+        content = outcome.content[: self._cfg.max_output_chars]
+        stale_state: AgentSessionState | None = None
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            session_repo = AgentSessionRepository(tenant)
+            refreshed = await session_repo.by_id(session.id, for_update=True)
+            assert refreshed is not None  # noqa: S101
+            # DATABASE-level terminal absorption: a concurrent worker / replica may have
+            # terminalised this session (EXPIRED / CANCELLED / FAILED / COMPLETED) while
+            # this turn's model task was running. A terminal state is absorbing at the
+            # transition boundary, not merely through the process-local asyncio lock — so
+            # the stale outcome is discarded, the session is NOT resurrected, no
+            # response_text is written and NO agent.response.ready is published.
+            if session_is_terminal(refreshed.state):
+                await self._discard_stale_turn(tenant, organization_id, turn, refreshed, now)
+                stale_state = refreshed.state
+            else:
+                turn_repo = AgentTurnRepository(tenant)
+                updated_turn = await turn_repo.apply(
+                    turn.id,
+                    {
+                        "state": AgentTurnState.COMPLETED.value,
+                        "response_text": content,
+                        "response_char_count": len(content),
+                        "model": None,
+                        "finish_reason": outcome.finish_reason,
+                        "input_tokens": outcome.usage.input_tokens,
+                        "output_tokens": outcome.usage.output_tokens,
+                        "tool_iterations": outcome.tool_iterations,
+                        # persisted ONCE, immutably, so a later replay is response-exact
+                        # (audit corrective #5): tool_call_count is the DISTINCT executed
+                        # tool count — never tool_iterations, a different number whenever
+                        # one model response requests more than one tool.
+                        "tool_call_count": len(outcome.tool_calls),
+                        "response_correlation_id": ctx_correlation(request, session),
+                        "latency_ms": _elapsed_ms(turn.created_at, now),
+                    },
+                )
+                assert updated_turn is not None  # noqa: S101
+                live = fold_agent_session_state(
+                    current=refreshed.state, proposed=AgentSessionState.ACTIVE
+                ).state
+                new_session = await session_repo.apply(
+                    session.id,
+                    {
+                        "state": live.value,
+                        "state_rank": session_rank(live),
+                        "input_tokens": refreshed.input_tokens + outcome.usage.input_tokens,
+                        "output_tokens": refreshed.output_tokens + outcome.usage.output_tokens,
+                        "tool_call_count": refreshed.tool_call_count + len(outcome.tool_calls),
+                        "last_activity_at": now,
+                    },
+                )
+                assert new_session is not None  # noqa: S101
+                await self._emit_turn_event(
+                    tenant.session,
+                    organization_id,
+                    new_session,
+                    updated_turn,
+                    "agent.turn.completed",
+                    {
+                        "finish_reason": outcome.finish_reason,
+                        "tool_iterations": outcome.tool_iterations,
+                        "input_tokens": outcome.usage.input_tokens,
+                        "output_tokens": outcome.usage.output_tokens,
+                        "latency_ms": updated_turn.latency_ms,
+                    },
+                )
+                await self._publisher.enqueue(
+                    tenant.session,
+                    EventEnvelope.create(
+                        event_type="agent.response.ready",
+                        event_version=1,
+                        aggregate_type="agent_session",
+                        aggregate_id=str(session.id),
+                        producer=self._settings.service_name,
+                        organization_id=organization_id,
+                        correlation_id=ctx_correlation(request, session),
+                        payload={
+                            "session_id": str(session.id),
+                            "turn_id": str(turn.id),
+                            "channel": session.channel.value,
+                            "response_char_count": len(content),
+                            "finish_reason": outcome.finish_reason,
+                            "correlation_id": ctx_correlation(request, session),
+                        },
+                    ),
+                )
+                await self._record_usage(tenant.session, organization_id, new_session)
+                return AgentResponse(
+                    session_id=session.id,
+                    turn_id=turn.id,
+                    content=content,
+                    finish_reason=outcome.finish_reason,
+                    tool_calls=len(outcome.tool_calls),
+                    input_tokens=outcome.usage.input_tokens,
+                    output_tokens=outcome.usage.output_tokens,
+                    total_tokens=outcome.usage.total_tokens,
+                    latency_ms=updated_turn.latency_ms,
+                    correlation_id=ctx_correlation(request, session),
+                )
+        # reached only on the stale path — the discarded turn was committed above. Raise
+        # the TRUTHFUL terminal error via the shared helper (also used by the mid-turn
+        # ExecutionRevoked path, audit corrective #6): a concurrent EXPIRED is
+        # session-expired, a concurrent CANCELLED is cancelled, and a normal stop /
+        # COMPLETED (or FAILED) is an invalid-state — never a fabricated expiration.
+        assert stale_state is not None  # noqa: S101
+        _raise_for_stale_session(stale_state)
+
+    async def _discard_stale_turn(
+        self,
+        tenant: TenantSession,
+        organization_id: UUID,
+        turn: AgentTurn,
+        session_row: AgentSession,
+        now: dt.datetime,
+    ) -> None:
+        """The session went terminal (concurrently) while this turn ran. Mark the turn
+        CANCELLED with the session's TRUTHFUL terminal reason and emit
+        ``agent.turn.failed`` — within the caller's transaction. No ``response_text``, no
+        session write, no ``agent.response.ready``, no usage (recorded at
+        terminalisation)."""
+        error_code = _stale_terminal_code(session_row)
+        updated = await AgentTurnRepository(tenant).apply(
+            turn.id,
+            {
+                "state": AgentTurnState.CANCELLED.value,
+                "error_code": error_code,
+                "latency_ms": _elapsed_ms(turn.created_at, now),
+            },
+        )
+        assert updated is not None  # noqa: S101
+        await self._publisher.enqueue(
+            tenant.session,
+            EventEnvelope.create(
+                event_type="agent.turn.failed",
+                event_version=1,
+                aggregate_type="agent_session",
+                aggregate_id=str(session_row.id),
+                producer=self._settings.service_name,
+                organization_id=organization_id,
+                payload={
+                    "session_id": str(session_row.id),
+                    "turn_id": str(turn.id),
+                    "sequence": updated.sequence,
+                    "error_code": error_code,
+                    "latency_ms": updated.latency_ms,
+                    "correlation_id": session_row.correlation_id,
+                },
+            ),
+        )
+
+    async def _fail_turn(
+        self,
+        organization_id: UUID,
+        session_id: UUID,
+        turn_id: UUID,
+        error_code: str,
+        *,
+        cancelled: bool = False,
+    ) -> None:
+        target = AgentTurnState.CANCELLED if cancelled else AgentTurnState.FAILED
+        with contextlib.suppress(Exception):
+            async with self._db.tenant_transaction(organization_id) as tenant:
+                turn_repo = AgentTurnRepository(tenant)
+                turn = await turn_repo.by_id(turn_id)
+                if turn is None or turn.state in (
+                    AgentTurnState.COMPLETED,
+                    AgentTurnState.FAILED,
+                    AgentTurnState.CANCELLED,
+                ):
+                    return
+                now = dt.datetime.now(dt.UTC)
+                updated = await turn_repo.apply(
+                    turn_id,
+                    {
+                        "state": target.value,
+                        "error_code": error_code,
+                        "latency_ms": _elapsed_ms(turn.created_at, now),
+                    },
+                )
+                assert updated is not None  # noqa: S101
+                session_repo = AgentSessionRepository(tenant)
+                session = await session_repo.by_id(session_id, for_update=True)
+                if session is not None and not session_is_terminal(session.state):
+                    await session_repo.apply(
+                        session_id,
+                        {
+                            "state": AgentSessionState.ACTIVE.value,
+                            "state_rank": session_rank(AgentSessionState.ACTIVE),
+                            "last_activity_at": now,
+                        },
+                    )
+                await self._publisher.enqueue(
+                    tenant.session,
+                    EventEnvelope.create(
+                        event_type="agent.turn.failed",
+                        event_version=1,
+                        aggregate_type="agent_session",
+                        aggregate_id=str(session_id),
+                        producer=self._settings.service_name,
+                        organization_id=organization_id,
+                        payload={
+                            "session_id": str(session_id),
+                            "turn_id": str(turn_id),
+                            "sequence": updated.sequence,
+                            "error_code": error_code,
+                            "latency_ms": updated.latency_ms,
+                            "correlation_id": None,
+                        },
+                    ),
+                )
+
+    async def _record_tool_call(
+        self,
+        organization_id: UUID,
+        session: AgentSession,
+        turn: AgentTurn,
+        outcome: ToolCallOutcome,
+        iteration: int,
+        sequence: int,
+        call_id: str,
+    ) -> None:
+        status = (
+            AgentToolCallStatus.DENIED
+            if not outcome.allowed
+            else (AgentToolCallStatus.COMPLETED if outcome.ok else AgentToolCallStatus.FAILED)
+        )
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            record = await AgentToolCallRepository(tenant).insert(
+                {
+                    "session_id": session.id,
+                    "turn_id": turn.id,
+                    "sequence": sequence,
+                    "iteration": iteration,
+                    "tool_key": outcome.tool_key,
+                    "arguments_hash": outcome.arguments_hash,
+                    "status": status.value,
+                    "tool_result_class": outcome.result_class,
+                    "tool_status_code": outcome.status_code,
+                    "denied_reason": outcome.denied_reason,
+                    "latency_ms": outcome.latency_ms,
+                }
+            )
+            base = {
+                "session_id": str(session.id),
+                "turn_id": str(turn.id),
+                "tool_call_id": str(record.id),
+                "tool_key": outcome.tool_key,
+                "iteration": iteration,
+                "arguments_hash": outcome.arguments_hash,
+                "correlation_id": session.correlation_id,
+            }
+            await self._publisher.enqueue(
+                tenant.session,
+                EventEnvelope.create(
+                    event_type="agent.tool.requested",
+                    event_version=1,
+                    aggregate_type="agent_session",
+                    aggregate_id=str(session.id),
+                    producer=self._settings.service_name,
+                    organization_id=organization_id,
+                    correlation_id=session.correlation_id,
+                    payload=dict(base),
+                ),
+            )
+            if status is AgentToolCallStatus.COMPLETED:
+                await self._publisher.enqueue(
+                    tenant.session,
+                    EventEnvelope.create(
+                        event_type="agent.tool.completed",
+                        event_version=1,
+                        aggregate_type="agent_session",
+                        aggregate_id=str(session.id),
+                        producer=self._settings.service_name,
+                        organization_id=organization_id,
+                        correlation_id=session.correlation_id,
+                        payload={
+                            **base,
+                            "result_class": outcome.result_class,
+                            "status_code": outcome.status_code,
+                            "latency_ms": outcome.latency_ms,
+                        },
+                    ),
+                )
+            else:
+                await self._publisher.enqueue(
+                    tenant.session,
+                    EventEnvelope.create(
+                        event_type="agent.tool.failed",
+                        event_version=1,
+                        aggregate_type="agent_session",
+                        aggregate_id=str(session.id),
+                        producer=self._settings.service_name,
+                        organization_id=organization_id,
+                        correlation_id=session.correlation_id,
+                        payload={
+                            **base,
+                            "outcome": "DENIED" if not outcome.allowed else "FAILED",
+                            "error_code": outcome.error_code,
+                            "latency_ms": outcome.latency_ms,
+                        },
+                    ),
+                )
+
+    async def _record_usage(self, session: Any, organization_id: UUID, row: AgentSession) -> None:
+        shim = cast(TenantSession, _TenantShim(session, organization_id))
+        await ModelUsageRepository(shim).upsert(
+            row.id,
+            {
+                "model": "",
+                "input_tokens": row.input_tokens,
+                "output_tokens": row.output_tokens,
+                "total_tokens": row.input_tokens + row.output_tokens,
+                "tool_call_count": row.tool_call_count,
+                "turn_count": row.turn_count,
+                "latency_ms_total": 0,
+            },
+        )
+        await self._publisher.enqueue(
+            session,
+            EventEnvelope.create(
+                event_type="agent.usage.recorded",
+                event_version=1,
+                aggregate_type="agent_session",
+                aggregate_id=str(row.id),
+                producer=self._settings.service_name,
+                organization_id=organization_id,
+                correlation_id=row.correlation_id,
+                payload={
+                    "session_id": str(row.id),
+                    "model": "",
+                    "input_tokens": row.input_tokens,
+                    "output_tokens": row.output_tokens,
+                    "total_tokens": row.input_tokens + row.output_tokens,
+                    "tool_call_count": row.tool_call_count,
+                    "turn_count": row.turn_count,
+                    "latency_ms_total": 0,
+                    "correlation_id": row.correlation_id,
+                },
+            ),
+        )
+
+    async def _assert_references(self, tenant: Any, request: StartAgentSessionRequest) -> None:
+        from nexus_ai.agents.errors import AgentNotAuthorizedError
+        from nexus_ai.domain.customers.repository import (
+            ConversationRepository,
+            CustomerRepository,
+        )
+
+        if request.customer_id is not None and (
+            await CustomerRepository(tenant).by_id(request.customer_id) is None
+        ):
+            raise AgentNotAuthorizedError("the referenced customer is not in this Organization")
+        if request.conversation_id is not None and (
+            await ConversationRepository(tenant).by_id(request.conversation_id) is None
+        ):
+            raise AgentNotAuthorizedError("the referenced conversation is not in this Organization")
+
+    async def _replay_session(
+        self, organization_id: UUID, idempotency_key: str, fingerprint: str
+    ) -> AgentSession | None:
+        if not idempotency_key:
+            return None
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            existing = await AgentSessionRepository(tenant).by_idempotency_key(idempotency_key)
+        if existing is None:
+            return None
+        if existing.request_fingerprint != fingerprint:
+            raise AgentIdempotencyConflictError(
+                "the idempotency key was used for a different session"
+            )
+        return existing
+
+    async def _emit_session_event(
+        self, session: Any, organization_id: UUID, row: AgentSession, event_type: str
+    ) -> None:
+        payload: dict[str, Any] = {
+            "session_id": str(row.id),
+            "agent_id": str(row.agent_id),
+            "model_profile_id": str(row.model_profile_id),
+            "channel": row.channel.value,
+            "state": row.state.value,
+            "correlation_id": row.correlation_id,
+        }
+        if event_type in ("agent.session.failed", "agent.session.expired"):
+            payload["error_code"] = row.error_code
+        await self._publisher.enqueue(
+            session,
+            EventEnvelope.create(
+                event_type=event_type,
+                event_version=1,
+                aggregate_type="agent_session",
+                aggregate_id=str(row.id),
+                producer=self._settings.service_name,
+                organization_id=organization_id,
+                correlation_id=row.correlation_id,
+                payload=payload,
+            ),
+        )
+
+    async def _emit_turn_event(
+        self,
+        session: Any,
+        organization_id: UUID,
+        session_row: AgentSession,
+        turn: AgentTurn,
+        event_type: str,
+        extra: dict[str, Any],
+    ) -> None:
+        payload = {
+            "session_id": str(session_row.id),
+            "turn_id": str(turn.id),
+            "sequence": turn.sequence,
+            "correlation_id": session_row.correlation_id,
+            **extra,
+        }
+        await self._publisher.enqueue(
+            session,
+            EventEnvelope.create(
+                event_type=event_type,
+                event_version=1,
+                aggregate_type="agent_session",
+                aggregate_id=str(session_row.id),
+                producer=self._settings.service_name,
+                organization_id=organization_id,
+                correlation_id=session_row.correlation_id,
+                payload=payload,
+            ),
+        )
+
+    def _response_from_turn(self, turn: AgentTurn) -> AgentResponse:
+        """Reconstruct the EXACT ORIGINAL ``AgentResponse`` for a replay — every field is
+        read from immutable, once-persisted facts (audit corrective #5:
+        ``tool_call_count`` and ``response_correlation_id``, not the differently-scoped
+        ``tool_iterations`` or a fabricated ``None``)."""
+        return AgentResponse(
+            session_id=turn.session_id,
+            turn_id=turn.id,
+            content=turn.response_text or "",
+            finish_reason=turn.finish_reason or "STOP",
+            tool_calls=turn.tool_call_count,
+            input_tokens=turn.input_tokens,
+            output_tokens=turn.output_tokens,
+            total_tokens=turn.input_tokens + turn.output_tokens,
+            latency_ms=turn.latency_ms,
+            correlation_id=turn.response_correlation_id,
+        )
+
+    def _require_enabled(self) -> None:
+        if not self._cfg.enabled:
+            raise AgentDisabledError("the agent runtime is disabled")
+
+    async def shutdown(self) -> None:
+        tasks = list(self._turn_tasks.values())
+        for task in tasks:
+            task.cancel()
+        if tasks:
+            await asyncio.gather(*tasks, return_exceptions=True)
+        self._turn_tasks.clear()
+        self._locks.clear()
+
+    async def join(self, session_id: UUID) -> None:
+        task = self._turn_tasks.get(session_id)
+        if task is not None:
+            with contextlib.suppress(asyncio.CancelledError, Exception):
+                await task
+
+
+class _TenantShim:
+    """Wraps a raw AsyncSession + org id as a TenantSession for repository reuse inside
+    an already-open transaction."""
+
+    def __init__(self, session: Any, organization_id: UUID) -> None:
+        self.session = session
+        self.organization_id = organization_id
+
+
+def ctx_correlation(request: SubmitTurnRequest, session: AgentSession) -> str | None:
+    return request.correlation_id or session.correlation_id
+
+
+#: the truthful turn error_code when a concurrent worker terminalised the session while a
+#: turn was in flight — a normal stop / completion is NEVER labelled a session expiration.
+_STALE_TERMINAL_FALLBACK: dict[AgentSessionState, str] = {
+    AgentSessionState.EXPIRED: "NXS_AGENT_SESSION_EXPIRED",
+    AgentSessionState.CANCELLED: "NXS_AGENT_CANCELLED",
+}
+
+
+def _stale_terminal_code(session_row: AgentSession) -> str:
+    """Map a concurrently-reached terminal session state to the turn's truthful
+    ``error_code``: the session's own ``error_code`` if it carries one, else a canonical
+    per-state fallback (``NXS_AGENT_INVALID_STATE`` for a normal stop / COMPLETED)."""
+    if session_row.error_code:
+        return session_row.error_code
+    return _STALE_TERMINAL_FALLBACK.get(session_row.state, "NXS_AGENT_INVALID_STATE")
+
+
+def _raise_for_stale_session(state: AgentSessionState) -> NoReturn:
+    """Raise the TRUTHFUL taxonomy error for a turn that lost its session to a
+    CONCURRENT terminalisation — whether discovered at final-commit time
+    (``_finish_turn``'s terminal-absorption) or mid-turn, at a runtime checkpoint
+    (``ExecutionRevoked``, audit corrective #6). Never a fabricated expiration, never a
+    generic cancellation for a normal stop."""
+    if state is AgentSessionState.EXPIRED:
+        raise AgentSessionExpiredError(
+            "the agent session reached its lifetime ceiling during the turn"
+        )
+    if state is AgentSessionState.CANCELLED:
+        raise AgentCancelledError("the agent session was cancelled during the turn")
+    raise AgentInvalidStateError("the agent session ended before the turn could be committed")
+
+
+def _elapsed_ms(start: dt.datetime, end: dt.datetime) -> int:
+    return max(0, int((end - start).total_seconds() * 1000))
