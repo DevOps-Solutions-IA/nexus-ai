@@ -18,7 +18,9 @@ P15 schedule occurrence or authorized immediate start
   -> P16 campaign run and bounded recipient claim
   -> P14 immutable per-recipient workflow
   -> P16 validates the completed workflow result against the campaign revision
-  -> P09 MessagingService.send with one stable recipient idempotency key
+  -> P16 final authorization transaction
+  -> durable AUTHORIZED campaign_send_permit
+  -> P09 MessagingService.send with the stable permit-bound idempotency key
   -> WhatsApp, Email, or SMS provider adapter
 ```
 
@@ -37,12 +39,15 @@ it is not a second execution path. P16 must correlate using durable IDs and P04 
 then re-read authoritative P14/P15 state rather than trusting an event payload alone.
 
 For each eligible recipient, P16 starts the revision's immutable per-recipient P14
-workflow with a stable idempotency key. A completed workflow acts as a dispatch permit,
-not as the provider call. P16 builds a strict P09 `SendMessageRequest` from immutable
-campaign revision fields, the snapshotted P06 identity reference, the P06 conversation
-boundary, and only explicitly mapped/bounded workflow outputs. Workflow output cannot
-choose an account, tenant, destination, provider, URL, credential, shell command or raw
-transport option.
+workflow with a stable idempotency key. A completed recipient workflow is a prerequisite
+for final send authorization; it does not itself authorize delivery. P16 must then
+authorize one durable tenant/attempt-bound send permit. The commit transitioning that
+permit to `AUTHORIZED` is the logical-send linearization point. Only after that commit
+does P16 build and submit a strict P09 `SendMessageRequest` from immutable campaign
+revision fields, the snapshotted P06 identity reference, the P06 conversation boundary,
+the permit-bound idempotency key, and explicitly mapped/bounded workflow outputs.
+Workflow output cannot choose an account, tenant, destination, provider, URL, credential,
+shell command or raw transport option.
 
 ## Dependency and ownership boundaries
 
