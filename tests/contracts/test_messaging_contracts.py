@@ -154,8 +154,9 @@ def test_p10_and_later_phases_remain_planned() -> None:
 
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    # NXS-P13 (AI Agent Runtime) is an authorized in-progress phase; P14+ stay PLANNED.
-    for later in ("NXS-P14", "NXS-P16"):
+    # Workflow is the current phase; campaigns remain future scope.
+    assert phases["NXS-P14"]["status"] in {"BUILDING", "VALIDATING", "READY"}
+    for later in ("NXS-P16",):
         assert phases[later]["status"] == "PLANNED", later
     # P09 provides the generic SMS delivery mechanism but no OTP semantics
     import nexus_ai.messaging.providers.sms as sms_module

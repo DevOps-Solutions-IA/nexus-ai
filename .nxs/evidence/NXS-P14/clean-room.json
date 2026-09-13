@@ -1,0 +1,21 @@
+{
+  "fresh_postgres_volume": true,
+  "implementation_code_head": "f87cf174182e863afec83cae871ed9a76397f7ed",
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T17:05:31Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh",
+  "steps": {
+    "alembic_check": "PASS",
+    "amd64_image": "PASS",
+    "arm64_image": "PASS",
+    "frozen_lock_install": "PASS",
+    "full_suite_1649": "PASS",
+    "graceful_shutdown": "PASS",
+    "health_live_ready": "PASS",
+    "migration_upgrade_head": "PASS",
+    "non_root_runtime": "PASS",
+    "schema_guard": "PASS"
+  }
+}

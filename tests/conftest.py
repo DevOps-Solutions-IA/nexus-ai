@@ -1416,3 +1416,41 @@ async def agent_stack(tool_engine: Any) -> Any:
 
     yield _AgentStack()
     await service.shutdown()
+
+
+@pytest.fixture
+async def workflow_stack(agent_stack: Any) -> Any:
+    """P14 service over real PostgreSQL, P04 outbox, P08 and P13 boundaries."""
+    import asyncpg
+
+    from nexus_ai.workflows.service import WorkflowService
+
+    agents = agent_stack
+    service = WorkflowService(
+        agents.database,
+        agents.event_platform.publisher,
+        agents.tool_registry,
+        agents.tool_engine,
+        agents.service,
+        service_name=agents.settings.service_name,
+    )
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE workflow_transition_history, workflow_step_runs, workflow_runs, "
+            "workflow_version_steps, workflow_versions, workflow_definitions CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _WorkflowStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.database = agents.database
+            self.agent_stack = agents
+            self.tool_engine = agents.tool_engine
+            self.tool_registry = agents.tool_registry
+
+    return _WorkflowStack()

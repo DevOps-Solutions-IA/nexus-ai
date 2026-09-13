@@ -128,3 +128,10 @@ VoiceConfigureDep = Annotated[
 AiReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_READ))]
 AiUseDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_USE))]
 AiConfigureDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.AI_CONFIGURE))]
+WorkflowReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.WORKFLOW_READ))]
+WorkflowExecuteDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.WORKFLOW_EXECUTE))
+]
+WorkflowConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.WORKFLOW_CONFIGURE))
+]
