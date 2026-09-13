@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p15-scheduler",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P14"
   ],
@@ -10,6 +10,7 @@
     ".nxs/evidence/NXS-P15/clean-room.json",
     ".nxs/evidence/NXS-P15/closure.json",
     ".nxs/evidence/NXS-P15/concurrency.json",
+    ".nxs/evidence/NXS-P15/corrective-revision-safe-occurrence-identity.json",
     ".nxs/evidence/NXS-P15/corrective-tenant-isolation.json",
     ".nxs/evidence/NXS-P15/coverage.json",
     ".nxs/evidence/NXS-P15/docker.json",
@@ -26,7 +27,7 @@
     ".nxs/evidence/NXS-P15/time-and-misfire.json"
   ],
   "id": "NXS-P15",
-  "implementation_commit": null,
+  "implementation_commit": "49a11419cb7bdd13d4a8b2123796a88d1045a0ba",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -78,9 +79,9 @@
     "NXS-SCHED-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-13T22:14:04Z",
     "started_at": "2026-09-13T18:55:03Z"
   },
   "title": "Scheduler"

@@ -6,7 +6,7 @@
   "forced_rls_schema_guard": "PASS",
   "migration_revision": "e7f8a9b0c1d2",
   "phase": "NXS-P15",
-  "recorded_at": "2026-09-13T19:58:28Z",
+  "recorded_at": "2026-09-13T22:13:10Z",
   "result": "PASS",
   "runtime_role_bypassrls": false,
   "runtime_role_superuser": false,

@@ -1,0 +1,53 @@
+{
+  "canonical_occurrence_key": "v1:r<schedule_revision>:f<fold>:<sha256-canonical-json>",
+  "candidate_ci": {
+    "head_sha": "49a11419cb7bdd13d4a8b2123796a88d1045a0ba",
+    "nxs_ci": {
+      "conclusion": "success",
+      "run_id": 34785425311
+    },
+    "nxs_security": {
+      "conclusion": "success",
+      "run_id": 34785425303
+    }
+  },
+  "corrective_implementation_commit": "49a11419cb7bdd13d4a8b2123796a88d1045a0ba",
+  "fail_first": {
+    "database": "PostgreSQL",
+    "exception": "UniqueViolationError",
+    "failed_constraint": "uq_scheduler_occurrences_identity",
+    "result": "FAIL_REPRODUCED",
+    "test": "tests/integration/test_scheduler_service.py::test_pause_edit_resume_can_rematerialize_same_slot_under_new_revision"
+  },
+  "identity_components": [
+    "schedule_id",
+    "schedule_revision",
+    "timezone",
+    "intended_local_time",
+    "fold"
+  ],
+  "migration_required": false,
+  "p14_idempotency_regression": "PASS",
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T22:13:10Z",
+  "regressions": {
+    "concurrent_same_revision_materialization": "PASS",
+    "cross_revision_same_slot": "PASS",
+    "dst_fall_fold_zero": "PASS",
+    "dst_spring_gap": "PASS",
+    "old_occurrence_immutable": "PASS",
+    "pause_edit_resume": "PASS",
+    "same_revision_duplicate_database_fence": "PASS",
+    "timezone_identity": "PASS"
+  },
+  "result": "PASS",
+  "root_cause": "Production occurrence identity omitted schedule revision and IANA timezone identity and hard-coded fold zero.",
+  "schema_version": "1.0.0",
+  "starting_head": "430ef8665d95684e6ef7c064991d9f834778c8e5",
+  "tests": {
+    "coverage_percent": 91.74,
+    "focused_p15_passed": 65,
+    "full_suite_failed": 0,
+    "full_suite_passed": 1714
+  }
+}
