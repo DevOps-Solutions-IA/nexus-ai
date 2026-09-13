@@ -1,0 +1,11 @@
+{
+  "base_sha": "3774ef5318907ae811f1bfff206754ad862cf56f",
+  "branch": "feat/nxs-p15-scheduler",
+  "implementation_candidate_clean_tree": true,
+  "implementation_commit": "c3f210e8b6163f28e132b11ae3953e43ccd99c75",
+  "phase": "NXS-P15",
+  "pull_request": 29,
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

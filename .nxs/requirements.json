@@ -1617,12 +1617,19 @@
       ],
       "description": "A tenant-isolated durable scheduler stores and evaluates one-time and recurring schedules, claims due occurrences under PostgreSQL authority, and dispatches governed NXS-P14 Workflow Engine runs using stable occurrence identities, timezone-aware temporal semantics, bounded misfire policy, cancellation and concurrency fencing, without directly invoking tools, model providers, messaging providers, telephony providers, shell commands, arbitrary network destinations or infrastructure.",
       "id": "NXS-SCHED-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/scheduler/service.py",
+        "src/nexus_ai/domain/scheduler/repository.py",
+        "migrations/versions/20260913_1900-e7f8a9b0c1d2_scheduler.py",
+        "tests/concurrency/test_scheduler_concurrency.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P15",
       "title": "Durable workflow scheduler",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P15/quality-gates.json"
+      ]
     },
     {
       "category": "CAMPAIGN",

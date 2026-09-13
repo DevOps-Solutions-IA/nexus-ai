@@ -1,0 +1,17 @@
+{
+  "america_bogota": "PASS",
+  "catch_up_bounded": "PASS",
+  "database_utc_authority": "PASS",
+  "dst_fall_back_fold_zero": "PASS",
+  "dst_spring_forward_skipped": "PASS",
+  "fire_once": "PASS",
+  "hourly_daily_weekly_monthly": "PASS",
+  "invalid_timezone_rejected": "PASS",
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "recurrence_search_bound": "PASS",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "skip": "PASS",
+  "tzdata_version": "2026.3"
+}

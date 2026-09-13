@@ -2,13 +2,30 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p15-scheduler",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P14"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P15/clean-room.json",
+    ".nxs/evidence/NXS-P15/closure.json",
+    ".nxs/evidence/NXS-P15/concurrency.json",
+    ".nxs/evidence/NXS-P15/coverage.json",
+    ".nxs/evidence/NXS-P15/docker.json",
+    ".nxs/evidence/NXS-P15/git.json",
+    ".nxs/evidence/NXS-P15/github-ci.json",
+    ".nxs/evidence/NXS-P15/migration.json",
+    ".nxs/evidence/NXS-P15/p14-dispatch.json",
+    ".nxs/evidence/NXS-P15/preflight.json",
+    ".nxs/evidence/NXS-P15/quality-gates.json",
+    ".nxs/evidence/NXS-P15/quality-matrix.json",
+    ".nxs/evidence/NXS-P15/red-team.json",
+    ".nxs/evidence/NXS-P15/security.json",
+    ".nxs/evidence/NXS-P15/tests.json",
+    ".nxs/evidence/NXS-P15/time-and-misfire.json"
+  ],
   "id": "NXS-P15",
-  "implementation_commit": null,
+  "implementation_commit": "c3f210e8b6163f28e132b11ae3953e43ccd99c75",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -60,9 +77,9 @@
     "NXS-SCHED-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-13T19:59:45Z",
     "started_at": "2026-09-13T18:55:03Z"
   },
   "title": "Scheduler"

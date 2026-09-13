@@ -1,0 +1,18 @@
+{
+  "amd64_build": "PASS",
+  "final_image_id": "sha256:2dd2a50eb3b78f21ca16d7119528e4918622ff993889a298d54b413c114949d9",
+  "graceful_shutdown": "PASS",
+  "health_live": "PASS",
+  "health_ready": "PASS",
+  "image": "nexus-ai:p15-final",
+  "multiarch_build": "PASS",
+  "non_root_user": "65532:65532",
+  "phase": "NXS-P15",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

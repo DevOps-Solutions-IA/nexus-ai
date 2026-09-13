@@ -1,0 +1,11 @@
+{
+  "failed": 0,
+  "focused_p15": 56,
+  "passed": 1705,
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "runtime_seconds": 315.94,
+  "schema_version": "1.0.0",
+  "warnings_as_errors": true
+}

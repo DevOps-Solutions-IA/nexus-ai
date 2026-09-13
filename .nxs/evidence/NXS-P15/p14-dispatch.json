@@ -1,0 +1,15 @@
+{
+  "direct_agent_dispatch": 0,
+  "direct_arbitrary_http_dispatch": 0,
+  "direct_provider_dispatch": 0,
+  "direct_tool_dispatch": 0,
+  "logical_run_per_occurrence": "PASS",
+  "p14_boundary": "WorkflowService.start_run",
+  "p14_retry_state_mutation": 0,
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "same_idempotency_key_on_replay": "PASS",
+  "schema_version": "1.0.0",
+  "workflow_run_reference_persisted": "PASS"
+}

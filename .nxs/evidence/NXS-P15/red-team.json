@@ -1,0 +1,16 @@
+{
+  "arbitrary_execution_targets_rejected": "PASS",
+  "bounded_backlog": "PASS",
+  "cross_tenant_target_rejected": "PASS",
+  "dst_duplicate_prevented": "PASS",
+  "materialized_occurrence_immutable": "PASS",
+  "organization_spoof_rejected": "PASS",
+  "p14_bypass_prevented": "PASS",
+  "p25_recovery_boundary_preserved": "PASS",
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "stale_token_rejected": "PASS",
+  "tenant_rls_and_fk": "PASS"
+}

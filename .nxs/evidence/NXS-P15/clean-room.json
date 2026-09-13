@@ -1,0 +1,16 @@
+{
+  "fresh_dependency_install": "PASS",
+  "fresh_postgresql_volume": true,
+  "full_suite": "PASS",
+  "graceful_shutdown": "PASS",
+  "locked_install": "PASS",
+  "migration_and_schema_guard": "PASS",
+  "multiarch": "PASS",
+  "non_root_runtime": "PASS",
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "runtime_health": "PASS",
+  "schema_version": "1.0.0",
+  "script": "scripts/clean-room.sh"
+}

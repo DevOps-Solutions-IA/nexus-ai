@@ -1,0 +1,16 @@
+{
+  "database_time_due_ordering": "PASS",
+  "duplicate_materialization": "PASS",
+  "duplicate_p14_start_identity": "PASS",
+  "edit_vs_materialize": "PASS",
+  "owner_token_completion_fence": "PASS",
+  "pause_cancel_vs_claim": "PASS",
+  "phase": "NXS-P15",
+  "postgresql_skip_locked_claim": "PASS",
+  "recorded_at": "2026-09-13T19:58:28Z",
+  "result": "PASS",
+  "resume_vs_tick": "PASS",
+  "same_schedule_key_create": "PASS",
+  "schema_version": "1.0.0",
+  "stale_owner_rejected": "PASS"
+}
