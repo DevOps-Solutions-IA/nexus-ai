@@ -1,0 +1,64 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p14-workflows",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P08",
+    "NXS-P13"
+  ],
+  "evidence": [],
+  "id": "NXS-P14",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Cron, recurring schedules, future-time scheduling, and timer infrastructure (NXS-P15)",
+    "Campaigns, audience segmentation, and bulk outreach (NXS-P16)",
+    "Human queue assignment and workforce routing (NXS-P17)",
+    "Cell placement/scaling, autonomous SRE, billing, full observability, and deployment",
+    "Automatic orphan reaping, stale-lease reassignment, ambiguous-effect reconciliation, and failover (NXS-P25)"
+  ],
+  "objective": "Deliver a durable, tenant-isolated, PostgreSQL-authoritative Workflow Engine with immutable versions, distributed claim fencing, bounded retries, pause/resume/cancel, P08 tool steps, P13 agent steps, deterministic conditions, P04 events, governed APIs, and explicit P25 recovery deferral.",
+  "requirements_implemented": [
+    "NXS-WF-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-13T04:09:43Z"
+  },
+  "title": "Workflow Engine"
+}

@@ -231,12 +231,12 @@ async def test_openapi_voice_surface_is_governed_only(app_client) -> None:  # ty
         assert banned not in blob
 
 
-def test_p14_stays_planned_and_p12_has_no_reasoning() -> None:
+def test_p14_is_active_or_ready_and_p12_has_no_reasoning() -> None:
     registry = json.loads((_ROOT / ".nxs" / "phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    # NXS-P13 (AI Agent Runtime) is an authorized in-progress phase; P14+ stay PLANNED.
+    # P14 is active; P12 remains transport-only and cannot import the workflow engine.
     assert phases["NXS-P13"]["branch"] == "feat/nxs-p13-agent-runtime"
-    assert phases["NXS-P14"]["status"] == "PLANNED"
+    assert phases["NXS-P14"]["status"] in {"BUILDING", "VALIDATING", "READY"}
 
     # the voice package never imports the tool engine, the agent runtime or a workflow
     # engine — P12 is transport, not reasoning. P13 consumes P12 output, never the reverse.

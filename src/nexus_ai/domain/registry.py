@@ -83,6 +83,14 @@ from nexus_ai.domain.voice.models import (
     VoiceSessionRecord,
     VoiceUsageRecordRecord,
 )
+from nexus_ai.domain.workflows.models import (
+    WorkflowDefinitionRecord,
+    WorkflowRunRecord,
+    WorkflowStepRunRecord,
+    WorkflowTransitionHistoryRecord,
+    WorkflowVersionRecord,
+    WorkflowVersionStepRecord,
+)
 
 __all__ = [
     "AiAgentRecord",
@@ -142,4 +150,10 @@ __all__ = [
     "VoiceUsageRecordRecord",
     "WebhookEndpointRecord",
     "WebhookReceiptRecord",
+    "WorkflowDefinitionRecord",
+    "WorkflowRunRecord",
+    "WorkflowStepRunRecord",
+    "WorkflowTransitionHistoryRecord",
+    "WorkflowVersionRecord",
+    "WorkflowVersionStepRecord",
 ]

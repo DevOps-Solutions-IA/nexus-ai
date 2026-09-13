@@ -79,6 +79,10 @@ class PermissionKey(StrEnum):
     AI_READ = "ai:read"
     AI_USE = "ai:use"
     AI_CONFIGURE = "ai:configure"
+    # P14 additions (seeded by the P14 migration):
+    WORKFLOW_READ = "workflow:read"
+    WORKFLOW_EXECUTE = "workflow:execute"
+    WORKFLOW_CONFIGURE = "workflow:configure"
 
 
 class RoleKey(StrEnum):
@@ -169,6 +173,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.AI_READ: UUID("b2000000-0000-7000-8000-00000000002d"),
     PermissionKey.AI_USE: UUID("b2000000-0000-7000-8000-00000000002e"),
     PermissionKey.AI_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000002f"),
+    PermissionKey.WORKFLOW_READ: UUID("b2000000-0000-7000-8000-000000000030"),
+    PermissionKey.WORKFLOW_EXECUTE: UUID("b2000000-0000-7000-8000-000000000031"),
+    PermissionKey.WORKFLOW_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000032"),
 }
 
 _CATALOG_SQL = """
