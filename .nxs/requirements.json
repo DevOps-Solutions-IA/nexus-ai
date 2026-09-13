@@ -1611,6 +1611,20 @@
       ]
     },
     {
+      "category": "SCHEDULER",
+      "dependencies": [
+        "NXS-WF-001"
+      ],
+      "description": "A tenant-isolated durable scheduler stores and evaluates one-time and recurring schedules, claims due occurrences under PostgreSQL authority, and dispatches governed NXS-P14 Workflow Engine runs using stable occurrence identities, timezone-aware temporal semantics, bounded misfire policy, cancellation and concurrency fencing, without directly invoking tools, model providers, messaging providers, telephony providers, shell commands, arbitrary network destinations or infrastructure.",
+      "id": "NXS-SCHED-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P15",
+      "title": "Durable workflow scheduler",
+      "validation_evidence": []
+    },
+    {
       "category": "CAMPAIGN",
       "dependencies": [
         "NXS-WF-001"
