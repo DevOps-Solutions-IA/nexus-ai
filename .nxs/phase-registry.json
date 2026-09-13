@@ -143,13 +143,13 @@
     },
     {
       "branch": "feat/nxs-p14-workflows",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P08",
         "NXS-P13"
       ],
       "id": "NXS-P14",
-      "status": "VALIDATING",
+      "status": "READY",
       "title": "Workflow Engine"
     },
     {
