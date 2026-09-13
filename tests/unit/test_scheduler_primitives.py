@@ -13,7 +13,7 @@ from nexus_ai.scheduler.entities import (
     RecurrenceSpec,
     ScheduleType,
 )
-from nexus_ai.scheduler.errors import ScheduleInvalidStateError
+from nexus_ai.scheduler.errors import ScheduleInvalidRecurrenceError, ScheduleInvalidStateError
 from nexus_ai.scheduler.recurrence import first_slot, next_slot, timezone_data_version
 from nexus_ai.scheduler.state_machine import (
     OccurrenceState,
@@ -165,6 +165,32 @@ def test_first_calendar_slot_honors_weekday_and_month_day_selectors() -> None:
         ),
     )
     assert monthly.intended_local_time == dt.datetime(2026, 1, 15, 8)
+
+
+def test_monthly_leap_day_and_recurrence_search_bound_are_deterministic() -> None:
+    leap_slot = first_slot(
+        start_at=dt.datetime(2028, 1, 30, 9, tzinfo=UTC),
+        timezone="UTC",
+        recurrence=RecurrenceSpec(
+            frequency=RecurrenceFrequency.MONTHLY,
+            month_days=(29,),
+            local_time=dt.time(8),
+        ),
+    )
+    assert leap_slot.intended_local_time == dt.datetime(2028, 2, 29, 8)
+
+    with pytest.raises(ScheduleInvalidRecurrenceError):
+        next_slot(
+            dt.datetime(2026, 1, 31, 8),
+            dt.datetime(2026, 1, 31, 8, tzinfo=UTC),
+            "UTC",
+            RecurrenceSpec(
+                frequency=RecurrenceFrequency.MONTHLY,
+                interval=10_000,
+                month_days=(31,),
+                local_time=dt.time(8),
+            ),
+        )
 
 
 def test_calendar_contract_rejects_aware_local_time_and_duplicate_selectors() -> None:
