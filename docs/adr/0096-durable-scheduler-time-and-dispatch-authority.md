@@ -8,7 +8,7 @@ Nexus AI needs one-time and recurring activation of immutable P14 workflow versi
 
 ## Decision
 
-PostgreSQL owns schedule cursors, database-time due ordering, materialized occurrences, claims, owner/token fencing, revisions, cancellation, and idempotency. All scheduler tables carry `organization_id`, forced RLS, and tenant-aware composite foreign keys. Materialization is just in time and serialized with `FOR UPDATE SKIP LOCKED`; the unique tenant/schedule/local-slot identity is the duplicate backstop. Claims persist owner and opaque token before dispatch, and terminal writes compare the expected state, owner, and token.
+PostgreSQL owns schedule cursors, database-time due ordering, materialized occurrences, claims, owner/token fencing, revisions, cancellation, and idempotency. All scheduler tables carry `organization_id`, forced RLS, and tenant-aware composite foreign keys. Materialization is just in time and serialized with `FOR UPDATE SKIP LOCKED`; a versioned bounded key derived from schedule UUID, schedule revision, IANA timezone identity, canonical local slot, and fold is protected by the unique tenant/schedule/occurrence constraint. Claims persist owner and opaque token before dispatch, and terminal writes compare the expected state, owner, and token.
 
 The only target is `START_WORKFLOW` against an immutable, same-tenant P14 workflow version. P15 calls `WorkflowService.start_run` with a stable persisted idempotency key. It never calls P08, P13, a provider, shell, SQL, arbitrary HTTP, or infrastructure directly. P14 remains the sole workflow execution and step-retry authority.
 
@@ -22,6 +22,7 @@ A durable `CLAIMED` occurrence left by a crashed worker remains ambiguous. P15 r
 - Cancellation, pause, edit, materialization, and claim races have database commit order.
 - One occurrence maps to at most one logical P14 run, without claiming physical exactly-once effects.
 - Materialized temporal intent never changes when a schedule or timezone rule changes.
+- A paused schedule edit may deliberately revisit the same canonical local slot under a new revision without colliding with the immutable prior-revision occurrence.
 - Operators need P25 for dead-owner and ambiguous-dispatch reconciliation.
 - P15 certification is limited to **SCHEDULER CONTRACT + DURABILITY CERTIFIED**.
 

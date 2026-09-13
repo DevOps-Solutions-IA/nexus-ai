@@ -154,12 +154,12 @@
     },
     {
       "branch": "feat/nxs-p15-scheduler",
-      "decision": "GO",
+      "decision": "PENDING",
       "dependencies": [
         "NXS-P14"
       ],
       "id": "NXS-P15",
-      "status": "READY",
+      "status": "VALIDATING",
       "title": "Scheduler"
     },
     {

@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p15-scheduler",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P14"
   ],
@@ -26,7 +26,7 @@
     ".nxs/evidence/NXS-P15/time-and-misfire.json"
   ],
   "id": "NXS-P15",
-  "implementation_commit": "122d8fd7252dd591979c8fcbc7cfc22d0649c2ec",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -78,9 +78,9 @@
     "NXS-SCHED-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-13T20:31:28Z",
+    "closed_at": null,
     "started_at": "2026-09-13T18:55:03Z"
   },
   "title": "Scheduler"

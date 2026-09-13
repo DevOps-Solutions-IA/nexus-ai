@@ -1,7 +1,7 @@
 """NXS-P15 state, recurrence, validation and terminal-absorption contracts."""
 
 import datetime as dt
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from pydantic import ValidationError
@@ -14,6 +14,7 @@ from nexus_ai.scheduler.entities import (
     ScheduleType,
 )
 from nexus_ai.scheduler.errors import ScheduleInvalidRecurrenceError, ScheduleInvalidStateError
+from nexus_ai.scheduler.identity import build_occurrence_key
 from nexus_ai.scheduler.recurrence import first_slot, next_slot, timezone_data_version
 from nexus_ai.scheduler.state_machine import (
     OccurrenceState,
@@ -230,6 +231,83 @@ def test_dst_gap_is_explicit_and_fall_back_uses_fold_zero_once() -> None:
     )
     assert folded.fold == 0
     assert folded.scheduled_for == dt.datetime(2026, 11, 1, 5, 30, tzinfo=UTC)
+
+    schedule_id = UUID("018f4db8-1f5a-7abc-8def-0123456789ab")
+    gap_key = build_occurrence_key(
+        schedule_id=schedule_id,
+        schedule_revision=4,
+        timezone="America/New_York",
+        intended_local_time=gap.intended_local_time,
+        fold=gap.fold,
+    )
+    assert gap_key == build_occurrence_key(
+        schedule_id=schedule_id,
+        schedule_revision=4,
+        timezone="America/New_York",
+        intended_local_time=gap.intended_local_time,
+        fold=gap.fold,
+    )
+    fold_key = build_occurrence_key(
+        schedule_id=schedule_id,
+        schedule_revision=4,
+        timezone="America/New_York",
+        intended_local_time=folded.intended_local_time,
+        fold=folded.fold,
+    )
+    assert fold_key == build_occurrence_key(
+        schedule_id=schedule_id,
+        schedule_revision=4,
+        timezone="America/New_York",
+        intended_local_time=folded.intended_local_time,
+        fold=0,
+    )
+
+
+def test_occurrence_identity_is_revision_timezone_and_fold_safe() -> None:
+    schedule_id = UUID("018f4db8-1f5a-7abc-8def-0123456789ab")
+    intended = dt.datetime(2026, 9, 13, 10, 0)
+
+    def key(*, revision: int = 7, timezone: str = "America/Bogota", fold: int = 0) -> str:
+        return build_occurrence_key(
+            schedule_id=schedule_id,
+            schedule_revision=revision,
+            timezone=timezone,
+            intended_local_time=intended,
+            fold=fold,
+        )
+
+    assert key() == key()
+    assert key() != key(revision=8)
+    assert key() != key(timezone="Etc/GMT+5")
+    assert key() != key(fold=1)
+    assert key().startswith("v1:r7:f0:")
+    assert len(key()) <= 160
+
+
+@pytest.mark.parametrize(
+    ("revision", "intended", "fold", "message"),
+    (
+        (0, dt.datetime(2026, 9, 13, 10, 0), 0, "schedule_revision must be positive"),
+        (
+            1,
+            dt.datetime(2026, 9, 13, 10, 0, tzinfo=UTC),
+            0,
+            "intended_local_time must be a naive local wall-clock value",
+        ),
+        (1, dt.datetime(2026, 9, 13, 10, 0), 2, "fold must be 0 or 1"),
+    ),
+)
+def test_occurrence_identity_rejects_invalid_canonical_components(
+    revision: int, intended: dt.datetime, fold: int, message: str
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        build_occurrence_key(
+            schedule_id=uuid4(),
+            schedule_revision=revision,
+            timezone="UTC",
+            intended_local_time=intended,
+            fold=fold,
+        )
 
 
 @pytest.mark.parametrize("terminal", [ScheduleState.COMPLETED, ScheduleState.CANCELLED])

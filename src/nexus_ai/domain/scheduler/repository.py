@@ -22,6 +22,7 @@ from nexus_ai.scheduler.entities import (
     ScheduleTransition,
 )
 from nexus_ai.scheduler.errors import ScheduleExecutionFencedError
+from nexus_ai.scheduler.identity import build_occurrence_key
 from nexus_ai.scheduler.recurrence import TemporalSlot
 from nexus_ai.scheduler.state_machine import (
     OccurrenceState,
@@ -197,7 +198,13 @@ class SchedulerRepository:
         correlation_id: str | None = None,
     ) -> ScheduleOccurrence:
         occurrence_id = uuid.uuid7()
-        occurrence_key = f"{schedule.id}:{slot.intended_local_time.isoformat(timespec='minutes')}:0"
+        occurrence_key = build_occurrence_key(
+            schedule_id=schedule.id,
+            schedule_revision=schedule.revision,
+            timezone=schedule.timezone,
+            intended_local_time=slot.intended_local_time,
+            fold=slot.fold,
+        )
         row = SchedulerOccurrenceRecord(
             id=occurrence_id,
             organization_id=self._org,

@@ -113,7 +113,7 @@ Proposed occurrence states are `PENDING`, `CLAIMED`, `DISPATCHED`, `FAILED`, `SK
 
 P15 uses **just-in-time materialization from durable `next_fire_at`** rather than pre-generating a horizon. A worker locks one eligible active schedule, inserts exactly one occurrence for its current canonical local slot, and advances `next_fire_at` to the next valid slot in the same transaction. The unique schedule/occurrence key is the final duplicate backstop.
 
-The occurrence key is derived from stable non-secret components: schedule UUID, schedule revision and canonical intended local slot (including timezone identity, but not merely the UTC offset). The stored occurrence UUID is opaque externally. A bounded tick processes at most 100 schedules/occurrences by default and never more than a configured hard ceiling of 500.
+The occurrence key is `v1:r<revision>:f<fold>:<sha256>`. The digest is calculated over canonical JSON containing the schedule UUID, schedule revision, IANA timezone identity, full canonical intended local wall-clock slot, and fold. This bounded, deterministic identity distinguishes schedule revisions and timezone identities even when offsets match, while the unique `(organization_id, schedule_id, occurrence_key)` constraint remains the final same-revision/same-slot duplicate backstop. The stored occurrence UUID is opaque externally. A bounded tick processes at most 100 schedules/occurrences by default and never more than a configured hard ceiling of 500.
 
 Schedule edits create a new revision and recompute only future, non-materialized slots. Materialized occurrences retain their revision snapshot. Edit versus materialize serializes on the schedule row so the occurrence records exactly one revision.
 

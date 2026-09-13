@@ -6,8 +6,11 @@ import uuid
 from typing import Any
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
 
+from nexus_ai.domain.scheduler.models import SchedulerOccurrenceRecord
+from nexus_ai.domain.scheduler.repository import SchedulerRepository
 from nexus_ai.scheduler.entities import (
     CreateScheduleRequest,
     MisfirePolicy,
@@ -21,6 +24,7 @@ from nexus_ai.scheduler.errors import (
     ScheduleInvalidStateError,
     ScheduleNotFoundError,
 )
+from nexus_ai.scheduler.recurrence import TemporalSlot
 from nexus_ai.scheduler.state_machine import OccurrenceState, ScheduleState
 from nexus_ai.workflows.entities import (
     CreateWorkflowRequest,
@@ -136,17 +140,110 @@ async def test_concurrent_materialization_and_claim_have_single_authority(
             recurrence=RecurrenceSpec(frequency=RecurrenceFrequency.MINUTELY),
         ),
     )
-    await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
+    active = await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
     first, second = await asyncio.gather(
         scheduler_stack.service.materialize_due(organization.id),
         scheduler_stack.service.materialize_due(organization.id),
     )
     assert len(first) + len(second) == 1
+    stored = await scheduler_stack.service.list_occurrences(organization.id, schedule.id, limit=10)
+    assert len(stored) == 1
+    assert stored[0].schedule_revision == active.revision
     claims = await asyncio.gather(
         scheduler_stack.service.claim_due(organization.id, uuid.uuid4()),
         scheduler_stack.service.claim_due(organization.id, uuid.uuid4()),
     )
     assert len([claim for claim in claims if claim is not None]) == 1
+
+
+async def test_same_revision_same_slot_is_rejected_by_database_uniqueness(
+    scheduler_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    version = await _version(scheduler_stack, organization.id)
+    schedule = await scheduler_stack.service.create_schedule(organization.id, _request(version.id))
+    await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
+    first = (await scheduler_stack.service.materialize_due(organization.id))[0]
+    slot = TemporalSlot(
+        intended_local_time=first.intended_local_time,
+        scheduled_for=first.scheduled_for,
+        utc_offset_seconds=first.utc_offset_seconds,
+        fold=first.fold,
+    )
+
+    with pytest.raises(IntegrityError):
+        async with scheduler_stack.database.tenant_transaction(organization.id) as tenant:
+            repo = SchedulerRepository(tenant)
+            row = await repo.schedule_row(schedule.id, for_update=True)
+            assert row is not None
+            await repo.add_occurrence(
+                row,
+                slot,
+                state=OccurrenceState.PENDING,
+                reason="OCCURRENCE_CREATED",
+            )
+
+
+async def test_pause_edit_resume_can_rematerialize_same_slot_under_new_revision(
+    scheduler_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    version = await _version(scheduler_stack, organization.id)
+    now = dt.datetime.now(dt.UTC)
+    local_time = (now - dt.timedelta(minutes=2)).time().replace(second=0, microsecond=0)
+    schedule = await scheduler_stack.service.create_schedule(
+        organization.id,
+        _request(
+            version.id,
+            schedule_type=ScheduleType.RECURRING,
+            start_at=now - dt.timedelta(days=1),
+            recurrence=RecurrenceSpec(
+                frequency=RecurrenceFrequency.DAILY,
+                local_time=local_time,
+            ),
+            misfire_policy=MisfirePolicy.FIRE_ONCE,
+        ),
+    )
+    active = await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
+    first = await scheduler_stack.service.materialize_due(organization.id)
+    assert len(first) == 1
+    assert first[0].schedule_revision == active.revision
+
+    paused = await scheduler_stack.service.pause_schedule(organization.id, schedule.id)
+    edited = await scheduler_stack.service.update_schedule(
+        organization.id,
+        schedule.id,
+        UpdateScheduleRequest(expected_revision=paused.revision, input={"revision": "new"}),
+    )
+    assert edited.revision == paused.revision + 1
+    resumed = await scheduler_stack.service.resume_schedule(organization.id, schedule.id)
+    second = await scheduler_stack.service.materialize_due(organization.id)
+
+    assert len(second) == 1
+    assert second[0].schedule_revision == resumed.revision
+    assert second[0].intended_local_time == first[0].intended_local_time
+    assert second[0].occurrence_key != first[0].occurrence_key
+    assert second[0].p14_idempotency_key != first[0].p14_idempotency_key
+    async with scheduler_stack.database.tenant_transaction(organization.id) as tenant:
+        rows = (
+            (
+                await tenant.session.execute(
+                    select(SchedulerOccurrenceRecord)
+                    .where(SchedulerOccurrenceRecord.schedule_id == schedule.id)
+                    .order_by(SchedulerOccurrenceRecord.schedule_revision)
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert len(rows) == 2
+    assert rows[0].schedule_revision == active.revision
+    assert rows[0].workflow_input == {"source": "scheduler"}
+    assert rows[0].workflow_version_id == version.id
+    assert rows[0].timezone == "UTC"
+    assert rows[0].misfire_policy == MisfirePolicy.FIRE_ONCE.value
+    assert rows[1].schedule_revision == resumed.revision
+    assert rows[1].workflow_input == {"revision": "new"}
 
 
 async def test_misfire_policies_are_bounded(scheduler_stack: Any, make_organization: Any) -> None:
