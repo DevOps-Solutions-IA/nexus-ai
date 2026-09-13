@@ -1596,12 +1596,19 @@
       ],
       "description": "Versioned workflows coordinate idempotent tools, communication and recoverable long-running work.",
       "id": "NXS-WF-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        "src/nexus_ai/workflows/service.py",
+        "src/nexus_ai/domain/workflows/repository.py",
+        "migrations/versions/20260913_0415-c5d6e7f8a9b0_workflow_engine.py",
+        "tests/concurrency/test_workflow_concurrency.py"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P14",
       "title": "Durable workflow engine",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P14/quality-gates.json"
+      ]
     },
     {
       "category": "CAMPAIGN",
