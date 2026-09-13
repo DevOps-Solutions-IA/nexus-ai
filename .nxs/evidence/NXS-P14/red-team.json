@@ -1,7 +1,7 @@
 {
   "answers": {
     "arbitrary_execution_step": "Rejected by strict TOOL, AGENT, CONDITION, and NOOP discriminated contracts; SHELL, SQL, URL, CRON, CAMPAIGN, and HUMAN_QUEUE are invalid.",
-    "condition_contradiction": "One claim token persists one deterministic condition result; rejected roots and all-exclusive descendants become SKIPPED, while joins require every predecessor resolved and at least one COMPLETED predecessor.",
+    "condition_contradiction": "One claim token persists one deterministic condition result. ALL is the fail-closed default; only immutable explicit ANY joins proceed after all alternatives resolve and at least one completes.",
     "cross_tenant_reference": "Forced RLS and tenant-aware composite foreign keys reject it.",
     "definition_mutates_active_run": "No; each run binds to an immutable published version protected by database triggers.",
     "external_effect_then_local_failure": "The durable claim and stable P08/P13 semantic identity preserve ambiguity; no automatic redispatch occurs.",
@@ -16,7 +16,7 @@
     "two_replica_execution": "Only one READY-to-RUNNING claim commits; the loser receives no execution authority."
   },
   "phase": "NXS-P14",
-  "recorded_at": "2026-09-13T06:45:18Z",
+  "recorded_at": "2026-09-13T17:07:06Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

@@ -1,10 +1,14 @@
 {
   "alembic_check": "PASS",
   "downgrade_supported": true,
+  "downgrade_upgrade_cycle": "PASS",
   "fresh_upgrade": "PASS",
-  "migration": "c5d6e7f8a9b0",
+  "migrations": [
+    "c5d6e7f8a9b0",
+    "d6e7f8a9b0c1"
+  ],
   "phase": "NXS-P14",
-  "recorded_at": "2026-09-13T06:34:35Z",
+  "recorded_at": "2026-09-13T17:05:31Z",
   "result": "PASS",
   "rls_schema_guard": "PASS",
   "schema_version": "1.0.0",
@@ -16,5 +20,5 @@
     "workflow_step_runs",
     "workflow_transition_history"
   ],
-  "upgrade_from_p13_head": "PASS"
+  "upgrade_from_previous_p14_head": "PASS"
 }

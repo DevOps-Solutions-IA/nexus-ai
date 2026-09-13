@@ -1,0 +1,34 @@
+{
+  "dependency_modes": {
+    "ALL": "all predecessors must complete; any skipped predecessor excludes the step",
+    "ANY": "all predecessors resolve; at least one completed predecessor activates the step"
+  },
+  "external_effect_checks": {
+    "skipped_agent_provider_calls": 0,
+    "skipped_tool_http_calls": 0,
+    "skipped_tool_p08_records": 0
+  },
+  "fail_first": {
+    "actual": "READY",
+    "expected": "SKIPPED",
+    "result": "FAIL_REPRODUCED",
+    "test": "test_default_mandatory_dependencies_fail_closed_when_branch_is_skipped"
+  },
+  "implementation_commit": "f87cf174182e863afec83cae871ed9a76397f7ed",
+  "migration": "d6e7f8a9b0c1",
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T17:07:06Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "starting_head": "aa4a0f3d688bffd8150ba82de073e488fba59099",
+  "validation": {
+    "alternative_join": "PASS",
+    "cancel_fence": "PASS",
+    "deep_branch": "PASS",
+    "mandatory_conjunction": "PASS",
+    "nested_condition": "PASS",
+    "replay_fence": "PASS",
+    "terminal_absorption": "PASS",
+    "two_worker_serialization": "PASS"
+  }
+}
