@@ -55,7 +55,7 @@
     "NXS-WF-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "VALIDATING",
   "timestamps": {
     "closed_at": null,
     "started_at": "2026-09-13T04:09:43Z"
