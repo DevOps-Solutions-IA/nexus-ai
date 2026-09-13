@@ -1,0 +1,26 @@
+{
+  "database": "PostgreSQL",
+  "mechanisms": [
+    "workflow run row FOR UPDATE serialization",
+    "ready step FOR UPDATE SKIP LOCKED claim",
+    "owner and opaque claim-token compare-and-set terminal writes",
+    "tenant/version/idempotency unique constraint"
+  ],
+  "passed": 10,
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:29:20Z",
+  "result": "PASS",
+  "scenarios": [
+    "same semantic start key",
+    "same READY step claim",
+    "stale completion",
+    "cancel versus claim",
+    "pause versus claim",
+    "resume versus cancel",
+    "duplicate condition completion",
+    "parent completion versus child readiness",
+    "duplicate TOOL execution",
+    "duplicate AGENT execution"
+  ],
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,22 @@
+{
+  "answers": {
+    "arbitrary_execution_step": "Rejected by strict TOOL, AGENT, CONDITION, and NOOP discriminated contracts; SHELL, SQL, URL, CRON, CAMPAIGN, and HUMAN_QUEUE are invalid.",
+    "condition_contradiction": "One claim token can persist one deterministic condition result; duplicate completion is fenced.",
+    "cross_tenant_reference": "Forced RLS and tenant-aware composite foreign keys reject it.",
+    "definition_mutates_active_run": "No; each run binds to an immutable published version protected by database triggers.",
+    "external_effect_then_local_failure": "The durable claim and stable P08/P13 semantic identity preserve ambiguity; no automatic redispatch occurs.",
+    "p08_bypass": "No; TOOL dispatch has only the injected ToolEngine boundary and no URL or credential contract.",
+    "p13_bypass": "No; AGENT dispatch has only the injected AgentService boundary and no provider contract.",
+    "p25_deferral": "Automatic orphan reaping, lease reassignment, ambiguous-effect reconciliation, crash recovery, and failover remain deferred.",
+    "paused_after_cancelled": "Impossible; CANCELLED is absorbing and resume requires PAUSED under the same run-row lock.",
+    "retry_side_effect": "P08 uses one stable semantic key per run/step; physical exactly-once is not claimed and ambiguity remains fenced.",
+    "stale_after_cancel": "Cannot claim or commit; cancellation and claims serialize on the run row and terminal writes require current owner/token.",
+    "stale_owner_completion": "Rejected by state, owner, and claim-token compare-and-set.",
+    "terminal_resurrection": "Rejected by transition guards and absorbing terminal states.",
+    "two_replica_execution": "Only one READY-to-RUNNING claim commits; the loser receives no execution authority."
+  },
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:37:08Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

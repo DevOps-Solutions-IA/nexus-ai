@@ -1,0 +1,80 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p14-workflows",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P08",
+    "NXS-P13"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P14/agent-handoff.json",
+    ".nxs/evidence/NXS-P14/clean-room.json",
+    ".nxs/evidence/NXS-P14/closure.json",
+    ".nxs/evidence/NXS-P14/concurrency.json",
+    ".nxs/evidence/NXS-P14/coverage.json",
+    ".nxs/evidence/NXS-P14/docker.json",
+    ".nxs/evidence/NXS-P14/git.json",
+    ".nxs/evidence/NXS-P14/github-ci.json",
+    ".nxs/evidence/NXS-P14/migration.json",
+    ".nxs/evidence/NXS-P14/preflight.json",
+    ".nxs/evidence/NXS-P14/quality-gates.json",
+    ".nxs/evidence/NXS-P14/quality-matrix.json",
+    ".nxs/evidence/NXS-P14/red-team.json",
+    ".nxs/evidence/NXS-P14/security.json",
+    ".nxs/evidence/NXS-P14/tests.json"
+  ],
+  "id": "NXS-P14",
+  "implementation_commit": "62d57ea1a5f4e6d2e52567809d85a2aa7b23c7bc",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Cron, recurring schedules, future-time scheduling, and timer infrastructure (NXS-P15)",
+    "Campaigns, audience segmentation, and bulk outreach (NXS-P16)",
+    "Human queue assignment and workforce routing (NXS-P17)",
+    "Cell placement/scaling, autonomous SRE, billing, full observability, and deployment",
+    "Automatic orphan reaping, stale-lease reassignment, ambiguous-effect reconciliation, and failover (NXS-P25)"
+  ],
+  "objective": "Deliver a durable, tenant-isolated, PostgreSQL-authoritative Workflow Engine with immutable versions, distributed claim fencing, bounded retries, pause/resume/cancel, P08 tool steps, P13 agent steps, deterministic conditions, P04 events, governed APIs, and explicit P25 recovery deferral.",
+  "requirements_implemented": [
+    "NXS-WF-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-13T05:38:54Z",
+    "started_at": "2026-09-13T04:09:43Z"
+  },
+  "title": "Workflow Engine"
+}

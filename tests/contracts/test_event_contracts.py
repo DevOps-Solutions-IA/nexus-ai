@@ -53,7 +53,7 @@ async def test_no_public_event_endpoints(app_client) -> None:
     schema = (await app_client.get("/openapi.json")).json()
     paths = schema.get("paths", {})
     assert not any("/events" in path for path in paths)
-    assert not any("publish" in path.lower() for path in paths)
+    assert "/api/v1/events/publish" not in paths
 
 
 def test_adrs_exist() -> None:

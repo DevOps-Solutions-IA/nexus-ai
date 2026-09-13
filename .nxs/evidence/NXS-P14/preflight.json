@@ -1,0 +1,9 @@
+{
+  "base_sha": "078aee01d6ecfa4268c0aba9d951eb0843a81da1",
+  "branch": "feat/nxs-p14-workflows",
+  "guard_code": "AUTHORIZED",
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:37:08Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,22 @@
+{
+  "agent_b_reconstruction": {
+    "active_phase": null,
+    "evidence_directory": ".nxs/evidence/NXS-P14",
+    "nxs_p13": "READY_GO",
+    "nxs_p14": "READY_GO",
+    "next_allowed_branch": "feat/nxs-p15-scheduler",
+    "next_allowed_phase": "NXS-P15"
+  },
+  "authoritative_files": [
+    "AGENTS.md",
+    ".nxs/project-state.json",
+    ".nxs/phase-registry.json",
+    ".nxs/requirements.json",
+    ".nxs/phases/NXS-P14.json",
+    ".nxs/readiness.json"
+  ],
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:39:00Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

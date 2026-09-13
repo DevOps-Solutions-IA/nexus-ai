@@ -1,0 +1,26 @@
+{
+  "head_sha": "62d57ea1a5f4e6d2e52567809d85a2aa7b23c7bc",
+  "phase": "NXS-P14",
+  "pull_request": 27,
+  "recorded_at": "2026-09-13T05:37:08Z",
+  "result": "PASS",
+  "runs": {
+    "nxs_ci_pull_request": {
+      "conclusion": "success",
+      "id": 34740421575
+    },
+    "nxs_ci_push": {
+      "conclusion": "success",
+      "id": 34740419895
+    },
+    "nxs_security_pull_request": {
+      "conclusion": "success",
+      "id": 34740421554
+    },
+    "nxs_security_push": {
+      "conclusion": "success",
+      "id": 34740419899
+    }
+  },
+  "schema_version": "1.0.0"
+}

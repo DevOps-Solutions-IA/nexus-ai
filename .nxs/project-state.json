@@ -16,24 +16,25 @@
     "NXS-P10",
     "NXS-P11",
     "NXS-P12",
-    "NXS-P13"
+    "NXS-P13",
+    "NXS-P14"
   ],
   "current_phase": {
-    "branch": "feat/nxs-p13-agent-runtime",
+    "branch": "feat/nxs-p14-workflows",
     "closure_commit": null,
     "decision": "GO",
-    "id": "NXS-P13",
-    "implementation_commit": "92084fc062d9d1be572ba3f4d1ad09668779b0a6",
+    "id": "NXS-P14",
+    "implementation_commit": "62d57ea1a5f4e6d2e52567809d85a2aa7b23c7bc",
     "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-12T07:20:26Z",
+  "last_updated_at": "2026-09-13T05:38:54Z",
   "next_allowed_execution": {
     "condition": "DEPENDENCIES_READY",
-    "phase": "NXS-P14"
+    "phase": "NXS-P15"
   },
   "product": {
     "name": "Nexus AI",

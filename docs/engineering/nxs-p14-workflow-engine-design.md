@@ -1,6 +1,6 @@
 # NXS-P14 Workflow Engine Pre-Implementation Design
 
-Status: governance proposal; implementation is not authorized by this document. The canonical requirement remains `NXS-WF-001`. NXS-P14 depends on the validated NXS-P08 Tool Engine and NXS-P13 Agent Runtime and publishes through the validated NXS-P04 event boundary.
+Status: canonical design and implementation contract for NXS-P14. Human approval of the governance PR authorized implementation through the NXS lifecycle; this document itself never authorizes merge or deployment. The canonical requirement remains `NXS-WF-001`. NXS-P14 depends on the validated NXS-P08 Tool Engine and NXS-P13 Agent Runtime and publishes through the validated NXS-P04 event boundary.
 
 ## Ownership boundary
 
@@ -25,7 +25,7 @@ P14 does not own cron, recurring schedules, future-time scheduling, or timer ser
 - **INV-WF-011 — Reconstructible state.** Every material transition has durable before/after state, actor/owner, correlation, time, and reason/code. No critical progress exists only inside a Python task.
 - **INV-WF-012 — Crash-recovery boundary.** P14 persists claim token, claimant, claim/heartbeat/expiry metadata and ambiguous outcome state sufficient to detect stale or incomplete execution. P25 owns automatic reconciliation, reaping, reassignment, and failover.
 
-Candidate workflow states are `PENDING`, `RUNNING`, `PAUSED`, `COMPLETED`, `FAILED`, and `CANCELLED`; candidate step states are `PENDING`, `READY`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`, and `SKIPPED`. Implementation must reconcile these names with established repository enum and transition conventions before freezing contracts.
+The frozen workflow states are `PENDING`, `RUNNING`, `PAUSED`, `COMPLETED`, `FAILED`, and `CANCELLED`; the frozen step states are `PENDING`, `READY`, `RUNNING`, `COMPLETED`, `FAILED`, `CANCELLED`, and `SKIPPED`. Terminal states are absorbing and guarded by `src/nexus_ai/workflows/state_machine.py`.
 
 ## Failure matrix
 
@@ -58,7 +58,7 @@ Candidate workflow states are `PENDING`, `RUNNING`, `PAUSED`, `COMPLETED`, `FAIL
 
 | Race | PostgreSQL serialization and fencing rule | Winner/loser behavior |
 |---|---|---|
-| Start same idempotency key | Unique `(organization_id, idempotency_key)` plus canonical request hash | One insert; identical loser replays, different loser conflicts |
+| Start same idempotency key | Unique `(organization_id, version_id, idempotency_key)` plus canonical request hash | One insert; identical loser replays, different loser conflicts |
 | Claim same `READY` step | Conditional `UPDATE ... WHERE state='READY' AND version=:expected RETURNING` under run/step lock | One ownership token issued; loser performs no effect |
 | Finish same step | Compare-and-set on `RUNNING` plus matching ownership token and attempt | First valid completion commits; duplicate/stale completion is idempotent or rejected |
 | Fail same step | Same token/version predicate as completion | One failure transition; later outcome cannot overwrite it |
@@ -81,7 +81,7 @@ All services acquire locks in the documented run-before-step order to avoid dead
 | `workflow_step_runs` | UUIDv7 PK; tenant-aware FKs to run and version step | Mutable explicit state, attempt count, result/error references, eligibility | Unique logical step per run and unique attempt identity; ready/owner indexes; RLS | Retained with run; semantic action key stable across retries where required |
 | `workflow_transition_history` | UUIDv7 PK; tenant-aware FK to run and optional step run | Append-only before/after state, code, actor/owner, correlation, timestamp | Ordered run sequence unique; tenant/run/time indexes; RLS | No update/delete through runtime role; event/outbox correlation deduplicates publication |
 
-A separate claim table is not initially justified: `workflow_step_runs` can hold an opaque ownership token, claimant, claim timestamp, heartbeat/expiry metadata, and monotonic row version. If attempts require immutable per-attempt history, introduce a child `workflow_step_attempts`/permit table with unique `(organization_id, step_run_id, attempt_number)`; it must not imply automatic recovery before P25.
+A separate claim table is not justified for P14: `workflow_step_runs` holds an opaque claim token, claimant, claim timestamp, attempt count, and optional lease/eligibility metadata. A later immutable attempt table may be added only through a new governed phase; it must not imply automatic recovery before P25.
 
 Every tenant reference uses `(organization_id, referenced_id)` composite foreign keys, every tenant table has enabled and forced RLS, and runtime access uses the non-bypass role. Published versions and transition history use restrict/retention semantics rather than destructive cascades.
 
@@ -126,6 +126,16 @@ Repository convention uses resource/action permissions such as `tool:read` and `
 12. **What if an external effect succeeds but persistence fails?** The stable P08 idempotency key and durable attempt/permit make the outcome explicitly ambiguous; P14 does not blindly redispatch.
 13. **What is deferred to P25?** Automatic stale-claim/orphan detection loops, reaping, lease reassignment, ambiguous-effect reconciliation, crash recovery, and failover orchestration. P14 only stores and fences the evidence those mechanisms need.
 
+## Implemented architecture
+
+The implementation lives in `src/nexus_ai/workflows/` and `src/nexus_ai/domain/workflows/`. Six tenant-owned tables persist definitions, immutable versions, version steps, runs, step runs, and append-only transition history. Claims serialize on the workflow-run row and lock one ready step with `FOR UPDATE SKIP LOCKED`; terminal writes compare the active state, owner UUID, and opaque claim token. Cancellation locks the same run row before cancelling unclaimed steps, so commit order—not timing—decides claim/cancel races.
+
+External effects happen only after the claim transaction commits. `TOOL` delegates to `ToolEngine.invoke` with a stable `wf:<run>:<step>` semantic key; `AGENT` delegates to `AgentService.start_session` and `submit_turn` with stable session/turn identities. If a worker disappears after claim or an external outcome is ambiguous, the step remains durably `RUNNING`; P14 never silently reassigns or invents a second semantic action. P25 owns reconciliation.
+
+Pause stops new claims while allowing an already-authorized attempt to durably report its outcome. Completion while paused does not unlock successors; resume re-evaluates durable dependency readiness. Cancellation is absorbing and fences every later completion or retry commit. Retry decisions use a persisted maximum and an explicit safe error-code allow-list; P14 performs no clock-driven scheduling.
+
+The API is under `/api/v1/workflows` and `/api/v1/workflow-runs`; every input model forbids unknown fields. RBAC uses `workflow:read`, `workflow:execute`, and `workflow:configure`. All lifecycle events use the P04 transactional outbox and strict payload registry. Migration `c5d6e7f8a9b0` creates the schema, tenant-aware composite keys, forced RLS, indexes, and permission catalog delta.
+
 ## Implementation entry criteria
 
-Implementation may begin only after this governance change is merged by an authorized human, canonical `main` is green, `make nxs-start PHASE=NXS-P14 ACTOR=<agent>` succeeds on `feat/nxs-p14-workflows`, and the phase manifest maps `NXS-WF-001`. This document creates no implementation evidence and certifies no P14 gate.
+Implementation began only after the governance change was merged by an authorized human, canonical `main` was green, `make nxs-start PHASE=NXS-P14 ACTOR=codex` succeeded on `feat/nxs-p14-workflows`, and the phase manifest mapped `NXS-WF-001`. Readiness still requires generated evidence, a real implementation commit, local gates, and exact-head GitHub CI/Security; this document alone certifies none of them.

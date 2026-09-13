@@ -302,10 +302,10 @@ async def test_openapi_agent_surface_is_governed_only(app_client) -> None:  # ty
             assert banned not in body
 
 
-def test_p14_stays_planned_and_p13_has_no_workflow_engine() -> None:
+def test_p14_is_active_or_ready_and_p13_has_no_workflow_engine() -> None:
     registry = json.loads((_ROOT / ".nxs" / "phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    assert phases["NXS-P14"]["status"] == "PLANNED"
+    assert phases["NXS-P14"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P14"]["branch"] == "feat/nxs-p14-workflows"
     for path in (_ROOT / "src" / "nexus_ai" / "agents").rglob("*.py"):
         for line in path.read_text().splitlines():

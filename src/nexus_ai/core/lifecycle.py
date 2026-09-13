@@ -78,6 +78,8 @@ from nexus_ai.voice import events as voice_events  # noqa: F401 - payload regist
 from nexus_ai.voice.providers.registry import GovernedVoiceHttpTransport
 from nexus_ai.voice.service import VoiceService
 from nexus_ai.voice.webhooks import InboundVoiceService
+from nexus_ai.workflows import events as workflow_events  # noqa: F401 - payload registration
+from nexus_ai.workflows.service import WorkflowService
 
 _Connector = Callable[[], Awaitable[None]]
 
@@ -120,6 +122,7 @@ class Resources:
     voice: VoiceService
     voice_webhooks: InboundVoiceService
     agents: AgentService
+    workflows: WorkflowService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -343,6 +346,14 @@ class ApplicationLifespan:
             ),
             destination_policy=destination_policy,
         )
+        workflow_service = WorkflowService(
+            database,
+            event_platform.publisher,
+            tool_registry,
+            tool_engine,
+            agent_service,
+            service_name=settings.service_name,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -377,6 +388,7 @@ class ApplicationLifespan:
             voice=voice_service,
             voice_webhooks=voice_webhooks,
             agents=agent_service,
+            workflows=workflow_service,
         )
         await logger.ainfo(
             "runtime_started",

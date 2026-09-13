@@ -1,0 +1,14 @@
+{
+  "amd64": "PASS",
+  "arm64": "PASS",
+  "graceful_shutdown": "PASS",
+  "health_live": "PASS",
+  "health_ready_with_dependencies": "PASS",
+  "health_ready_without_dependencies": "PASS_503",
+  "image": "nexus-ai:clean-room",
+  "non_root_user": "65532:65532",
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:13:29Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,17 @@
+{
+  "branch_aware": true,
+  "overall_percent": 91.84,
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T05:35:14Z",
+  "required_percent": 90.0,
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "workflow_modules": {
+    "conditions": 76,
+    "entities": 92,
+    "errors": 100,
+    "events": 100,
+    "service": 88,
+    "state_machine": 97
+  }
+}
