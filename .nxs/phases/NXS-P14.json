@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p14-workflows",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P08",
     "NXS-P13"
@@ -13,6 +13,7 @@
     ".nxs/evidence/NXS-P14/closure.json",
     ".nxs/evidence/NXS-P14/concurrency.json",
     ".nxs/evidence/NXS-P14/corrective-01.json",
+    ".nxs/evidence/NXS-P14/corrective-02.json",
     ".nxs/evidence/NXS-P14/coverage.json",
     ".nxs/evidence/NXS-P14/docker.json",
     ".nxs/evidence/NXS-P14/git.json",
@@ -26,7 +27,7 @@
     ".nxs/evidence/NXS-P14/tests.json"
   ],
   "id": "NXS-P14",
-  "implementation_commit": null,
+  "implementation_commit": "f87cf174182e863afec83cae871ed9a76397f7ed",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -72,9 +73,9 @@
     "NXS-WF-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-13T17:10:27Z",
     "started_at": "2026-09-13T04:09:43Z"
   },
   "title": "Workflow Engine"

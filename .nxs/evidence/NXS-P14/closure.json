@@ -3,10 +3,10 @@
   "branch": "feat/nxs-p14-workflows",
   "closure_commit": null,
   "decision": "GO",
-  "implementation_commit": "85a7dabb046f0e56adc2d6fe54a7a9f0f92ddd55",
+  "implementation_commit": "f87cf174182e863afec83cae871ed9a76397f7ed",
   "next_allowed_execution": "NXS-P15",
   "phase": "NXS-P14",
-  "recorded_at": "2026-09-13T06:46:37Z",
+  "recorded_at": "2026-09-13T17:10:27Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "status": "READY"
