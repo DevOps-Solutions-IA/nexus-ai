@@ -62,6 +62,11 @@ from nexus_ai.domain.provisioning.models import (
     PlatformGrantRecord,
     ProvisioningRequestRecord,
 )
+from nexus_ai.domain.scheduler.models import (
+    SchedulerOccurrenceRecord,
+    SchedulerScheduleRecord,
+    SchedulerTransitionHistoryRecord,
+)
 from nexus_ai.domain.telephony.models import (
     TelephonyAccountRecord,
     TelephonyCallEventRecord,
@@ -131,6 +136,9 @@ __all__ = [
     "RoleAssignmentRecord",
     "RolePermissionRecord",
     "RoleRecord",
+    "SchedulerOccurrenceRecord",
+    "SchedulerScheduleRecord",
+    "SchedulerTransitionHistoryRecord",
     "TelephonyAccountRecord",
     "TelephonyCallEventRecord",
     "TelephonyCallRecord",

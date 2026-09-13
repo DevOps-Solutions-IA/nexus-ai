@@ -1,0 +1,69 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p15-scheduler",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P14"
+  ],
+  "evidence": [],
+  "id": "NXS-P15",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "P14 workflow and step retry authority",
+    "P16 campaigns, audiences, bulk outreach, and throttling",
+    "P17 human workforce scheduling and routing",
+    "P18+ cell placement and infrastructure scheduling",
+    "P20 autonomous SRE operations",
+    "P23 billing and cost accounting",
+    "P24 complete observability platform",
+    "P25 orphan recovery, stale-owner reassignment, ambiguous-effect reconciliation, and failover",
+    "P26 backup and disaster recovery",
+    "P32 deployment",
+    "Shell, SQL, arbitrary HTTP or Python jobs, host cron, direct tool, direct agent, messaging, telephony, and provider execution"
+  ],
+  "objective": "Deliver a durable, tenant-isolated, PostgreSQL-authoritative Scheduler for one-time and recurring dispatch of immutable P14 workflow versions with deterministic timezone semantics, bounded misfires, occurrence idempotency, distributed claim fencing, safe APIs, RBAC, events, and explicit P25 recovery boundaries.",
+  "requirements_implemented": [
+    "NXS-SCHED-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-13T18:55:03Z"
+  },
+  "title": "Scheduler"
+}

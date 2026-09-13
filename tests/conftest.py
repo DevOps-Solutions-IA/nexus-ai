@@ -1454,3 +1454,38 @@ async def workflow_stack(agent_stack: Any) -> Any:
             self.tool_registry = agents.tool_registry
 
     return _WorkflowStack()
+
+
+@pytest.fixture
+async def scheduler_stack(workflow_stack: Any) -> Any:
+    """P15 Scheduler over real PostgreSQL, P04 outbox and the P14 service boundary."""
+    import asyncpg
+
+    from nexus_ai.scheduler.service import SchedulerService
+
+    workflows = workflow_stack
+    service = SchedulerService(
+        workflows.database,
+        workflows.agent_stack.event_platform.publisher,
+        workflows.service,
+        service_name=workflows.agent_stack.settings.service_name,
+    )
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE scheduler_transition_history, scheduler_occurrences, "
+            "scheduler_schedules CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _SchedulerStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.database = workflows.database
+            self.workflows = workflows.service
+            self.workflow_stack = workflows
+
+    return _SchedulerStack()
