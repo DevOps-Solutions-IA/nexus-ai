@@ -66,6 +66,8 @@ from nexus_ai.messaging.service import MessagingService
 from nexus_ai.messaging.webhooks import InboundMessagingService
 from nexus_ai.otp import events as otp_events  # noqa: F401 - payload registration
 from nexus_ai.otp.service import OtpService
+from nexus_ai.scheduler import events as scheduler_events  # noqa: F401 - payload registration
+from nexus_ai.scheduler.service import SchedulerService
 from nexus_ai.telephony import events as telephony_events  # noqa: F401 - payload registration
 from nexus_ai.telephony.providers.registry import GovernedTelephonyTransport
 from nexus_ai.telephony.service import TelephonyService
@@ -123,6 +125,7 @@ class Resources:
     voice_webhooks: InboundVoiceService
     agents: AgentService
     workflows: WorkflowService
+    scheduler: SchedulerService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -354,6 +357,12 @@ class ApplicationLifespan:
             agent_service,
             service_name=settings.service_name,
         )
+        scheduler_service = SchedulerService(
+            database,
+            event_platform.publisher,
+            workflow_service,
+            service_name=settings.service_name,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -389,6 +398,7 @@ class ApplicationLifespan:
             voice_webhooks=voice_webhooks,
             agents=agent_service,
             workflows=workflow_service,
+            scheduler=scheduler_service,
         )
         await logger.ainfo(
             "runtime_started",

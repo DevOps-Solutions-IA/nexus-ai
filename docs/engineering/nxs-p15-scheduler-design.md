@@ -1,6 +1,6 @@
 # NXS-P15 Scheduler — Pre-Implementation Contract
 
-Status: governance design only. This document does not start NXS-P15, authorize implementation, create schema, authorize merge, or authorize deployment. The canonical requirement is `NXS-SCHED-001`; the implementation branch, after this governance change is merged and exact `main` is green, is `feat/nxs-p15-scheduler`.
+Status: implemented and locally certified on `feat/nxs-p15-scheduler`; merge and deployment remain unauthorized. The canonical requirement is `NXS-SCHED-001`.
 
 ## Purpose and authority chain
 
@@ -80,9 +80,7 @@ Proposed occurrence states are `PENDING`, `CLAIMED`, `DISPATCHED`, `FAILED`, `SK
 
 `DISPATCHED` means P14 accepted the stable start identity and returned the logical `workflow_run_id`; it does not mean that the P14 workflow completed. A claim that becomes ambiguous remains `CLAIMED` with durable dispatch metadata for P25 rather than being blindly reassigned.
 
-## Data model proposal
-
-No table or migration is created by this governance change.
+## Data model
 
 ### `scheduler_schedules`
 
@@ -115,7 +113,7 @@ No table or migration is created by this governance change.
 
 P15 uses **just-in-time materialization from durable `next_fire_at`** rather than pre-generating a horizon. A worker locks one eligible active schedule, inserts exactly one occurrence for its current canonical local slot, and advances `next_fire_at` to the next valid slot in the same transaction. The unique schedule/occurrence key is the final duplicate backstop.
 
-The occurrence key is derived from stable non-secret components: schedule UUID, schedule revision and canonical intended local slot (including timezone identity, but not merely the UTC offset). The stored occurrence UUID is opaque externally. A bounded tick processes at most 100 schedules/occurrences by default and never more than a configured hard ceiling of 500.
+The occurrence key is `v1:r<revision>:f<fold>:<sha256>`. The digest is calculated over canonical JSON containing the schedule UUID, schedule revision, IANA timezone identity, full canonical intended local wall-clock slot, and fold. This bounded, deterministic identity distinguishes schedule revisions and timezone identities even when offsets match, while the unique `(organization_id, schedule_id, occurrence_key)` constraint remains the final same-revision/same-slot duplicate backstop. The stored occurrence UUID is opaque externally. A bounded tick processes at most 100 schedules/occurrences by default and never more than a configured hard ceiling of 500.
 
 Schedule edits create a new revision and recompute only future, non-materialized slots. Materialized occurrences retain their revision snapshot. Edit versus materialize serializes on the schedule row so the occurrence records exactly one revision.
 
@@ -160,9 +158,9 @@ During P15 implementation, the integration subtask must inspect whether P14 need
 
 Claim/cancel and claim/pause races serialize on the schedule row before the occurrence row. Commit order decides; a stale owner/token cannot write a terminal result after authority changes.
 
-## API proposal
+## API
 
-Design only, under `/api/v1` and existing bounded pagination/RFC 9457 conventions:
+Implemented under `/api/v1` with existing bounded pagination/RFC 9457 conventions:
 
 - `POST /schedules`
 - `GET /schedules`
@@ -186,11 +184,11 @@ Use the existing resource/action permission architecture:
 - `schedule:execute`: activate, pause, resume, cancel schedules and cancel pending occurrences;
 - `schedule:configure`: create and revision-edit schedules.
 
-These permissions are design candidates only and are not registered by this governance PR.
+These permissions are registered by the P15 migration. Owners/admins receive all three; members receive read and execute but not configure.
 
-## P04 event proposal
+## P04 events
 
-Candidate transactional events are `scheduler.schedule.created`, `scheduler.schedule.activated`, `scheduler.schedule.paused`, `scheduler.schedule.resumed`, `scheduler.schedule.cancelled`, `scheduler.occurrence.created`, `scheduler.occurrence.claimed`, `scheduler.occurrence.dispatched`, `scheduler.occurrence.failed` and `scheduler.occurrence.skipped`.
+Transactional events are `scheduler.schedule.created`, `scheduler.schedule.activated`, `scheduler.schedule.paused`, `scheduler.schedule.resumed`, `scheduler.schedule.cancelled`, `scheduler.occurrence.created`, `scheduler.occurrence.claimed`, `scheduler.occurrence.dispatched`, `scheduler.occurrence.failed`, `scheduler.occurrence.skipped` and `scheduler.occurrence.cancelled`.
 
 Events contain bounded safe identifiers, schedule revision, scheduled UTC/local facts, state, reason/error code and correlation ID. They never contain credentials, secrets, raw provider authorization, hidden chain-of-thought or unbounded customer/workflow payloads. Event publication uses the existing P04 transactional outbox; broker delivery is not occurrence execution authority.
 
@@ -258,8 +256,10 @@ No race depends on `asyncio.Lock`, a singleton process, local timer ordering or 
 11. **Can replay create another P14 run?** No; all retries reuse the persisted occurrence-derived P14 idempotency key.
 12. **Can scheduler credentials reach an LLM?** No; P15 stores no provider credentials and never invokes P13/provider code directly. P14 governs any later AGENT step through P13.
 
-## Certification and implementation entry
+## Certification
 
-The eventual P15 claim is **SCHEDULER CONTRACT + DURABILITY CERTIFIED**. It is not global physical exactly-once execution and not full disaster/failover certification. P25 retains broad crash recovery and reconciliation.
+P15's bounded claim is **SCHEDULER CONTRACT + DURABILITY CERTIFIED**. It is not global physical exactly-once execution and not full disaster/failover certification. P25 retains broad crash recovery and reconciliation.
 
-Implementation may begin only after this governance PR is human-merged, exact canonical `main` is green, the repository still selects P15, and `make nxs-start PHASE=NXS-P15 ACTOR=<agent>` succeeds on `feat/nxs-p15-scheduler`. This governance task adds no scheduler source, migration, API, permission, phase manifest, evidence or execution lock.
+The implementation uses `scheduler_schedules`, `scheduler_occurrences`, and append-only `scheduler_transition_history`; all are forced-RLS tenant tables. Materialization locks due schedules with `FOR UPDATE SKIP LOCKED`, occurrence claims use the same database serialization boundary, and dispatch completion uses state/owner/token compare-and-set. The sole executable target is `START_WORKFLOW`, invoked through `WorkflowService.start_run` with the persisted occurrence idempotency key. Batch limits are 100 by default and 500 hard maximum. Recurrence search is capped at 525,600 candidates and catch-up at 100 occurrences.
+
+The phase does not run a process-local timer daemon: workers invoke the tenant-scoped materialize/claim service methods. A future runtime supervisor may optimize wake-ups, but database time and persisted cursors remain authoritative. A dead worker leaves `CLAIMED` evidence; P15 never reaps or reassigns it.

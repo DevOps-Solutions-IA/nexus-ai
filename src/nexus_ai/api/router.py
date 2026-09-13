@@ -12,6 +12,7 @@ from nexus_ai.api.integrations import integrations_router
 from nexus_ai.api.messaging import messaging_router, messaging_webhooks_router
 from nexus_ai.api.organizations import organizations_router
 from nexus_ai.api.otp import otp_router
+from nexus_ai.api.schedules import schedules_router
 from nexus_ai.api.system import system_router
 from nexus_ai.api.telephony import telephony_router, telephony_webhooks_router
 from nexus_ai.api.tools import tools_router
@@ -35,3 +36,4 @@ api_v1_router.include_router(voice_router)
 api_v1_router.include_router(voice_webhooks_router)
 api_v1_router.include_router(agents_router)
 api_v1_router.include_router(workflows_router)
+api_v1_router.include_router(schedules_router)

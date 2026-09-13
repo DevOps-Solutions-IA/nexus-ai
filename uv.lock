@@ -814,6 +814,7 @@ dependencies = [
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "starlette" },
     { name = "structlog" },
+    { name = "tzdata" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "websockets" },
 ]
@@ -852,6 +853,7 @@ requires-dist = [
     { name = "sqlalchemy", extras = ["asyncio"], specifier = "==2.0.52" },
     { name = "starlette", specifier = "==1.6.0" },
     { name = "structlog", specifier = "==26.1.0" },
+    { name = "tzdata", specifier = "==2026.3" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.35.0" },
     { name = "websockets", specifier = "==17.1" },
 ]

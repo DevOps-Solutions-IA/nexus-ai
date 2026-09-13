@@ -1,0 +1,18 @@
+{
+  "adversarial_service_operations": [
+    "cross_tenant_get_schedule",
+    "cross_tenant_update_schedule",
+    "cross_tenant_activate_schedule",
+    "cross_tenant_cancel_schedule",
+    "cross_tenant_list_occurrences",
+    "cross_tenant_get_occurrence"
+  ],
+  "composite_workflow_version_fk_attack": "BLOCKED",
+  "direct_repository_cross_tenant_lookup": "BLOCKED",
+  "implementation_commit": "122d8fd7252dd591979c8fcbc7cfc22d0649c2ec",
+  "phase": "NXS-P15",
+  "recorded_at": "2026-09-13T20:30:52Z",
+  "result": "PASS",
+  "rls_cross_tenant_visibility_count": 0,
+  "schema_version": "1.0.0"
+}

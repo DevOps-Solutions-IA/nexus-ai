@@ -135,3 +135,10 @@ WorkflowExecuteDep = Annotated[
 WorkflowConfigureDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.WORKFLOW_CONFIGURE))
 ]
+ScheduleReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.SCHEDULE_READ))]
+ScheduleExecuteDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.SCHEDULE_EXECUTE))
+]
+ScheduleConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.SCHEDULE_CONFIGURE))
+]

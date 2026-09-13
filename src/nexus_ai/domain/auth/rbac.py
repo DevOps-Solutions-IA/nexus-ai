@@ -83,6 +83,10 @@ class PermissionKey(StrEnum):
     WORKFLOW_READ = "workflow:read"
     WORKFLOW_EXECUTE = "workflow:execute"
     WORKFLOW_CONFIGURE = "workflow:configure"
+    # P15 additions (seeded by the P15 migration):
+    SCHEDULE_READ = "schedule:read"
+    SCHEDULE_EXECUTE = "schedule:execute"
+    SCHEDULE_CONFIGURE = "schedule:configure"
 
 
 class RoleKey(StrEnum):
@@ -176,6 +180,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.WORKFLOW_READ: UUID("b2000000-0000-7000-8000-000000000030"),
     PermissionKey.WORKFLOW_EXECUTE: UUID("b2000000-0000-7000-8000-000000000031"),
     PermissionKey.WORKFLOW_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000032"),
+    PermissionKey.SCHEDULE_READ: UUID("b2000000-0000-7000-8000-000000000033"),
+    PermissionKey.SCHEDULE_EXECUTE: UUID("b2000000-0000-7000-8000-000000000034"),
+    PermissionKey.SCHEDULE_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000035"),
 }
 
 _CATALOG_SQL = """
