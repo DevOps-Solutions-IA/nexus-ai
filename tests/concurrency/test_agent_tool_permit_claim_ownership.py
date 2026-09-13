@@ -156,6 +156,20 @@ async def _wait_until_execs(
         await asyncio.sleep(0.01)
 
 
+async def _wait_until_agent_tool_events(
+    stack: Any, org_id: Any, *, timeout: float = 5.0
+) -> list[str]:
+    """Wait for P13's tool-call and outbox transaction, not merely P08 completion."""
+    deadline = asyncio.get_running_loop().time() + timeout
+    while True:
+        events = await _agent_events(stack, org_id, "agent.tool.%")
+        if events.count("agent.tool.requested") == 1 and events.count("agent.tool.completed") == 1:
+            return events
+        if asyncio.get_running_loop().time() >= deadline:
+            raise AssertionError("timed out waiting for durable agent tool events")
+        await asyncio.sleep(0.01)
+
+
 async def _model_turn_hang(worker: Any, org_id: Any, session_id: Any) -> tuple[Any, Any]:
     """Start a turn whose SECOND model iteration hangs, returning (task, claimed turn)
     once claimed — used to keep a turn genuinely RUNNING (non-terminal) long enough to
@@ -320,7 +334,7 @@ async def test_duplicate_tool_permit_never_reaches_toolbridge_execute(
             await _permit_count_for_semantic(agent_stack, org.id, turn.id, "crm.get", arg_hash) == 1
         )  # tool permit rows == 1
 
-        events = await _agent_events(agent_stack, org.id, "agent.tool.%")
+        events = await _wait_until_agent_tool_events(agent_stack, org.id)
         assert events.count("agent.tool.requested") == 1
         assert events.count("agent.tool.completed") == 1
         assert events.count("agent.tool.failed") == 0
