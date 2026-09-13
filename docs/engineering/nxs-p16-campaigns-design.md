@@ -92,10 +92,13 @@ orphan/failover recovery (P25), DR (P26), frontend work and deployment (P32).
 - **INV-CAMP-004 — Bounded fan-out.** Imports, audience resolution, materialization,
   claims, workflow starts, sends, retries and event production are bounded per transaction
   and per tick. There is no all-audience transaction or unbounded in-memory list.
-- **INV-CAMP-005 — Consent/suppression fail closed.** A recipient needs affirmative
+- **INV-CAMP-005 — Consent/suppression send-permit fence.** A recipient needs affirmative
   channel consent and must pass global, campaign, customer, identity and unsubscribe
-  suppression checks immediately before downstream authorization and again before P09
-  send.
+  suppression checks when one durable final send permit is authorized. The transaction
+  that commits the `AUTHORIZED` permit is the linearization point for logical delivery
+  authorization. Consent/suppression changes committed before it block authorization;
+  changes committed afterward govern future logical sends and cannot reliably revoke
+  provider-bound work that is already authorized.
 - **INV-CAMP-006 — P15 temporal authority.** Future campaign release uses one P15
   schedule per campaign run/revision, never one schedule per recipient. P16 pacing uses
   durable recipient eligibility timestamps and throttle windows, not another scheduler.
@@ -162,13 +165,17 @@ states are:
 - `ELIGIBLE -> CLAIMED | SUPPRESSED | CANCELLED`
 - `CLAIMED -> WORKFLOW_RUNNING | SUPPRESSED | FAILED`
 - `WORKFLOW_RUNNING -> READY_TO_SEND | SUPPRESSED | FAILED`
-- `READY_TO_SEND -> DISPATCHED | SUPPRESSED | FAILED`
+- `READY_TO_SEND -> DISPATCH_AUTHORIZED | SUPPRESSED | FAILED`
+- `DISPATCH_AUTHORIZED -> DISPATCHED | FAILED`
 - `DISPATCHED`, `SUPPRESSED`, `FAILED` and `CANCELLED` are terminal for P16 execution.
 
-`DISPATCHED` means P09 accepted/replayed the stable logical send and returned a message
-ID. It does not mean delivered, replied, converted or physically delivered exactly once.
-P09 message events project later transport states without rewriting recipient execution
-authority.
+`DISPATCH_AUTHORIZED` means the durable final send permit committed. It is an irrevocable
+logical authorization for this one recipient attempt under Option 1 below; a later pause,
+cancellation, unsubscribe or suppression cannot truthfully be represented as revoking the
+already-authorized send. `DISPATCHED` means P09 accepted/replayed its stable logical send
+and returned a message ID. It does not mean delivered, replied, converted or physically
+delivered exactly once. P09 message events project later transport states without
+rewriting recipient execution authority.
 
 ## Proposed durable model
 
@@ -222,12 +229,29 @@ evaluate these tenant-owned entities:
 ### `campaign_recipient_attempts`
 
 - UUIDv7 primary key, tenant-aware run/recipient FKs, attempt number, state, owner UUID,
-  opaque claim token, claim/dispatch timestamps, P14 idempotency key/run ID, P09
-  idempotency key/message ID, safe error code and correlation ID.
+  opaque claim token, claim/dispatch timestamps, P14 idempotency key/run ID, optional
+  send-permit/message references, safe error code and correlation ID.
 - Unique logical recipient execution identity and unique downstream keys. Owner/token
   compare-and-set fences every completion.
 - Forced RLS; claim index by run/state/eligibility and downstream lookup indexes.
 - Ambiguous attempts remain durable; automatic stale reassignment belongs to P25.
+
+### `campaign_send_permits`
+
+- One tenant-owned permit per recipient attempt, enforced by unique
+  `(organization_id, recipient_attempt_id)` and tenant-aware FKs.
+- Persisted fields include consent epoch, suppression epoch, campaign/run state version,
+  authorized timestamp, opaque permit token/generation, stable P09 idempotency key, state,
+  consumed/message timestamp and safe failure code.
+- Closed states are `PENDING`, `AUTHORIZED`, `CONSUMED`, `FAILED` and `EXPIRED`.
+  `PENDING -> AUTHORIZED | EXPIRED`; `AUTHORIZED -> CONSUMED | FAILED`. `AUTHORIZED`
+  cannot be changed to `EXPIRED` by a later policy mutation because its commit is the
+  logical-send linearization point. `CONSUMED`, `FAILED` and `EXPIRED` are terminal.
+- There is no public permit-creation API. Only the internal repository authorization
+  transaction may create/authorize it after validating current attempt owner/token,
+  campaign state, recipient facts, policy epochs, quiet hours and throttle capacity.
+- Forced RLS, immutable authorization facts and owner/token/state compare-and-set prevent
+  cross-tenant creation, stale-worker authorization and semantic permit replacement.
 
 ### `campaign_contact_preferences` and `campaign_suppressions`
 
@@ -237,6 +261,15 @@ consent state with source/evidence reference and effective time; and tenant-glob
 campaign, customer or identity suppression with stable reason/effective/expiry fields.
 P16 stores references and bounded reason codes, not secret evidence bodies. P21 may later
 adopt/generalize these records without weakening P16's fail-closed checks.
+
+Consent and suppression expose separate monotonically increasing 64-bit epochs under one
+tenant/customer-or-identity/channel policy row (or an equivalent normalized aggregate).
+Every affirmative consent, consent revocation, unsubscribe, do-not-contact mutation,
+suppression add/remove and relevant policy change locks that row and advances the affected
+epoch in the same transaction as the policy mutation. Epochs never derive from timestamps
+and never decrease or wrap silently. A final send permit snapshots both current epochs.
+Mutations invalidate any still-`PENDING` candidate authorization by changing the epoch;
+they do not retroactively revoke an already committed `AUTHORIZED` permit.
 
 ### `campaign_throttle_windows`
 
@@ -292,10 +325,18 @@ Candidate outcomes are `ELIGIBLE`, `DEFERRED_QUIET_HOURS`, `SUPPRESSED_GLOBAL`,
 private evidence or raw destinations.
 
 Eligibility is evaluated when the snapshot is prepared and revalidated twice at runtime:
-inside the claim transaction before P14 starts, and immediately before the P09 send.
-Safety-affecting changes use commit order. If unsubscribe/suppression commits before the
-final P09 permit, the send is blocked even if the recipient workflow already completed.
-If P09 accepted first, later suppression affects future work and cannot undo the message.
+inside the claim transaction before P14 starts, and in the final send-permit authorization
+transaction after P14 succeeds. The second transaction locks the recipient attempt and
+authoritative policy-epoch rows, then snapshots their current consent and suppression
+epochs into the permit.
+
+P16 chooses **Option 1: the committed `AUTHORIZED` send permit is the linearization
+point**. Consent/suppression commit order is compared with durable send authorization, not
+with the later physical provider call. A revocation/suppression committed first changes
+the epoch and blocks permit authorization. A permit committed first may proceed to P09;
+a later policy change blocks subsequent logical sends but does not pretend provider-bound
+work can be recalled. This is deterministic without holding a database transaction across
+provider I/O and does not overclaim real-time physical cancellation.
 
 ## Quiet hours
 
@@ -318,12 +359,16 @@ messages-per-minute ceilings, subject to stricter Organization/global configurat
 provider/account limits remain an additional downstream constraint; P16 never raises a
 certified P09 limit.
 
-Claim order is campaign run, recipient, then throttle-window row. The transaction checks
-run `RUNNING`, current recipient eligibility, database time and remaining durable window
-capacity, reserves one unit, then writes owner/token. `FOR UPDATE SKIP LOCKED` distributes
-work between replicas. No asyncio semaphore grants authority. Exhausted capacity leaves
-the recipient eligible/deferred for a later bounded tick. Retry loops and provider
-rate-limit handling have explicit attempt/time ceilings and cannot become hidden storms.
+Initial claim order is campaign run then recipient; it grants bounded P14 workflow
+authority but does not consume the later P09 send window while that workflow runs. Final
+send-permit order is campaign run, recipient attempt, consent/policy rows, suppression rows
+and throttle-window row in one documented deterministic sequence. That transaction checks
+run `RUNNING`, current owner/token, current policy epochs, recipient validity, database
+time, quiet hours and remaining durable window capacity, atomically reserves one send unit,
+and authorizes the permit. `FOR UPDATE SKIP LOCKED` distributes initial work between
+replicas. No asyncio semaphore grants authority. Exhausted capacity leaves the recipient
+`READY_TO_SEND` for a later bounded authorization tick. Retry loops and provider rate-limit
+handling have explicit attempt/time ceilings and cannot become hidden storms.
 
 ## Recipient idempotency and dispatch fencing
 
@@ -336,27 +381,51 @@ organization_id + campaign_id + campaign_revision + campaign_run_id
 
 P16 persists a bounded SHA-256-derived canonical identity before any downstream call.
 The P14 key is `campaign:<identity>:workflow`; the P09 key is
-`campaign:<identity>:message` (or equivalent bounded encodings). Both remain unchanged
-across worker restart, retry and replay. Same key/different semantic fingerprint is a
-conflict, never a silent second action.
+`campaign:<identity>:message` (or equivalent bounded encodings). The P09 key is persisted
+on the send permit before authorization commits. Both remain unchanged across worker
+restart, retry and replay. Same key/different semantic fingerprint is a conflict, never a
+silent second action.
 
 Dispatch sequence:
 
-1. lock run and eligible recipient; re-check lifecycle, consent, suppression, quiet hours
-   and throttle; reserve capacity and persist owner/token plus both downstream keys;
+1. lock run and eligible recipient; re-check lifecycle and pre-workflow eligibility, then
+   persist owner/token plus the stable P14 key;
 2. commit the claim;
 3. call P14 `start_run` for the immutable per-recipient workflow using the P14 key;
 4. reacquire and verify state/owner/token, then persist the P14 run ID;
 5. observe/re-read terminal P14 success and validate only the revision's closed output map;
-6. re-check consent/suppression and campaign state in a final PostgreSQL transaction;
-7. call P09 `MessagingService.send` with trusted tenant context, same-tenant account and
-   conversation, revision-defined content, snapshotted identity and the P09 key;
-8. reacquire and compare state/owner/token, persist message ID and mark `DISPATCHED`.
+6. in one final authorization transaction, lock the campaign run and recipient attempt,
+   lock/read current consent and suppression epochs, revalidate campaign `RUNNING`, owner,
+   recipient, quiet hours and throttle capacity, persist the stable P09 key, reserve the
+   send window, and commit one `AUTHORIZED` send permit with its epoch snapshots and token;
+7. after commit and without holding database locks, call P09 `MessagingService.send` with
+   trusted tenant context, same-tenant account and conversation, revision-defined content,
+   snapshotted identity and the permit's stable P09 key;
+8. reacquire and compare permit/attempt state, owner and token; persist message ID, move
+   permit to `CONSUMED`, and mark the attempt `DISPATCHED`.
 
 P14 failure blocks P09. P09's own idempotency/fingerprint contract remains final authority
 for the external send. If P09 accepts but P16 loses its terminal write, replay uses the
 same P09 key and resolves the same logical message or an honest ambiguous/failed result;
-P16 must not invent a new key. Broad ambiguous-effect reconciliation is P25.
+P16 must not invent a new key. Multiple workers replaying the same authorized permit can
+only present the same logical request/key to P09; they cannot authorize another permit.
+Broad ambiguous-effect reconciliation is P25.
+
+### Send-permit race semantics
+
+- **Unsubscribe/suppression before permit authorization:** the policy mutation locks and
+  increments its epoch first. The authorization transaction observes non-consent or
+  suppression/current epoch and cannot commit `AUTHORIZED`; P09 is not called.
+- **Permit authorization before unsubscribe/suppression:** the `AUTHORIZED` commit wins
+  logical-send ordering. P09 may be called even if policy changes before provider I/O.
+  The new epoch blocks every future logical recipient execution; it cannot revoke this one.
+- **Campaign pause/cancel before permit authorization:** the authorization transaction
+  sees a non-`RUNNING` campaign and blocks. If the permit commits first, it may proceed;
+  pause/cancel fences all later permits but does not falsify this authorization.
+- **Permit/P09 ambiguity:** an authorized permit remains bound to one stable P09 key. P09
+  unavailability may produce a bounded same-permit retry when P09 proves no acceptance;
+  accepted-but-unrecorded outcomes remain durable ambiguity for same-key replay/P25, never
+  a new permit or key.
 
 ## P15 release integration
 
@@ -376,20 +445,23 @@ creates P15 schedules.
 ## Pause, resume and cancellation
 
 - **Pause:** `RUNNING -> PAUSED` under the run-row lock. After commit, no new recipient
-  claim can succeed. A claim committed first remains explicit and may complete only under
-  its existing owner/token and final consent/cancel check.
+  claim or send-permit authorization can succeed. A claim committed first remains explicit
+  but cannot reach P09 without a permit; a permit committed first may proceed under its
+  existing owner/token and stable P09 key.
 - **Resume:** only `PAUSED -> RUNNING`; continue from durable snapshot/materialization and
   recipient states. Already dispatched identities never return to claimable state.
 - **Cancel:** `DRAFT`, `PREPARING`, `READY`, `SCHEDULED`, `RUNNING` or `PAUSED` may become
   terminal `CANCELLED` under the aggregate/run lock. Pending/eligible/deferred recipients
-  become `CANCELLED` in bounded batches; no new claim succeeds after the cancel commit.
+  become `CANCELLED` in bounded batches; no new claim or permit authorization succeeds
+  after the cancel commit.
 - **Committed work:** P14 runs and P09 messages accepted before cancellation are preserved
   as issued. P16 may call an existing explicit P14 cancellation boundary for a known
   in-flight run only when authorized and must report its independent outcome. There is no
   representation of message recall unless P09 later certifies one.
 
-Pause/resume/cancel races serialize on campaign run before recipient. Commit order is the
-contract; terminal states absorb and stale owner/token writes fail.
+Pause/resume/cancel races serialize on campaign run before recipient/permit. Commit order
+against `AUTHORIZED` permit creation is the contract; terminal states absorb and stale
+owner/token writes fail.
 
 ## Outcome model
 
@@ -486,7 +558,7 @@ backpressure and idempotent consumers; broker delivery never grants recipient au
 | 17 | Materialization crash | Resume committed keyset cursor | Restart from zero/duplicate membership | Durable cursor and uniqueness |
 | 18 | Resume after process crash | Reconstruct non-ambiguous durable work | Trust local queue | PostgreSQL authority |
 | 19 | Destination becomes invalid | Suppress/fail before P09 | Redirect silently | Identity fingerprint re-check |
-| 20 | Unsubscribe during campaign | Commit-order final re-check blocks future send | Send after winning unsubscribe | Locked preference/suppression check |
+| 20 | Unsubscribe during campaign before authorization | Epoch advances; permit authorization fails | New logical send authority | Locked policy epoch and permit transaction |
 | 21 | Channel rate limit | Defer/bounded classified retry | Tight retry loop | Durable throttle/backoff ceiling |
 | 22 | Partial campaign completion | Explicit counters and remaining rows | Mark all delivered | Durable recipient states |
 | 23 | Database contention | Skip locked/bounded retry | Unbounded lock wait | Batches, lock order and timeout |
@@ -503,6 +575,13 @@ backpressure and idempotent consumers; broker delivery never grants recipient au
 | 34 | Release workflow fails | Campaign `FAILED` or stays non-running | Recipient materialization/dispatch | P14 release run authority |
 | 35 | Recipient workflow succeeds with invalid output | Stable recipient failure | Unvalidated P09 request | Closed revision output mapping |
 | 36 | Provider reports bounce/delivery out of order | P09-normalized projection rules | Rewrite dispatch authority | P09 status source and idempotent consumer |
+| 37 | Unsubscribe commits before permit | No `AUTHORIZED` permit; recipient suppressed | P09 call | Monotonic consent epoch under final transaction |
+| 38 | Unsubscribe commits after permit before P09 call | Existing permit may proceed; future identities blocked | Pretend existing permit was revoked | Option 1 authorization linearization |
+| 39 | Suppression commits before permit | No `AUTHORIZED` permit | P09 call or stale epoch acceptance | Monotonic suppression epoch and locked re-check |
+| 40 | Campaign cancel after workflow success before permit | Attempt cannot authorize; campaign/recipient cancel | P09 call | Run lock/state predicate in permit transaction |
+| 41 | Permit authorized but P09 unavailable | Bounded same-permit/same-key outcome or failure | New permit/key or provider bypass | Durable permit and P09 error/idempotency contract |
+| 42 | Permit authorized, P09 accepts, terminal write lost | Permit remains authorized/ambiguous; same-key replay | Second logical message | Permit/P09 identity; broad reconciliation P25 |
+| 43 | Expired pending permit replay | Reject; re-evaluate under current epochs through governed authorization | Promote stale pending permit | State absorption, epoch comparison and unique attempt |
 
 ## Concurrency matrix
 
@@ -519,9 +598,12 @@ backpressure and idempotent consumers; broker delivery never grants recipient au
 | 9 | Duplicate P14 start | Persisted recipient workflow key | One logical workflow run |
 | 10 | P09 accepted versus lost local write | Persisted send key/message fingerprint | Replay same logical message; ambiguity retained |
 | 11 | Suppression update versus claim | Preference/suppression check in claim transaction | Suppression winner blocks authorization |
-| 12 | Unsubscribe versus final P09 permit | Final locked re-check before send | Unsubscribe winner prevents send |
+| 12 | Unsubscribe versus final send permit | Policy row and attempt locked in deterministic order | Unsubscribe-first blocks authorization; permit-first may proceed and blocks only future sends |
 | 13 | Throttle reservation contention | Unique window row and atomic reserved-count predicate | Capacity cannot be oversubscribed |
 | 14 | P15 wake versus campaign cancel | Campaign run state/version CAS | Exactly one release/cancel ordering wins |
+| 15 | Suppression versus final send permit | Suppression epoch and attempt locked in permit transaction | Suppression-first blocks; permit-first remains authorized |
+| 16 | Campaign cancel versus final send permit | Run locked before attempt/policy/throttle rows | Cancel-first blocks; permit-first may proceed while later permits stop |
+| 17 | Authorized permit versus P09 acceptance/lost terminal write | One permit/attempt and stable unique P09 key | Same logical P09 replay; no second permit or message identity |
 
 No correctness rule depends on an asyncio semaphore, process-local cursor, singleton
 worker, Valkey lock or event arrival order.
@@ -549,7 +631,7 @@ worker, Valkey lock or event arrival order.
 10. **Can missing consent be treated as consent?** No; affirmative channel consent is
     required and unknown/missing states suppress.
 11. **Can suppression be bypassed after audience preparation?** No; it is rechecked before
-    P14 authorization and immediately before P09 send.
+    P14 authorization and in the durable final send-permit transaction.
 12. **Can two replicas send the same recipient twice?** They may contend, but one durable
     owner/token and stable P14/P09 keys authorize one logical execution.
 13. **Can a pause/cancelled campaign continue claiming?** No; run-first locks and state
@@ -569,6 +651,14 @@ worker, Valkey lock or event arrival order.
 20. **Can campaign credentials or audience data reach an LLM?** No credentials are stored
     in P16, and P14/P13 receive only bounded workflow input explicitly approved by the
     immutable revision; raw audience/customer profiles are prohibited.
+21. **Can unsubscribe race after workflow completion?** Yes; the final durable permit
+    transaction is the deterministic decision point. Unsubscribe-first blocks it.
+22. **Can consent change after permit commit?** Yes; it advances the epoch and blocks future
+    logical sends, but cannot retroactively falsify the already-authorized logical send.
+23. **Can a worker forge a permit?** No; a permit is tenant/attempt-bound, unique, linked to
+    the current owner/token and policy epochs, and created only by governed repository logic.
+24. **Can a stale permit be reused for another logical send?** No; unique attempt identity,
+    closed permit transitions and the stable P09 key prevent another logical message.
 
 ## Implementation certification criteria
 
