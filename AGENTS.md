@@ -6,6 +6,14 @@ This file is the mandatory universal entrypoint for Codex, Claude Code, DeepSeek
 
 Do not trust conversational memory. GitHub, Git history, and machine-readable NXS state are authoritative, in that order. Never infer a READY state or fabricate evidence.
 
+## Documentation synchronization rule
+
+`README.md` must evolve with the canonical product state. At the closure of every material phase, architecture-boundary change, certification change, release-status change, or other user-visible capability change, the acting agent must evaluate whether the README is now materially stale and update it when required.
+
+The README must describe only capabilities and maturity that are supported by canonical `main` and NXS evidence. Work that exists only on a feature/governance branch must be labeled as in progress, planned, or pending merge; it must never be presented as canonically implemented. Machine-readable `.nxs/` state remains authoritative when README prose and execution state differ.
+
+A materially stale README is a documentation defect. Prefer updating it in the same governed change when the phase closure or architecture change makes the new status known; otherwise create a dedicated documentation PR before the project advances far enough for repository-facing status to become misleading. README synchronization does not bypass normal merge authorization, CI/security checks, semantic review, or exact-main verification.
+
 ## Before implementation
 
 1. Read this file.
