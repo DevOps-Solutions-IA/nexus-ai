@@ -18,6 +18,7 @@ from nexus_ai.workflows.entities import (
 )
 from nexus_ai.workflows.errors import WorkflowInvalidDefinitionError, WorkflowInvalidStateError
 from nexus_ai.workflows.state_machine import (
+    DependencyMode,
     WorkflowRunState,
     WorkflowStepState,
     require_step_transition,
@@ -133,24 +134,97 @@ def test_step_terminal_states_are_absorbing(terminal: WorkflowStepState) -> None
 
 
 @pytest.mark.parametrize(
-    ("dependencies", "expected"),
+    ("dependencies", "mode", "expected"),
     [
-        ((), WorkflowStepState.READY),
-        ((WorkflowStepState.COMPLETED,), WorkflowStepState.READY),
+        ((), DependencyMode.ALL, WorkflowStepState.READY),
+        ((WorkflowStepState.COMPLETED,), DependencyMode.ALL, WorkflowStepState.READY),
         (
-            (WorkflowStepState.COMPLETED, WorkflowStepState.SKIPPED),
+            (WorkflowStepState.COMPLETED, WorkflowStepState.COMPLETED),
+            DependencyMode.ALL,
             WorkflowStepState.READY,
         ),
-        ((WorkflowStepState.SKIPPED,), WorkflowStepState.SKIPPED),
         (
-            (WorkflowStepState.SKIPPED, WorkflowStepState.SKIPPED),
+            (WorkflowStepState.COMPLETED, WorkflowStepState.SKIPPED),
+            DependencyMode.ALL,
             WorkflowStepState.SKIPPED,
         ),
-        ((WorkflowStepState.READY,), None),
-        ((WorkflowStepState.RUNNING, WorkflowStepState.SKIPPED), None),
+        (
+            (WorkflowStepState.SKIPPED, WorkflowStepState.SKIPPED),
+            DependencyMode.ALL,
+            WorkflowStepState.SKIPPED,
+        ),
+        (
+            (WorkflowStepState.COMPLETED, WorkflowStepState.SKIPPED),
+            DependencyMode.ANY,
+            WorkflowStepState.READY,
+        ),
+        (
+            (WorkflowStepState.SKIPPED, WorkflowStepState.SKIPPED),
+            DependencyMode.ANY,
+            WorkflowStepState.SKIPPED,
+        ),
+        (
+            (WorkflowStepState.COMPLETED, WorkflowStepState.COMPLETED),
+            DependencyMode.ANY,
+            WorkflowStepState.READY,
+        ),
+        ((WorkflowStepState.READY,), DependencyMode.ALL, None),
+        (
+            (WorkflowStepState.COMPLETED, WorkflowStepState.PENDING),
+            DependencyMode.ALL,
+            None,
+        ),
+        (
+            (WorkflowStepState.COMPLETED, WorkflowStepState.READY),
+            DependencyMode.ANY,
+            None,
+        ),
+        (
+            (WorkflowStepState.RUNNING, WorkflowStepState.SKIPPED),
+            DependencyMode.ANY,
+            None,
+        ),
     ],
 )
 def test_pending_step_resolution_distinguishes_success_from_exclusion(
-    dependencies: tuple[WorkflowStepState, ...], expected: WorkflowStepState | None
+    dependencies: tuple[WorkflowStepState, ...],
+    mode: DependencyMode,
+    expected: WorkflowStepState | None,
 ) -> None:
-    assert resolve_pending_step(dependencies) is expected
+    assert resolve_pending_step(dependencies, mode) is expected
+
+
+def test_dependency_mode_defaults_to_all_and_any_requires_a_real_join() -> None:
+    default = _noop("default", "first", "second")
+    assert default.dependency_mode is DependencyMode.ALL
+
+    with pytest.raises(ValidationError):
+        WorkflowStepSpec.model_validate(
+            {
+                "key": "invalid",
+                "step_type": "NOOP",
+                "depends_on": (),
+                "dependency_mode": "ANY",
+                "config": {"kind": "NOOP", "output": {}},
+            }
+        )
+    with pytest.raises(ValidationError):
+        WorkflowStepSpec.model_validate(
+            {
+                "key": "invalid",
+                "step_type": "NOOP",
+                "depends_on": ("only",),
+                "dependency_mode": "ANY",
+                "config": {"kind": "NOOP", "output": {}},
+            }
+        )
+    with pytest.raises(ValidationError):
+        WorkflowStepSpec.model_validate(
+            {
+                "key": "invalid",
+                "step_type": "NOOP",
+                "depends_on": ("first", "second"),
+                "dependency_mode": "SOME",
+                "config": {"kind": "NOOP", "output": {}},
+            }
+        )

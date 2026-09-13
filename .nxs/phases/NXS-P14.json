@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p14-workflows",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P08",
     "NXS-P13"
@@ -26,7 +26,7 @@
     ".nxs/evidence/NXS-P14/tests.json"
   ],
   "id": "NXS-P14",
-  "implementation_commit": "85a7dabb046f0e56adc2d6fe54a7a9f0f92ddd55",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -72,9 +72,9 @@
     "NXS-WF-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-13T06:46:32Z",
+    "closed_at": null,
     "started_at": "2026-09-13T04:09:43Z"
   },
   "title": "Workflow Engine"

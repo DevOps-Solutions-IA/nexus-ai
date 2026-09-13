@@ -219,6 +219,7 @@ class WorkflowRepository:
                     step_key=item.key,
                     step_type=item.step_type.value,
                     dependencies=list(item.depends_on),
+                    dependency_mode=item.dependency_mode.value,
                     configuration=item.config.model_dump(mode="json"),
                     retry_policy=item.retry.model_dump(mode="json"),
                     topological_order=order,
@@ -309,6 +310,7 @@ class WorkflowRepository:
                     "key": row.step_key,
                     "step_type": row.step_type,
                     "depends_on": row.dependencies,
+                    "dependency_mode": row.dependency_mode,
                     "config": row.configuration,
                     "retry": row.retry_policy,
                 }
@@ -511,6 +513,7 @@ class WorkflowRepository:
                 "key": row.step_key,
                 "step_type": row.step_type,
                 "depends_on": row.dependencies,
+                "dependency_mode": row.dependency_mode,
                 "config": row.configuration,
                 "retry": row.retry_policy,
             }
@@ -712,7 +715,8 @@ class WorkflowRepository:
                 if row.state != WorkflowStepState.PENDING.value:
                     continue
                 target = resolve_pending_step(
-                    tuple(WorkflowStepState(states[key]) for key in specs[row.step_key].depends_on)
+                    tuple(WorkflowStepState(states[key]) for key in specs[row.step_key].depends_on),
+                    specs[row.step_key].dependency_mode,
                 )
                 if target is None:
                     continue

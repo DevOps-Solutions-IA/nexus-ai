@@ -20,16 +20,21 @@ from nexus_ai.workflows.entities import (
     WorkflowStepType,
 )
 from nexus_ai.workflows.errors import WorkflowExecutionFencedError
-from nexus_ai.workflows.state_machine import WorkflowRunState, WorkflowStepState
+from nexus_ai.workflows.state_machine import DependencyMode, WorkflowRunState, WorkflowStepState
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 
-def _noop(key: str, *dependencies: str) -> WorkflowStepSpec:
+def _noop(
+    key: str,
+    *dependencies: str,
+    dependency_mode: DependencyMode = DependencyMode.ALL,
+) -> WorkflowStepSpec:
     return WorkflowStepSpec(
         key=key,
         step_type=WorkflowStepType.NOOP,
         depends_on=dependencies,
+        dependency_mode=dependency_mode,
         config=NoopStepConfig(output={"step": key}),
     )
 
@@ -157,7 +162,7 @@ async def test_simple_join_waits_for_selected_branch_then_becomes_ready(
             _condition("choose", then_steps=("a",), else_steps=("b",)),
             _noop("a", "choose"),
             _noop("b", "choose"),
-            _noop("join", "a", "b"),
+            _noop("join", "a", "b", dependency_mode=DependencyMode.ANY),
         ),
     )
 
@@ -167,6 +172,31 @@ async def test_simple_join_waits_for_selected_branch_then_becomes_ready(
     await workflow_stack.service.execute_next(principal, run.id)
     steps = await _states(workflow_stack, organization.id, run.id)
     assert steps["join"].state is WorkflowStepState.READY
+
+
+async def test_default_mandatory_dependencies_fail_closed_when_branch_is_skipped(
+    workflow_stack: Any, make_organization: Any, make_tool_principal: Any
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    run = await _start(
+        workflow_stack,
+        organization.id,
+        (
+            _condition("choose", then_steps=("required_a",), else_steps=("required_b",)),
+            _noop("required_a", "choose"),
+            _noop("required_b", "choose"),
+            _noop("mandatory_join", "required_a", "required_b"),
+        ),
+    )
+
+    await workflow_stack.service.execute_next(principal, run.id)
+    await workflow_stack.service.execute_next(principal, run.id)
+
+    steps = await _states(workflow_stack, organization.id, run.id)
+    assert steps["required_a"].state is WorkflowStepState.COMPLETED
+    assert steps["required_b"].state is WorkflowStepState.SKIPPED
+    assert steps["mandatory_join"].state is WorkflowStepState.SKIPPED
 
 
 async def test_multilevel_join_and_successor_follow_active_branch(
@@ -183,7 +213,7 @@ async def test_multilevel_join_and_successor_follow_active_branch(
             _noop("a2", "a1"),
             _noop("b1", "choose"),
             _noop("b2", "b1"),
-            _noop("join", "a2", "b2"),
+            _noop("join", "a2", "b2", dependency_mode=DependencyMode.ANY),
             _noop("after_join", "join"),
         ),
     )
@@ -230,6 +260,39 @@ async def test_nested_condition_in_active_branch_selects_once(
     assert steps["inner"].state is WorkflowStepState.COMPLETED
     assert steps["c"].state is WorkflowStepState.READY
     assert steps["d"].state is WorkflowStepState.SKIPPED
+
+
+async def test_nested_condition_any_join_resolves_from_selected_inner_branch(
+    workflow_stack: Any, make_organization: Any, make_tool_principal: Any
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    run = await _start(
+        workflow_stack,
+        organization.id,
+        (
+            _condition("outer", then_steps=("inner",), else_steps=("outer_no",)),
+            _condition(
+                "inner",
+                dependencies=("outer",),
+                then_steps=("c",),
+                else_steps=("d",),
+            ),
+            _noop("outer_no", "outer"),
+            _noop("c", "inner"),
+            _noop("d", "inner"),
+            _noop("join", "c", "d", dependency_mode=DependencyMode.ANY),
+        ),
+    )
+
+    await workflow_stack.service.execute_next(principal, run.id)
+    await workflow_stack.service.execute_next(principal, run.id)
+    await workflow_stack.service.execute_next(principal, run.id)
+
+    steps = await _states(workflow_stack, organization.id, run.id)
+    assert steps["c"].state is WorkflowStepState.COMPLETED
+    assert steps["d"].state is WorkflowStepState.SKIPPED
+    assert steps["join"].state is WorkflowStepState.READY
 
 
 async def test_condition_inside_skipped_branch_never_evaluates_or_activates_children(
@@ -285,7 +348,7 @@ async def test_skipped_tool_descendant_never_reaches_p08(
     tool = WorkflowStepSpec(
         key="tool",
         step_type=WorkflowStepType.TOOL,
-        depends_on=("inactive",),
+        depends_on=("active", "inactive"),
         config=ToolStepConfig(tool_key="crm.get", arguments={"path_params": {"id": "one"}}),
     )
     run = await _start(
@@ -323,7 +386,7 @@ async def test_skipped_agent_descendant_never_reaches_p13(
     agent_step = WorkflowStepSpec(
         key="agent",
         step_type=WorkflowStepType.AGENT,
-        depends_on=("inactive",),
+        depends_on=("active", "inactive"),
         config=AgentStepConfig(agent_id=agent.id, prompt="Must not execute"),
     )
     run = await _start(
@@ -394,9 +457,10 @@ async def test_duplicate_condition_replay_cannot_flip_durable_outcome(
 
 
 async def test_two_worker_condition_race_has_one_branch_outcome(
-    workflow_stack: Any, make_organization: Any
+    workflow_stack: Any, make_organization: Any, make_tool_principal: Any
 ) -> None:
     organization = await make_organization()
+    principal = await make_tool_principal(organization)
     run = await _start(
         workflow_stack,
         organization.id,
@@ -405,6 +469,7 @@ async def test_two_worker_condition_race_has_one_branch_outcome(
             _noop("yes", "choose"),
             _noop("no", "choose"),
             _noop("no_child", "no"),
+            _noop("join", "yes", "no", dependency_mode=DependencyMode.ANY),
         ),
     )
     claim = await workflow_stack.service.claim_next(organization.id, run.id)
@@ -441,6 +506,9 @@ async def test_two_worker_condition_race_has_one_branch_outcome(
     assert branch_states == {WorkflowStepState.READY, WorkflowStepState.SKIPPED}
     if steps["no"].state is WorkflowStepState.SKIPPED:
         assert steps["no_child"].state is WorkflowStepState.SKIPPED
+    await workflow_stack.service.execute_next(principal, run.id)
+    steps = await _states(workflow_stack, organization.id, run.id)
+    assert steps["join"].state is WorkflowStepState.READY
 
 
 async def test_cancel_after_branch_resolution_never_reactivates_excluded_steps(

@@ -1,5 +1,7 @@
 # NXS-P14 Corrective 01 — Conditional Branch Propagation
 
+> Corrective 02 subsequently made dependency convergence explicit. The global rule described below is retained as corrective history, not the current contract. Current steps default to `ALL`; only steps declaring `ANY` use the alternative-join behavior introduced here. See `docs/engineering/nxs-p14-corrective-02-explicit-dependency-semantics.md`.
+
 ## Audit finding and fail-first evidence
 
 External review found that `_advance()` treated `COMPLETED` and `SKIPPED` as equivalent dependency success. The fail-first test `test_condition_skips_exclusive_unselected_branch_descendants` used `choose → no → no_child`, selected the opposite `yes` branch, and observed `no=SKIPPED` but `no_child=READY` on reviewed head `e835e5781506872789be4374dc4f8af90171994e`.
@@ -20,7 +22,7 @@ The old advancement predicate promoted a pending step whenever every predecessor
 
 ## Formal semantics
 
-For a pending step, evaluate the immutable dependency list against durable step-run states:
+Corrective 01 originally applied this rule to every pending step; corrective 02 limits it to explicit `ANY` joins:
 
 1. With no dependencies, the step is `READY`.
 2. If any dependency is unresolved, the step remains `PENDING`.
@@ -31,9 +33,9 @@ The repository applies this rule to a deterministic fixed point while holding th
 
 ## Convergence semantics
 
-A convergence step waits until every incoming dependency is resolved. It proceeds once at least one incoming predecessor completed, so a selected branch can join with excluded alternatives. A node whose entire incoming frontier is excluded is itself excluded. The same rule handles simple joins, multi-level joins, shared descendants, and successors after a join without graph mutation or branch-specific process memory.
+A step explicitly declared with `dependency_mode=ANY` waits until every incoming dependency is resolved. It proceeds once at least one incoming predecessor completed, so a selected branch can join with excluded alternatives. A node whose entire incoming frontier is excluded is itself excluded. The same rule handles simple joins, multi-level joins, shared descendants, and successors after a join without graph mutation or branch-specific process memory.
 
-This rule defines dependency edges as a synchronization frontier across effective active paths. A completed non-branch predecessor therefore keeps a shared descendant reachable even when another incoming alternative was skipped.
+An ordinary step defaults to `dependency_mode=ALL`; one skipped required predecessor excludes that step even if another predecessor completed. A completed non-branch predecessor keeps a shared descendant reachable only when the workflow author explicitly models that descendant as an alternative `ANY` convergence.
 
 ## Durable reconstruction and replay
 

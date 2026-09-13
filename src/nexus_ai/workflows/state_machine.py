@@ -30,6 +30,11 @@ class WorkflowStepState(StrEnum):
     CANCELLED = "CANCELLED"
 
 
+class DependencyMode(StrEnum):
+    ALL = "ALL"
+    ANY = "ANY"
+
+
 WORKFLOW_TERMINAL = frozenset(
     {WorkflowRunState.COMPLETED, WorkflowRunState.FAILED, WorkflowRunState.CANCELLED}
 )
@@ -98,8 +103,9 @@ def require_step_transition(current: WorkflowStepState, target: WorkflowStepStat
 
 def resolve_pending_step(
     dependency_states: tuple[WorkflowStepState, ...],
+    dependency_mode: DependencyMode,
 ) -> WorkflowStepState | None:
-    """Resolve a pending step once every predecessor is completed or excluded."""
+    """Resolve a pending step from immutable dependency semantics and durable states."""
     if not dependency_states:
         return WorkflowStepState.READY
     if any(
@@ -107,6 +113,10 @@ def resolve_pending_step(
         for state in dependency_states
     ):
         return None
+    if dependency_mode is DependencyMode.ALL:
+        if all(state is WorkflowStepState.COMPLETED for state in dependency_states):
+            return WorkflowStepState.READY
+        return WorkflowStepState.SKIPPED
     if WorkflowStepState.COMPLETED in dependency_states:
         return WorkflowStepState.READY
     return WorkflowStepState.SKIPPED

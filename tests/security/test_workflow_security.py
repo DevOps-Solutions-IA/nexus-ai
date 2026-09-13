@@ -82,3 +82,42 @@ async def test_published_version_is_database_immutable(workflow_stack, make_orga
                 text("UPDATE workflow_versions SET content_hash='mutated' WHERE id=:id"),
                 {"id": version.id},
             )
+
+
+@pytest.mark.anyio
+@pytest.mark.integration
+async def test_published_dependency_mode_is_database_immutable(
+    workflow_stack, make_organization
+) -> None:
+    from nexus_ai.workflows.entities import (
+        CreateWorkflowRequest,
+        NoopStepConfig,
+        WorkflowStepSpec,
+        WorkflowStepType,
+    )
+
+    organization = await make_organization()
+    definition = await workflow_stack.service.create_definition(
+        organization.id,
+        CreateWorkflowRequest(
+            workflow_key="immutable.dependency.mode",
+            name="Immutable dependency mode",
+            steps=(
+                WorkflowStepSpec(
+                    key="only",
+                    step_type=WorkflowStepType.NOOP,
+                    config=NoopStepConfig(output={}),
+                ),
+            ),
+        ),
+    )
+    version = await workflow_stack.service.publish(organization.id, definition.id)
+    with pytest.raises(DBAPIError):
+        async with workflow_stack.database.tenant_transaction(organization.id) as tenant:
+            await tenant.session.execute(
+                text(
+                    "UPDATE workflow_version_steps SET dependency_mode='ANY' "
+                    "WHERE organization_id=:organization_id AND version_id=:version_id"
+                ),
+                {"organization_id": organization.id, "version_id": version.id},
+            )

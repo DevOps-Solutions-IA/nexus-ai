@@ -18,7 +18,7 @@ from nexus_ai.workflows.entities import (
     WorkflowStepType,
 )
 from nexus_ai.workflows.errors import WorkflowConflictError, WorkflowInvalidStateError
-from nexus_ai.workflows.state_machine import WorkflowRunState, WorkflowStepState
+from nexus_ai.workflows.state_machine import DependencyMode, WorkflowRunState, WorkflowStepState
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -89,6 +89,38 @@ async def test_immutable_version_and_durable_noop_execution(
         WorkflowStepState.COMPLETED,
     ]
     assert len(await workflow_stack.service.transitions(organization.id, run.id, limit=100)) >= 6
+
+
+async def test_dependency_mode_is_immutable_per_published_version(
+    workflow_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    roots = (_noop("first"), _noop("second"))
+    alternative_join = WorkflowStepSpec(
+        key="join",
+        step_type=WorkflowStepType.NOOP,
+        depends_on=("first", "second"),
+        dependency_mode=DependencyMode.ANY,
+        config=NoopStepConfig(output={}),
+    )
+    definition, first_version = await _published(
+        workflow_stack, organization.id, (*roots, alternative_join)
+    )
+    mandatory_join = alternative_join.model_copy(update={"dependency_mode": DependencyMode.ALL})
+    updated = await workflow_stack.service.update_definition(
+        organization.id,
+        definition.id,
+        UpdateWorkflowRequest(
+            expected_revision=definition.revision,
+            steps=(*roots, mandatory_join),
+        ),
+    )
+    second_version = await workflow_stack.service.publish(organization.id, updated.id)
+
+    persisted_first = await workflow_stack.service.get_version(organization.id, first_version.id)
+    persisted_second = await workflow_stack.service.get_version(organization.id, second_version.id)
+    assert persisted_first.steps[-1].dependency_mode is DependencyMode.ANY
+    assert persisted_second.steps[-1].dependency_mode is DependencyMode.ALL
 
 
 async def test_start_idempotency_and_payload_conflict(

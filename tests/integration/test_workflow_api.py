@@ -70,6 +70,7 @@ async def test_owner_definition_and_run_lifecycle(workflow_api: Any) -> None:
     published = await owner.request("POST", f"/workflows/{definition['id']}/publish")
     assert published.status_code == 200, published.text
     version = published.json()
+    assert version["steps"][0]["dependency_mode"] == "ALL"
     assert (
         await owner.request("GET", f"/workflows/{definition['id']}/versions")
     ).status_code == 200
@@ -126,3 +127,36 @@ async def test_workflow_request_unknown_field_is_rfc_problem(workflow_api: Any) 
     assert response.status_code == 422
     assert response.headers["content-type"].startswith("application/problem+json")
     assert response.json()["code"] == "NXS_CORE_VALIDATION_FAILED"
+
+
+async def test_workflow_api_exposes_explicit_alternative_join_mode(workflow_api: Any) -> None:
+    owner, _member = workflow_api
+    payload = {
+        "workflow_key": f"api.join.{uuid.uuid4().hex[:10]}",
+        "name": "Alternative join",
+        "steps": [
+            {
+                "key": "a",
+                "step_type": "NOOP",
+                "config": {"kind": "NOOP", "output": {}},
+            },
+            {
+                "key": "b",
+                "step_type": "NOOP",
+                "config": {"kind": "NOOP", "output": {}},
+            },
+            {
+                "key": "join",
+                "step_type": "NOOP",
+                "depends_on": ["a", "b"],
+                "dependency_mode": "ANY",
+                "config": {"kind": "NOOP", "output": {}},
+            },
+        ],
+    }
+    created = await owner.request("POST", "/workflows", payload)
+    assert created.status_code == 201, created.text
+    assert created.json()["draft_steps"][-1]["dependency_mode"] == "ANY"
+    published = await owner.request("POST", f"/workflows/{created.json()['id']}/publish")
+    assert published.status_code == 200, published.text
+    assert published.json()["steps"][-1]["dependency_mode"] == "ANY"

@@ -16,7 +16,7 @@ Completion and failure require the expected active state, owner UUID, and claim 
 
 P14 records ambiguous active execution after a crash. It does not automatically reap, reassign, redispatch, or reconcile that execution. Those policies belong to NXS-P25.
 
-Conditional advancement distinguishes successful execution from branch exclusion. Once all of a pending step's dependencies are resolved as `COMPLETED` or `SKIPPED`, the step becomes `READY` only when at least one dependency is `COMPLETED`; it becomes `SKIPPED` when every dependency is `SKIPPED`. This fixed-point rule propagates exclusion through exclusive descendants while allowing convergence nodes to proceed after the selected branch completes. The condition result records its selected and rejected branch roots, and all propagation occurs inside the existing run-row serialization transaction.
+Conditional advancement distinguishes successful execution from branch exclusion through an immutable `DependencyMode`. `ALL` is the default: every dependency must be `COMPLETED`, and any `SKIPPED` predecessor excludes the step after the dependency frontier resolves. `ANY` is an explicit alternative join: it waits for every predecessor to resolve as `COMPLETED` or `SKIPPED`, becomes `READY` when at least one completed, and becomes `SKIPPED` when all were skipped. `ANY` requires at least two dependencies. The mode is persisted on each published version step, protected by the immutable-row trigger, and never inferred from graph topology. Fixed-point propagation and condition-root selection remain inside the existing run-row serialization transaction.
 
 ## Consequences
 
@@ -26,6 +26,7 @@ Conditional advancement distinguishes successful execution from branch exclusion
 - External exactly-once behavior is not overclaimed; stable downstream identities reduce duplication while ambiguity remains visible.
 - Operators may need P25 reconciliation for a step left active by a dead worker.
 - Published versions and transition history are retained and protected from destructive runtime operations.
+- Ordinary multi-dependency steps fail closed through the `ALL` default; workflow authors must opt into `ANY` for alternative branch convergence.
 
 ## Current Versus Target
 

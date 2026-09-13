@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_vali
 
 from nexus_ai.workflows.errors import WorkflowInvalidDefinitionError
 from nexus_ai.workflows.state_machine import (
+    DependencyMode,
     WorkflowDefinitionStatus,
     WorkflowRunState,
     WorkflowStepState,
@@ -108,6 +109,7 @@ class WorkflowStepSpec(BaseModel):
     key: StepKey
     step_type: WorkflowStepType
     depends_on: tuple[StepKey, ...] = ()
+    dependency_mode: DependencyMode = DependencyMode.ALL
     config: StepConfig = Field(discriminator="kind")
     retry: RetryPolicy = RetryPolicy()
 
@@ -119,6 +121,8 @@ class WorkflowStepSpec(BaseModel):
             raise ValueError("a step cannot depend on itself")
         if len(set(self.depends_on)) != len(self.depends_on):
             raise ValueError("duplicate dependency")
+        if self.dependency_mode is DependencyMode.ANY and len(self.depends_on) < 2:
+            raise ValueError("ANY dependency mode requires at least two dependencies")
         return self
 
 

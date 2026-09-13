@@ -97,6 +97,9 @@ class WorkflowVersionStepRecord(TenantOwnedMixin, Base):
             ondelete="RESTRICT",
         ),
         CheckConstraint(f"step_type IN {_STEP_TYPES}", name="ck_workflow_version_step_type"),
+        CheckConstraint(
+            "dependency_mode IN ('ALL','ANY')", name="ck_workflow_version_step_dependency_mode"
+        ),
         CheckConstraint("topological_order >= 0", name="ck_workflow_step_order"),
         Index(
             "ix_workflow_version_steps_version",
@@ -111,6 +114,9 @@ class WorkflowVersionStepRecord(TenantOwnedMixin, Base):
     step_key: Mapped[str] = mapped_column(String(64), nullable=False)
     step_type: Mapped[str] = mapped_column(String(16), nullable=False)
     dependencies: Mapped[list[str]] = mapped_column(JSONB, nullable=False)
+    dependency_mode: Mapped[str] = mapped_column(
+        String(8), nullable=False, default="ALL", server_default="ALL"
+    )
     configuration: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
     retry_policy: Mapped[dict[str, object]] = mapped_column(JSONB, nullable=False)
     topological_order: Mapped[int] = mapped_column(Integer, nullable=False)
