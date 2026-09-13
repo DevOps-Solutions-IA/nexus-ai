@@ -22,6 +22,7 @@ from nexus_ai.workflows.state_machine import (
     WorkflowStepState,
     require_step_transition,
     require_workflow_transition,
+    resolve_pending_step,
 )
 
 
@@ -129,3 +130,27 @@ def test_workflow_terminal_states_are_absorbing(terminal: WorkflowRunState) -> N
 def test_step_terminal_states_are_absorbing(terminal: WorkflowStepState) -> None:
     with pytest.raises(WorkflowInvalidStateError):
         require_step_transition(terminal, WorkflowStepState.READY)
+
+
+@pytest.mark.parametrize(
+    ("dependencies", "expected"),
+    [
+        ((), WorkflowStepState.READY),
+        ((WorkflowStepState.COMPLETED,), WorkflowStepState.READY),
+        (
+            (WorkflowStepState.COMPLETED, WorkflowStepState.SKIPPED),
+            WorkflowStepState.READY,
+        ),
+        ((WorkflowStepState.SKIPPED,), WorkflowStepState.SKIPPED),
+        (
+            (WorkflowStepState.SKIPPED, WorkflowStepState.SKIPPED),
+            WorkflowStepState.SKIPPED,
+        ),
+        ((WorkflowStepState.READY,), None),
+        ((WorkflowStepState.RUNNING, WorkflowStepState.SKIPPED), None),
+    ],
+)
+def test_pending_step_resolution_distinguishes_success_from_exclusion(
+    dependencies: tuple[WorkflowStepState, ...], expected: WorkflowStepState | None
+) -> None:
+    assert resolve_pending_step(dependencies) is expected

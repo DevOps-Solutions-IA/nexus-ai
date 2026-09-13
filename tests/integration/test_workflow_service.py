@@ -147,6 +147,51 @@ async def test_condition_skips_unselected_branch(
     assert steps["normal"].state is WorkflowStepState.SKIPPED
 
 
+async def test_condition_skips_exclusive_unselected_branch_descendants(
+    workflow_stack: Any, make_organization: Any, make_tool_principal: Any
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    condition = WorkflowStepSpec(
+        key="choose",
+        step_type=WorkflowStepType.CONDITION,
+        config=ConditionStepConfig(
+            path="input.selected",
+            operator=ConditionOperator.EQUALS,
+            value="yes",
+            then_steps=("yes",),
+            else_steps=("no",),
+        ),
+    )
+    _, version = await _published(
+        workflow_stack,
+        organization.id,
+        (
+            condition,
+            _noop("yes", "choose"),
+            _noop("no", "choose"),
+            _noop("no_child", "no"),
+        ),
+    )
+    run = await workflow_stack.service.start_run(
+        organization.id,
+        StartWorkflowRunRequest(workflow_version_id=version.id, input={"selected": "yes"}),
+    )
+
+    await workflow_stack.service.execute_next(principal, run.id)
+
+    steps = {
+        item.step_key: item.state
+        for item in await workflow_stack.service.list_steps(organization.id, run.id)
+    }
+    assert steps == {
+        "choose": WorkflowStepState.COMPLETED,
+        "yes": WorkflowStepState.READY,
+        "no": WorkflowStepState.SKIPPED,
+        "no_child": WorkflowStepState.SKIPPED,
+    }
+
+
 async def test_pause_resume_cancel_and_terminal_absorption(
     workflow_stack: Any, make_organization: Any
 ) -> None:

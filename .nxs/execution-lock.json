@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "codex",
+  "branch": "feat/nxs-p14-workflows",
+  "expires_at": "2026-09-13T10:20:42Z",
+  "phase": "NXS-P14",
+  "repository_commit": "e835e5781506872789be4374dc4f8af90171994e",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-13T06:20:42Z",
+  "state": "ACTIVE"
 }

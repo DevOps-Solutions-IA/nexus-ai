@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": null,
+  "active_phase": "NXS-P14",
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -16,25 +16,24 @@
     "NXS-P10",
     "NXS-P11",
     "NXS-P12",
-    "NXS-P13",
-    "NXS-P14"
+    "NXS-P13"
   ],
   "current_phase": {
     "branch": "feat/nxs-p14-workflows",
     "closure_commit": null,
-    "decision": "GO",
+    "decision": "PENDING",
     "id": "NXS-P14",
-    "implementation_commit": "62d57ea1a5f4e6d2e52567809d85a2aa7b23c7bc",
-    "status": "READY"
+    "implementation_commit": null,
+    "status": "VALIDATING"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-13T05:38:54Z",
+  "last_updated_at": "2026-09-13T06:20:41Z",
   "next_allowed_execution": {
-    "condition": "DEPENDENCIES_READY",
-    "phase": "NXS-P15"
+    "condition": "ACTIVE_PHASE_ONLY",
+    "phase": "NXS-P14"
   },
   "product": {
     "name": "Nexus AI",

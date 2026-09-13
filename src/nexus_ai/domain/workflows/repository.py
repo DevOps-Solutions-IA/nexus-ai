@@ -32,6 +32,7 @@ from nexus_ai.workflows.state_machine import (
     WorkflowRunState,
     WorkflowStepState,
     require_workflow_transition,
+    resolve_pending_step,
 )
 
 
@@ -704,23 +705,33 @@ class WorkflowRepository:
         specs = {row.step_key: await self._spec_for_step(row.version_step_id) for row in steps}
         if run_row.state != WorkflowRunState.RUNNING.value:
             return
-        for row in steps:
-            if row.state != WorkflowStepState.PENDING.value:
-                continue
-            if all(
-                states[key] in {WorkflowStepState.COMPLETED.value, WorkflowStepState.SKIPPED.value}
-                for key in specs[row.step_key].depends_on
-            ):
-                row.state = WorkflowStepState.READY.value
+        changed = True
+        while changed:
+            changed = False
+            for row in sorted(steps, key=lambda candidate: candidate.step_key):
+                if row.state != WorkflowStepState.PENDING.value:
+                    continue
+                target = resolve_pending_step(
+                    tuple(WorkflowStepState(states[key]) for key in specs[row.step_key].depends_on)
+                )
+                if target is None:
+                    continue
+                row.state = target.value
+                states[row.step_key] = target.value
                 row.updated_at = _utcnow()
                 await self.add_transition(
                     run_row,
                     row,
-                    WorkflowStepState.READY.value,
-                    "DEPENDENCIES_COMPLETE",
+                    target.value,
+                    (
+                        "DEPENDENCIES_COMPLETE"
+                        if target is WorkflowStepState.READY
+                        else "INACTIVE_BRANCH"
+                    ),
                     "ENGINE",
                     from_state=WorkflowStepState.PENDING.value,
                 )
+                changed = True
         if all(
             row.state in {WorkflowStepState.COMPLETED.value, WorkflowStepState.SKIPPED.value}
             for row in steps

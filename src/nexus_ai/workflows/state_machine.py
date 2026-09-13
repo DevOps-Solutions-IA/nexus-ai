@@ -94,3 +94,19 @@ def require_step_transition(current: WorkflowStepState, target: WorkflowStepStat
         raise WorkflowInvalidStateError(
             f"workflow step cannot transition from {current} to {target}"
         )
+
+
+def resolve_pending_step(
+    dependency_states: tuple[WorkflowStepState, ...],
+) -> WorkflowStepState | None:
+    """Resolve a pending step once every predecessor is completed or excluded."""
+    if not dependency_states:
+        return WorkflowStepState.READY
+    if any(
+        state not in {WorkflowStepState.COMPLETED, WorkflowStepState.SKIPPED}
+        for state in dependency_states
+    ):
+        return None
+    if WorkflowStepState.COMPLETED in dependency_states:
+        return WorkflowStepState.READY
+    return WorkflowStepState.SKIPPED

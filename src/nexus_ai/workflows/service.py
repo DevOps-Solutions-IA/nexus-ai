@@ -474,8 +474,17 @@ class WorkflowService:
                 workflow_input=claim.run.input,
                 step_outputs=context["steps"],
             )
+            selected_steps = config.then_steps if selected else config.else_steps
             skipped = config.else_steps if selected else config.then_steps
-            return {"selected": selected}, None, skipped
+            return (
+                {
+                    "selected": selected,
+                    "selected_steps": list(selected_steps),
+                    "skipped_steps": list(skipped),
+                },
+                None,
+                skipped,
+            )
         if isinstance(config, NoopStepConfig):
             return dict(config.output), None, None
         raise WorkflowStepFailedError("unsupported workflow step type")

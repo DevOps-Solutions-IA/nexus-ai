@@ -16,6 +16,8 @@ Completion and failure require the expected active state, owner UUID, and claim 
 
 P14 records ambiguous active execution after a crash. It does not automatically reap, reassign, redispatch, or reconcile that execution. Those policies belong to NXS-P25.
 
+Conditional advancement distinguishes successful execution from branch exclusion. Once all of a pending step's dependencies are resolved as `COMPLETED` or `SKIPPED`, the step becomes `READY` only when at least one dependency is `COMPLETED`; it becomes `SKIPPED` when every dependency is `SKIPPED`. This fixed-point rule propagates exclusion through exclusive descendants while allowing convergence nodes to proceed after the selected branch completes. The condition result records its selected and rejected branch roots, and all propagation occurs inside the existing run-row serialization transaction.
+
 ## Consequences
 
 - Multiple workers may contend safely without sharing memory.
