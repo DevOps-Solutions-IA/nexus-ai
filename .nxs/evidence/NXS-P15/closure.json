@@ -3,10 +3,10 @@
   "branch": "feat/nxs-p15-scheduler",
   "closure_commit": null,
   "decision": "GO",
-  "implementation_commit": "c3f210e8b6163f28e132b11ae3953e43ccd99c75",
+  "implementation_commit": "122d8fd7252dd591979c8fcbc7cfc22d0649c2ec",
   "next_allowed_execution": "NXS-P16",
   "phase": "NXS-P15",
-  "recorded_at": "2026-09-13T19:58:28Z",
+  "recorded_at": "2026-09-13T20:30:52Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "status": "READY"

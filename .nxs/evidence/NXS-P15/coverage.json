@@ -1,8 +1,8 @@
 {
   "branch_aware": true,
-  "line_percent": 91.67,
+  "line_percent": 91.82,
   "phase": "NXS-P15",
-  "recorded_at": "2026-09-13T19:58:28Z",
+  "recorded_at": "2026-09-13T20:30:52Z",
   "required_percent": 90.0,
   "result": "PASS",
   "schema_version": "1.0.0"

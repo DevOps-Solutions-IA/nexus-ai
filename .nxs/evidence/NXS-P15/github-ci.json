@@ -1,17 +1,17 @@
 {
-  "head_sha": "c3f210e8b6163f28e132b11ae3953e43ccd99c75",
+  "head_sha": "122d8fd7252dd591979c8fcbc7cfc22d0649c2ec",
   "nxs_ci": {
     "conclusion": "success",
-    "run_id": 34778523508,
-    "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34778523508"
+    "run_id": 34780306427,
+    "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34780306427"
   },
   "nxs_security": {
     "conclusion": "success",
-    "run_id": 34778523507,
-    "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34778523507"
+    "run_id": 34780306426,
+    "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/34780306426"
   },
   "phase": "NXS-P15",
-  "recorded_at": "2026-09-13T19:58:28Z",
+  "recorded_at": "2026-09-13T20:30:52Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

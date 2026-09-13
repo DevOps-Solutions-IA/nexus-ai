@@ -1,10 +1,10 @@
 {
-  "actor": "codex",
-  "branch": "feat/nxs-p15-scheduler",
-  "expires_at": "2026-09-14T00:10:28Z",
-  "phase": "NXS-P15",
-  "repository_commit": "9e56e2202517a11476ebdcb0d736025380e78c11",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-13T20:10:28Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }
