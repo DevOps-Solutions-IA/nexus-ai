@@ -160,6 +160,7 @@ Important rules:
 5. No merge to `main` occurs without explicit human authorization.
 6. No production deployment occurs without explicit human authorization.
 7. CI success alone is not enough; semantic audit and exact-head/exact-main verification are required.
+8. The README must be reviewed for synchronization whenever a material phase, architecture boundary, certification state, release state or user-visible capability changes. Canonical `.nxs/` state remains the source of truth, and branch-only work must never be presented as merged capability.
 
 ## Development stack
 
