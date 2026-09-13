@@ -1,0 +1,23 @@
+{
+  "cancel_after_resolution": "PASS",
+  "condition_race": "PASS",
+  "corrective_commit": "0f3c167e28e78fb6ec4b163a0f6d8055d1d6ca9c",
+  "durable_outcome": "selected boolean and bounded selected/skipped root lists",
+  "fail_first": {
+    "expected": "no_child=SKIPPED",
+    "observed": "no_child=READY",
+    "result": "FAIL_REPRODUCED",
+    "test": "test_condition_skips_exclusive_unselected_branch_descendants"
+  },
+  "formal_rule": "A pending node waits for every dependency; it is READY when all are COMPLETED/SKIPPED and at least one is COMPLETED, otherwise it is SKIPPED when all are SKIPPED.",
+  "p08_calls_from_skipped_branch": 0,
+  "p13_calls_from_skipped_branch": 0,
+  "p25_boundary_unchanged": true,
+  "phase": "NXS-P14",
+  "recorded_at": "2026-09-13T06:45:18Z",
+  "replay": "PASS",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "starting_head": "e835e5781506872789be4374dc4f8af90171994e",
+  "validation_candidate": "85a7dabb046f0e56adc2d6fe54a7a9f0f92ddd55"
+}

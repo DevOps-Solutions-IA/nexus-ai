@@ -1,11 +1,11 @@
 {
   "failed": 0,
-  "focused_p14": 66,
-  "passed": 1619,
+  "focused_p14": 85,
+  "passed": 1638,
   "phase": "NXS-P14",
-  "recorded_at": "2026-09-13T05:35:14Z",
+  "recorded_at": "2026-09-13T06:43:04Z",
   "result": "PASS",
-  "runtime_seconds": 323.11,
+  "runtime_seconds": 310.98,
   "schema_version": "1.0.0",
   "warnings_as_errors": true
 }

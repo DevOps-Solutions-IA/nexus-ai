@@ -6,9 +6,9 @@
     "owner and opaque claim-token compare-and-set terminal writes",
     "tenant/version/idempotency unique constraint"
   ],
-  "passed": 10,
+  "passed": 11,
   "phase": "NXS-P14",
-  "recorded_at": "2026-09-13T05:29:20Z",
+  "recorded_at": "2026-09-13T06:43:04Z",
   "result": "PASS",
   "scenarios": [
     "same semantic start key",
@@ -20,7 +20,8 @@
     "duplicate condition completion",
     "parent completion versus child readiness",
     "duplicate TOOL execution",
-    "duplicate AGENT execution"
+    "duplicate AGENT execution",
+    "two-worker condition outcome and branch propagation"
   ],
   "schema_version": "1.0.0"
 }
