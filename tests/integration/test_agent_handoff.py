@@ -180,6 +180,21 @@ def test_agent_reconstructs_status_from_repository_only() -> None:
 
     # Once P13 is READY, the next phase is deterministically P14 (the first
     # non-READY phase in registry order whose dependencies are all READY).
-    if registry["NXS-P13"]["status"] == "READY" and active is None:
+    if (
+        registry["NXS-P13"]["status"] == "READY"
+        and registry["NXS-P14"]["status"] != "READY"
+        and active is None
+    ):
         assert next_eligible_phase(ROOT) == "NXS-P14"
+        assert registry["NXS-P14"]["branch"] == "feat/nxs-p14-workflows"
+
+    # Once P14 is READY — and P15 has not closed yet — a zero-context agent
+    # reconstructs P15 as next without activating it.
+    if (
+        registry["NXS-P14"]["status"] == "READY"
+        and registry["NXS-P15"]["status"] != "READY"
+        and active is None
+    ):
+        assert next_eligible_phase(ROOT) == "NXS-P15"
+        assert registry["NXS-P15"]["branch"] == "feat/nxs-p15-scheduler"
         assert registry["NXS-P14"]["branch"] == "feat/nxs-p14-workflows"
