@@ -1,6 +1,17 @@
 {
   "america_bogota": "PASS",
   "catch_up_bounded": "PASS",
+  "corrective_02": {
+    "accounting_store": "scheduler_transition_history",
+    "catch_up_excess_accounted": "PASS",
+    "cursor_advances_only_with_atomic_accounting": "PASS",
+    "fire_once_coalescing_accounted": "PASS",
+    "implementation_commit": "baf2bb76f417ded4102dab8517990a8879af92e9",
+    "recorded_at": "2026-09-14T03:54:09Z",
+    "replay_idempotency": "PASS",
+    "result": "PASS",
+    "skip_excess_accounted": "PASS"
+  },
   "database_utc_authority": "PASS",
   "dst_fall_back_fold_zero": "PASS",
   "dst_spring_forward_skipped": "PASS",

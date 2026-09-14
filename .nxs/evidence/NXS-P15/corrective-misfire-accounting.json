@@ -1,0 +1,66 @@
+{
+  "bounds": {
+    "default_batch": 100,
+    "max_batch": 500,
+    "max_search_steps_preserved": true
+  },
+  "canonical_base": "8f0e8f7436de07d346ef664dc69aacd71e91637d",
+  "corrective_implementation_commit": "baf2bb76f417ded4102dab8517990a8879af92e9",
+  "durable_accounting": {
+    "atomic_with_cursor_advance": true,
+    "identity_components": [
+      "organization_id",
+      "schedule_id",
+      "schedule_revision",
+      "timezone",
+      "misfire_policy",
+      "first_omitted_local_slot",
+      "first_omitted_fold",
+      "last_omitted_local_slot",
+      "last_omitted_fold"
+    ],
+    "identity_hash": "SHA-256 over canonical JSON",
+    "store": "scheduler_transition_history"
+  },
+  "fail_first": {
+    "database": "PostgreSQL",
+    "observed_accounting_records": 0,
+    "observed_dispatchable_occurrences": 1,
+    "result": "FAIL_REPRODUCED",
+    "test": "tests/integration/test_scheduler_service.py::test_fire_once_persists_coalesced_elapsed_slot_accounting"
+  },
+  "migration_required": false,
+  "phase": "NXS-P15",
+  "policy_semantics": {
+    "CATCH_UP_BOUNDED": "At most max_catch_up and the remaining tick capacity are dispatchable; every excess elapsed slot is represented by one bounded coalescing summary.",
+    "FIRE_ONCE": "Exactly the latest elapsed slot is dispatchable and every earlier elapsed slot is represented by one coalescing summary.",
+    "SKIP": "The newest elapsed slots are materialized as SKIPPED within tick capacity, including the latest slot; older excess slots are represented by one skipped summary and no slot is dispatchable."
+  },
+  "recorded_at": "2026-09-14T03:54:09Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "security": {
+    "bandit": "PASS",
+    "gitleaks": "PASS",
+    "pip_audit": "PASS_NO_KNOWN_VULNERABILITIES",
+    "trivy_high_critical": "PASS_ZERO_FINDINGS"
+  },
+  "tests": {
+    "clean_room": "PASS",
+    "coverage_percent_branch_aware": 91.78150630750656,
+    "focused_scheduler_passed": 51,
+    "full_suite_failed": 0,
+    "full_suite_passed": 1728,
+    "new_corrective_cases": 14
+  },
+  "validation": {
+    "docker_build": "PASS",
+    "integration": "PASS_759",
+    "lint": "PASS",
+    "migration_check": "PASS",
+    "nxs_repository": "PASS",
+    "schema_guard": "PASS",
+    "typecheck": "PASS",
+    "unit_non_integration": "PASS_969"
+  }
+}
