@@ -1489,3 +1489,46 @@ async def scheduler_stack(workflow_stack: Any) -> Any:
             self.workflow_stack = workflows
 
     return _SchedulerStack()
+
+
+@pytest.fixture
+async def campaign_stack(scheduler_stack: Any, messaging_stack: Any) -> Any:
+    """P16 Campaigns over real PostgreSQL and certified P15/P14/P09 boundaries."""
+    import asyncpg
+
+    from nexus_ai.campaigns.service import CampaignService
+
+    scheduler = scheduler_stack
+    service = CampaignService(
+        scheduler.database,
+        scheduler.workflow_stack.agent_stack.event_platform.publisher,
+        scheduler.service,
+        scheduler.workflows,
+        messaging_stack.service,
+        service_name=scheduler.workflow_stack.agent_stack.settings.service_name,
+    )
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE campaign_transition_history, campaign_organization_throttle_windows, "
+            "campaign_throttle_windows, "
+            "campaign_suppressions, campaign_policy_epochs, campaign_contact_preferences, "
+            "campaign_send_permits, campaign_recipient_attempts, campaign_runs, "
+            "campaign_recipients, campaign_audience_snapshots, campaign_revisions, "
+            "campaigns CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _CampaignStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.database = scheduler.database
+            self.scheduler = scheduler.service
+            self.workflows = scheduler.workflows
+            self.workflow_stack = scheduler.workflow_stack
+            self.messaging = messaging_stack
+
+    return _CampaignStack()

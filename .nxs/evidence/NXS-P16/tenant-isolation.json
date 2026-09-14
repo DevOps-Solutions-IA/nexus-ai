@@ -1,0 +1,1 @@
+{"composite_foreign_keys":"PASS","cross_tenant_references_rejected":"PASS","forced_rls":"PASS","organization_context_trusted":"PASS","phase":"NXS-P16","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","rls_visibility":"PASS","runtime_role_non_bypass":"PASS","schema_version":"1.0.0"}

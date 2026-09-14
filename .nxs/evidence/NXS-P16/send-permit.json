@@ -1,0 +1,1 @@
+{"authorization_checks_atomic":"PASS","cancel_before_permit_denied":"PASS","forged_permit_rejected":"PASS","linearization_point":"AUTHORIZED permit transaction commit","p09_idempotency_key_stable":"PASS","permit_states_closed":"PASS","phase":"NXS-P16","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","schema_version":"1.0.0","stale_owner_rejected":"PASS"}

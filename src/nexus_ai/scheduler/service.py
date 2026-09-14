@@ -105,6 +105,13 @@ class SchedulerService:
                 raise ScheduleNotFoundError()
             return result
 
+    async def get_schedule_by_key(self, organization_id: uuid.UUID, schedule_key: str) -> Schedule:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            result = await SchedulerRepository(tenant).schedule_by_key(schedule_key)
+            if result is None:
+                raise ScheduleNotFoundError()
+            return result
+
     async def list_schedules(
         self, organization_id: uuid.UUID, *, limit: int, offset: int
     ) -> list[Schedule]:

@@ -162,11 +162,11 @@ def test_p12_and_later_phases_remain_planned() -> None:
 
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    # Scheduler is the current phase; campaigns remain future scope.
+    # Campaigns may now be the current certified lifecycle phase.
     assert phases["NXS-P14"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P15"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     for later in ("NXS-P16",):
-        assert phases[later]["status"] == "PLANNED", later
+        assert phases[later]["status"] in {"BUILDING", "VALIDATING", "READY"}, later
     # P11 does NOT prematurely implement ElevenLabs / AI runtime
     import inspect
 
