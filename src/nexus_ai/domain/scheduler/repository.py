@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import datetime as dt
+import json
 import uuid
 from typing import Any
 
@@ -22,7 +23,7 @@ from nexus_ai.scheduler.entities import (
     ScheduleTransition,
 )
 from nexus_ai.scheduler.errors import ScheduleExecutionFencedError
-from nexus_ai.scheduler.identity import build_occurrence_key
+from nexus_ai.scheduler.identity import build_misfire_accounting_key, build_occurrence_key
 from nexus_ai.scheduler.recurrence import TemporalSlot
 from nexus_ai.scheduler.state_machine import (
     OccurrenceState,
@@ -234,6 +235,86 @@ class SchedulerRepository:
             "OCCURRENCE", row.id, None, state.value, reason, "ENGINE", correlation_id
         )
         return _occurrence(row)
+
+    async def record_misfire_accounting(
+        self,
+        schedule: SchedulerScheduleRecord,
+        omitted_slots: list[TemporalSlot],
+        *,
+        reason_code: str,
+        correlation_id: str | None = None,
+    ) -> bool:
+        if not omitted_slots:
+            return False
+        first, last = omitted_slots[0], omitted_slots[-1]
+        accounting_key = build_misfire_accounting_key(
+            organization_id=self._org,
+            schedule_id=schedule.id,
+            schedule_revision=schedule.revision,
+            timezone=schedule.timezone,
+            policy=schedule.misfire_policy,
+            first_local_time=first.intended_local_time,
+            first_fold=first.fold,
+            last_local_time=last.intended_local_time,
+            last_fold=last.fold,
+        )
+        disposition = "SKIPPED" if schedule.misfire_policy == "SKIP" else "COALESCED"
+        detail = json.dumps(
+            {
+                "accounting_key": accounting_key,
+                "accounted_count": len(omitted_slots),
+                "coalesced_count": 0 if disposition == "SKIPPED" else len(omitted_slots),
+                "disposition": disposition,
+                "first_omitted_fold": first.fold,
+                "first_omitted_local_time": first.intended_local_time.isoformat(
+                    timespec="microseconds"
+                ),
+                "first_omitted_scheduled_for": first.scheduled_for.astimezone(dt.UTC).isoformat(),
+                "last_omitted_fold": last.fold,
+                "last_omitted_local_time": last.intended_local_time.isoformat(
+                    timespec="microseconds"
+                ),
+                "last_omitted_scheduled_for": last.scheduled_for.astimezone(dt.UTC).isoformat(),
+                "policy": schedule.misfire_policy,
+                "schedule_revision": schedule.revision,
+                "skipped_count": len(omitted_slots) if disposition == "SKIPPED" else 0,
+                "timezone": schedule.timezone,
+                "timezone_data_version": schedule.timezone_data_version,
+            },
+            ensure_ascii=True,
+            separators=(",", ":"),
+            sort_keys=True,
+        )
+        existing = (
+            await self._session.execute(
+                select(SchedulerTransitionHistoryRecord.id).where(
+                    SchedulerTransitionHistoryRecord.organization_id == self._org,
+                    SchedulerTransitionHistoryRecord.schedule_id == schedule.id,
+                    SchedulerTransitionHistoryRecord.reason_code == reason_code,
+                    SchedulerTransitionHistoryRecord.detail == detail,
+                )
+            )
+        ).scalar_one_or_none()
+        if existing is not None:
+            return False
+        self._session.add(
+            SchedulerTransitionHistoryRecord(
+                id=uuid.uuid7(),
+                organization_id=self._org,
+                schedule_id=schedule.id,
+                occurrence_id=None,
+                entity_type="SCHEDULE",
+                entity_id=schedule.id,
+                from_state=schedule.state,
+                to_state=schedule.state,
+                reason_code=reason_code,
+                source="ENGINE",
+                correlation_id=correlation_id,
+                detail=detail,
+            )
+        )
+        await self._session.flush()
+        return True
 
     async def occurrences(self, schedule_id: uuid.UUID, *, limit: int) -> list[ScheduleOccurrence]:
         rows = (

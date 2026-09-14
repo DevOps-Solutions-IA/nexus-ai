@@ -283,17 +283,27 @@ class SchedulerService:
                 schedule = _schedule(row)
                 slots, next_future = self._elapsed_slots(schedule, now)
                 selected: list[TemporalSlot]
+                omitted: list[TemporalSlot]
+                accounting_reason: str | None = None
                 terminal_state = OccurrenceState.PENDING
                 reason = "OCCURRENCE_CREATED"
                 if schedule.misfire_policy is MisfirePolicy.SKIP:
-                    selected = slots[-1:]
+                    selected_count = min(len(slots), remaining)
+                    selected = slots[-selected_count:] if selected_count else []
+                    omitted = slots[:-selected_count] if selected_count else slots
                     terminal_state = OccurrenceState.SKIPPED
                     reason = "MISFIRE_SKIPPED"
+                    accounting_reason = "MISFIRE_SKIPPED"
                 elif schedule.misfire_policy is MisfirePolicy.FIRE_ONCE:
                     selected = slots[-1:]
+                    omitted = slots[:-1]
+                    accounting_reason = "MISFIRE_FIRE_ONCE_COALESCED"
                 else:
-                    selected = slots[: schedule.max_catch_up]
-                for slot in selected[:remaining]:
+                    selected_count = min(len(slots), schedule.max_catch_up, remaining)
+                    selected = slots[:selected_count]
+                    omitted = slots[selected_count:]
+                    accounting_reason = "MISFIRE_CATCH_UP_COALESCED"
+                for slot in selected:
                     state = terminal_state
                     slot_reason = reason
                     if slot.nonexistent:
@@ -316,6 +326,13 @@ class SchedulerService:
                         occurrence,
                     )
                     remaining -= 1
+                if omitted and accounting_reason is not None:
+                    await repo.record_misfire_accounting(
+                        row,
+                        omitted,
+                        reason_code=accounting_reason,
+                        correlation_id=self._correlation_id(),
+                    )
                 if schedule.schedule_type is ScheduleType.ONE_TIME:
                     row.next_fire_at = None
                     row.next_local_time = None

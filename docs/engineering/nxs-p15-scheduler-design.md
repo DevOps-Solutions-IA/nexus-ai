@@ -127,6 +127,8 @@ Schedule edits create a new revision and recompute only future, non-materialized
 
 There is no implicit unbounded catch-up. `FIRE_ONCE` is the proposed safe default for recurring schedules; `ONE_TIME` defaults to `FIRE_ONCE` until its explicit end boundary. Resume after downtime applies the stored policy under the schedule-row lock before calculating the next future slot.
 
+Every elapsed logical slot is represented either by a bounded occurrence row or by one durable summarized record in append-only `scheduler_transition_history`. The summary records a deterministic identity, policy, schedule revision, skipped/coalesced count, exact first/last omitted local slots and UTC instants, fold metadata, IANA timezone and timezone-data version. Materialized occurrences, summary accounting and cursor advancement commit atomically under the schedule-row lock. `next_fire_at` never advances across an unaccounted elapsed range.
+
 ## Idempotency and P14 dispatch
 
 The P14 idempotency key is stable for the logical occurrence, proposed as `schedule:<schedule_uuid>:<occurrence_uuid>`. It does not change across scheduler dispatch retries or worker restarts. P15 stores the key before invoking P14.
