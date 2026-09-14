@@ -78,7 +78,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 
 ## NXS-P16 contract
 
-- Phase: NXS-P16; future implementation branch: `feat/nxs-p16-campaigns`; registry dependencies are NXS-P09 and NXS-P15, both READY/GO before implementation may start.
+- Phase: NXS-P16; implementation branch: `feat/nxs-p16-campaigns`; registry dependencies are NXS-P09 and NXS-P15, both READY/GO before implementation starts.
 - Objective: deliver durable, tenant-isolated, consent-aware and suppression-aware bulk outreach over the certified WhatsApp, Email and SMS channels without permitting uncontrolled fan-out or a parallel provider path.
 - Requirement: `NXS-CAMP-001`, depending on `NXS-WF-001`, `NXS-SCHED-001`, `NXS-WA-001`, `NXS-EMAIL-001` and `NXS-SMS-001`. This governance branch aligns the contract only; it does not start P16 or create a phase manifest.
 - Authority chain: one P15 occurrence releases one immutable P14 campaign workflow; P16 materializes and claims recipients in bounded PostgreSQL batches; each recipient receives a stable P14 workflow execution and, only after its governed success, one tenant/attempt-bound durable send permit authorized under the current consent/suppression epochs. The `AUTHORIZED` permit commit is the logical-send linearization point; P16 then calls P09 `MessagingService.send` with its stable key and never calls providers, P08/P07 messaging tools, arbitrary destinations, shell, SQL or infrastructure directly.

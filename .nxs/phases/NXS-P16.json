@@ -1,0 +1,63 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p16-campaigns",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P09",
+    "NXS-P15"
+  ],
+  "evidence": [],
+  "id": "NXS-P16",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "Voice campaign delivery",
+    "Human-agent routing and workforce management",
+    "Infrastructure failover and orphan recovery",
+    "Billing, full observability, deployment, and NXS-P17 or later work"
+  ],
+  "objective": "Deliver durable tenant-isolated campaign orchestration for WhatsApp, Email and SMS with immutable audience snapshots, deterministic eligibility, consent and suppression fencing, quiet hours, throttling, bounded materialization, PostgreSQL-authoritative claims, P15 temporal release, P14 workflow execution, P09-only provider dispatch and durable send permits.",
+  "requirements_implemented": [
+    "NXS-CAMP-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-14T00:23:44Z"
+  },
+  "title": "Campaigns"
+}

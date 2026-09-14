@@ -142,3 +142,10 @@ ScheduleExecuteDep = Annotated[
 ScheduleConfigureDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.SCHEDULE_CONFIGURE))
 ]
+CampaignReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.CAMPAIGN_READ))]
+CampaignExecuteDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CAMPAIGN_EXECUTE))
+]
+CampaignConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.CAMPAIGN_CONFIGURE))
+]

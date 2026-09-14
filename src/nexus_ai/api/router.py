@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from nexus_ai.api.agents import agents_router
 from nexus_ai.api.auth import auth_router
+from nexus_ai.api.campaigns import campaigns_router
 from nexus_ai.api.conversations import conversations_router
 from nexus_ai.api.customers import customers_router
 from nexus_ai.api.integrations import integrations_router
@@ -37,3 +38,4 @@ api_v1_router.include_router(voice_webhooks_router)
 api_v1_router.include_router(agents_router)
 api_v1_router.include_router(workflows_router)
 api_v1_router.include_router(schedules_router)
+api_v1_router.include_router(campaigns_router)

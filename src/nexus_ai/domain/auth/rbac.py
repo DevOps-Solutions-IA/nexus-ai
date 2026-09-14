@@ -87,6 +87,10 @@ class PermissionKey(StrEnum):
     SCHEDULE_READ = "schedule:read"
     SCHEDULE_EXECUTE = "schedule:execute"
     SCHEDULE_CONFIGURE = "schedule:configure"
+    # P16 additions (seeded by the P16 migration):
+    CAMPAIGN_READ = "campaign:read"
+    CAMPAIGN_EXECUTE = "campaign:execute"
+    CAMPAIGN_CONFIGURE = "campaign:configure"
 
 
 class RoleKey(StrEnum):
@@ -183,6 +187,9 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.SCHEDULE_READ: UUID("b2000000-0000-7000-8000-000000000033"),
     PermissionKey.SCHEDULE_EXECUTE: UUID("b2000000-0000-7000-8000-000000000034"),
     PermissionKey.SCHEDULE_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000035"),
+    PermissionKey.CAMPAIGN_READ: UUID("b2000000-0000-7000-8000-000000000036"),
+    PermissionKey.CAMPAIGN_EXECUTE: UUID("b2000000-0000-7000-8000-000000000037"),
+    PermissionKey.CAMPAIGN_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000038"),
 }
 
 _CATALOG_SQL = """

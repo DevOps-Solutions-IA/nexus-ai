@@ -1,8 +1,31 @@
 # NXS-P16 Campaigns — Pre-Implementation Contract
 
-Status: governance alignment only. NXS-P16 has not started, no campaign runtime or
-schema exists, and merge/deployment remain unauthorized. The canonical requirement is
-`NXS-CAMP-001`.
+Status: implementation active on `feat/nxs-p16-campaigns`; merge and deployment remain
+unauthorized. The canonical requirement is `NXS-CAMP-001`.
+
+## Implemented P16 contract
+
+The implementation follows this document without changing its authority boundaries. It
+uses twelve forced-RLS tenant tables, immutable revision and sealed-audience database
+guards, composite tenant foreign keys, UUIDv7 identities, PostgreSQL row locks and opaque
+claim tokens. Explicit audiences are accepted in bounded sets of 500 and materialized in
+transactions of at most 100 recipients with a durable snapshot cursor. Saved-segment and
+import-artifact source types remain closed contracts and fail closed until their governed
+resolvers exist; raw SQL and arbitrary expressions are never accepted.
+
+Final send authorization locks the campaign run, campaign, attempt, snapshotted recipient,
+customer, identity, conversation, contact preference and per-channel suppression epoch.
+Suppression mutation uses that same epoch row as its serialization boundary. Campaign
+pause/cancel uses the campaign row as its boundary. The transaction reserves durable
+throttle capacity and commits one `AUTHORIZED` permit with stable P09 identity before any
+provider I/O. Post-authorization consent or suppression changes affect future logical
+sends; they do not rewrite an already authorized permit.
+
+The runtime implements only explicit `WhatsApp`, `Email`, and `SMS` campaigns. P14 is used
+for both release and recipient workflows, P15 supplies the optional release schedule, P09
+is the sole message/provider path, and P04 receives bounded identifier-only lifecycle
+events through the transactional outbox. Claim ambiguity remains durable and is not
+automatically reassigned; P25 retains recovery authority.
 
 ## Purpose and certified authority chain
 
@@ -182,10 +205,9 @@ and returned a message ID. It does not mean delivered, replied, converted or phy
 delivered exactly once. P09 message events project later transport states without
 rewriting recipient execution authority.
 
-## Proposed durable model
+## Durable model
 
-No table or migration is created by this governance change. P16 implementation should
-evaluate these tenant-owned entities:
+P16 implements these tenant-owned entities:
 
 ### `campaigns`
 
