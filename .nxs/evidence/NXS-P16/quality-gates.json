@@ -20,7 +20,7 @@
         "."
       ],
       "exit_code": 0,
-      "output_tail": "646 files already formatted\n"
+      "output_tail": "647 files already formatted\n"
     },
     "lint": {
       "command": [
@@ -68,7 +68,7 @@
         "-q"
       ],
       "exit_code": 0,
-      "output_tail": "88%   118, 120, 122, 134, 146, 148, 220, 227, 231, 300, 382-415, 435, 490\nsrc/nexus_ai/workflows/state_machine.py               46      0     14      1    98%   98->exit\n----------------------------------------------------------------------------------------------\nTOTAL                                              21984   1349   4000    753    91%\nRequired test coverage of 90% reached. Total coverage: 91.45%\n1812 passed in 345.63s (0:05:45)\nTraceback (most recent call last):\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 697, in process_request_thread\n    self.finish_request(request, client_address)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 362, in finish_request\n    self.RequestHandlerClass(request, client_address, self)\n    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 766, in __init__\n    self.handle()\n    ~~~~~~~~~~~^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/http/server.py\", line 496, in handle\n    self.handle_one_request()\n    ~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/http/server.py\", line 484, in handle_one_request\n    method()\n    ~~~~~~^^\n  File \"/home/wundah/nexus-ai/tests/conftest.py\", line 758, in do_GET\n    self._serve(\"GET\")\n    ~~~~~~~~~~~^^^^^^^\n  File \"/home/wundah/nexus-ai/tests/conftest.py\", line 755, in _serve\n    self.wfile.write(raw)\n    ~~~~~~~~~~~~~~~~^^^^^\n  File \"/home/wundah/.local/share/uv/python/cpython-3.14.5-linux-x86_64-gnu/lib/python3.14/socketserver.py\", line 845, in write\n    self._sock.sendall(b)\n    ~~~~~~~~~~~~~~~~~~^^^\nBrokenPipeError: [Errno 32] Broken pipe\n----------------------------------------\n"
+      "output_tail": "ers/registry.py              25      0      0      0   100%\nsrc/nexus_ai/voice/redaction.py                       27      0     10      2    95%   70->72, 72->74\nsrc/nexus_ai/voice/runtime.py                        166     12     46      9    89%   131, 164-165, 220, 236, 237->239, 243-246, 258->260, 267->exit, 285, 287, 298\nsrc/nexus_ai/voice/service.py                        406     38    130     29    86%   106-107, 159-160, 208->exit, 219, 220->exit, 253-254, 270->272, 273, 275, 277, 279, 307, 310, 312, 393->392, 413, 440, 538, 540, 636-639, 668, 746, 750, 763, 798-803, 810, 837, 850-853, 867, 876, 897\nsrc/nexus_ai/voice/state_machine.py                   57      1     18      1    97%   129\nsrc/nexus_ai/voice/transport.py                      149     21     34      7    84%   59, 72-80, 83-86, 162, 177, 199, 242, 259, 265, 273\nsrc/nexus_ai/voice/webhooks.py                        76     15     16      6    73%   64, 67, 78, 100-111, 136-137, 152, 159\nsrc/nexus_ai/workflows/__init__.py                     0      0      0      0   100%\nsrc/nexus_ai/workflows/conditions.py                  41      8     26      8    76%   18, 20, 22, 31, 36, 43, 50, 52\nsrc/nexus_ai/workflows/entities.py                   224     10     46      9    92%   87-88, 90, 92, 119, 121, 123, 258, 260, 274\nsrc/nexus_ai/workflows/errors.py                      33      0      0      0   100%\nsrc/nexus_ai/workflows/events.py                      60      0      0      0   100%\nsrc/nexus_ai/workflows/service.py                    224     22     68     12    88%   118, 120, 122, 134, 146, 148, 220, 227, 231, 300, 382-415, 435, 490\nsrc/nexus_ai/workflows/state_machine.py               46      0     14      1    98%   98->exit\n----------------------------------------------------------------------------------------------\nTOTAL                                              21986   1346   4002    754    91%\nRequired test coverage of 90% reached. Total coverage: 91.46%\n1816 passed in 340.97s (0:05:40)\n"
     },
     "typing": {
       "command": [
@@ -80,7 +80,7 @@
       "output_tail": "Success: no issues found in 294 source files\n"
     }
   },
-  "executed_at": "2026-09-14T06:52:00Z",
+  "executed_at": "2026-09-14T19:09:14Z",
   "gates": {
     "dependency_security": "PASS",
     "formatting": "PASS",
