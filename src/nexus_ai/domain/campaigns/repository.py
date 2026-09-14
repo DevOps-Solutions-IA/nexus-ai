@@ -135,6 +135,7 @@ def _run(row: CampaignRunRecord) -> CampaignRun:
         state=row.state,
         idempotency_key=row.idempotency_key,
         release_workflow_run_id=row.release_workflow_run_id,
+        release_schedule_occurrence_id=row.release_schedule_occurrence_id,
         schedule_id=row.schedule_id,
         claimed_count=row.claimed_count,
         dispatched_count=row.dispatched_count,
@@ -516,6 +517,50 @@ class CampaignRepository:
         if row.release_workflow_run_id not in {None, workflow_run_id}:
             raise CampaignExecutionFencedError("release workflow identity changed")
         row.release_workflow_run_id = workflow_run_id
+        await self.session.flush()
+        await self.session.refresh(row)
+        return _run(row)
+
+    async def bind_scheduled_release(
+        self,
+        run_id: uuid.UUID,
+        *,
+        schedule_id: uuid.UUID,
+        occurrence_id: uuid.UUID,
+        workflow_run_id: uuid.UUID,
+        workflow_version_id: uuid.UUID,
+    ) -> CampaignRun:
+        observed = await self.run_row(run_id)
+        if observed is None:
+            raise CampaignInvalidStateError("campaign run is absent")
+        campaign = await self.campaign_row(observed.campaign_id, for_update=True)
+        row = await self.run_row(run_id, for_update=True)
+        if row is None or campaign is None:
+            raise CampaignInvalidStateError("campaign release binding is absent")
+        existing = (row.release_schedule_occurrence_id, row.release_workflow_run_id)
+        incoming = (occurrence_id, workflow_run_id)
+        if existing == incoming:
+            return _run(row)
+        if existing != (None, None):
+            raise CampaignExecutionFencedError("scheduled release identity changed")
+        if row.state != CampaignRunState.PENDING_RELEASE.value:
+            raise CampaignInvalidStateError("campaign release is not pending")
+        if campaign.state != CampaignState.SCHEDULED.value:
+            raise CampaignInvalidStateError("campaign does not authorize scheduled release binding")
+        if row.schedule_id != schedule_id:
+            raise CampaignExecutionFencedError("scheduled release schedule identity changed")
+        revision = await self.revision_row(row.campaign_revision_id)
+        if revision is None or revision.release_workflow_version_id != workflow_version_id:
+            raise CampaignExecutionFencedError("scheduled release workflow version changed")
+        row.release_schedule_occurrence_id = occurrence_id
+        row.release_workflow_run_id = workflow_run_id
+        await self.transition(
+            "RUN",
+            row.id,
+            row.state,
+            row.state,
+            "SCHEDULED_RELEASE_BOUND",
+        )
         await self.session.flush()
         await self.session.refresh(row)
         return _run(row)

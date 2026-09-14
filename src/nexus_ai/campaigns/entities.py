@@ -319,6 +319,7 @@ class CampaignRun(BaseModel):
     state: CampaignRunState
     idempotency_key: str
     release_workflow_run_id: UUID | None
+    release_schedule_occurrence_id: UUID | None
     schedule_id: UUID | None
     claimed_count: int
     dispatched_count: int

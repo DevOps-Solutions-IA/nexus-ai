@@ -38,6 +38,14 @@ P16 derives and owns one P15 schedule binding for a scheduled campaign run/revis
 Callers provide a closed temporal specification, not arbitrary schedule authority; reuse
 requires an exact immutable release-workflow binding.
 
+P15 remains generic and persists its exact P14 `workflow_run_id` on the dispatched
+occurrence. A P16-owned scheduled-release handler consumes that exact result, re-reads the
+tenant-scoped schedule, occurrence and workflow run, verifies the immutable campaign/run/
+revision input and workflow version, and atomically binds both occurrence and workflow run
+to the existing campaign run. Equal-pair replay succeeds; a different pair is fenced. The
+binding may precede P14 completion, but campaign release cannot be confirmed until that
+exact run is terminal `COMPLETED`.
+
 Consent or suppression committed before authorization blocks the permit. A mutation
 committed after authorization governs future sends but does not retroactively revoke the
 already authorized logical send. Campaign pause/cancel uses the campaign row as the

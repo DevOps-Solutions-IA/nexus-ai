@@ -43,10 +43,11 @@ from nexus_ai.infrastructure.database import Database
 from nexus_ai.messaging.entities import OutboundAddressInput, SendMessageRequest
 from nexus_ai.messaging.service import MessagingService
 from nexus_ai.scheduler.entities import CreateScheduleRequest
-from nexus_ai.scheduler.errors import ScheduleConflictError
+from nexus_ai.scheduler.errors import OccurrenceNotFoundError, ScheduleConflictError
 from nexus_ai.scheduler.service import SchedulerService
-from nexus_ai.scheduler.state_machine import ScheduleState
+from nexus_ai.scheduler.state_machine import OccurrenceState, ScheduleState
 from nexus_ai.workflows.entities import StartWorkflowRunRequest
+from nexus_ai.workflows.errors import WorkflowRunNotFoundError
 from nexus_ai.workflows.service import WorkflowService
 from nexus_ai.workflows.state_machine import WorkflowRunState
 
@@ -254,6 +255,67 @@ class CampaignService:
         )
         async with self._db.tenant_transaction(organization_id) as tenant:
             return await CampaignRepository(tenant).set_release_run(run.id, release.id)
+
+    async def bridge_scheduled_release(
+        self,
+        organization_id: uuid.UUID,
+        campaign_run_id: uuid.UUID,
+        occurrence_id: uuid.UUID,
+        workflow_run_id: uuid.UUID,
+    ) -> CampaignRun:
+        try:
+            occurrence = await self._scheduler.get_occurrence(organization_id, occurrence_id)
+            workflow = await self._workflows.get_run(organization_id, workflow_run_id)
+        except (OccurrenceNotFoundError, WorkflowRunNotFoundError) as exc:
+            raise CampaignExecutionFencedError(
+                "scheduled release references an inaccessible execution"
+            ) from exc
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            repo = CampaignRepository(tenant)
+            row = await repo.run_row(campaign_run_id)
+            if row is None:
+                raise CampaignRunNotFoundError()
+            revision = await repo.revision_row(row.campaign_revision_id)
+            if revision is None:
+                raise CampaignExecutionFencedError("campaign release revision is absent")
+            expected_input = {
+                "campaign_id": str(row.campaign_id),
+                "campaign_revision_id": str(row.campaign_revision_id),
+                "campaign_run_id": str(row.id),
+            }
+            schedule_id = row.schedule_id
+        if schedule_id is None:
+            raise CampaignExecutionFencedError("campaign run has no scheduled release binding")
+        schedule = await self._scheduler.get_schedule(organization_id, schedule_id)
+        if occurrence.state is not OccurrenceState.DISPATCHED:
+            raise CampaignInvalidStateError("scheduled release occurrence is not dispatched")
+        if occurrence.schedule_id != schedule_id or schedule.id != schedule_id:
+            raise CampaignExecutionFencedError(
+                "scheduled release occurrence belongs to another schedule"
+            )
+        if occurrence.workflow_run_id != workflow_run_id or workflow.id != workflow_run_id:
+            raise CampaignExecutionFencedError("scheduled release workflow run identity changed")
+        if (
+            schedule.workflow_version_id != revision.release_workflow_version_id
+            or occurrence.workflow_version_id != revision.release_workflow_version_id
+            or workflow.workflow_version_id != revision.release_workflow_version_id
+        ):
+            raise CampaignExecutionFencedError("scheduled release workflow version changed")
+        if schedule.input != expected_input or workflow.input != expected_input:
+            raise CampaignExecutionFencedError("scheduled release campaign identity changed")
+        if workflow.state in {
+            WorkflowRunState.FAILED,
+            WorkflowRunState.CANCELLED,
+        }:
+            raise CampaignInvalidStateError("scheduled release workflow cannot complete")
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            return await CampaignRepository(tenant).bind_scheduled_release(
+                campaign_run_id,
+                schedule_id=schedule_id,
+                occurrence_id=occurrence.id,
+                workflow_run_id=workflow.id,
+                workflow_version_id=workflow.workflow_version_id,
+            )
 
     async def confirm_release(
         self, organization_id: uuid.UUID, campaign_run_id: uuid.UUID

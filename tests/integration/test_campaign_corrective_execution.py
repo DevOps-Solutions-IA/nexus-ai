@@ -26,6 +26,7 @@ from nexus_ai.domain.campaigns.models import (
     CampaignRecipientAttemptRecord,
     CampaignRunRecord,
     CampaignThrottleWindowRecord,
+    CampaignTransitionHistoryRecord,
 )
 from nexus_ai.domain.campaigns.repository import CampaignRepository
 from nexus_ai.domain.scheduler.models import SchedulerTransitionHistoryRecord
@@ -449,3 +450,68 @@ async def test_p15_corrective_misfire_accounting_survives_campaign_binding(
         )
     assert len(occurrences) == 1
     assert len(accounting) == 1
+
+
+async def test_scheduled_release_dispatch_advances_bound_campaign_run(
+    campaign_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    campaign, _ = await prepared_campaign(campaign_stack, organization.id)
+    await campaign_stack.service.schedule_campaign(
+        organization.id,
+        campaign.id,
+        ScheduleCampaignRequest(
+            schedule_type=ScheduleType.ONE_TIME,
+            timezone="UTC",
+            start_at=dt.datetime.now(dt.UTC) - dt.timedelta(minutes=1),
+        ),
+    )
+    run = (await campaign_stack.service.runs(organization.id, campaign.id, limit=10))[0]
+    occurrences = await campaign_stack.scheduler.materialize_due(organization.id)
+    assert len(occurrences) == 1
+    claim = await campaign_stack.scheduler.claim_due(organization.id, uuid.uuid7())
+    assert claim is not None
+    dispatched = await campaign_stack.scheduler.dispatch_claim(organization.id, claim)
+    assert dispatched.workflow_run_id is not None
+    await campaign_stack.workflows.execute_next(
+        campaign_principal(organization.id), dispatched.workflow_run_id
+    )
+    bound = await campaign_stack.service.bridge_scheduled_release(
+        organization.id,
+        run.id,
+        dispatched.id,
+        dispatched.workflow_run_id,
+    )
+
+    confirmed = await campaign_stack.service.confirm_release(organization.id, run.id)
+    async with campaign_stack.database.tenant_transaction(organization.id) as tenant:
+        attempts = (
+            (
+                await tenant.session.execute(
+                    select(CampaignRecipientAttemptRecord).where(
+                        CampaignRecipientAttemptRecord.campaign_run_id == run.id
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        binding_history = (
+            (
+                await tenant.session.execute(
+                    select(CampaignTransitionHistoryRecord).where(
+                        CampaignTransitionHistoryRecord.entity_id == run.id,
+                        CampaignTransitionHistoryRecord.reason_code == "SCHEDULED_RELEASE_BOUND",
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    assert bound.release_schedule_occurrence_id == dispatched.id
+    assert bound.release_workflow_run_id == dispatched.workflow_run_id
+    assert confirmed.state in {CampaignRunState.MATERIALIZING, CampaignRunState.RUNNING}
+    assert len(attempts) == 1
+    assert attempts[0].campaign_run_id == run.id
+    assert len(binding_history) == 1

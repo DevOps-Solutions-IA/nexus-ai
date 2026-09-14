@@ -60,11 +60,14 @@ credential, delivery-state and send-idempotency controls.
 
 P15 currently targets immutable P14 workflow versions. A scheduled campaign therefore
 stores one P15 schedule targeting the campaign revision's immutable release workflow.
-P16 records the P15 schedule/occurrence and returned P14 release run, and only a
-successfully completed matching release run may transition the campaign run to
-`RUNNING`. An immediate start invokes the same release workflow directly through P14;
-it is not a second execution path. P16 must correlate using durable IDs and P04 events,
-then re-read authoritative P14/P15 state rather than trusting an event payload alone.
+P16 records the P15 schedule, exact dispatched occurrence and returned P14 release run.
+The scheduled-release handler re-reads all three durable records and binds
+`release_schedule_occurrence_id` plus `release_workflow_run_id` to the existing campaign
+run under its row lock. Only a successfully completed matching release run may then
+transition the campaign run to `RUNNING`. An immediate start invokes the same release
+workflow directly through P14; it is not a second execution path. P16 must correlate using
+durable IDs and P04 events or the trusted P15 dispatch result, then re-read authoritative
+P14/P15 state rather than trusting an event payload alone.
 
 For each eligible recipient, P16 starts the revision's immutable per-recipient P14
 workflow with a stable idempotency key. A completed recipient workflow is a prerequisite
@@ -482,13 +485,25 @@ Broad ambiguous-effect reconciliation is P25.
 
 A scheduled campaign request contains governed time/recurrence parameters, not a caller-
 controlled schedule ID. P16 derives the stable schedule key, creates or reuses exactly one
-same-tenant P15 schedule for the campaign run,
-targeting the immutable P14 release workflow and carrying only bounded campaign/run/revision
-identifiers. P16 stores the P15 schedule ID under tenant-aware uniqueness and validates
-the complete immutable binding before reuse. On the durable P04
-occurrence event, P16 re-reads the occurrence and returned P14 run; it transitions to
-`RUNNING` only after the exact release run completes successfully and the campaign is still
-`SCHEDULED`.
+same-tenant P15 schedule for the campaign run, targeting the immutable P14 release workflow
+and carrying only bounded campaign/run/revision identifiers. P16 stores the P15 schedule ID
+under tenant-aware uniqueness and validates the complete immutable binding before reuse.
+
+After P15 dispatches an occurrence, the P16-owned scheduled-release handler accepts the
+exact occurrence/run identities from that trusted result, then re-reads the tenant-scoped
+P15 occurrence, P15 schedule and P14 workflow run. It verifies Organization, campaign,
+campaign revision, campaign run, schedule, occurrence, release workflow version, workflow
+run and the closed schedule/workflow input. One transaction then locks the campaign and run
+and writes both `release_schedule_occurrence_id` and `release_workflow_run_id`. Tenant-aware
+foreign keys and unique occurrence binding protect the durable relationship. A replay with
+the same pair is idempotent; any different occurrence or workflow run is fenced and cannot
+overwrite it. No fuzzy correlation, recent-run search or mutable event payload is authority.
+
+Binding may occur while the P14 workflow is still running, but `confirm_release` remains
+blocked until that exact run is `COMPLETED`. Binding after completion is equally valid.
+Campaign pause or cancellation committed before the first binding prevents it. A same-ID
+delivery replay after a successful binding remains idempotent even if later lifecycle state
+has advanced.
 
 Duplicate P15 wakes resolve through the stable release-run identity and campaign transition
 compare-and-set. Cancelling the P15 schedule prevents future wake-up but does not itself
@@ -660,6 +675,9 @@ backpressure and idempotent consumers; broker delivery never grants recipient au
 | 15 | Suppression versus final send permit | Suppression epoch and attempt locked in permit transaction | Suppression-first blocks; permit-first remains authorized |
 | 16 | Campaign cancel versus final send permit | Run locked before attempt/policy/throttle rows | Cancel-first blocks; permit-first may proceed while later permits stop |
 | 17 | Authorized permit versus P09 acceptance/lost terminal write | One permit/attempt and stable unique P09 key | Same logical P09 replay; no second permit or message identity |
+| 18 | Duplicate scheduled-release result | Campaign/run row locks plus immutable occurrence/run pair | Same pair replays successfully; one binding transition |
+| 19 | Different P14 run versus existing release binding | Compare incoming run with P15 occurrence and persisted run ID | Mismatch is fenced; existing binding is never overwritten |
+| 20 | Campaign pause/cancel versus release binding | Campaign row locks before campaign-run binding | Lifecycle winner blocks the first binding; prior exact binding remains immutable |
 
 No correctness rule depends on an asyncio semaphore, process-local cursor, singleton
 worker, Valkey lock or event arrival order.
@@ -727,4 +745,5 @@ The feature branch has completed the NXS lifecycle but is not canonical until it
 independently reviewed and merged. Corrective implementation after the P15 rebase must
 reprove real PostgreSQL tenant isolation, bounded materialization/cancellation, durable
 denial outcomes, consent/suppression races, all three throttle scopes, P16-owned P15
-binding, P14/P09 idempotency, complete regression gates and exact-head CI/security.
+binding, exact P15-occurrence/P14-release-run bridging, P14/P09 idempotency, complete
+regression gates and exact-head CI/security.

@@ -210,6 +210,11 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
         UniqueConstraint("organization_id", "id", name="uq_campaign_runs_org_id"),
         UniqueConstraint("organization_id", "idempotency_key", name="uq_campaign_runs_idempotency"),
         UniqueConstraint("organization_id", "schedule_id", name="uq_campaign_runs_schedule"),
+        UniqueConstraint(
+            "organization_id",
+            "release_schedule_occurrence_id",
+            name="uq_campaign_runs_release_occurrence",
+        ),
         ForeignKeyConstraint(
             ["organization_id", "campaign_id"],
             ["campaigns.organization_id", "campaigns.id"],
@@ -235,6 +240,12 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
             ondelete="RESTRICT",
         ),
         ForeignKeyConstraint(
+            ["organization_id", "release_schedule_occurrence_id"],
+            ["scheduler_occurrences.organization_id", "scheduler_occurrences.id"],
+            name="fk_campaign_runs_org_release_occurrence",
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
             ["organization_id", "schedule_id"],
             ["scheduler_schedules.organization_id", "scheduler_schedules.id"],
             name="fk_campaign_runs_org_schedule",
@@ -250,6 +261,11 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
             "AND cancellation_processed_count >= 0",
             name="ck_campaign_runs_progress",
         ),
+        CheckConstraint(
+            "release_schedule_occurrence_id IS NULL OR "
+            "(schedule_id IS NOT NULL AND release_workflow_run_id IS NOT NULL)",
+            name="ck_campaign_runs_release_binding",
+        ),
         Index("ix_campaign_runs_state", "organization_id", "state", "created_at"),
     )
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
@@ -259,6 +275,7 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
     state: Mapped[str] = mapped_column(String(24), nullable=False)
     idempotency_key: Mapped[str] = mapped_column(String(200), nullable=False)
     release_workflow_run_id: Mapped[uuid.UUID | None] = mapped_column(PgUUID(as_uuid=True))
+    release_schedule_occurrence_id: Mapped[uuid.UUID | None] = mapped_column(PgUUID(as_uuid=True))
     schedule_id: Mapped[uuid.UUID | None] = mapped_column(PgUUID(as_uuid=True))
     claimed_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     dispatched_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
