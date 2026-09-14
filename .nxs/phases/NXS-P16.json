@@ -13,6 +13,8 @@
     ".nxs/evidence/NXS-P16/closure.json",
     ".nxs/evidence/NXS-P16/concurrency.json",
     ".nxs/evidence/NXS-P16/consent-suppression.json",
+    ".nxs/evidence/NXS-P16/corrective-execution-semantics.json",
+    ".nxs/evidence/NXS-P16/corrective-scheduled-release-bridge.json",
     ".nxs/evidence/NXS-P16/coverage.json",
     ".nxs/evidence/NXS-P16/docker.json",
     ".nxs/evidence/NXS-P16/git.json",
@@ -33,7 +35,7 @@
     ".nxs/evidence/NXS-P16/tests.json"
   ],
   "id": "NXS-P16",
-  "implementation_commit": "058453ab955cfaaf43bf168948b514183f435960",
+  "implementation_commit": "d22521199845ddfef8b436d66e287e252842cbb4",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -80,7 +82,7 @@
   "schema_version": "1.0.0",
   "status": "READY",
   "timestamps": {
-    "closed_at": "2026-09-14T02:37:15Z",
+    "closed_at": "2026-09-14T06:52:36Z",
     "started_at": "2026-09-14T00:23:44Z"
   },
   "title": "Campaigns"

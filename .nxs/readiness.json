@@ -2619,6 +2619,8 @@
         ".nxs/evidence/NXS-P16/closure.json",
         ".nxs/evidence/NXS-P16/concurrency.json",
         ".nxs/evidence/NXS-P16/consent-suppression.json",
+        ".nxs/evidence/NXS-P16/corrective-execution-semantics.json",
+        ".nxs/evidence/NXS-P16/corrective-scheduled-release-bridge.json",
         ".nxs/evidence/NXS-P16/coverage.json",
         ".nxs/evidence/NXS-P16/docker.json",
         ".nxs/evidence/NXS-P16/git.json",
@@ -2677,7 +2679,7 @@
         "typing": "PASS",
         "unit_tests": "PASS"
       },
-      "implementation_commit": "058453ab955cfaaf43bf168948b514183f435960",
+      "implementation_commit": "d22521199845ddfef8b436d66e287e252842cbb4",
       "phase": "NXS-P16",
       "regression_status": "PASS",
       "requirements": [
@@ -2686,7 +2688,7 @@
       "security_status": "PASS",
       "status": "READY",
       "test_count": 1774,
-      "timestamp": "2026-09-14T02:37:15Z"
+      "timestamp": "2026-09-14T06:52:36Z"
     }
   ],
   "schema_version": "1.0.0"
