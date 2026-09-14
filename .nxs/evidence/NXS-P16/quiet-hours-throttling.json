@@ -1,0 +1,1 @@
+{"database_authoritative_throttle":"PASS","dst_determinism":"PASS","iana_timezone":"PASS","invalid_timezone_fail_closed":"PASS","next_eligible_at_utc":"PASS","phase":"NXS-P16","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","schema_version":"1.0.0","throttle_contention":"PASS"}

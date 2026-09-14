@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": "NXS-P16",
+  "active_phase": null,
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -18,24 +18,25 @@
     "NXS-P12",
     "NXS-P13",
     "NXS-P14",
-    "NXS-P15"
+    "NXS-P15",
+    "NXS-P16"
   ],
   "current_phase": {
     "branch": "feat/nxs-p16-campaigns",
     "closure_commit": null,
-    "decision": "PENDING",
+    "decision": "GO",
     "id": "NXS-P16",
-    "implementation_commit": null,
-    "status": "BUILDING"
+    "implementation_commit": "058453ab955cfaaf43bf168948b514183f435960",
+    "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-14T00:23:44Z",
+  "last_updated_at": "2026-09-14T02:37:15Z",
   "next_allowed_execution": {
-    "condition": "ACTIVE_PHASE_ONLY",
-    "phase": "NXS-P16"
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P17"
   },
   "product": {
     "name": "Nexus AI",

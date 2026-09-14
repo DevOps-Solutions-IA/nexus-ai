@@ -2,14 +2,38 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p16-campaigns",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P09",
     "NXS-P15"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P16/audience-materialization.json",
+    ".nxs/evidence/NXS-P16/clean-room.json",
+    ".nxs/evidence/NXS-P16/closure.json",
+    ".nxs/evidence/NXS-P16/concurrency.json",
+    ".nxs/evidence/NXS-P16/consent-suppression.json",
+    ".nxs/evidence/NXS-P16/coverage.json",
+    ".nxs/evidence/NXS-P16/docker.json",
+    ".nxs/evidence/NXS-P16/git.json",
+    ".nxs/evidence/NXS-P16/github-ci.json",
+    ".nxs/evidence/NXS-P16/idempotency.json",
+    ".nxs/evidence/NXS-P16/migration.json",
+    ".nxs/evidence/NXS-P16/p09-integration.json",
+    ".nxs/evidence/NXS-P16/p14-integration.json",
+    ".nxs/evidence/NXS-P16/p15-integration.json",
+    ".nxs/evidence/NXS-P16/preflight.json",
+    ".nxs/evidence/NXS-P16/quality-gates.json",
+    ".nxs/evidence/NXS-P16/quality-matrix.json",
+    ".nxs/evidence/NXS-P16/quiet-hours-throttling.json",
+    ".nxs/evidence/NXS-P16/red-team.json",
+    ".nxs/evidence/NXS-P16/security.json",
+    ".nxs/evidence/NXS-P16/send-permit.json",
+    ".nxs/evidence/NXS-P16/tenant-isolation.json",
+    ".nxs/evidence/NXS-P16/tests.json"
+  ],
   "id": "NXS-P16",
-  "implementation_commit": null,
+  "implementation_commit": "058453ab955cfaaf43bf168948b514183f435960",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -54,9 +78,9 @@
     "NXS-CAMP-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-14T02:37:15Z",
     "started_at": "2026-09-14T00:23:44Z"
   },
   "title": "Campaigns"

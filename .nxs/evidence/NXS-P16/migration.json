@@ -1,0 +1,4 @@
+{
+  "alembic_check":"PASS","clean_upgrade":"PASS","composite_tenant_foreign_keys":"PASS","downgrade_reupgrade":"PASS","forced_rls_schema_guard":"PASS","migration_revision":"f8a9b0c1d2e3","phase":"NXS-P16","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","runtime_role_bypassrls":false,"runtime_role_superuser":false,"schema_version":"1.0.0",
+  "tables":["campaigns","campaign_revisions","campaign_audience_snapshots","campaign_recipients","campaign_runs","campaign_recipient_attempts","campaign_send_permits","campaign_contact_preferences","campaign_policy_epochs","campaign_suppressions","campaign_throttle_windows","campaign_transition_history"]
+}

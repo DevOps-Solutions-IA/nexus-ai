@@ -1,0 +1,1 @@
+{"campaign_key_uniqueness":"PASS","cancel_vs_claim":"PASS","claim_token_completion_fence":"PASS","duplicate_campaign_start":"PASS","phase":"NXS-P16","postgresql_skip_locked_claim":"PASS","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","schema_version":"1.0.0","tests":5,"unsubscribe_vs_permit":"PASS"}
