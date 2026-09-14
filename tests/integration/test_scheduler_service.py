@@ -2,6 +2,7 @@
 
 import asyncio
 import datetime as dt
+import json
 import uuid
 from typing import Any
 
@@ -9,7 +10,10 @@ import pytest
 from sqlalchemy import select, text
 from sqlalchemy.exc import IntegrityError
 
-from nexus_ai.domain.scheduler.models import SchedulerOccurrenceRecord
+from nexus_ai.domain.scheduler.models import (
+    SchedulerOccurrenceRecord,
+    SchedulerTransitionHistoryRecord,
+)
 from nexus_ai.domain.scheduler.repository import SchedulerRepository
 from nexus_ai.scheduler.entities import (
     CreateScheduleRequest,
@@ -250,10 +254,10 @@ async def test_misfire_policies_are_bounded(scheduler_stack: Any, make_organizat
     organization = await make_organization()
     version = await _version(scheduler_stack, organization.id)
     recurrence = RecurrenceSpec(frequency=RecurrenceFrequency.MINUTELY)
-    for policy, maximum, expected_state in (
-        (MisfirePolicy.SKIP, 1, OccurrenceState.SKIPPED),
-        (MisfirePolicy.FIRE_ONCE, 1, OccurrenceState.PENDING),
-        (MisfirePolicy.CATCH_UP_BOUNDED, 3, OccurrenceState.PENDING),
+    for policy, maximum, materialized_maximum, expected_state in (
+        (MisfirePolicy.SKIP, 1, 10, OccurrenceState.SKIPPED),
+        (MisfirePolicy.FIRE_ONCE, 1, 1, OccurrenceState.PENDING),
+        (MisfirePolicy.CATCH_UP_BOUNDED, 3, 3, OccurrenceState.PENDING),
     ):
         schedule = await scheduler_stack.service.create_schedule(
             organization.id,
@@ -270,8 +274,51 @@ async def test_misfire_policies_are_bounded(scheduler_stack: Any, make_organizat
         await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
         rows = await scheduler_stack.service.materialize_due(organization.id, limit=10)
         own = [row for row in rows if row.schedule_id == schedule.id]
-        assert len(own) <= maximum
+        assert len(own) <= materialized_maximum
         assert own and all(row.state is expected_state for row in own)
+
+
+async def test_fire_once_persists_coalesced_elapsed_slot_accounting(
+    scheduler_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    version = await _version(scheduler_stack, organization.id)
+    schedule = await scheduler_stack.service.create_schedule(
+        organization.id,
+        _request(
+            version.id,
+            schedule_key="misfire.fire-once.accounting",
+            start_at=dt.datetime.now(dt.UTC) - dt.timedelta(minutes=10),
+            schedule_type=ScheduleType.RECURRING,
+            recurrence=RecurrenceSpec(frequency=RecurrenceFrequency.MINUTELY),
+            misfire_policy=MisfirePolicy.FIRE_ONCE,
+        ),
+    )
+    await scheduler_stack.service.activate_schedule(organization.id, schedule.id)
+
+    occurrences = await scheduler_stack.service.materialize_due(organization.id, limit=10)
+    assert len(occurrences) == 1
+    async with scheduler_stack.database.tenant_transaction(organization.id) as tenant:
+        accounting = (
+            (
+                await tenant.session.execute(
+                    select(SchedulerTransitionHistoryRecord).where(
+                        SchedulerTransitionHistoryRecord.schedule_id == schedule.id,
+                        SchedulerTransitionHistoryRecord.reason_code
+                        == "MISFIRE_FIRE_ONCE_COALESCED",
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    assert len(accounting) == 1
+    detail = json.loads(accounting[0].detail or "{}")
+    assert detail["coalesced_count"] >= 1
+    assert detail["schedule_revision"] == 2
+    assert detail["policy"] == MisfirePolicy.FIRE_ONCE.value
+    assert detail["first_omitted_local_time"] < detail["last_omitted_local_time"]
 
 
 async def test_pause_cancel_revision_and_terminal_absorption(
