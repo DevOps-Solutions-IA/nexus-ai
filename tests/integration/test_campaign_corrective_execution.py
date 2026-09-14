@@ -163,6 +163,30 @@ async def test_duplicate_schedule_request_reuses_one_p16_owned_binding(
     assert schedules[0].input["campaign_run_id"] == str(runs[0].id)
 
 
+async def test_direct_recurring_campaign_schedule_is_fenced_without_durable_side_effects(
+    campaign_stack: Any, make_organization: Any
+) -> None:
+    organization = await make_organization()
+    campaign, _ = await prepared_campaign(campaign_stack, organization.id)
+    invalid = ScheduleCampaignRequest.model_construct(
+        schedule_type=ScheduleType.RECURRING,
+        timezone="UTC",
+        start_at=dt.datetime.now(dt.UTC) + dt.timedelta(hours=1),
+        end_at=None,
+        recurrence=RecurrenceSpec(frequency=RecurrenceFrequency.MINUTELY),
+        misfire_policy=MisfirePolicy.FIRE_ONCE,
+        max_catch_up=1,
+    )
+
+    with pytest.raises(
+        CampaignInvalidStateError, match="Campaign scheduling supports ONE_TIME only"
+    ):
+        await campaign_stack.service.schedule_campaign(organization.id, campaign.id, invalid)
+
+    assert await campaign_stack.service.runs(organization.id, campaign.id, limit=10) == []
+    assert await campaign_stack.scheduler.list_schedules(organization.id, limit=10, offset=0) == []
+
+
 async def test_foreign_schedule_key_with_wrong_workflow_is_rejected(
     campaign_stack: Any, make_organization: Any
 ) -> None:
@@ -415,31 +439,36 @@ async def test_cancellation_batches_are_durable_resumable_and_idempotent(
     assert stored_run.cancellation_complete is True
 
 
-async def test_p15_corrective_misfire_accounting_survives_campaign_binding(
+async def test_p15_corrective_misfire_accounting_remains_available_outside_p16(
     campaign_stack: Any, make_organization: Any
 ) -> None:
     organization = await make_organization()
     campaign, _ = await prepared_campaign(campaign_stack, organization.id)
-    await campaign_stack.service.schedule_campaign(
+    assert campaign.prepared_revision_id is not None
+    async with campaign_stack.database.tenant_transaction(organization.id) as tenant:
+        revision = await CampaignRepository(tenant).revision_row(campaign.prepared_revision_id)
+    assert revision is not None
+    schedule = await campaign_stack.scheduler.create_schedule(
         organization.id,
-        campaign.id,
-        ScheduleCampaignRequest(
+        CreateScheduleRequest(
+            schedule_key=f"p15.campaign-scope-regression.{campaign.id.hex[:8]}",
+            workflow_version_id=revision.release_workflow_version_id,
             schedule_type=ScheduleType.RECURRING,
             timezone="UTC",
             start_at=dt.datetime.now(dt.UTC) - dt.timedelta(minutes=10),
             recurrence=RecurrenceSpec(frequency=RecurrenceFrequency.MINUTELY),
+            input={"p15_general_recurrence": True},
             misfire_policy=MisfirePolicy.FIRE_ONCE,
         ),
     )
-    run = (await campaign_stack.service.runs(organization.id, campaign.id, limit=10))[0]
-    assert run.schedule_id is not None
+    schedule = await campaign_stack.scheduler.activate_schedule(organization.id, schedule.id)
     occurrences = await campaign_stack.scheduler.materialize_due(organization.id)
     async with campaign_stack.database.tenant_transaction(organization.id) as tenant:
         accounting = (
             (
                 await tenant.session.execute(
                     select(SchedulerTransitionHistoryRecord).where(
-                        SchedulerTransitionHistoryRecord.schedule_id == run.schedule_id,
+                        SchedulerTransitionHistoryRecord.schedule_id == schedule.id,
                         SchedulerTransitionHistoryRecord.reason_code
                         == "MISFIRE_FIRE_ONCE_COALESCED",
                     )

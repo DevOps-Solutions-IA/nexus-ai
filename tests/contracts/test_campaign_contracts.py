@@ -89,6 +89,30 @@ def test_schedule_contract_rejects_caller_controlled_schedule_binding() -> None:
         )
 
 
+def test_campaign_schedule_contract_rejects_recurring() -> None:
+    with pytest.raises(ValidationError, match="Campaign scheduling supports ONE_TIME only"):
+        ScheduleCampaignRequest.model_validate(
+            {
+                "schedule_type": "RECURRING",
+                "timezone": "UTC",
+                "start_at": "2030-01-01T00:00:00Z",
+                "recurrence": {"frequency": "MINUTELY"},
+            }
+        )
+
+
+def test_one_time_campaign_schedule_rejects_recurrence_payload() -> None:
+    with pytest.raises(ValidationError, match="cannot include recurrence"):
+        ScheduleCampaignRequest.model_validate(
+            {
+                "schedule_type": "ONE_TIME",
+                "timezone": "UTC",
+                "start_at": "2030-01-01T00:00:00Z",
+                "recurrence": {"frequency": "MINUTELY"},
+            }
+        )
+
+
 @pytest.mark.parametrize(
     "event_type",
     [

@@ -30,6 +30,14 @@ P15 remains the temporal and occurrence authority. P14 remains the generic workf
 authority. The P16 application service is the only component that interprets the bounded
 campaign identifiers carried in the P15 schedule input.
 
+## Campaign schedule cardinality
+
+NXS-P16 certifies this bridge for one `ONE_TIME` P15 occurrence per scheduled campaign run.
+P16 rejects `ScheduleType.RECURRING` and any recurrence payload before it creates either the
+campaign run or P15 schedule. P15 remains generally recurrence-capable. A recurring campaign
+series would need a separately governed architecture that creates and binds a distinct
+immutable `CampaignRun` for every recurrence; that architecture is not part of NXS-P16.
+
 ## Durable binding and fences
 
 `campaign_runs.release_schedule_occurrence_id` is a nullable, tenant-aware foreign key to

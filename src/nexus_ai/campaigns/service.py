@@ -42,7 +42,7 @@ from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.messaging.entities import OutboundAddressInput, SendMessageRequest
 from nexus_ai.messaging.service import MessagingService
-from nexus_ai.scheduler.entities import CreateScheduleRequest
+from nexus_ai.scheduler.entities import CreateScheduleRequest, ScheduleType
 from nexus_ai.scheduler.errors import OccurrenceNotFoundError, ScheduleConflictError
 from nexus_ai.scheduler.service import SchedulerService
 from nexus_ai.scheduler.state_machine import OccurrenceState, ScheduleState
@@ -158,6 +158,8 @@ class CampaignService:
         campaign_id: uuid.UUID,
         request: ScheduleCampaignRequest,
     ) -> Campaign:
+        if request.schedule_type is not ScheduleType.ONE_TIME or request.recurrence is not None:
+            raise CampaignInvalidStateError("Campaign scheduling supports ONE_TIME only in NXS-P16")
         campaign = await self.get_campaign(organization_id, campaign_id)
         if campaign.prepared_revision_id is None or campaign.state not in {
             CampaignState.READY,

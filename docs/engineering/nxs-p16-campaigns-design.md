@@ -60,6 +60,9 @@ credential, delivery-state and send-idempotency controls.
 
 P15 currently targets immutable P14 workflow versions. A scheduled campaign therefore
 stores one P15 schedule targeting the campaign revision's immutable release workflow.
+NXS-P16 certifies only `ONE_TIME` campaign schedules with no recurrence payload. P15's
+generic recurring scheduler remains unchanged; recurring campaign series and creation of a
+new immutable `CampaignRun` per recurrence require a separate future governed design.
 P16 records the P15 schedule, exact dispatched occurrence and returned P14 release run.
 The scheduled-release handler re-reads all three durable records and binds
 `release_schedule_occurrence_id` plus `release_workflow_run_id` to the existing campaign
@@ -483,11 +486,13 @@ Broad ambiguous-effect reconciliation is P25.
 
 ## P15 release integration
 
-A scheduled campaign request contains governed time/recurrence parameters, not a caller-
-controlled schedule ID. P16 derives the stable schedule key, creates or reuses exactly one
-same-tenant P15 schedule for the campaign run, targeting the immutable P14 release workflow
-and carrying only bounded campaign/run/revision identifiers. P16 stores the P15 schedule ID
-under tenant-aware uniqueness and validates the complete immutable binding before reuse.
+A scheduled campaign request contains one governed future-time specification, not recurrence
+or a caller-controlled schedule ID. P16 rejects `RECURRING` and any recurrence payload before
+creating a campaign run or P15 schedule. P16 derives the stable schedule key, creates or
+reuses exactly one same-tenant `ONE_TIME` P15 schedule for the campaign run, targeting the
+immutable P14 release workflow and carrying only bounded campaign/run/revision identifiers.
+P16 stores the P15 schedule ID under tenant-aware uniqueness and validates the complete
+immutable binding before reuse.
 
 After P15 dispatches an occurrence, the P16-owned scheduled-release handler accepts the
 exact occurrence/run identities from that trusted result, then re-reads the tenant-scoped

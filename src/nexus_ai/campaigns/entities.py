@@ -188,10 +188,10 @@ class ScheduleCampaignRequest(BaseModel):
 
     @model_validator(mode="after")
     def _schedule_shape(self) -> ScheduleCampaignRequest:
-        if self.schedule_type is ScheduleType.ONE_TIME and self.recurrence is not None:
-            raise ValueError("one-time schedules cannot include recurrence")
-        if self.schedule_type is ScheduleType.RECURRING and self.recurrence is None:
-            raise ValueError("recurring schedules require recurrence")
+        if self.schedule_type is not ScheduleType.ONE_TIME:
+            raise ValueError("Campaign scheduling supports ONE_TIME only in NXS-P16")
+        if self.recurrence is not None:
+            raise ValueError("one-time campaign schedules cannot include recurrence")
         if self.end_at is not None and self.end_at < self.start_at:
             raise ValueError("end_at must not precede start_at")
         if self.misfire_policy is not MisfirePolicy.CATCH_UP_BOUNDED and self.max_catch_up != 1:
