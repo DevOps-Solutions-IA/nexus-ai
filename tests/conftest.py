@@ -1512,7 +1512,8 @@ async def campaign_stack(scheduler_stack: Any, messaging_stack: Any) -> Any:
     )
     try:
         await connection.execute(
-            "TRUNCATE campaign_transition_history, campaign_throttle_windows, "
+            "TRUNCATE campaign_transition_history, campaign_organization_throttle_windows, "
+            "campaign_throttle_windows, "
             "campaign_suppressions, campaign_policy_epochs, campaign_contact_preferences, "
             "campaign_send_permits, campaign_recipient_attempts, campaign_runs, "
             "campaign_recipients, campaign_audience_snapshots, campaign_revisions, "

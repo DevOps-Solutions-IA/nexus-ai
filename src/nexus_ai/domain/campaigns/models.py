@@ -31,7 +31,7 @@ class CampaignRecord(TenantOwnedMixin, Base):
         UniqueConstraint("organization_id", "campaign_key", name="uq_campaigns_org_key"),
         CheckConstraint(
             "state IN ('DRAFT','PREPARING','READY','SCHEDULED','RUNNING','PAUSED',"
-            "'COMPLETED','FAILED','CANCELLED')",
+            "'CANCELLING','COMPLETED','FAILED','CANCELLED')",
             name="ck_campaigns_state",
         ),
         CheckConstraint("revision >= 1", name="ck_campaigns_revision"),
@@ -209,6 +209,7 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint("organization_id", "id", name="uq_campaign_runs_org_id"),
         UniqueConstraint("organization_id", "idempotency_key", name="uq_campaign_runs_idempotency"),
+        UniqueConstraint("organization_id", "schedule_id", name="uq_campaign_runs_schedule"),
         ForeignKeyConstraint(
             ["organization_id", "campaign_id"],
             ["campaigns.organization_id", "campaigns.id"],
@@ -240,8 +241,14 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
             ondelete="RESTRICT",
         ),
         CheckConstraint(
-            "state IN ('PENDING_RELEASE','RUNNING','PAUSED','COMPLETED','FAILED','CANCELLED')",
+            "state IN ('PENDING_RELEASE','MATERIALIZING','RUNNING','PAUSED','CANCELLING',"
+            "'COMPLETED','FAILED','CANCELLED')",
             name="ck_campaign_runs_state",
+        ),
+        CheckConstraint(
+            "authorized_count >= 0 AND attempt_materialization_cursor >= 0 "
+            "AND cancellation_processed_count >= 0",
+            name="ck_campaign_runs_progress",
         ),
         Index("ix_campaign_runs_state", "organization_id", "state", "created_at"),
     )
@@ -257,6 +264,19 @@ class CampaignRunRecord(TenantOwnedMixin, Base):
     dispatched_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     suppressed_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     failed_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    authorized_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    attempt_materialization_cursor: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0"
+    )
+    attempt_materialization_complete: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
+    cancellation_processed_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default="0"
+    )
+    cancellation_complete: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false"
+    )
     created_at: Mapped[dt.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -491,6 +511,24 @@ class CampaignThrottleWindowRecord(TenantOwnedMixin, Base):
     )
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
     campaign_run_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
+    channel: Mapped[str] = mapped_column(String(16), nullable=False)
+    window_start: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    reserved_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+
+
+class CampaignOrganizationThrottleWindowRecord(TenantOwnedMixin, Base):
+    __tablename__ = "campaign_organization_throttle_windows"
+    __table_args__ = (  # type: ignore[assignment]
+        UniqueConstraint("organization_id", "id", name="uq_campaign_org_throttle_windows_org_id"),
+        UniqueConstraint(
+            "organization_id",
+            "channel",
+            "window_start",
+            name="uq_campaign_org_throttle_window",
+        ),
+        CheckConstraint("reserved_count >= 0", name="ck_campaign_org_throttle_count"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
     channel: Mapped[str] = mapped_column(String(16), nullable=False)
     window_start: Mapped[dt.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     reserved_count: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")

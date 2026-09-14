@@ -9,6 +9,7 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from sqlalchemy import Select, and_, func, or_, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from nexus_ai.campaigns.entities import (
     AudienceSnapshot,
@@ -24,6 +25,7 @@ from nexus_ai.campaigns.entities import (
     RecipientClaim,
     SendPermit,
     SuppressionRequest,
+    ThrottlePolicy,
 )
 from nexus_ai.campaigns.errors import CampaignExecutionFencedError, CampaignInvalidStateError
 from nexus_ai.campaigns.identity import downstream_key, recipient_identity, semantic_digest
@@ -40,6 +42,7 @@ from nexus_ai.campaigns.state_machine import (
 from nexus_ai.domain.campaigns.models import (
     CampaignAudienceSnapshotRecord,
     CampaignContactPreferenceRecord,
+    CampaignOrganizationThrottleWindowRecord,
     CampaignPolicyEpochRecord,
     CampaignRecipientAttemptRecord,
     CampaignRecipientRecord,
@@ -137,6 +140,11 @@ def _run(row: CampaignRunRecord) -> CampaignRun:
         dispatched_count=row.dispatched_count,
         suppressed_count=row.suppressed_count,
         failed_count=row.failed_count,
+        authorized_count=row.authorized_count,
+        attempt_materialization_cursor=row.attempt_materialization_cursor,
+        attempt_materialization_complete=row.attempt_materialization_complete,
+        cancellation_processed_count=row.cancellation_processed_count,
+        cancellation_complete=row.cancellation_complete,
         created_at=row.created_at,
         updated_at=row.updated_at,
     )
@@ -479,6 +487,11 @@ class CampaignRepository:
             dispatched_count=0,
             suppressed_count=0,
             failed_count=0,
+            authorized_count=0,
+            attempt_materialization_cursor=0,
+            attempt_materialization_complete=False,
+            cancellation_processed_count=0,
+            cancellation_complete=False,
         )
         self.session.add(row)
         await self.session.flush()
@@ -507,11 +520,50 @@ class CampaignRepository:
         await self.session.refresh(row)
         return _run(row)
 
-    async def activate_run(self, run_id: uuid.UUID) -> CampaignRun:
+    async def bind_schedule(self, run_id: uuid.UUID, schedule_id: uuid.UUID) -> CampaignRun:
         row = await self.run_row(run_id, for_update=True)
-        if row is None or row.state != CampaignRunState.PENDING_RELEASE.value:
+        if row is None:
+            raise CampaignInvalidStateError("campaign run is absent")
+        if row.schedule_id not in {None, schedule_id}:
+            raise CampaignExecutionFencedError("campaign run already has another schedule")
+        row.schedule_id = schedule_id
+        await self.session.flush()
+        await self.session.refresh(row)
+        return _run(row)
+
+    async def mark_campaign_scheduled(self, campaign_id: uuid.UUID) -> Campaign:
+        campaign = await self.campaign_row(campaign_id, for_update=True)
+        if campaign is None:
+            raise CampaignInvalidStateError("campaign does not exist")
+        if campaign.state == CampaignState.SCHEDULED.value:
+            return _campaign(campaign)
+        previous = CampaignState(campaign.state)
+        require_campaign_transition(previous, CampaignState.SCHEDULED)
+        campaign.state = CampaignState.SCHEDULED.value
+        campaign.revision += 1
+        await self.transition(
+            "CAMPAIGN", campaign.id, previous.value, campaign.state, "CAMPAIGN_SCHEDULED"
+        )
+        await self.session.flush()
+        await self.session.refresh(campaign)
+        return _campaign(campaign)
+
+    async def begin_run_activation(self, run_id: uuid.UUID) -> CampaignRun:
+        observed = await self.run_row(run_id)
+        if observed is None:
+            raise CampaignInvalidStateError("campaign run is absent")
+        campaign = await self.campaign_row(observed.campaign_id, for_update=True)
+        row = await self.run_row(run_id, for_update=True)
+        if row is None:
+            raise CampaignInvalidStateError("campaign run is absent")
+        if row.state == CampaignRunState.MATERIALIZING.value:
+            if campaign is None or campaign.state != CampaignState.RUNNING.value:
+                raise CampaignInvalidStateError("campaign does not authorize materialization")
+            return _run(row)
+        if row.state == CampaignRunState.RUNNING.value:
+            return _run(row)
+        if row.state != CampaignRunState.PENDING_RELEASE.value:
             raise CampaignInvalidStateError("campaign release is not pending")
-        campaign = await self.campaign_row(row.campaign_id, for_update=True)
         if campaign is None or campaign.state not in {
             CampaignState.READY.value,
             CampaignState.SCHEDULED.value,
@@ -519,27 +571,41 @@ class CampaignRepository:
             raise CampaignInvalidStateError("campaign cannot start")
         previous = campaign.state
         campaign.state = CampaignState.RUNNING.value
-        row.state = CampaignRunState.RUNNING.value
-        await self._create_attempts(row)
+        row.state = CampaignRunState.MATERIALIZING.value
         await self.transition("CAMPAIGN", campaign.id, previous, campaign.state, "CAMPAIGN_STARTED")
         await self.transition(
-            "RUN", row.id, CampaignRunState.PENDING_RELEASE.value, row.state, "RELEASE_COMPLETED"
+            "RUN",
+            row.id,
+            CampaignRunState.PENDING_RELEASE.value,
+            row.state,
+            "ATTEMPT_MATERIALIZATION_STARTED",
         )
         await self.session.flush()
         await self.session.refresh(row)
         return _run(row)
 
-    async def _create_attempts(self, run: CampaignRunRecord) -> None:
+    async def materialize_attempt_batch(
+        self, run_id: uuid.UUID, *, limit: int
+    ) -> tuple[CampaignRun, int]:
+        if limit < 1:
+            raise ValueError("attempt materialization limit must be positive")
+        run = await self.run_row(run_id, for_update=True)
+        if run is None or run.state != CampaignRunState.MATERIALIZING.value:
+            raise CampaignInvalidStateError("campaign run is not materializing attempts")
         recipients = (
             (
                 await self.session.execute(
-                    select(CampaignRecipientRecord).where(
+                    select(CampaignRecipientRecord)
+                    .where(
                         CampaignRecipientRecord.organization_id == self.organization_id,
                         CampaignRecipientRecord.snapshot_id == run.audience_snapshot_id,
                         CampaignRecipientRecord.state.in_(
                             [RecipientState.ELIGIBLE.value, RecipientState.DEFERRED.value]
                         ),
                     )
+                    .order_by(CampaignRecipientRecord.created_at, CampaignRecipientRecord.id)
+                    .offset(run.attempt_materialization_cursor)
+                    .limit(limit)
                 )
             )
             .scalars()
@@ -570,6 +636,34 @@ class CampaignRepository:
                     p09_idempotency_key=downstream_key("message", logical),
                 )
             )
+        created = len(recipients)
+        run.attempt_materialization_cursor += created
+        total = int(
+            (
+                await self.session.execute(
+                    select(func.count(CampaignRecipientRecord.id)).where(
+                        CampaignRecipientRecord.organization_id == self.organization_id,
+                        CampaignRecipientRecord.snapshot_id == run.audience_snapshot_id,
+                        CampaignRecipientRecord.state.in_(
+                            [RecipientState.ELIGIBLE.value, RecipientState.DEFERRED.value]
+                        ),
+                    )
+                )
+            ).scalar_one()
+        )
+        if run.attempt_materialization_cursor >= total:
+            run.attempt_materialization_complete = True
+            run.state = CampaignRunState.RUNNING.value
+            await self.transition(
+                "RUN",
+                run.id,
+                CampaignRunState.MATERIALIZING.value,
+                run.state,
+                "ATTEMPT_MATERIALIZATION_COMPLETED",
+            )
+        await self.session.flush()
+        await self.session.refresh(run)
+        return _run(run), created
 
     async def campaign_runs(self, campaign_id: uuid.UUID, *, limit: int) -> list[CampaignRun]:
         rows = (
@@ -706,7 +800,9 @@ class CampaignRepository:
             raise CampaignInvalidStateError("recipient workflow has not started")
         return row.workflow_run_id
 
-    async def authorize_permit(self, claim: RecipientClaim) -> SendPermit:
+    async def authorize_permit(
+        self, claim: RecipientClaim
+    ) -> tuple[SendPermit | None, EligibilityReason | None]:
         run = await self.run_row(claim.run.id, for_update=True)
         if run is None or run.state != CampaignRunState.RUNNING.value:
             raise CampaignExecutionFencedError("campaign run no longer authorizes sends")
@@ -745,20 +841,26 @@ class CampaignRepository:
             )
             recipient.eligibility_reason = reason.value
             recipient.next_eligible_at = next_at
-            resolve_attempt_transition(
-                RecipientAttemptState(attempt.state), RecipientAttemptState.SUPPRESSED
-            )
-            attempt.state = RecipientAttemptState.SUPPRESSED.value
-            run.suppressed_count += 1
+            recipient.evaluated_consent_epoch = consent_epoch
+            recipient.evaluated_suppression_epoch = suppression_epoch
+            attempt.error_code = reason.value
+            previous_attempt_state = attempt.state
+            if reason is not EligibilityReason.DEFERRED_QUIET_HOURS:
+                resolve_attempt_transition(
+                    RecipientAttemptState(attempt.state), RecipientAttemptState.SUPPRESSED
+                )
+                attempt.state = RecipientAttemptState.SUPPRESSED.value
+                run.suppressed_count += 1
             await self.transition(
                 "ATTEMPT",
                 attempt.id,
-                RecipientAttemptState.READY_TO_SEND.value,
+                previous_attempt_state,
                 attempt.state,
                 reason.value,
             )
-            raise CampaignInvalidStateError(f"recipient final authorization denied: {reason.value}")
-        await self._reserve_throttle(run, recipient.channel, spec.throttle.messages_per_minute)
+            await self.session.flush()
+            return None, reason
+        await self._reserve_throttle(run, recipient.channel, spec.throttle)
         existing = (
             await self.session.execute(
                 select(CampaignSendPermitRecord).where(
@@ -768,7 +870,7 @@ class CampaignRepository:
             )
         ).scalar_one_or_none()
         if existing is not None:
-            return _permit(existing)
+            return _permit(existing), None
         now = await self.database_now()
         permit = CampaignSendPermitRecord(
             id=uuid.uuid7(),
@@ -786,6 +888,8 @@ class CampaignRepository:
             RecipientAttemptState(attempt.state), RecipientAttemptState.DISPATCH_AUTHORIZED
         )
         attempt.state = RecipientAttemptState.DISPATCH_AUTHORIZED.value
+        attempt.error_code = None
+        run.authorized_count += 1
         await self.transition("PERMIT", permit.id, None, permit.state, "SEND_AUTHORIZED")
         await self.transition(
             "ATTEMPT",
@@ -795,7 +899,7 @@ class CampaignRepository:
             "SEND_AUTHORIZED",
         )
         await self.session.flush()
-        return _permit(permit)
+        return _permit(permit), None
 
     async def dispatch_context(
         self, permit_id: uuid.UUID
@@ -929,6 +1033,221 @@ class CampaignRepository:
         await self.session.flush()
         return _permit(permit)
 
+    async def begin_cancellation(self, campaign_id: uuid.UUID) -> Campaign:
+        campaign = await self.campaign_row(campaign_id, for_update=True)
+        if campaign is None:
+            raise CampaignInvalidStateError("campaign does not exist")
+        if campaign.state == CampaignState.CANCELLED.value:
+            return _campaign(campaign)
+        if campaign.state != CampaignState.CANCELLING.value:
+            previous = CampaignState(campaign.state)
+            require_campaign_transition(previous, CampaignState.CANCELLING)
+            campaign.state = CampaignState.CANCELLING.value
+            campaign.revision += 1
+            await self.transition(
+                "CAMPAIGN",
+                campaign.id,
+                previous.value,
+                campaign.state,
+                "CAMPAIGN_CANCELLATION_STARTED",
+            )
+        runs = (
+            (
+                await self.session.execute(
+                    select(CampaignRunRecord)
+                    .where(
+                        CampaignRunRecord.organization_id == self.organization_id,
+                        CampaignRunRecord.campaign_id == campaign.id,
+                        CampaignRunRecord.state.in_(
+                            [
+                                CampaignRunState.PENDING_RELEASE.value,
+                                CampaignRunState.MATERIALIZING.value,
+                                CampaignRunState.RUNNING.value,
+                                CampaignRunState.PAUSED.value,
+                            ]
+                        ),
+                    )
+                    .with_for_update()
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for run in runs:
+            previous_run_state = run.state
+            run.state = CampaignRunState.CANCELLING.value
+            run.cancellation_complete = False
+            await self.transition(
+                "RUN",
+                run.id,
+                previous_run_state,
+                run.state,
+                "CAMPAIGN_RUN_CANCELLATION_STARTED",
+            )
+        await self.session.flush()
+        await self.session.refresh(campaign)
+        return _campaign(campaign)
+
+    async def cancel_attempt_batch(
+        self, campaign_id: uuid.UUID, *, limit: int
+    ) -> tuple[Campaign, int, bool]:
+        if limit < 1:
+            raise ValueError("cancellation batch limit must be positive")
+        campaign = await self.campaign_row(campaign_id, for_update=True)
+        if campaign is None:
+            raise CampaignInvalidStateError("campaign does not exist")
+        if campaign.state == CampaignState.CANCELLED.value:
+            return _campaign(campaign), 0, True
+        if campaign.state != CampaignState.CANCELLING.value:
+            raise CampaignInvalidStateError("campaign cancellation is not active")
+        attempts = (
+            (
+                await self.session.execute(
+                    select(CampaignRecipientAttemptRecord)
+                    .join(
+                        CampaignRunRecord,
+                        and_(
+                            CampaignRunRecord.id == CampaignRecipientAttemptRecord.campaign_run_id,
+                            CampaignRunRecord.organization_id
+                            == CampaignRecipientAttemptRecord.organization_id,
+                        ),
+                    )
+                    .where(
+                        CampaignRecipientAttemptRecord.organization_id == self.organization_id,
+                        CampaignRunRecord.campaign_id == campaign_id,
+                        CampaignRunRecord.state == CampaignRunState.CANCELLING.value,
+                        CampaignRecipientAttemptRecord.state.in_(
+                            [
+                                RecipientAttemptState.PENDING.value,
+                                RecipientAttemptState.CLAIMED.value,
+                                RecipientAttemptState.WORKFLOW_RUNNING.value,
+                                RecipientAttemptState.READY_TO_SEND.value,
+                            ]
+                        ),
+                    )
+                    .order_by(
+                        CampaignRecipientAttemptRecord.created_at,
+                        CampaignRecipientAttemptRecord.id,
+                    )
+                    .with_for_update(skip_locked=True)
+                    .limit(limit)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        processed_by_run: dict[uuid.UUID, int] = {}
+        for attempt in attempts:
+            previous_attempt_state = attempt.state
+            resolve_attempt_transition(
+                RecipientAttemptState(attempt.state), RecipientAttemptState.CANCELLED
+            )
+            attempt.state = RecipientAttemptState.CANCELLED.value
+            attempt.error_code = EligibilityReason.CANCELLED.value
+            processed_by_run[attempt.campaign_run_id] = (
+                processed_by_run.get(attempt.campaign_run_id, 0) + 1
+            )
+            recipient = (
+                await self.session.execute(
+                    select(CampaignRecipientRecord)
+                    .where(
+                        CampaignRecipientRecord.organization_id == self.organization_id,
+                        CampaignRecipientRecord.id == attempt.recipient_id,
+                    )
+                    .with_for_update()
+                )
+            ).scalar_one()
+            if recipient.state in {RecipientState.ELIGIBLE.value, RecipientState.DEFERRED.value}:
+                recipient.state = RecipientState.CANCELLED.value
+                recipient.eligibility_reason = EligibilityReason.CANCELLED.value
+            await self.transition(
+                "ATTEMPT",
+                attempt.id,
+                previous_attempt_state,
+                attempt.state,
+                "CAMPAIGN_CANCELLED",
+            )
+        for run_id, processed in processed_by_run.items():
+            await self.session.execute(
+                update(CampaignRunRecord)
+                .where(
+                    CampaignRunRecord.organization_id == self.organization_id,
+                    CampaignRunRecord.id == run_id,
+                )
+                .values(
+                    cancellation_processed_count=(
+                        CampaignRunRecord.cancellation_processed_count + processed
+                    )
+                )
+            )
+        await self.session.flush()
+        remaining = int(
+            (
+                await self.session.execute(
+                    select(func.count(CampaignRecipientAttemptRecord.id))
+                    .join(
+                        CampaignRunRecord,
+                        and_(
+                            CampaignRunRecord.id == CampaignRecipientAttemptRecord.campaign_run_id,
+                            CampaignRunRecord.organization_id
+                            == CampaignRecipientAttemptRecord.organization_id,
+                        ),
+                    )
+                    .where(
+                        CampaignRecipientAttemptRecord.organization_id == self.organization_id,
+                        CampaignRunRecord.campaign_id == campaign_id,
+                        CampaignRunRecord.state == CampaignRunState.CANCELLING.value,
+                        CampaignRecipientAttemptRecord.state.in_(
+                            [
+                                RecipientAttemptState.PENDING.value,
+                                RecipientAttemptState.CLAIMED.value,
+                                RecipientAttemptState.WORKFLOW_RUNNING.value,
+                                RecipientAttemptState.READY_TO_SEND.value,
+                            ]
+                        ),
+                    )
+                )
+            ).scalar_one()
+        )
+        complete = remaining == 0
+        if complete:
+            runs = (
+                (
+                    await self.session.execute(
+                        select(CampaignRunRecord)
+                        .where(
+                            CampaignRunRecord.organization_id == self.organization_id,
+                            CampaignRunRecord.campaign_id == campaign_id,
+                            CampaignRunRecord.state == CampaignRunState.CANCELLING.value,
+                        )
+                        .with_for_update()
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for run in runs:
+                run.state = CampaignRunState.CANCELLED.value
+                run.cancellation_complete = True
+                await self.transition(
+                    "RUN",
+                    run.id,
+                    CampaignRunState.CANCELLING.value,
+                    run.state,
+                    "CAMPAIGN_RUN_CANCELLED",
+                )
+            campaign.state = CampaignState.CANCELLED.value
+            await self.transition(
+                "CAMPAIGN",
+                campaign.id,
+                CampaignState.CANCELLING.value,
+                campaign.state,
+                "CAMPAIGN_CANCELLED",
+            )
+        await self.session.flush()
+        await self.session.refresh(campaign)
+        return _campaign(campaign), len(attempts), complete
+
     async def transition_campaign_state(
         self, campaign_id: uuid.UUID, target: CampaignState, reason: str
     ) -> Campaign:
@@ -940,10 +1259,9 @@ class CampaignRepository:
         row.state = target.value
         row.revision += 1
         await self.transition("CAMPAIGN", row.id, previous.value, target.value, reason)
-        if target in {CampaignState.PAUSED, CampaignState.CANCELLED, CampaignState.FAILED}:
+        if target in {CampaignState.PAUSED, CampaignState.FAILED}:
             run_target = {
                 CampaignState.PAUSED: CampaignRunState.PAUSED,
-                CampaignState.CANCELLED: CampaignRunState.CANCELLED,
                 CampaignState.FAILED: CampaignRunState.FAILED,
             }[target]
             runs = (
@@ -968,18 +1286,6 @@ class CampaignRepository:
             )
             for run in runs:
                 run.state = run_target.value
-        if target is CampaignState.CANCELLED:
-            await self.session.execute(
-                update(CampaignRecipientAttemptRecord)
-                .where(
-                    CampaignRecipientAttemptRecord.organization_id == self.organization_id,
-                    CampaignRecipientAttemptRecord.campaign_run_id.in_(
-                        select(CampaignRunRecord.id).where(CampaignRunRecord.campaign_id == row.id)
-                    ),
-                    CampaignRecipientAttemptRecord.state == RecipientAttemptState.PENDING.value,
-                )
-                .values(state=RecipientAttemptState.CANCELLED.value)
-            )
         await self.session.flush()
         await self.session.refresh(row)
         return _campaign(row)
@@ -1251,10 +1557,31 @@ class CampaignRepository:
         end_date = local.date() + dt.timedelta(days=1 if start >= end and current >= start else 0)
         return dt.datetime.combine(end_date, end, zone).astimezone(dt.UTC)
 
-    async def _reserve_throttle(self, run: CampaignRunRecord, channel: str, limit: int) -> None:
+    async def _reserve_throttle(
+        self, run: CampaignRunRecord, channel: str, policy: ThrottlePolicy
+    ) -> None:
         now = await self.database_now()
         window = now.replace(second=0, microsecond=0)
-        row = (
+        await self.session.execute(
+            pg_insert(CampaignThrottleWindowRecord)
+            .values(
+                id=uuid.uuid7(),
+                organization_id=self.organization_id,
+                campaign_run_id=run.id,
+                channel=channel,
+                window_start=window,
+                reserved_count=0,
+            )
+            .on_conflict_do_nothing(
+                index_elements=[
+                    CampaignThrottleWindowRecord.organization_id,
+                    CampaignThrottleWindowRecord.campaign_run_id,
+                    CampaignThrottleWindowRecord.channel,
+                    CampaignThrottleWindowRecord.window_start,
+                ]
+            )
+        )
+        run_window = (
             await self.session.execute(
                 select(CampaignThrottleWindowRecord)
                 .where(
@@ -1266,20 +1593,47 @@ class CampaignRepository:
                 .with_for_update()
             )
         ).scalar_one_or_none()
-        if row is None:
-            row = CampaignThrottleWindowRecord(
+        if run_window is None:
+            raise CampaignExecutionFencedError("campaign throttle window could not be locked")
+        await self.session.execute(
+            pg_insert(CampaignOrganizationThrottleWindowRecord)
+            .values(
                 id=uuid.uuid7(),
                 organization_id=self.organization_id,
-                campaign_run_id=run.id,
                 channel=channel,
                 window_start=window,
                 reserved_count=0,
             )
-            self.session.add(row)
-            await self.session.flush()
-        if row.reserved_count >= limit:
+            .on_conflict_do_nothing(
+                index_elements=[
+                    CampaignOrganizationThrottleWindowRecord.organization_id,
+                    CampaignOrganizationThrottleWindowRecord.channel,
+                    CampaignOrganizationThrottleWindowRecord.window_start,
+                ]
+            )
+        )
+        organization_window = (
+            await self.session.execute(
+                select(CampaignOrganizationThrottleWindowRecord)
+                .where(
+                    CampaignOrganizationThrottleWindowRecord.organization_id
+                    == self.organization_id,
+                    CampaignOrganizationThrottleWindowRecord.channel == channel,
+                    CampaignOrganizationThrottleWindowRecord.window_start == window,
+                )
+                .with_for_update()
+            )
+        ).scalar_one_or_none()
+        if organization_window is None:
+            raise CampaignExecutionFencedError("Organization throttle window could not be locked")
+        if run.authorized_count >= policy.campaign_limit:
+            raise CampaignInvalidStateError("campaign total logical-send cap is exhausted")
+        if run_window.reserved_count >= policy.messages_per_minute:
             raise CampaignInvalidStateError("campaign throttle window is exhausted")
-        row.reserved_count += 1
+        if organization_window.reserved_count >= policy.organization_messages_per_minute:
+            raise CampaignInvalidStateError("Organization throttle window is exhausted")
+        run_window.reserved_count += 1
+        organization_window.reserved_count += 1
 
     async def _owned_attempt(
         self, claim: RecipientClaim, state: RecipientAttemptState

@@ -132,6 +132,17 @@ class SchedulerRepository:
         row = await self.schedule_row(schedule_id)
         return None if row is None else _schedule(row)
 
+    async def schedule_by_key(self, schedule_key: str) -> Schedule | None:
+        row = (
+            await self._session.execute(
+                select(SchedulerScheduleRecord).where(
+                    SchedulerScheduleRecord.organization_id == self._org,
+                    SchedulerScheduleRecord.schedule_key == schedule_key,
+                )
+            )
+        ).scalar_one_or_none()
+        return None if row is None else _schedule(row)
+
     async def list_schedules(self, *, limit: int, offset: int) -> list[Schedule]:
         rows = (
             (

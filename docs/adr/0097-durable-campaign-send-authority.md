@@ -19,6 +19,8 @@ PostgreSQL is authoritative for campaign revisions, sealed audience membership,
 recipient attempts, policy epochs, throttle reservations, and send permits. Workers use
 row locks and opaque owner/claim tokens. Every P14 and P09 call receives a separate stable
 idempotency key derived from one tenant/campaign/revision/run/recipient/channel identity.
+Recipient-attempt materialization and cancellation use durable cursors/states and bounded
+transactions; service calls never require an all-audience transaction.
 
 The final authorization transaction locks the run, campaign, attempt, recipient and
 authoritative policy rows; revalidates consent, suppression, destination, quiet hours and
@@ -26,6 +28,15 @@ throttle capacity; and creates one tenant/attempt-bound permit. The commit that 
 the permit as `AUTHORIZED` is the logical-send linearization point. Only then may the
 worker invoke `MessagingService.send`. P09's existing durable idempotency handles replay
 after an accepted response whose P16 terminal write was lost.
+
+A denied final authorization is committed before the service raises its business error.
+PostgreSQL therefore retains the suppressed/deferred/cancelled outcome and transition
+history. Throttle authorization locks the campaign run plus durable campaign-run and
+Organization minute windows, enforcing the strictest per-minute and total cap atomically.
+
+P16 derives and owns one P15 schedule binding for a scheduled campaign run/revision.
+Callers provide a closed temporal specification, not arbitrary schedule authority; reuse
+requires an exact immutable release-workflow binding.
 
 Consent or suppression committed before authorization blocks the permit. A mutation
 committed after authorization governs future sends but does not retroactively revoke the

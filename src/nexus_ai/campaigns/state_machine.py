@@ -12,6 +12,7 @@ class CampaignState(StrEnum):
     SCHEDULED = "SCHEDULED"
     RUNNING = "RUNNING"
     PAUSED = "PAUSED"
+    CANCELLING = "CANCELLING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
@@ -33,8 +34,10 @@ class RecipientState(StrEnum):
 
 class CampaignRunState(StrEnum):
     PENDING_RELEASE = "PENDING_RELEASE"
+    MATERIALIZING = "MATERIALIZING"
     RUNNING = "RUNNING"
     PAUSED = "PAUSED"
+    CANCELLING = "CANCELLING"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
@@ -68,21 +71,37 @@ RUN_TERMINAL = frozenset(
 )
 
 _CAMPAIGN_TRANSITIONS = {
-    CampaignState.DRAFT: {CampaignState.PREPARING, CampaignState.CANCELLED},
-    CampaignState.PREPARING: {CampaignState.READY, CampaignState.DRAFT, CampaignState.CANCELLED},
-    CampaignState.READY: {CampaignState.SCHEDULED, CampaignState.RUNNING, CampaignState.CANCELLED},
-    CampaignState.SCHEDULED: {CampaignState.RUNNING, CampaignState.FAILED, CampaignState.CANCELLED},
+    CampaignState.DRAFT: {
+        CampaignState.PREPARING,
+        CampaignState.CANCELLING,
+    },
+    CampaignState.PREPARING: {
+        CampaignState.READY,
+        CampaignState.DRAFT,
+        CampaignState.CANCELLING,
+    },
+    CampaignState.READY: {
+        CampaignState.SCHEDULED,
+        CampaignState.RUNNING,
+        CampaignState.CANCELLING,
+    },
+    CampaignState.SCHEDULED: {
+        CampaignState.RUNNING,
+        CampaignState.FAILED,
+        CampaignState.CANCELLING,
+    },
     CampaignState.RUNNING: {
         CampaignState.PAUSED,
         CampaignState.COMPLETED,
         CampaignState.FAILED,
-        CampaignState.CANCELLED,
+        CampaignState.CANCELLING,
     },
     CampaignState.PAUSED: {
         CampaignState.RUNNING,
         CampaignState.FAILED,
-        CampaignState.CANCELLED,
+        CampaignState.CANCELLING,
     },
+    CampaignState.CANCELLING: {CampaignState.CANCELLED},
     CampaignState.COMPLETED: set(),
     CampaignState.FAILED: set(),
     CampaignState.CANCELLED: set(),
@@ -107,16 +126,19 @@ def resolve_attempt_transition(
             RecipientAttemptState.WORKFLOW_RUNNING,
             RecipientAttemptState.SUPPRESSED,
             RecipientAttemptState.FAILED,
+            RecipientAttemptState.CANCELLED,
         },
         RecipientAttemptState.WORKFLOW_RUNNING: {
             RecipientAttemptState.READY_TO_SEND,
             RecipientAttemptState.SUPPRESSED,
             RecipientAttemptState.FAILED,
+            RecipientAttemptState.CANCELLED,
         },
         RecipientAttemptState.READY_TO_SEND: {
             RecipientAttemptState.DISPATCH_AUTHORIZED,
             RecipientAttemptState.SUPPRESSED,
             RecipientAttemptState.FAILED,
+            RecipientAttemptState.CANCELLED,
         },
         RecipientAttemptState.DISPATCH_AUTHORIZED: {
             RecipientAttemptState.DISPATCHED,

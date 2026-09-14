@@ -42,12 +42,16 @@ from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.messaging.entities import OutboundAddressInput, SendMessageRequest
 from nexus_ai.messaging.service import MessagingService
+from nexus_ai.scheduler.entities import CreateScheduleRequest
+from nexus_ai.scheduler.errors import ScheduleConflictError
 from nexus_ai.scheduler.service import SchedulerService
+from nexus_ai.scheduler.state_machine import ScheduleState
 from nexus_ai.workflows.entities import StartWorkflowRunRequest
 from nexus_ai.workflows.service import WorkflowService
 from nexus_ai.workflows.state_machine import WorkflowRunState
 
 MATERIALIZATION_BATCH = 100
+CANCELLATION_BATCH = 100
 
 
 class CampaignService:
@@ -153,24 +157,73 @@ class CampaignService:
         campaign_id: uuid.UUID,
         request: ScheduleCampaignRequest,
     ) -> Campaign:
-        schedule = await self._scheduler.get_schedule(organization_id, request.schedule_id)
         campaign = await self.get_campaign(organization_id, campaign_id)
-        if campaign.prepared_revision_id is None or campaign.state is not CampaignState.READY:
-            raise CampaignInvalidStateError("campaign must be READY before scheduling")
+        if campaign.prepared_revision_id is None or campaign.state not in {
+            CampaignState.READY,
+            CampaignState.SCHEDULED,
+        }:
+            raise CampaignInvalidStateError("campaign must be READY or SCHEDULED")
         async with self._db.tenant_transaction(organization_id) as tenant:
-            revision = await CampaignRepository(tenant).revision_row(campaign.prepared_revision_id)
-            if (
-                revision is None
-                or schedule.workflow_version_id != revision.release_workflow_version_id
-            ):
-                raise CampaignInvalidStateError("P15 schedule must target the release workflow")
-            result = await CampaignRepository(tenant).transition_campaign_state(
-                campaign_id, CampaignState.SCHEDULED, "CAMPAIGN_SCHEDULED"
+            repo = CampaignRepository(tenant)
+            row = await repo.campaign_row(campaign_id, for_update=True)
+            if row is None or row.prepared_revision_id is None:
+                raise CampaignInvalidStateError("campaign revision is absent")
+            run = await repo.create_run(
+                row,
+                idempotency_key=f"campaign:scheduled:{campaign_id}:{row.prepared_revision_id}",
             )
+            revision = await repo.revision_row(run.campaign_revision_id)
+            if revision is None:
+                raise CampaignInvalidStateError("campaign revision is absent")
+        schedule_key = f"campaign.{campaign_id.hex}.r{revision.revision_number}"
+        schedule_input = {
+            "campaign_id": str(campaign_id),
+            "campaign_revision_id": str(revision.id),
+            "campaign_run_id": str(run.id),
+        }
+        schedule_request = CreateScheduleRequest(
+            schedule_key=schedule_key,
+            workflow_version_id=revision.release_workflow_version_id,
+            schedule_type=request.schedule_type,
+            timezone=request.timezone,
+            start_at=request.start_at,
+            end_at=request.end_at,
+            recurrence=request.recurrence,
+            input=schedule_input,
+            misfire_policy=request.misfire_policy,
+            max_catch_up=request.max_catch_up,
+            correlation_id=self._correlation_id(),
+        )
+        try:
+            schedule = await self._scheduler.create_schedule(organization_id, schedule_request)
+        except ScheduleConflictError:
+            schedule = await self._scheduler.get_schedule_by_key(organization_id, schedule_key)
+        if (
+            schedule.workflow_version_id != revision.release_workflow_version_id
+            or schedule.input != schedule_input
+            or schedule.schedule_type is not request.schedule_type
+            or schedule.timezone != request.timezone
+            or schedule.start_at != request.start_at
+            or schedule.end_at != request.end_at
+            or schedule.recurrence != request.recurrence
+            or schedule.misfire_policy is not request.misfire_policy
+            or schedule.max_catch_up != request.max_catch_up
+        ):
+            raise CampaignExecutionFencedError(
+                "existing campaign schedule does not match the immutable release binding"
+            )
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            repo = CampaignRepository(tenant)
+            await repo.bind_schedule(run.id, schedule.id)
+            result = await repo.mark_campaign_scheduled(campaign_id)
             await self._campaign_event(
                 tenant.session, organization_id, "campaign.scheduled", result
             )
-            return result
+        if schedule.state is ScheduleState.DRAFT:
+            await self._scheduler.activate_schedule(organization_id, schedule.id)
+        elif schedule.state is not ScheduleState.ACTIVE:
+            raise CampaignExecutionFencedError("campaign schedule is not active")
+        return result
 
     async def start_campaign(
         self,
@@ -178,7 +231,6 @@ class CampaignService:
         campaign_id: uuid.UUID,
         *,
         idempotency_key: str | None = None,
-        schedule_id: uuid.UUID | None = None,
     ) -> CampaignRun:
         campaign = await self.get_campaign(organization_id, campaign_id)
         key = idempotency_key or f"campaign:run:{campaign.id}:{campaign.revision}"
@@ -187,7 +239,7 @@ class CampaignService:
             row = await repo.campaign_row(campaign_id, for_update=True)
             if row is None:
                 raise CampaignNotFoundError()
-            run = await repo.create_run(row, idempotency_key=key, schedule_id=schedule_id)
+            run = await repo.create_run(row, idempotency_key=key)
             revision = await repo.revision_row(run.campaign_revision_id)
             if revision is None:
                 raise CampaignInvalidStateError("campaign revision is absent")
@@ -217,8 +269,16 @@ class CampaignService:
         if release.state is not WorkflowRunState.COMPLETED:
             raise CampaignInvalidStateError("release workflow is not complete")
         async with self._db.tenant_transaction(organization_id) as tenant:
+            run = await CampaignRepository(tenant).begin_run_activation(campaign_run_id)
+        if not run.attempt_materialization_complete:
+            async with self._db.tenant_transaction(organization_id) as tenant:
+                run, _ = await CampaignRepository(tenant).materialize_attempt_batch(
+                    campaign_run_id, limit=MATERIALIZATION_BATCH
+                )
+        if not run.attempt_materialization_complete:
+            return run
+        async with self._db.tenant_transaction(organization_id) as tenant:
             repo = CampaignRepository(tenant)
-            run = await repo.activate_run(campaign_run_id)
             campaign = await repo.campaign(run.campaign_id)
             if campaign is None:
                 raise CampaignNotFoundError()
@@ -288,7 +348,12 @@ class CampaignService:
 
     async def authorize_send(self, organization_id: uuid.UUID, claim: RecipientClaim) -> SendPermit:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            return await CampaignRepository(tenant).authorize_permit(claim)
+            permit, denial = await CampaignRepository(tenant).authorize_permit(claim)
+        if denial is not None:
+            raise CampaignInvalidStateError(f"recipient final authorization denied: {denial.value}")
+        if permit is None:
+            raise CampaignExecutionFencedError("send authorization produced no durable decision")
+        return permit
 
     async def dispatch_send(self, organization_id: uuid.UUID, permit_id: uuid.UUID) -> SendPermit:
         async with self._db.tenant_transaction(organization_id) as tenant:
@@ -387,13 +452,20 @@ class CampaignService:
             return campaign
 
     async def cancel_campaign(self, organization_id: uuid.UUID, campaign_id: uuid.UUID) -> Campaign:
-        return await self._transition(
-            organization_id,
-            campaign_id,
-            CampaignState.CANCELLED,
-            "CAMPAIGN_CANCELLED",
-            "campaign.cancelled",
-        )
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            campaign = await CampaignRepository(tenant).begin_cancellation(campaign_id)
+        if campaign.state is not CampaignState.CANCELLED:
+            async with self._db.tenant_transaction(organization_id) as tenant:
+                campaign, _, _ = await CampaignRepository(tenant).cancel_attempt_batch(
+                    campaign_id, limit=CANCELLATION_BATCH
+                )
+        if campaign.state is not CampaignState.CANCELLED:
+            return campaign
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            await self._campaign_event(
+                tenant.session, organization_id, "campaign.cancelled", campaign
+            )
+        return campaign
 
     async def _transition(
         self,

@@ -42,7 +42,6 @@ from nexus_ai.messaging.entities import (
     MessageContent,
     StoreAccountCredentialRequest,
 )
-from nexus_ai.scheduler.entities import CreateScheduleRequest
 from nexus_ai.workflows.entities import (
     CreateWorkflowRequest,
     NoopStepConfig,
@@ -81,13 +80,15 @@ async def campaign_workflow(stack: Any, organization_id: uuid.UUID, suffix: str)
     return await stack.workflows.publish(organization_id, definition.id)
 
 
-async def campaign_recipient(stack: Any, organization_id: uuid.UUID) -> tuple[Any, Any, Any]:
+async def campaign_recipient(
+    stack: Any, organization_id: uuid.UUID, *, suffix: int = 142
+) -> tuple[Any, Any, Any]:
     customer, _ = await stack.messaging.customers.resolve_or_create(
         organization_id,
         CreateCustomerRequest(
             display_name="Campaign recipient",
             identity_type="PHONE",
-            identity_value="+14155550142",
+            identity_value=f"+1415555{suffix:04d}",
             identity_source="campaign-test",
         ),
     )
@@ -288,7 +289,7 @@ async def test_tenant_isolation_forced_rls_and_immutable_revision(
                 )
             )
         ).all()
-    assert len(rows) == 12
+    assert len(rows) == 13
     assert all(row[1] and row[2] for row in rows)
 
 
@@ -350,23 +351,19 @@ async def test_scheduled_release_accepts_only_matching_p15_workflow_target(
 ) -> None:
     organization = await make_organization()
     campaign, _ = await prepared_campaign(campaign_stack, organization.id)
-    schedule = await campaign_stack.scheduler.create_schedule(
-        organization.id,
-        CreateScheduleRequest(
-            schedule_key="campaign.release.schedule",
-            workflow_version_id=campaign.draft.release_workflow_version_id,
-            schedule_type="ONE_TIME",
-            timezone="UTC",
-            start_at=dt.datetime.now(dt.UTC) + dt.timedelta(hours=1),
-            input={"campaign_id": str(campaign.id)},
-        ),
-    )
     scheduled = await campaign_stack.service.schedule_campaign(
         organization.id,
         campaign.id,
-        ScheduleCampaignRequest(schedule_id=schedule.id),
+        ScheduleCampaignRequest(
+            schedule_type="ONE_TIME",
+            timezone="UTC",
+            start_at=dt.datetime.now(dt.UTC) + dt.timedelta(hours=1),
+        ),
     )
     assert scheduled.state is CampaignState.SCHEDULED
+    runs = await campaign_stack.service.runs(organization.id, campaign.id, limit=10)
+    assert len(runs) == 1
+    assert runs[0].schedule_id is not None
 
 
 async def test_stale_owner_is_fenced_before_permit(

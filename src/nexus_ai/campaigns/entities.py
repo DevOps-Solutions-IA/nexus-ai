@@ -26,6 +26,11 @@ from nexus_ai.campaigns.state_machine import (
     SnapshotState,
 )
 from nexus_ai.messaging.entities import MessageChannel, MessageContent
+from nexus_ai.scheduler.entities import (
+    MisfirePolicy,
+    RecurrenceSpec,
+    ScheduleType,
+)
 
 CampaignKey = Annotated[str, StringConstraints(pattern=r"^[a-z][a-z0-9_.-]{1,62}$")]
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=160)]
@@ -157,7 +162,41 @@ class UpdateCampaignRequest(BaseModel):
 class ScheduleCampaignRequest(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    schedule_id: UUID
+    schedule_type: ScheduleType = ScheduleType.ONE_TIME
+    timezone: Annotated[str, StringConstraints(min_length=1, max_length=64)]
+    start_at: dt.datetime
+    end_at: dt.datetime | None = None
+    recurrence: RecurrenceSpec | None = None
+    misfire_policy: MisfirePolicy = MisfirePolicy.FIRE_ONCE
+    max_catch_up: Annotated[int, Field(ge=1, le=100)] = 1
+
+    @field_validator("timezone")
+    @classmethod
+    def _schedule_timezone(cls, value: str) -> str:
+        try:
+            ZoneInfo(value)
+        except ZoneInfoNotFoundError as exc:
+            raise ValueError("timezone must be a valid IANA identifier") from exc
+        return value
+
+    @field_validator("start_at", "end_at")
+    @classmethod
+    def _schedule_aware(cls, value: dt.datetime | None) -> dt.datetime | None:
+        if value is not None and value.tzinfo is None:
+            raise ValueError("timestamps must be timezone-aware")
+        return None if value is None else value.astimezone(dt.UTC)
+
+    @model_validator(mode="after")
+    def _schedule_shape(self) -> ScheduleCampaignRequest:
+        if self.schedule_type is ScheduleType.ONE_TIME and self.recurrence is not None:
+            raise ValueError("one-time schedules cannot include recurrence")
+        if self.schedule_type is ScheduleType.RECURRING and self.recurrence is None:
+            raise ValueError("recurring schedules require recurrence")
+        if self.end_at is not None and self.end_at < self.start_at:
+            raise ValueError("end_at must not precede start_at")
+        if self.misfire_policy is not MisfirePolicy.CATCH_UP_BOUNDED and self.max_catch_up != 1:
+            raise ValueError("max_catch_up applies only to CATCH_UP_BOUNDED")
+        return self
 
 
 class ContactPreferenceRequest(BaseModel):
@@ -285,6 +324,11 @@ class CampaignRun(BaseModel):
     dispatched_count: int
     suppressed_count: int
     failed_count: int
+    authorized_count: int
+    attempt_materialization_cursor: int
+    attempt_materialization_complete: bool
+    cancellation_processed_count: int
+    cancellation_complete: bool
     created_at: dt.datetime
     updated_at: dt.datetime
 

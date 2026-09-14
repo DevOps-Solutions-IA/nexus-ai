@@ -7,7 +7,11 @@ from pydantic import ValidationError
 
 from nexus_ai.application import create_app
 from nexus_ai.campaigns import events as campaign_events  # noqa: F401
-from nexus_ai.campaigns.entities import CampaignDraft, CreateCampaignRequest
+from nexus_ai.campaigns.entities import (
+    CampaignDraft,
+    CreateCampaignRequest,
+    ScheduleCampaignRequest,
+)
 from nexus_ai.events.envelope import EventEnvelope
 from nexus_ai.events.errors import EventContractError
 from nexus_ai.events.registry import EVENT_REGISTRY
@@ -70,6 +74,18 @@ def test_create_contract_rejects_authoritative_tenant_field() -> None:
     with pytest.raises(ValidationError):
         CreateCampaignRequest.model_validate(
             {"campaign_key": "campaign.safe", "name": "Safe", "organization_id": str(uuid4())}
+        )
+
+
+def test_schedule_contract_rejects_caller_controlled_schedule_binding() -> None:
+    with pytest.raises(ValidationError):
+        ScheduleCampaignRequest.model_validate(
+            {
+                "schedule_id": str(uuid4()),
+                "schedule_type": "ONE_TIME",
+                "timezone": "UTC",
+                "start_at": "2030-01-01T00:00:00Z",
+            }
         )
 
 
