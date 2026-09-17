@@ -1666,16 +1666,22 @@
     {
       "category": "HUMAN_AGENT",
       "dependencies": [
+        "NXS-AUTH-006",
+        "NXS-EVENT-003",
         "NXS-CUSTOMER-001",
-        "NXS-TEL-001"
+        "NXS-WA-001",
+        "NXS-EMAIL-001",
+        "NXS-SMS-001",
+        "NXS-VOICE-001",
+        "NXS-AGENT-001"
       ],
-      "description": "Human operators receive queues, context, copilot support and controlled AI handoff.",
+      "description": "A tenant-isolated human-agent operations subsystem durably manages bounded work queues, explicit agent presence and capacity, exclusive assignment and conversation ownership, controlled AI-to-human handoff and human-to-AI return, fenced transfers and supervisor actions, and advisory copilot context under PostgreSQL-authoritative claims, organization-scoped RBAC, append-only audit history, P04 events, and certified P09 messaging, P11/P12 voice and P13 AI boundaries, without reimplementing providers, media, model execution, generic workflows, scheduling, infrastructure scaling, billing, observability or recovery/failover.",
       "id": "NXS-HUMAN-001",
       "implementation_evidence": [],
       "mandatory": true,
       "status": "PLANNED",
       "target_phase": "NXS-P17",
-      "title": "Human call-center operations",
+      "title": "Durable human agent operations",
       "validation_evidence": []
     },
     {

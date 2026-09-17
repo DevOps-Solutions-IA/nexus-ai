@@ -177,8 +177,8 @@
       "branch": "feat/nxs-p17-human-agents",
       "decision": "PENDING",
       "dependencies": [
-        "NXS-P06",
-        "NXS-P11"
+        "NXS-P09",
+        "NXS-P13"
       ],
       "id": "NXS-P17",
       "status": "PLANNED",
