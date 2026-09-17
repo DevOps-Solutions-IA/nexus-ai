@@ -52,6 +52,16 @@ from nexus_ai.domain.events.models import (
     EventDeadLetterRecord,
     EventOutboxRecord,
 )
+from nexus_ai.domain.humans.models import (
+    ConversationOwnershipRecord,
+    HumanActionAuthorizationRecord,
+    HumanAgentPresenceRecord,
+    HumanAssignmentRecord,
+    HumanHandoffRecord,
+    HumanQueueRecord,
+    HumanTransitionHistoryRecord,
+    HumanWorkItemRecord,
+)
 from nexus_ai.domain.integrations.models import (
     IntegrationExecutionRecord,
     IntegrationIdempotencyRecord,
@@ -134,6 +144,7 @@ __all__ = [
     "CampaignTransitionHistoryRecord",
     "ConsumerReceiptRecord",
     "ConversationActivityRecord",
+    "ConversationOwnershipRecord",
     "ConversationParticipantRecord",
     "ConversationRecord",
     "CustomerIdentityRecord",
@@ -141,6 +152,13 @@ __all__ = [
     "DashboardConfigurationRecord",
     "EventDeadLetterRecord",
     "EventOutboxRecord",
+    "HumanActionAuthorizationRecord",
+    "HumanAgentPresenceRecord",
+    "HumanAssignmentRecord",
+    "HumanHandoffRecord",
+    "HumanQueueRecord",
+    "HumanTransitionHistoryRecord",
+    "HumanWorkItemRecord",
     "IntegrationExecutionRecord",
     "IntegrationIdempotencyRecord",
     "IntegrationOperationRecord",

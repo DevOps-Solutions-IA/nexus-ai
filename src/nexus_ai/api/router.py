@@ -9,6 +9,7 @@ from nexus_ai.api.auth import auth_router
 from nexus_ai.api.campaigns import campaigns_router
 from nexus_ai.api.conversations import conversations_router
 from nexus_ai.api.customers import customers_router
+from nexus_ai.api.humans import humans_router
 from nexus_ai.api.integrations import integrations_router
 from nexus_ai.api.messaging import messaging_router, messaging_webhooks_router
 from nexus_ai.api.organizations import organizations_router
@@ -39,3 +40,4 @@ api_v1_router.include_router(agents_router)
 api_v1_router.include_router(workflows_router)
 api_v1_router.include_router(schedules_router)
 api_v1_router.include_router(campaigns_router)
+api_v1_router.include_router(humans_router)

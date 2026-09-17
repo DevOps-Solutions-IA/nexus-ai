@@ -1679,7 +1679,7 @@
       "id": "NXS-HUMAN-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P17",
       "title": "Durable human agent operations",
       "validation_evidence": []

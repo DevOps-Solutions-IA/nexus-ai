@@ -1532,3 +1532,40 @@ async def campaign_stack(scheduler_stack: Any, messaging_stack: Any) -> Any:
             self.messaging = messaging_stack
 
     return _CampaignStack()
+
+
+@pytest.fixture
+async def human_stack(agent_stack: Any, messaging_stack: Any) -> Any:
+    """P17 Human Operations over real PostgreSQL, P04, P09 and P13 boundaries."""
+    import asyncpg
+
+    from nexus_ai.humans.service import HumanOperationsService
+
+    service = HumanOperationsService(
+        agent_stack.database,
+        agent_stack.event_platform.publisher,
+        messaging_stack.service,
+        agent_stack.service,
+        service_name=agent_stack.settings.service_name,
+    )
+    connection = await asyncpg.connect(
+        MIGRATION_DSN.replace("postgresql+asyncpg://", "postgresql://", 1), timeout=10
+    )
+    try:
+        await connection.execute(
+            "TRUNCATE human_transition_history, human_action_authorizations, "
+            "human_handoffs, conversation_ownership, human_assignments, human_work_items, "
+            "human_agent_presence, human_queues CASCADE"
+        )
+    finally:
+        await connection.close()
+
+    class _HumanStack:
+        def __init__(self) -> None:
+            self.service = service
+            self.database = agent_stack.database
+            self.publisher = agent_stack.event_platform.publisher
+            self.agents = agent_stack
+            self.messaging = messaging_stack
+
+    return _HumanStack()

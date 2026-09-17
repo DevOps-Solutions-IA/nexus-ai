@@ -1,0 +1,62 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p17-human-agents",
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P09",
+    "NXS-P13"
+  ],
+  "evidence": [],
+  "id": "NXS-P17",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "automatic stale-lease reaping, orphan recovery, ambiguous P09 or P13 reconciliation, and distributed failover (NXS-P25)",
+    "telephony transport, SIP/media routing, WebRTC, call recording, predictive dialing, and infrastructure scaling",
+    "campaign orchestration, workforce forecasting, payroll, shift scheduling, QA scoring, billing, global observability, disaster recovery, frontend delivery, and production deployment"
+  ],
+  "objective": "Deliver tenant-isolated Human Agent Operations with durable queues, explicit presence and bounded capacity, exclusive assignments and conversation ownership, fenced AI-to-human and human-to-AI handoffs, controlled transfers and supervisor actions, advisory copilot context, P09-only human messaging, P11/P12 voice references, P13-bound AI return, P04 events, RBAC, append-only audit history, and PostgreSQL-authoritative concurrency.",
+  "requirements_implemented": [
+    "NXS-HUMAN-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-17T13:08:19Z"
+  },
+  "title": "Human Agent Operations"
+}
