@@ -26,7 +26,8 @@ Canonical backend progress on `main`:
 | NXS-P13 | AI Agent Runtime | READY / GO |
 | NXS-P14 | Workflow Engine | READY / GO |
 | NXS-P15 | Scheduler | READY / GO |
-| NXS-P16 | Campaigns | PENDING MERGE — PR #35 |
+| NXS-P16 | Campaigns | READY / GO |
+| NXS-P17 | Human Agent Operations | PLANNED — GOVERNANCE ALIGNMENT |
 
 P12 is contract-certified against the platform abstraction and test suite; live-provider certification remains a separate milestone.
 
@@ -296,7 +297,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P15. NXS-P16 is certified on its feature branch and remains pending external review and merge in PR #35; NXS-P17 has not been activated.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P16. NXS-P17 remains planned; this governance alignment defines its implementation contract without activating the phase or adding runtime capability.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 
