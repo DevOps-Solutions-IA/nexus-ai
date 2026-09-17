@@ -1,0 +1,1 @@
+{"bounded_explicit_audience":500,"duplicate_recipient_identity":"PASS","immutable_sealed_snapshot":"PASS","materialization_batch":100,"materialization_crash_resume":"PASS","persistent_cursor":"PASS","phase":"NXS-P16","raw_sql_rejected":"PASS","recorded_at":"2026-09-14T02:09:18Z","result":"PASS","schema_version":"1.0.0"}

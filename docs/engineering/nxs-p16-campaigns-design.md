@@ -1,8 +1,36 @@
 # NXS-P16 Campaigns — Pre-Implementation Contract
 
-Status: governance alignment only. NXS-P16 has not started, no campaign runtime or
-schema exists, and merge/deployment remain unauthorized. The canonical requirement is
-`NXS-CAMP-001`.
+Status: implementation active on `feat/nxs-p16-campaigns`; merge and deployment remain
+unauthorized. The canonical requirement is `NXS-CAMP-001`.
+
+## Implemented P16 contract
+
+The implementation follows this document without changing its authority boundaries. It
+uses thirteen forced-RLS tenant tables, immutable revision and sealed-audience database
+guards, composite tenant foreign keys, UUIDv7 identities, PostgreSQL row locks and opaque
+claim tokens. Explicit audiences are accepted in bounded sets of 500 and materialized in
+transactions of at most 100 recipients with a durable snapshot cursor. Saved-segment and
+import-artifact source types remain closed contracts and fail closed until their governed
+resolvers exist; raw SQL and arbitrary expressions are never accepted.
+
+Final send authorization locks the campaign run, campaign, attempt, snapshotted recipient,
+customer, identity, conversation, contact preference and per-channel suppression epoch.
+Suppression mutation uses that same epoch row as its serialization boundary. Campaign
+pause/cancel uses the campaign row as its boundary. The transaction reserves durable
+throttle capacity and commits one `AUTHORIZED` permit with stable P09 identity before any
+provider I/O. Post-authorization consent or suppression changes affect future logical
+sends; they do not rewrite an already authorized permit.
+
+Final authorization denial is also durable. Consent, suppression, invalid-recipient and
+quiet-hours outcomes are committed with recipient/attempt state and transition history;
+only after that commit does the service return the domain error. A rollback caused by the
+client-facing error therefore cannot erase the governed decision.
+
+The runtime implements only explicit `WhatsApp`, `Email`, and `SMS` campaigns. P14 is used
+for both release and recipient workflows, P15 supplies the optional release schedule, P09
+is the sole message/provider path, and P04 receives bounded identifier-only lifecycle
+events through the transactional outbox. Claim ambiguity remains durable and is not
+automatically reassigned; P25 retains recovery authority.
 
 ## Purpose and certified authority chain
 
@@ -32,11 +60,17 @@ credential, delivery-state and send-idempotency controls.
 
 P15 currently targets immutable P14 workflow versions. A scheduled campaign therefore
 stores one P15 schedule targeting the campaign revision's immutable release workflow.
-P16 records the P15 schedule/occurrence and returned P14 release run, and only a
-successfully completed matching release run may transition the campaign run to
-`RUNNING`. An immediate start invokes the same release workflow directly through P14;
-it is not a second execution path. P16 must correlate using durable IDs and P04 events,
-then re-read authoritative P14/P15 state rather than trusting an event payload alone.
+NXS-P16 certifies only `ONE_TIME` campaign schedules with no recurrence payload. P15's
+generic recurring scheduler remains unchanged; recurring campaign series and creation of a
+new immutable `CampaignRun` per recurrence require a separate future governed design.
+P16 records the P15 schedule, exact dispatched occurrence and returned P14 release run.
+The scheduled-release handler re-reads all three durable records and binds
+`release_schedule_occurrence_id` plus `release_workflow_run_id` to the existing campaign
+run under its row lock. Only a successfully completed matching release run may then
+transition the campaign run to `RUNNING`. An immediate start invokes the same release
+workflow directly through P14; it is not a second execution path. P16 must correlate using
+durable IDs and P04 events or the trusted P15 dispatch result, then re-read authoritative
+P14/P15 state rather than trusting an event payload alone.
 
 For each eligible recipient, P16 starts the revision's immutable per-recipient P14
 workflow with a stable idempotency key. A completed recipient workflow is a prerequisite
@@ -142,12 +176,13 @@ mutable draft.
 
 Campaign aggregate states are:
 
-- `DRAFT -> PREPARING | CANCELLED`
-- `PREPARING -> READY | DRAFT | CANCELLED`
-- `READY -> SCHEDULED | RUNNING | CANCELLED`
-- `SCHEDULED -> RUNNING | CANCELLED | FAILED`
-- `RUNNING -> PAUSED | COMPLETED | FAILED | CANCELLED`
-- `PAUSED -> RUNNING | FAILED | CANCELLED`
+- `DRAFT -> PREPARING | CANCELLING`
+- `PREPARING -> READY | DRAFT | CANCELLING`
+- `READY -> SCHEDULED | RUNNING | CANCELLING`
+- `SCHEDULED -> RUNNING | CANCELLING | FAILED`
+- `RUNNING -> PAUSED | COMPLETED | FAILED | CANCELLING`
+- `PAUSED -> RUNNING | FAILED | CANCELLING`
+- `CANCELLING -> CANCELLED`
 - `COMPLETED`, `FAILED` and `CANCELLED` are absorbing.
 
 `PREPARING -> DRAFT` records a failed validation/materialization attempt while preserving
@@ -156,9 +191,12 @@ it does not authorize delivery. `SCHEDULED` means one linked P15 schedule is act
 `RUNNING` requires the matching P14 release workflow to have completed successfully.
 
 `CampaignRun` binds one campaign revision, audience snapshot and optional P15
-schedule/occurrence. A new run needs a new logical run identity; resume never creates a
-new run. Only one active run per campaign/revision is allowed unless a future revision
-explicitly enables bounded parallel runs.
+schedule/occurrence. Scheduled runs use one P16-derived schedule key and one unique
+schedule binding; callers cannot attach arbitrary P15 schedules. Run states include
+`PENDING_RELEASE`, `MATERIALIZING`, `RUNNING`, `PAUSED`, `CANCELLING`, and absorbing
+terminal states. Durable materialization and cancellation cursors make each operation
+bounded and resumable. A new run needs a new logical run identity; resume never creates a
+new run.
 
 ### Recipient execution
 
@@ -182,10 +220,9 @@ and returned a message ID. It does not mean delivered, replied, converted or phy
 delivered exactly once. P09 message events project later transport states without
 rewriting recipient execution authority.
 
-## Proposed durable model
+## Durable model
 
-No table or migration is created by this governance change. P16 implementation should
-evaluate these tenant-owned entities:
+P16 implements these tenant-owned entities:
 
 ### `campaigns`
 
@@ -224,10 +261,9 @@ evaluate these tenant-owned entities:
 ### `campaign_runs`
 
 - UUIDv7 primary key, tenant-aware campaign/revision/snapshot FKs, optional P15
-  schedule/occurrence and P14 release-run references, state/version, durable processing
-  cursor, aggregate counters, started/ended times and terminal reason.
-- Unique run idempotency identity and at most one active run per revision by partial
-  uniqueness.
+  schedule/occurrence and P14 release-run references, state/version, durable attempt and
+  cancellation progress, aggregate counters, started/ended times and terminal reason.
+- Unique run idempotency identity and unique tenant schedule binding.
 - Forced RLS; state/time indexes; terminal rows immutable except bounded outcome
   projections derived from durable recipient/message facts.
 
@@ -278,10 +314,19 @@ they do not retroactively revoke an already committed `AUTHORIZED` permit.
 
 ### `campaign_throttle_windows`
 
-- Tenant/campaign/channel/window identity, reserved count and immutable window start/end.
-- Unique window key; row-locked atomic reservation ensures configured per-minute limits.
+- Tenant/campaign-run/channel/window identity, reserved count and immutable window start.
+- Unique window key; row-locked atomic reservation ensures the per-run/channel/minute
+  limit and the run's durable authorized count enforces the campaign total cap.
 - PostgreSQL is authoritative. Valkey may reduce contention later but cannot authorize
   sends or replace the durable counter.
+
+### `campaign_organization_throttle_windows`
+
+- Tenant/channel/minute identity with a unique window key and durable reserved count.
+- PostgreSQL upsert plus `FOR UPDATE` locking serializes first use and contention across
+  distinct campaign runs so the Organization-wide minute cap cannot oversubscribe.
+- The final authorization transaction enforces the strictest of campaign-run minute,
+  campaign total and Organization minute capacity before creating a permit.
 
 ### `campaign_transition_history`
 
@@ -309,6 +354,11 @@ each chunk. No transaction or worker holds the complete audience. A crash resume
 the committed cursor. Only after source exhaustion, count/size ceilings and consistency
 checks pass does one transaction seal the snapshot and revision. Once sealed, membership
 cannot change even if the live saved segment later changes.
+
+After the P14 release succeeds, recipient attempts are also created in bounded
+transactions. The run persists its materialization cursor and completion flag atomically
+with each batch; an incomplete invocation remains `MATERIALIZING` and resumes from the
+committed cursor without loading or transacting over the full audience.
 
 Default and hard batch sizes are implementation-time configuration but must be finite,
 validated and covered by tests. Oversized audience requests fail before activation or
@@ -367,7 +417,9 @@ certified P09 limit.
 Initial claim order is campaign run then recipient; it grants bounded P14 workflow
 authority but does not consume the later P09 send window while that workflow runs. Final
 send-permit order is campaign run, recipient attempt, consent/policy rows, suppression rows
-and throttle-window row in one documented deterministic sequence. That transaction checks
+and both run/Organization throttle-window rows in one documented deterministic sequence.
+Race-safe PostgreSQL upserts establish missing window rows before locking them. That
+transaction checks
 run `RUNNING`, current owner/token, current policy epochs, recipient validity, database
 time, quiet hours and remaining durable window capacity, atomically reserves one send unit,
 and authorizes the permit. `FOR UPDATE SKIP LOCKED` distributes initial work between
@@ -434,12 +486,29 @@ Broad ambiguous-effect reconciliation is P25.
 
 ## P15 release integration
 
-A scheduled campaign creates exactly one same-tenant P15 schedule for the campaign run,
-targeting the immutable P14 release workflow and carrying only bounded campaign/run/revision
-identifiers. P16 stores the P15 schedule ID and validates its state. On the durable P04
-occurrence event, P16 re-reads the occurrence and returned P14 run; it transitions to
-`RUNNING` only after the exact release run completes successfully and the campaign is still
-`SCHEDULED`.
+A scheduled campaign request contains one governed future-time specification, not recurrence
+or a caller-controlled schedule ID. P16 rejects `RECURRING` and any recurrence payload before
+creating a campaign run or P15 schedule. P16 derives the stable schedule key, creates or
+reuses exactly one same-tenant `ONE_TIME` P15 schedule for the campaign run, targeting the
+immutable P14 release workflow and carrying only bounded campaign/run/revision identifiers.
+P16 stores the P15 schedule ID under tenant-aware uniqueness and validates the complete
+immutable binding before reuse.
+
+After P15 dispatches an occurrence, the P16-owned scheduled-release handler accepts the
+exact occurrence/run identities from that trusted result, then re-reads the tenant-scoped
+P15 occurrence, P15 schedule and P14 workflow run. It verifies Organization, campaign,
+campaign revision, campaign run, schedule, occurrence, release workflow version, workflow
+run and the closed schedule/workflow input. One transaction then locks the campaign and run
+and writes both `release_schedule_occurrence_id` and `release_workflow_run_id`. Tenant-aware
+foreign keys and unique occurrence binding protect the durable relationship. A replay with
+the same pair is idempotent; any different occurrence or workflow run is fenced and cannot
+overwrite it. No fuzzy correlation, recent-run search or mutable event payload is authority.
+
+Binding may occur while the P14 workflow is still running, but `confirm_release` remains
+blocked until that exact run is `COMPLETED`. Binding after completion is equally valid.
+Campaign pause or cancellation committed before the first binding prevents it. A same-ID
+delivery replay after a successful binding remains idempotent even if later lifecycle state
+has advanced.
 
 Duplicate P15 wakes resolve through the stable release-run identity and campaign transition
 compare-and-set. Cancelling the P15 schedule prevents future wake-up but does not itself
@@ -455,10 +524,12 @@ creates P15 schedules.
   existing owner/token and stable P09 key.
 - **Resume:** only `PAUSED -> RUNNING`; continue from durable snapshot/materialization and
   recipient states. Already dispatched identities never return to claimable state.
-- **Cancel:** `DRAFT`, `PREPARING`, `READY`, `SCHEDULED`, `RUNNING` or `PAUSED` may become
-  terminal `CANCELLED` under the aggregate/run lock. Pending/eligible/deferred recipients
-  become `CANCELLED` in bounded batches; no new claim or permit authorization succeeds
-  after the cancel commit.
+- **Cancel:** `DRAFT`, `PREPARING`, `READY`, `SCHEDULED`, `RUNNING` or `PAUSED` first moves
+  to durable `CANCELLING`. Pending/claimed/workflow/ready attempts and eligible/deferred
+  recipients become `CANCELLED` in bounded, replay-safe batches. Run-owned counters record
+  committed progress; the run/campaign becomes terminal `CANCELLED` only when no remaining
+  cancellable attempt exists. No new claim or permit authorization succeeds after the
+  initial cancellation commit.
 - **Committed work:** P14 runs and P09 messages accepted before cancellation are preserved
   as issued. P16 may call an existing explicit P14 cancellation boundary for a known
   in-flight run only when authorized and must report its independent outcome. There is no
@@ -609,6 +680,9 @@ backpressure and idempotent consumers; broker delivery never grants recipient au
 | 15 | Suppression versus final send permit | Suppression epoch and attempt locked in permit transaction | Suppression-first blocks; permit-first remains authorized |
 | 16 | Campaign cancel versus final send permit | Run locked before attempt/policy/throttle rows | Cancel-first blocks; permit-first may proceed while later permits stop |
 | 17 | Authorized permit versus P09 acceptance/lost terminal write | One permit/attempt and stable unique P09 key | Same logical P09 replay; no second permit or message identity |
+| 18 | Duplicate scheduled-release result | Campaign/run row locks plus immutable occurrence/run pair | Same pair replays successfully; one binding transition |
+| 19 | Different P14 run versus existing release binding | Compare incoming run with P15 occurrence and persisted run ID | Mismatch is fenced; existing binding is never overwritten |
+| 20 | Campaign pause/cancel versus release binding | Campaign row locks before campaign-run binding | Lifecycle winner blocks the first binding; prior exact binding remains immutable |
 
 No correctness rule depends on an asyncio semaphore, process-local cursor, singleton
 worker, Valkey lock or event arrival order.
@@ -667,14 +741,14 @@ worker, Valkey lock or event arrival order.
 
 ## Implementation certification criteria
 
-The eventual certification claim is **CAMPAIGN CONTRACT + DURABILITY + CONSENT FENCING
+The certification claim is **CAMPAIGN CONTRACT + DURABILITY + CONSENT FENCING
 CERTIFIED** for WhatsApp, Email and SMS. It is not physical exactly-once provider
 delivery, voice-campaign certification, global compliance certification, conversion
 attribution, broad failover/orphan recovery, or deployment certification.
 
-P16 may start only after this governance PR is merged to exact-green canonical `main`.
-Implementation must then use the NXS lifecycle and prove real PostgreSQL tenant isolation,
-bounded materialization, consent/suppression races, multi-worker claims, P15 release,
-P14 workflow idempotency, P09 send idempotency, quiet hours, throttling, transitions,
-events, failure/security matrices and complete regression gates. This governance change
-does not start P16 and creates no state, manifest, schema, migration, API or runtime code.
+The feature branch has completed the NXS lifecycle but is not canonical until its PR is
+independently reviewed and merged. Corrective implementation after the P15 rebase must
+reprove real PostgreSQL tenant isolation, bounded materialization/cancellation, durable
+denial outcomes, consent/suppression races, all three throttle scopes, P16-owned P15
+binding, exact P15-occurrence/P14-release-run bridging, P14/P09 idempotency, complete
+regression gates and exact-head CI/security.

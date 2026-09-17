@@ -1642,12 +1642,26 @@
       ],
       "description": "A tenant-isolated durable campaign engine defines consent-aware, suppression-aware and throttled bulk outreach over certified messaging channels, snapshots campaign audiences and recipient eligibility, materializes bounded recipient executions, schedules campaign release through NXS-P15 temporal authority, and dispatches governed per-recipient work through NXS-P14/P09 boundaries using stable idempotency identities, without directly invoking providers, arbitrary network destinations, shell commands, databases outside governed repositories, infrastructure, or uncontrolled bulk fan-out.",
       "id": "NXS-CAMP-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        ".nxs/evidence/NXS-P16/migration.json",
+        ".nxs/evidence/NXS-P16/tenant-isolation.json",
+        ".nxs/evidence/NXS-P16/audience-materialization.json",
+        ".nxs/evidence/NXS-P16/consent-suppression.json",
+        ".nxs/evidence/NXS-P16/send-permit.json",
+        ".nxs/evidence/NXS-P16/quiet-hours-throttling.json",
+        ".nxs/evidence/NXS-P16/p15-integration.json",
+        ".nxs/evidence/NXS-P16/p14-integration.json",
+        ".nxs/evidence/NXS-P16/p09-integration.json",
+        ".nxs/evidence/NXS-P16/idempotency.json",
+        ".nxs/evidence/NXS-P16/tests.json"
+      ],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P16",
       "title": "Omnichannel campaigns",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P16/quality-gates.json"
+      ]
     },
     {
       "category": "HUMAN_AGENT",

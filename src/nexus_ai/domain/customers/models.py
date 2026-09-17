@@ -81,6 +81,7 @@ class CustomerIdentityRecord(TenantOwnedMixin, Base):
 
     __tablename__ = "customer_identities"
     __table_args__ = (  # type: ignore[assignment]  # mixin dict + tuple merge (P02 pattern)
+        UniqueConstraint("organization_id", "id", name="uq_customer_identities_org_id"),
         UniqueConstraint(
             "organization_id",
             "identity_type",

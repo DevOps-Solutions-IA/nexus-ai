@@ -1,0 +1,58 @@
+{
+  "campaign_schedule_one_time_only": "PASS",
+  "canonical_base": "d2b7f487adc1c3593050b856ef59cdfe7819b18b",
+  "corrective_implementation_commit": "f1871f08671db80df8b0b67a0caa0da0ead23b36",
+  "fail_first": {
+    "expected": "ScheduleCampaignRequest rejects ScheduleType.RECURRING",
+    "observed": "Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>",
+    "result": "FAIL_REPRODUCED",
+    "test": "tests/contracts/test_campaign_contracts.py::test_campaign_schedule_contract_rejects_recurring"
+  },
+  "github_candidate_checks": {
+    "head_sha": "f1871f08671db80df8b0b67a0caa0da0ead23b36",
+    "nxs_ci": {
+      "result": "SUCCESS",
+      "run_id": 34884484183
+    },
+    "nxs_security": {
+      "result": "SUCCESS",
+      "run_id": 34884484300
+    }
+  },
+  "migration_required": false,
+  "no_recurring_p15_schedule_created": "PASS",
+  "one_time_end_to_end_regression": "PASS",
+  "p15_general_recurrence_unchanged": "PASS",
+  "phase": "NXS-P16",
+  "recorded_at": "2026-09-14T19:10:31Z",
+  "recurring_request_rejected": "PASS",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "service_level_recurring_fence": "PASS",
+  "tests": {
+    "corrective_test_functions_added": 4,
+    "coverage_percent_branch_aware": 91.50,
+    "focused_campaign_passed": 88,
+    "full_suite_failed": 0,
+    "full_suite_passed": 1816,
+    "generic_p15_scheduler_passed": 79,
+    "integration_passed": 812,
+    "non_integration_passed": 1004,
+    "targeted_corrective_passed": 7
+  },
+  "validation": {
+    "bandit": "PASS",
+    "clean_room": "PASS",
+    "docker_amd64": "PASS",
+    "docker_multiarch_amd64_arm64": "PASS",
+    "gitleaks": "PASS_NO_LEAKS",
+    "lint": "PASS",
+    "mypy": "PASS",
+    "nxs_gate": "PASS_GO_ELIGIBLE",
+    "nxs_repository": "PASS",
+    "pip_audit": "PASS_NO_KNOWN_VULNERABILITIES",
+    "readme_reviewed": true,
+    "schema_guard": "PASS",
+    "trivy_high_critical": "PASS_ZERO_FINDINGS"
+  }
+}

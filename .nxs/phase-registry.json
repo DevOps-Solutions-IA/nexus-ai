@@ -164,13 +164,13 @@
     },
     {
       "branch": "feat/nxs-p16-campaigns",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P09",
         "NXS-P15"
       ],
       "id": "NXS-P16",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Campaigns"
     },
     {

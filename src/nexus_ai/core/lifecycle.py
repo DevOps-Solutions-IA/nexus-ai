@@ -18,6 +18,8 @@ from nexus_ai.agents import events as agent_events  # noqa: F401 - payload regis
 from nexus_ai.agents.models.transport import GovernedModelHttpTransport
 from nexus_ai.agents.service import AgentService
 from nexus_ai.api.tenancy import TenantContextResolver, build_resolver
+from nexus_ai.campaigns import events as campaign_events  # noqa: F401 - payload registration
+from nexus_ai.campaigns.service import CampaignService
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import ConfigurationError
 from nexus_ai.core.health import DependencyHealth, Probe, ReadinessEvaluator
@@ -126,6 +128,7 @@ class Resources:
     agents: AgentService
     workflows: WorkflowService
     scheduler: SchedulerService
+    campaigns: CampaignService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -363,6 +366,14 @@ class ApplicationLifespan:
             workflow_service,
             service_name=settings.service_name,
         )
+        campaign_service = CampaignService(
+            database,
+            event_platform.publisher,
+            scheduler_service,
+            workflow_service,
+            channel_service,
+            service_name=settings.service_name,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -399,6 +410,7 @@ class ApplicationLifespan:
             agents=agent_service,
             workflows=workflow_service,
             scheduler=scheduler_service,
+            campaigns=campaign_service,
         )
         await logger.ainfo(
             "runtime_started",

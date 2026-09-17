@@ -1,0 +1,67 @@
+{
+  "canonical_base": "d2b7f487adc1c3593050b856ef59cdfe7819b18b",
+  "clean_room": {
+    "docker_amd64": "PASS",
+    "docker_multiarch_amd64_arm64": "PASS",
+    "result": "PASS"
+  },
+  "corrective_implementation_commit": "d22521199845ddfef8b436d66e287e252842cbb4",
+  "duplicate_replay": "PASS",
+  "end_to_end_scheduled_campaign": "PASS",
+  "exact_workflow_run_binding": "PASS",
+  "fail_first": {
+    "expected": "scheduled P15 dispatch binds its exact P14 workflow run to the existing P16 campaign run",
+    "observed": "CampaignInvalidStateError: release workflow has not started",
+    "result": "FAIL_REPRODUCED",
+    "test": "tests/integration/test_campaign_corrective_execution.py::test_scheduled_release_dispatch_advances_bound_campaign_run"
+  },
+  "github_candidate_checks": {
+    "head_sha": "d22521199845ddfef8b436d66e287e252842cbb4",
+    "nxs_ci": {
+      "result": "SUCCESS",
+      "run_id": 34814357358
+    },
+    "nxs_security": {
+      "result": "SUCCESS",
+      "run_id": 34814357383
+    }
+  },
+  "migration": {
+    "clean_upgrade": "PASS",
+    "downgrade_reupgrade": "PASS",
+    "forced_rls_schema_guard": "PASS",
+    "revision": "b0c1d2e3f4a5",
+    "tenant_aware_occurrence_fk": "PASS"
+  },
+  "p14_changes": "NONE",
+  "p15_changes": "NONE",
+  "phase": "NXS-P16",
+  "recorded_at": "2026-09-14T06:52:12Z",
+  "result": "PASS",
+  "schedule_occurrence_binding": "PASS",
+  "scheduled_release_bridge": "PASS",
+  "schema_version": "1.0.0",
+  "tenant_fence": "PASS",
+  "tests": {
+    "corrective_tests_added": 11,
+    "coverage_percent_branch_aware": 91.40625,
+    "focused_campaign_passed": 84,
+    "full_suite_failed": 0,
+    "full_suite_passed": 1812,
+    "integration_passed": 810,
+    "non_integration_passed": 1002,
+    "p14_p15_regression_passed": 175
+  },
+  "validation": {
+    "bandit": "PASS",
+    "gitleaks": "PASS_NO_LEAKS",
+    "lint": "PASS",
+    "mypy": "PASS",
+    "nxs_gate": "PASS_GO_ELIGIBLE",
+    "nxs_repository": "PASS",
+    "pip_audit": "PASS_NO_KNOWN_VULNERABILITIES",
+    "readme_reviewed": true,
+    "trivy_high_critical": "PASS_ZERO_FINDINGS"
+  },
+  "workflow_version_fence": "PASS"
+}

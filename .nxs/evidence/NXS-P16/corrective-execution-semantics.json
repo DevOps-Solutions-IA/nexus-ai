@@ -1,0 +1,98 @@
+{
+  "canonical_base": "d2b7f487adc1c3593050b856ef59cdfe7819b18b",
+  "corrective_implementation_commit": "582656652c4d85de216da011c640b6bc11d7a75c",
+  "denial_persistence": {
+    "cancel_fence": "PASS",
+    "quiet_hours": "PASS",
+    "suppression": "PASS",
+    "unsubscribe": "PASS"
+  },
+  "fail_first": {
+    "database": "PostgreSQL",
+    "expected_attempt_state": "SUPPRESSED",
+    "observed_attempt_state": "READY_TO_SEND",
+    "result": "FAIL_REPRODUCED",
+    "root_cause": "domain error raised inside tenant_transaction rolled back persisted denial",
+    "test": "tests/resilience/test_campaign_send_fencing.py::test_unsubscribe_denial_is_committed_before_service_error"
+  },
+  "lineage": {
+    "original_closure": "3bc0bc943a158d50545d1d1db7f4d5343079c3d3",
+    "original_implementation": "058453ab955cfaaf43bf168948b514183f435960",
+    "rebased_closure": "7398501af56d4396080358fe2adcbdff8d1ebfd1",
+    "rebased_implementation": "73abd9073cc550f55ae03ef195a89e3d3e9d2458"
+  },
+  "migration": {
+    "clean_upgrade": "PASS",
+    "downgrade_reupgrade": "PASS",
+    "forced_rls_schema_guard": "PASS",
+    "revision": "a9b0c1d2e3f4",
+    "runtime_role_bypassrls": false,
+    "table_added": "campaign_organization_throttle_windows"
+  },
+  "p15_corrective_compatibility": {
+    "catch_up_bounded": "UNCHANGED",
+    "coalesced_accounting": "PASS",
+    "cursor_atomicity": "UNCHANGED",
+    "fire_once": "PASS",
+    "revision_safe_identity": "UNCHANGED",
+    "skip": "UNCHANGED"
+  },
+  "phase": "NXS-P16",
+  "processing": {
+    "attempt_materialization_batch": 100,
+    "attempt_materialization_crash_resume": "PASS",
+    "attempt_materialization_durable_cursor": "PASS",
+    "cancellation_batch": 100,
+    "cancellation_crash_resume": "PASS",
+    "cancellation_durable_progress": "PASS",
+    "cancellation_replay_idempotent": "PASS",
+    "pause_materialization_fence": "PASS"
+  },
+  "recorded_at": "2026-09-14T05:08:52Z",
+  "result": "PASS",
+  "schedule_ownership": {
+    "arbitrary_schedule_rejected": "PASS",
+    "caller_schedule_id_rejected": "PASS",
+    "cross_tenant_binding_rejected": "PASS",
+    "duplicate_request_reuses_binding": "PASS",
+    "one_schedule_per_run_revision": "PASS",
+    "recipient_level_schedules": 0,
+    "stable_schedule_key": "campaign.<campaign_uuid>.r<revision>",
+    "wrong_workflow_rejected": "PASS"
+  },
+  "schema_version": "1.0.0",
+  "security": {
+    "bandit": "PASS",
+    "gitleaks": "PASS_NO_LEAKS",
+    "pip_audit": "PASS_NO_KNOWN_VULNERABILITIES",
+    "trivy_high_critical": "PASS_ZERO_FINDINGS"
+  },
+  "tests": {
+    "clean_room": "PASS",
+    "corrective_file_collected": 10,
+    "coverage_percent_branch_aware": 91.45,
+    "focused_campaign_passed": 73,
+    "full_suite_failed": 0,
+    "full_suite_passed": 1801,
+    "integration_passed": 799,
+    "new_test_functions": 12,
+    "non_integration_passed": 1002
+  },
+  "throttling": {
+    "campaign_run_channel_minute": "PASS",
+    "campaign_total": "PASS",
+    "first_use_upsert_fenced": "PASS",
+    "organization_channel_minute": "PASS",
+    "two_worker_last_capacity": "PASS"
+  },
+  "validation": {
+    "clean_room": "PASS",
+    "docker_amd64": "PASS",
+    "docker_multiarch_amd64_arm64": "PASS",
+    "lint": "PASS",
+    "mypy": "PASS",
+    "nxs_gate": "PASS_GO_ELIGIBLE",
+    "nxs_repository": "PASS",
+    "readme_reviewed": true
+  }
+}
