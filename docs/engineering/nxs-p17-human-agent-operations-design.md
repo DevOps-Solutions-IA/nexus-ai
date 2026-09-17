@@ -78,7 +78,9 @@ authority.
 
 A conversation has one durable ownership mode and monotonically increasing ownership
 generation. `AI` and `HUMAN` cannot be simultaneously authoritative. Every customer-facing
-action verifies the current generation.
+action verifies the current generation. `AI` mode is valid only when the exact accepted P13
+execution identity is durably bound to that tenant, conversation and generation; requesting
+an AI return does not grant AI authority.
 
 ### INV-HUMAN-004 — Fenced human ownership
 
@@ -128,6 +130,13 @@ P17 persists the evidence needed to detect stale or ambiguous ownership. It supp
 authorized release, transfer and requeue. P25 owns automatic lease reaping, orphan
 reassignment, ambiguous downstream reconciliation and failover.
 
+### INV-HUMAN-013 — Global lock order
+
+Every P17 authority transaction acquires only the rows it needs, but always in this order:
+queues, agent-presence rows, work item, conversation ownership, assignments, handoff record,
+then action authorization. Multiple queues, agents or assignments are locked by ascending UUID
+or stable identifier. No transaction may acquire an earlier class after a later class.
+
 ## Durable model proposal
 
 This is a design proposal only; no P17 tables are created by governance alignment.
@@ -174,7 +183,22 @@ This is a design proposal only; no P17 tables are created by governance alignmen
 - Unique `(organization_id, conversation_id)`.
 - Mode: `AI`, `HUMAN`, `UNASSIGNED`; optional current assignment/agent/AI-run reference.
 - Monotonic `ownership_generation` is incremented for every authority change.
+- `AI` requires a same-tenant P13 execution identity and stable P13 idempotency identity bound
+  to the resulting ownership generation. `UNASSIGNED` carries no implied AI authority.
 - A check constraint requires fields appropriate to the selected mode.
+
+### `human_handoffs`
+
+- Durable tenant/conversation/work-item record for AI-to-human and human-to-AI transitions.
+- Human-to-AI state is closed: `PENDING_P13_ACCEPTANCE`, `P13_ACCEPTED`, `P13_REJECTED` or
+  `P13_ACCEPTANCE_AMBIGUOUS`.
+- Binds the Organization, conversation, pending ownership generation, stable P13 idempotency
+  identity, expected P13 execution contract/version and, only after acceptance, the exact P13
+  execution/run identity and resulting AI ownership generation.
+- Unique semantic return identity makes duplicate delivery idempotent. A different P13 run for
+  an already-bound return is a conflict and cannot overwrite the binding.
+- Known P13 rejection is a P17-owned deterministic outcome. Ambiguous acceptance remains
+  `UNASSIGNED` and is not auto-requeued or retried with another identity.
 
 ### `human_action_authorizations`
 
@@ -219,6 +243,7 @@ States:
 - `CLAIMED`
 - `ACCEPTED`
 - `ACTIVE`
+- `AI_RETURN_PENDING`
 - `WRAP_UP`
 - `COMPLETED`
 - `CANCELLED`
@@ -235,8 +260,11 @@ Legal transitions:
 | `ACCEPTED` | `ACTIVE` | Current owner accepts conversation authority. |
 | `ACCEPTED` | `QUEUED` | Explicit transfer/requeue. |
 | `ACTIVE` | `WRAP_UP` | Current owner resolves customer-facing work. |
+| `ACTIVE` | `AI_RETURN_PENDING` | Human-to-AI intent transaction fences the human and persists the stable P13 identity. |
 | `ACTIVE` | `QUEUED` | Explicit transfer/requeue. |
 | `ACTIVE` | `COMPLETED` | Resolve without separate wrap-up when policy permits. |
+| `AI_RETURN_PENDING` | `COMPLETED` | Exact P13 execution is accepted/bound and AI ownership commits. |
+| `AI_RETURN_PENDING` | `QUEUED` | Deterministic known P13 rejection requeues with an explicit failure reason. |
 | `WRAP_UP` | `COMPLETED` | Current owner completes after-work activity. |
 | Non-terminal | `CANCELLED` | Governed cancellation when no prior action ordering forbids it. |
 
@@ -244,16 +272,51 @@ Legal transitions:
 `TRANSFER_PENDING` state: the current assignment closes and either a new assignment is
 created atomically for a specific agent or the item returns to `QUEUED` for a target queue.
 
+`AI_RETURN_PENDING` does not mean AI ownership. Conversation ownership remains `UNASSIGNED`.
+If P13 acceptance is ambiguous, the work item and handoff remain pending for P25 reconciliation.
+
+## Global lock order
+
+The canonical order for all P17 authority mutations is:
+
+1. queue rows, ordered by queue ID;
+2. agent-presence rows, ordered by agent user ID;
+3. work-item row;
+4. conversation-ownership row;
+5. assignment rows, ordered by assignment ID;
+6. handoff row;
+7. action-authorization row.
+
+Transactions skip unused levels but never acquire an earlier level after a later one. A
+multi-agent transfer locks both presence rows in ascending agent-user-ID order. A multi-queue
+operation locks queues in ascending queue-ID order.
+
+Queue claims take a PostgreSQL `FOR SHARE` lock on the queue row and capture its revision
+before locking presence/work authority. Queue disable or routing configuration changes take
+`FOR UPDATE`, increment the queue revision and commit atomically. Therefore:
+
+- a claim whose queue lock commits first may complete under the captured revision, and the
+  disable/configuration mutation waits;
+- a disable/configuration commit that wins first is observed by the later claim, which must
+  reject disabled state or re-evaluate the new revision;
+- a claim may never validate one revision and commit after a different revision without an
+  explicit revision predicate.
+
+This gives queue-disable/configuration-versus-claim one durable first-commit ordering without
+serializing independent work-item claims through process-local state.
+
 ## Claim, capacity and fencing algorithm
 
 1. Resolve the authenticated Organization and authorized agent.
-2. Lock the agent presence/capacity row.
-3. Verify explicit claim-eligible presence and remaining capacity.
-4. Select one eligible queue item with deterministic ordering and `FOR UPDATE SKIP LOCKED`.
-5. Recheck queue enabled state, channel/skill policy and conversation ownership generation.
-6. Create a unique assignment, new opaque claim token and incremented lease version.
-7. Update work item and presence count, append history and insert P04 outbox intent.
-8. Commit before returning authority.
+2. Lock the queue row `FOR SHARE`, capture its revision and verify enabled routing policy.
+3. Lock the agent presence/capacity row.
+4. Verify explicit claim-eligible presence and remaining capacity.
+5. Select one eligible queue item with deterministic ordering and `FOR UPDATE SKIP LOCKED`.
+6. Lock conversation ownership and any current assignment in global order.
+7. Recheck queue revision, channel/skill policy and conversation ownership generation.
+8. Create a unique assignment, new opaque claim token and incremented lease version.
+9. Update work item and presence count, append history and insert P04 outbox intent.
+10. Commit before returning authority.
 
 Completion and mutation use compare-and-set predicates over Organization, assignment, state,
 agent, claim token and lease version. A stale owner changes zero rows and receives a stable
@@ -267,9 +330,10 @@ available; automatic stale-owner recovery belongs to P25.
 
 1. P13 requests handoff with tenant, conversation, AI run, bounded reason/context reference
    and correlation ID.
-2. One transaction locks conversation ownership, verifies `AI` mode and generation, creates
-   or idempotently returns the human work item, changes ownership to `UNASSIGNED`, increments
-   generation, appends history and writes P04 event intent.
+2. One transaction locks the selected queue before conversation ownership in global order,
+   verifies `AI` mode and generation, creates or idempotently returns the human work item,
+   changes ownership to `UNASSIGNED`, increments generation, appends history and writes P04
+   event intent.
 3. P13 must verify the ownership generation before any later customer-facing AI output; the
    committed handoff fence blocks a stale AI response.
 4. A human claim creates an assignment. Acceptance atomically changes ownership from
@@ -282,13 +346,31 @@ hidden reasoning or unrestricted provider payloads into the work item.
 
 1. The current human presents the valid assignment token/version and an authorized return
    reason.
-2. A transaction locks the work item and conversation ownership, verifies `HUMAN` authority,
-   closes/fences the human assignment, changes ownership to `AI`, increments generation and
-   persists one stable P13 idempotency identity plus event/audit intent.
-3. After commit, P17 invokes the certified P13 boundary. P13 must use the bound conversation
-   and new ownership generation.
-4. Duplicate delivery reuses the same P13 identity. Accepted-but-not-persisted ambiguity is
-   recorded and not retried under a new identity; automatic reconciliation belongs to P25.
+2. Following global lock order, one transaction locks the owning agent-presence row, work item,
+   conversation ownership, current assignment and handoff identity, verifies `HUMAN`
+   authority, fences/closes the human assignment, decrements active capacity, changes the work
+   item to `AI_RETURN_PENDING`, changes ownership to `UNASSIGNED`, increments the pending
+   ownership generation and persists one `PENDING_P13_ACCEPTANCE` handoff with a stable P13
+   idempotency identity plus event/audit intent.
+3. After commit, P17 invokes P13 using that exact tenant, conversation, pending ownership
+   generation and stable identity. No human or AI has customer-facing authority while pending.
+4. If P13 deterministically rejects before acceptance, P17 locks the work item's target queue
+   first and then the remaining authority rows in global order, marks the handoff
+   `P13_REJECTED`, keeps ownership `UNASSIGNED`, moves the work item to `QUEUED` with reason
+   `AI_RETURN_REJECTED` and requires a fresh human claim/token. This is a closed P17 policy and
+   does not require P25.
+5. If P13 accepts, P17 binds the exact P13 execution/run identity. In one transaction it
+   verifies Organization, conversation, pending generation, stable identity and expected P13
+   contract/version; then it marks the handoff `P13_ACCEPTED`, completes the human work item,
+   changes ownership to `AI`, increments/binds the resulting AI generation and emits audit/
+   outbox intent. Only this commit grants AI authority.
+6. If P13 may have accepted but P17 loses or cannot durably persist the result, it marks the
+   handoff `P13_ACCEPTANCE_AMBIGUOUS` when safely knowable, otherwise leaves the pending record
+   intact. Ownership remains `UNASSIGNED`, the stable identity is reused, human authority is
+   not restored automatically and reconciliation belongs to P25.
+7. Duplicate return requests with the same semantic identity return the same handoff/binding.
+   The same exact P13 run is idempotent; a different run identity is a conflict and cannot
+   overwrite the bound execution.
 
 A human send authorization committed before return may complete. If return commits first,
 the stale human token cannot authorize another send.
@@ -300,8 +382,9 @@ the stale human token cannot authorize another send.
 `P17 human action authorization -> P09 MessagingService -> provider adapter`
 
 The final authorization transaction verifies current human ownership, token/version, RBAC,
-channel membership and semantic fingerprint, then commits a stable P09 idempotency key. P17
-never calls WhatsApp, Email or SMS providers directly.
+channel membership and semantic fingerprint while locking work item, ownership, assignment and
+action authorization in global order, then commits a stable P09 idempotency key. P17 never
+calls WhatsApp, Email or SMS providers directly.
 
 ### Voice
 
@@ -321,21 +404,24 @@ campaigns, transfers or ownership changes.
 
 ### Agent to queue
 
-The current owner transactionally validates its token, closes its assignment, increments the
-ownership generation, changes ownership to `UNASSIGNED`, moves the item to the target queue
-and returns it to `QUEUED`. The old token is fenced at commit.
+The current owner locks the target queue, current-agent presence, work item, ownership and
+assignment in global order, validates its token, closes its assignment, updates active
+capacity, increments the ownership generation, changes ownership to `UNASSIGNED`, moves the
+item to the target queue and returns it to `QUEUED`. The old token is fenced at commit.
 
 ### Agent to specific agent
 
-The transaction locks both presence rows in deterministic user-ID order, verifies same tenant,
-target authorization/presence/capacity, closes the old assignment, creates a new assignment
-with a fresh token/version and updates ownership. Token reuse is forbidden.
+Following global order, the transaction locks any queue first, then both presence rows in
+ascending agent-user-ID order, followed by work item, ownership and assignment. It verifies
+same tenant, target authorization/presence/capacity, closes the old assignment, creates a new
+assignment with a fresh token/version and updates ownership. Token reuse is forbidden.
 
 ### Supervisor
 
 `human:supervise` permits inspected, reasoned release, requeue and transfer. The supervisor
 does not impersonate the human and cannot reuse the released token. Every mutation captures
-the supervisor user, reason and correlation ID in append-only audit history.
+the supervisor user, reason and correlation ID in append-only audit history and follows the
+same global lock order.
 
 ## RBAC proposal
 
@@ -419,7 +505,7 @@ authorization, provider payloads and hidden reasoning.
 | 4 | Transfer vs human reply | Reply authorization and transfer lock ownership/assignment; authorization-first may proceed, transfer-first fences old token. | Ambiguous accepted reply reconciliation: P25. |
 | 5 | Supervisor release vs reply | Same linearization as transfer; release-first blocks authorization, authorization-first is already logically authorized. | Ambiguous P09 result: P25. |
 | 6 | AI handoff vs AI response | Handoff increments ownership generation; P13 response must compare generation before output authorization. | Ambiguous already-emitted output: P25. |
-| 7 | Human return-to-AI vs human send | Ownership row serialization; send authorization-first may proceed, AI-return-first fences human token. | Ambiguous downstream result: P25. |
+| 7 | Human return-to-AI vs human send | Global lock order serializes both; send authorization-first may proceed, return-intent-first fences the human and leaves ownership `UNASSIGNED` pending P13. | Ambiguous downstream result: P25. |
 | 8 | Stale claim token | Compare-and-set over assignment, owner, token and lease version changes zero rows. | None. |
 | 9 | Duplicate handoff request | Unique source/generation identity returns the same active work item. | None. |
 | 10 | Duplicate accept | Same token/state is idempotent; different token or state conflicts. | None. |
@@ -427,12 +513,18 @@ authorization, provider payloads and hidden reasoning.
 | 12 | Browser disconnect | No authority change; assignment remains durable and visible. | Automatic stale-owner handling: P25. |
 | 13 | Service crash after claim commit | Claim remains owned with token/version and audit evidence; no silent reassignment. | Reaping/reassignment: P25. |
 | 14 | P09 accepts send, local terminal write lost | Replay uses same stable P09 key; no new logical identity. Attempt remains ambiguous. | Automated reconciliation: P25. |
-| 15 | P13 accepts AI return, local linkage write lost | Replay uses same stable P13 identity; no second logical execution. | Automated reconciliation: P25. |
-| 16 | Queue disabled vs claim | Queue row/state is rechecked while claim transaction holds authoritative locks; first commit determines result. | None. |
+| 15 | P13 accepts AI return, response/linkage lost | Ownership remains `UNASSIGNED`; replay uses the same stable identity, no second logical execution is created and human authority is not restored automatically. | Automated reconciliation: P25. |
+| 16 | Queue disabled vs claim | Claim takes queue `FOR SHARE`; disable takes `FOR UPDATE`. First commit determines whether the captured revision may claim or the later claim observes disabled state. | None. |
 | 17 | Specific-agent transfer at capacity | Presence rows lock in deterministic order; target capacity must be available at commit. | None. |
 | 18 | Cross-tenant queue/agent/conversation reference | RLS and composite foreign keys reject reads and writes even if application validation is bypassed. | None. |
 | 19 | Outbox unavailable after state mutation attempt | Business state and outbox intent share one transaction; both commit or neither commits. | Publisher recovery remains P04. |
 | 20 | Terminal item receives claim/transfer/reply | State predicate rejects it; terminal states never return to active states. | None. |
+| 21 | P13 deterministically rejects AI return | Handoff becomes `P13_REJECTED`; ownership stays `UNASSIGNED`; item returns to `QUEUED` with `AI_RETURN_REJECTED` and requires a fresh human claim. | None. |
+| 22 | Duplicate return-to-AI request | Unique semantic return identity returns the same pending, rejected, ambiguous or accepted handoff; it never creates a new P13 key. | None. |
+| 23 | Conflicting P13 run returned | Exact binding predicate rejects a run differing from the already-bound run or expected contract/version. | Investigation/reconciliation if prior acceptance is ambiguous: P25. |
+| 24 | Queue configuration revision vs claim | Queue `FOR SHARE`/`FOR UPDATE` ordering plus revision predicate makes claim use exactly one committed policy revision. | None. |
+| 25 | Duplicate exact P13 binding delivery | Same tenant, conversation, pending generation, stable key and run identity is idempotent. | None. |
+| 26 | P13 binding has wrong tenant/conversation/generation | Tenant scope, composite identity and compare-and-set reject it; ownership remains `UNASSIGNED`. | None. |
 
 ## Security and abuse controls
 
@@ -462,7 +554,10 @@ release, requeue and transfer. It does **not** automatically:
 - reconcile P13 accepted-but-unrecorded AI returns;
 - perform distributed failover.
 
-Those mechanisms require the separately governed NXS-P25 resilience contract.
+Deterministic P13 rejection before acceptance is not a P25 case: P17 records rejection and
+requeues for a new human claim. Only possible P13 acceptance whose exact result cannot be
+determined or persisted crosses the P25 boundary. Those ambiguous recovery mechanisms require
+the separately governed NXS-P25 resilience contract.
 
 ## Explicit exclusions
 
