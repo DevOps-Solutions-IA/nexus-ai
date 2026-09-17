@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p17-human-agents",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P09",
     "NXS-P13"
@@ -13,6 +13,7 @@
     ".nxs/evidence/NXS-P17/clean-room.json",
     ".nxs/evidence/NXS-P17/closure.json",
     ".nxs/evidence/NXS-P17/concurrency.json",
+    ".nxs/evidence/NXS-P17/corrective-authority-and-sla.json",
     ".nxs/evidence/NXS-P17/coverage.json",
     ".nxs/evidence/NXS-P17/docker.json",
     ".nxs/evidence/NXS-P17/events-rbac-api.json",
@@ -28,7 +29,7 @@
     ".nxs/evidence/NXS-P17/tests.json"
   ],
   "id": "NXS-P17",
-  "implementation_commit": null,
+  "implementation_commit": "13832df618ffa3b2e6c7a75451ecc7c7e7badb35",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -72,9 +73,9 @@
     "NXS-HUMAN-001"
   ],
   "schema_version": "1.0.0",
-  "status": "VALIDATING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-17T19:40:37Z",
     "started_at": "2026-09-17T13:08:19Z"
   },
   "title": "Human Agent Operations"

@@ -3,10 +3,10 @@
   "focused_p17": 48,
   "passed": 1864,
   "phase": "NXS-P17",
-  "recorded_at": "2026-09-17T19:16:00Z",
+  "recorded_at": "2026-09-17T19:40:36Z",
   "result": "PASS",
-  "runtime_seconds": 366.06,
+  "runtime_seconds": 373.62,
   "schema_version": "1.0.0",
   "warnings_as_errors": true,
-  "validation_source": "corrective clean-room full suite"
+  "validation_source": "Stage B canonical nxs-gate full suite"
 }

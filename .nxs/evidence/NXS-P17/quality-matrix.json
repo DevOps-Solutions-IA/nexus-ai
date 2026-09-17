@@ -41,7 +41,8 @@
     "unit_tests": "PASS"
   },
   "phase": "NXS-P17",
-  "recorded_at": "2026-09-17T14:30:20Z",
+  "recorded_at": "2026-09-17T19:34:00Z",
   "result": "PASS",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "implementation_commit": "13832df618ffa3b2e6c7a75451ecc7c7e7badb35"
 }
