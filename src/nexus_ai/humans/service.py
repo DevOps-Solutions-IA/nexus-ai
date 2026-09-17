@@ -7,7 +7,12 @@ from typing import Any
 
 from sqlalchemy.exc import IntegrityError
 
-from nexus_ai.agents.entities import AgentChannel, StartAgentSessionRequest, SubmitTurnRequest
+from nexus_ai.agents.entities import (
+    AGENT_SESSION_CONTRACT_VERSION,
+    AgentChannel,
+    StartAgentSessionRequest,
+    SubmitTurnRequest,
+)
 from nexus_ai.agents.service import AgentService
 from nexus_ai.core.errors import NxsError
 from nexus_ai.domain.auth.entities import Principal
@@ -366,7 +371,8 @@ class HumanOperationsService:
                 return _work(work)
             if (
                 ownership.ownership_generation != request.ownership_generation
-                or ownership.assignment_id != assignment.id
+                or ownership.mode != OwnershipMode.UNASSIGNED.value
+                or ownership.assignment_id is not None
                 or work.current_assignment_id != assignment.id
                 or work.lease_version != request.lease_version
             ):
@@ -384,6 +390,7 @@ class HumanOperationsService:
             work.state = WorkItemState.ACTIVE.value
             work.accepted_at = now
             ownership.mode = OwnershipMode.HUMAN.value
+            ownership.assignment_id = assignment.id
             ownership.agent_user_id = actor_user_id
             ownership.ownership_generation += 1
             ownership.updated_at = now
@@ -750,9 +757,22 @@ class HumanOperationsService:
                     AssignmentState.ACTIVE.value,
                 }
                 or work.current_assignment_id != assignment.id
-                or ownership.assignment_id != assignment.id
             ):
                 raise HumanExecutionFencedError("assignment is no longer transferable")
+            claimed_without_human_owner = (
+                assignment.state == AssignmentState.CLAIMED.value
+                and ownership.mode == OwnershipMode.UNASSIGNED.value
+                and ownership.assignment_id is None
+                and ownership.agent_user_id is None
+            )
+            active_human_owner = (
+                assignment.state in {AssignmentState.ACCEPTED.value, AssignmentState.ACTIVE.value}
+                and ownership.mode == OwnershipMode.HUMAN.value
+                and ownership.assignment_id == assignment.id
+                and ownership.agent_user_id == assignment.owner_agent_id
+            )
+            if not claimed_without_human_owner and not active_human_owner:
+                raise HumanExecutionFencedError("assignment ownership is no longer transferable")
             if assignment.owner_agent_id == request.target_agent_user_id:
                 raise HumanInvalidStateError("target agent already owns this assignment")
             if target_presence.state not in {
@@ -940,13 +960,21 @@ class HumanOperationsService:
             if replay is not None:
                 if (
                     replay.p13_idempotency_key != p13_key
+                    or replay.p13_contract_version != AGENT_SESSION_CONTRACT_VERSION
                     or replay.semantic_fingerprint != return_fingerprint
                 ):
                     raise HumanConflictError("return-to-AI idempotency fingerprint changed")
                 if replay.state == HandoffState.ACCEPTED.value:
                     ownership = await repo.ownership_row(replay.conversation_id)
-                    if ownership is None:
-                        raise HumanExecutionFencedError("accepted AI ownership is absent")
+                    if (
+                        ownership is None
+                        or ownership.mode != OwnershipMode.AI.value
+                        or ownership.ai_session_id != replay.p13_session_id
+                        or ownership.ownership_generation != replay.ownership_generation + 1
+                    ):
+                        raise HumanExecutionFencedError(
+                            "accepted AI ownership is no longer current"
+                        )
                     return _ownership(ownership)
                 if replay.state == HandoffState.P13_REJECTED.value:
                     raise HumanInvalidStateError("the prior P13 return request was rejected")
@@ -994,6 +1022,7 @@ class HumanOperationsService:
                     semantic_fingerprint=return_fingerprint,
                     ownership_generation=ownership.ownership_generation,
                     p13_idempotency_key=p13_key,
+                    p13_contract_version=AGENT_SESSION_CONTRACT_VERSION,
                 )
                 tenant.session.add(handoff)
                 await repo.transition(
@@ -1050,10 +1079,20 @@ class HumanOperationsService:
             session.organization_id != organization_id
             or session.conversation_id != conversation_id
             or session.agent_id != request.agent_id
+            or session.idempotency_key != p13_key
+            or session.CONTRACT_VERSION != AGENT_SESSION_CONTRACT_VERSION
         ):
             await self._mark_ai_return_ambiguous(
-                organization_id, handoff_id, "P13_EXECUTION_IDENTITY_MISMATCH"
+                organization_id,
+                handoff_id,
+                (
+                    "P13_CONTRACT_VERSION_MISMATCH"
+                    if session.CONTRACT_VERSION != AGENT_SESSION_CONTRACT_VERSION
+                    else "P13_EXECUTION_IDENTITY_MISMATCH"
+                ),
             )
+            if session.CONTRACT_VERSION != AGENT_SESSION_CONTRACT_VERSION:
+                raise HumanExecutionFencedError("P13 returned a mismatched contract version")
             raise HumanExecutionFencedError("P13 returned a mismatched execution identity")
 
         async with self._db.tenant_transaction(organization_id) as tenant:
@@ -1071,6 +1110,14 @@ class HumanOperationsService:
             if bound_handoff is None or bound_handoff.id != handoff_id:
                 raise HumanExecutionFencedError("return-to-AI handoff changed")
             if (
+                bound_handoff.organization_id != organization_id
+                or bound_handoff.conversation_id != conversation_id
+                or bound_handoff.p13_idempotency_key != p13_key
+                or bound_handoff.p13_contract_version != AGENT_SESSION_CONTRACT_VERSION
+                or bound_handoff.p13_contract_version != session.CONTRACT_VERSION
+            ):
+                raise HumanExecutionFencedError("return-to-AI execution contract changed")
+            if (
                 bound_handoff.p13_session_id is not None
                 and bound_handoff.p13_session_id != session.id
             ):
@@ -1081,6 +1128,7 @@ class HumanOperationsService:
                 and ownership is not None
                 and ownership.mode == OwnershipMode.AI.value
                 and ownership.ai_session_id == session.id
+                and ownership.ownership_generation == bound_handoff.ownership_generation + 1
             ):
                 return _ownership(ownership)
             if (
@@ -1304,11 +1352,21 @@ class HumanOperationsService:
         error_code: str | None = None,
     ) -> ActionAuthorization:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            row = await tenant.session.get(
-                HumanActionAuthorizationRecord, authorization_id, with_for_update=True
-            )
-            if row is None or row.organization_id != organization_id:
+            repo = HumanOperationsRepository(tenant)
+            probe = await repo.authorization_row(authorization_id)
+            if probe is None:
                 raise HumanExecutionFencedError("action authorization is absent")
+            work_probe = await repo.work_row(probe.work_item_id)
+            if work_probe is None:
+                raise HumanExecutionFencedError("authorization work item is absent")
+            if await repo.queue_row(work_probe.queue_id, lock="share") is None:
+                raise HumanExecutionFencedError("authorization queue is absent")
+            work = await repo.work_row(work_probe.id, for_update=True)
+            row = await repo.authorization_row(authorization_id, for_update=True)
+            if row is None or work is None:
+                raise HumanExecutionFencedError("action authorization changed")
+            await tenant.session.refresh(work)
+            await tenant.session.refresh(row)
             if row.state == ActionAuthorizationState.CONSUMED.value:
                 return _authorization(row)
             if row.state != ActionAuthorizationState.AUTHORIZED.value:
@@ -1316,6 +1374,8 @@ class HumanOperationsService:
             row.state = state.value
             row.message_id = message_id
             row.error_code = error_code
+            if state is ActionAuthorizationState.CONSUMED and work.first_response_at is None:
+                work.first_response_at = await repo.database_now()
             await tenant.session.flush()
             return _authorization(row)
 

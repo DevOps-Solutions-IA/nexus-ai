@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p17-human-agents",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P09",
     "NXS-P13"
@@ -28,7 +28,7 @@
     ".nxs/evidence/NXS-P17/tests.json"
   ],
   "id": "NXS-P17",
-  "implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -72,9 +72,9 @@
     "NXS-HUMAN-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-17T14:31:50Z",
+    "closed_at": null,
     "started_at": "2026-09-17T13:08:19Z"
   },
   "title": "Human Agent Operations"

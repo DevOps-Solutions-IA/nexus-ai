@@ -1,9 +1,10 @@
 {
   "branch_aware": true,
-  "line_percent": 91.05,
+  "line_percent": 91.06,
   "phase": "NXS-P17",
-  "recorded_at": "2026-09-17T14:30:20Z",
-  "required_percent": 90.0,
+  "recorded_at": "2026-09-17T19:16:00Z",
+  "required_percent": 90,
   "result": "PASS",
-  "schema_version": "1.0.0"
+  "schema_version": "1.0.0",
+  "validation_source": "corrective clean-room full suite"
 }

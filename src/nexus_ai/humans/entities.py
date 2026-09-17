@@ -187,6 +187,7 @@ class HumanHandoff(BaseModel):
     semantic_fingerprint: str
     ownership_generation: int
     p13_idempotency_key: str | None
+    p13_contract_version: str | None
     p13_session_id: UUID | None
     error_code: str | None
     created_at: dt.datetime

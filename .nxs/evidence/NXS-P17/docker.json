@@ -1,10 +1,10 @@
 {
   "amd64_build": "PASS",
-  "final_image_id": "sha256:d80f5d1615865b59b4a931294d534e5d4d7121cc54e98ea107377d7200d094cf",
+  "final_image_id": "sha256:bcd654331153ef8bcf19bc07bcd3a947ff14438ba43046f0fab05cb275bfbfff",
   "graceful_shutdown": "PASS",
   "health_live": "PASS",
   "health_ready": "PASS",
-  "image": "nexus-ai:scan",
+  "image": "nexus-ai:clean-room",
   "multiarch_build": "PASS",
   "non_root_user": "65532:65532",
   "phase": "NXS-P17",
@@ -12,7 +12,7 @@
     "linux/amd64",
     "linux/arm64"
   ],
-  "recorded_at": "2026-09-17T14:30:20Z",
+  "recorded_at": "2026-09-17T19:16:00Z",
   "result": "PASS",
   "schema_version": "1.0.0"
 }

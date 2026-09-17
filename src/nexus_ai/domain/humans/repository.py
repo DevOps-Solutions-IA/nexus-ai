@@ -292,7 +292,7 @@ class HumanOperationsRepository:
         return (await self.session.execute(query)).scalar_one_or_none()
 
     async def ensure_ownership(
-        self, conversation_id: uuid.UUID, *, initial_mode: OwnershipMode = OwnershipMode.AI
+        self, conversation_id: uuid.UUID, *, initial_mode: OwnershipMode = OwnershipMode.UNASSIGNED
     ) -> ConversationOwnershipRecord:
         await self.session.execute(
             pg_insert(ConversationOwnershipRecord)
@@ -400,7 +400,7 @@ class HumanOperationsRepository:
         presence.updated_at = now
         ownership.mode = OwnershipMode.UNASSIGNED.value
         ownership.work_item_id = work.id
-        ownership.assignment_id = assignment.id
+        ownership.assignment_id = None
         ownership.agent_user_id = None
         ownership.ai_session_id = None
         ownership.ownership_generation += 1
@@ -523,6 +523,17 @@ class HumanOperationsRepository:
         query = select(HumanActionAuthorizationRecord).where(
             HumanActionAuthorizationRecord.organization_id == self.organization_id,
             HumanActionAuthorizationRecord.p09_idempotency_key == p09_key,
+        )
+        if for_update:
+            query = query.with_for_update()
+        return (await self.session.execute(query)).scalar_one_or_none()
+
+    async def authorization_row(
+        self, authorization_id: uuid.UUID, *, for_update: bool = False
+    ) -> HumanActionAuthorizationRecord | None:
+        query = select(HumanActionAuthorizationRecord).where(
+            HumanActionAuthorizationRecord.organization_id == self.organization_id,
+            HumanActionAuthorizationRecord.id == authorization_id,
         )
         if for_update:
             query = query.with_for_update()

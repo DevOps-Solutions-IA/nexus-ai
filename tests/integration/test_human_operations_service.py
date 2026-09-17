@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import uuid
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import select, text
 
+from nexus_ai.agents.entities import AGENT_SESSION_CONTRACT_VERSION, StartAgentSessionRequest
 from nexus_ai.domain.auth.entities import Principal
 from nexus_ai.domain.customers.entities import CreateConversationRequest, CreateCustomerRequest
+from nexus_ai.domain.humans.models import HumanHandoffRecord
 from nexus_ai.humans.entities import (
     AssignmentActionRequest,
     ClaimWorkRequest,
@@ -37,6 +40,7 @@ from nexus_ai.messaging.entities import (
     MessageChannel,
     StoreAccountCredentialRequest,
 )
+from nexus_ai.messaging.errors import MessagingProviderError
 from tests.integration.test_agent_service import _provision
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
@@ -290,11 +294,74 @@ async def test_human_send_uses_p09_once_and_persists_authorization(
     first = await human_stack.service.send_message(
         organization.id, claim.assignment.id, request, actor_user_id=principal.user_id
     )
+    after_first = await human_stack.service.get_work_item(organization.id, claim.work_item.id)
+    assert after_first.first_response_at is not None
     second = await human_stack.service.send_message(
         organization.id, claim.assignment.id, request, actor_user_id=principal.user_id
     )
+    after_replay = await human_stack.service.get_work_item(organization.id, claim.work_item.id)
+    assert after_replay.first_response_at == after_first.first_response_at
+    later_request = request.model_copy(
+        update={
+            "content": "A second human-approved response",
+            "idempotency_key": "human:message:second",
+        }
+    )
+    human_stack.messaging.transport.set_response(
+        200, {"messages": [{"id": "prov-msg-2"}], "message_id": "prov-msg-2"}
+    )
+    await human_stack.service.send_message(
+        organization.id, claim.assignment.id, later_request, actor_user_id=principal.user_id
+    )
+    after_second = await human_stack.service.get_work_item(organization.id, claim.work_item.id)
+    assert after_second.first_response_at == after_first.first_response_at
     assert first.message_id == second.message_id
-    assert len(human_stack.messaging.transport.requests) == 1
+    assert len(human_stack.messaging.transport.requests) == 2
+
+
+async def test_failed_p09_send_does_not_set_first_response(
+    human_stack: Any,
+    make_organization: Any,
+    make_tool_principal: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    claim, conversation = await _claimed(human_stack, organization, principal)
+    await human_stack.service.accept_assignment(
+        organization.id,
+        claim.assignment.id,
+        AssignmentActionRequest(
+            claim_token=claim.claim_token,
+            lease_version=claim.assignment.lease_version,
+            ownership_generation=claim.ownership_generation,
+        ),
+        actor_user_id=principal.user_id,
+    )
+    ownership = await human_stack.service.get_ownership(organization.id, conversation.id)
+
+    async def _failed(*args: Any, **kwargs: Any) -> Any:
+        raise MessagingProviderError("known provider rejection")
+
+    monkeypatch.setattr(human_stack.messaging.service, "send", _failed)
+    with pytest.raises(MessagingProviderError):
+        await human_stack.service.send_message(
+            organization.id,
+            claim.assignment.id,
+            HumanSendRequest(
+                claim_token=claim.claim_token,
+                lease_version=claim.assignment.lease_version,
+                ownership_generation=ownership.ownership_generation,
+                account_id=uuid.uuid7(),
+                to=("+14155550101",),
+                content="Known failure",
+                channel=HumanChannel.SMS,
+                idempotency_key="human:message:known-failure",
+            ),
+            actor_user_id=principal.user_id,
+        )
+    persisted = await human_stack.service.get_work_item(organization.id, claim.work_item.id)
+    assert persisted.first_response_at is None
 
 
 async def test_ambiguous_p09_delivery_is_not_automatically_retried(
@@ -341,6 +408,8 @@ async def test_ambiguous_p09_delivery_is_not_automatically_retried(
                 organization.id, claim.assignment.id, request, actor_user_id=principal.user_id
             )
     assert calls == 1
+    persisted = await human_stack.service.get_work_item(organization.id, claim.work_item.id)
+    assert persisted.first_response_at is None
 
 
 async def test_p09_accepted_local_write_loss_reuses_same_logical_message(
@@ -443,6 +512,16 @@ async def test_human_to_ai_binds_exact_p13_session(
     )
     assert returned.mode is OwnershipMode.AI
     assert returned.ai_session_id is not None
+    async with human_stack.database.tenant_transaction(organization.id) as tenant:
+        handoff = (
+            await tenant.session.execute(
+                select(HumanHandoffRecord).where(
+                    HumanHandoffRecord.organization_id == organization.id,
+                    HumanHandoffRecord.idempotency_key == "human:return:exact",
+                )
+            )
+        ).scalar_one()
+        assert handoff.p13_contract_version == AGENT_SESSION_CONTRACT_VERSION
     replay = await human_stack.service.return_to_ai(
         organization.id,
         claim.assignment.id,
@@ -471,6 +550,122 @@ async def test_human_to_ai_binds_exact_p13_session(
             ),
             principal=principal,
         )
+
+
+async def test_human_to_ai_contract_version_mismatch_fails_closed(
+    human_stack: Any,
+    make_organization: Any,
+    make_tool_principal: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    agent = await _provision(human_stack.agents, organization.id)
+    claim, conversation = await _claimed(human_stack, organization, principal)
+    await human_stack.service.accept_assignment(
+        organization.id,
+        claim.assignment.id,
+        AssignmentActionRequest(
+            claim_token=claim.claim_token,
+            lease_version=claim.assignment.lease_version,
+            ownership_generation=claim.ownership_generation,
+        ),
+        actor_user_id=principal.user_id,
+    )
+    ownership = await human_stack.service.get_ownership(organization.id, conversation.id)
+    original = human_stack.agents.service.start_session
+
+    async def _wrong_contract(*args: Any, **kwargs: Any) -> Any:
+        session = await original(*args, **kwargs)
+        return SimpleNamespace(
+            **session.model_dump(),
+            CONTRACT_VERSION="NXS-P13.agent-session.v999",
+        )
+
+    monkeypatch.setattr(human_stack.agents.service, "start_session", _wrong_contract)
+    with pytest.raises(HumanExecutionFencedError, match="contract version"):
+        await human_stack.service.return_to_ai(
+            organization.id,
+            claim.assignment.id,
+            ReturnToAiRequest(
+                claim_token=claim.claim_token,
+                lease_version=claim.assignment.lease_version,
+                ownership_generation=ownership.ownership_generation,
+                agent_id=agent.id,
+                context="Continue under the expected contract.",
+                idempotency_key="human:return:contract-mismatch",
+            ),
+            principal=principal,
+        )
+    persisted = await human_stack.service.get_ownership(organization.id, conversation.id)
+    assert persisted.mode is OwnershipMode.UNASSIGNED
+    assert persisted.ai_session_id is None
+
+
+async def test_human_to_ai_conflicting_execution_binding_fails_closed(
+    human_stack: Any,
+    make_organization: Any,
+    make_tool_principal: Any,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    organization = await make_organization()
+    principal = await make_tool_principal(organization)
+    agent = await _provision(human_stack.agents, organization.id)
+    claim, conversation = await _claimed(human_stack, organization, principal)
+    await human_stack.service.accept_assignment(
+        organization.id,
+        claim.assignment.id,
+        AssignmentActionRequest(
+            claim_token=claim.claim_token,
+            lease_version=claim.assignment.lease_version,
+            ownership_generation=claim.ownership_generation,
+        ),
+        actor_user_id=principal.user_id,
+    )
+    ownership = await human_stack.service.get_ownership(organization.id, conversation.id)
+    original = human_stack.agents.service.start_session
+
+    async def _conflicting_binding(
+        organization_id: uuid.UUID, boundary_principal: Principal, request: StartAgentSessionRequest
+    ) -> Any:
+        expected = await original(organization_id, boundary_principal, request)
+        conflict = await original(
+            organization_id,
+            boundary_principal,
+            request.model_copy(update={"idempotency_key": f"{request.idempotency_key}:other"}),
+        )
+        async with human_stack.database.tenant_transaction(organization_id) as tenant:
+            handoff = (
+                await tenant.session.execute(
+                    select(HumanHandoffRecord)
+                    .where(
+                        HumanHandoffRecord.organization_id == organization_id,
+                        HumanHandoffRecord.idempotency_key == "human:return:execution-conflict",
+                    )
+                    .with_for_update()
+                )
+            ).scalar_one()
+            handoff.p13_session_id = conflict.id
+        return expected
+
+    monkeypatch.setattr(human_stack.agents.service, "start_session", _conflicting_binding)
+    with pytest.raises(HumanConflictError, match="different P13 execution"):
+        await human_stack.service.return_to_ai(
+            organization.id,
+            claim.assignment.id,
+            ReturnToAiRequest(
+                claim_token=claim.claim_token,
+                lease_version=claim.assignment.lease_version,
+                ownership_generation=ownership.ownership_generation,
+                agent_id=agent.id,
+                context="Bind exactly one execution.",
+                idempotency_key="human:return:execution-conflict",
+            ),
+            principal=principal,
+        )
+    persisted = await human_stack.service.get_ownership(organization.id, conversation.id)
+    assert persisted.mode is OwnershipMode.UNASSIGNED
+    assert persisted.ai_session_id is None
 
 
 async def test_known_p13_rejection_requeues_without_restoring_human_authority(

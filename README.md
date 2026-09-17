@@ -33,8 +33,8 @@ P12 is contract-certified against the platform abstraction and test suite; live-
 
 The canonical source of truth for execution state is `.nxs/`, not this README. Always verify the current phase registry and project state before implementation.
 
-NXS-P17 is `READY / GO` on `feat/nxs-p17-human-agents`, with implementation and closure
-evidence pending external review and merge. It is not a canonical `main` capability until the
+NXS-P17 is undergoing corrective revalidation on `feat/nxs-p17-human-agents`, with
+implementation evidence pending external review and merge. It is not a canonical `main` capability until the
 governed implementation PR is reviewed and merged.
 
 ## Architecture
@@ -240,7 +240,7 @@ CALL     → Telephony / P11
 VOICE    → Voice / P12
 ```
 
-P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is certified `READY / GO` on its feature branch with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing; it remains unavailable on canonical `main` pending review and merge.
+P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is undergoing corrective revalidation on its feature branch with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing; it remains unavailable on canonical `main` pending review and merge.
 
 ## Security model
 
@@ -301,7 +301,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P16. NXS-P17 is `READY / GO` only on `feat/nxs-p17-human-agents`; branch-local certification does not make the capability canonical or production-ready before merge.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P16. NXS-P17 corrective revalidation is in progress on `feat/nxs-p17-human-agents`; branch-local certification does not make the capability canonical or production-ready before merge.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

@@ -227,6 +227,15 @@ def upgrade() -> None:
         sa.CheckConstraint(
             "ownership_generation >= 1", name="ck_conversation_ownership_generation_positive"
         ),
+        sa.CheckConstraint(
+            "(mode = 'AI' AND ai_session_id IS NOT NULL AND assignment_id IS NULL "
+            "AND agent_user_id IS NULL) OR "
+            "(mode = 'HUMAN' AND assignment_id IS NOT NULL AND agent_user_id IS NOT NULL "
+            "AND ai_session_id IS NULL) OR "
+            "(mode = 'UNASSIGNED' AND assignment_id IS NULL AND agent_user_id IS NULL "
+            "AND ai_session_id IS NULL)",
+            name=op.f("ck_conversation_ownership_authority_shape"),
+        ),
     )
     _tenant_table(
         "human_assignments",
@@ -308,6 +317,7 @@ def upgrade() -> None:
         sa.Column("semantic_fingerprint", sa.String(64), nullable=False),
         sa.Column("ownership_generation", sa.Integer(), nullable=False),
         sa.Column("p13_idempotency_key", sa.String(200), nullable=True),
+        sa.Column("p13_contract_version", sa.String(64), nullable=True),
         sa.Column("p13_session_id", sa.UUID(), nullable=True),
         sa.Column("error_code", sa.String(96), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), server_default=_NOW, nullable=False),
@@ -341,6 +351,13 @@ def upgrade() -> None:
             "state IN ('REQUESTED','AI_RETURN_PENDING','ACCEPTED','P13_REJECTED',"
             "'AMBIGUOUS','COMPLETED')",
             name="ck_human_handoffs_state_known",
+        ),
+        sa.CheckConstraint(
+            "(direction = 'AI_TO_HUMAN' AND p13_idempotency_key IS NULL "
+            "AND p13_contract_version IS NULL) OR "
+            "(direction = 'HUMAN_TO_AI' AND p13_idempotency_key IS NOT NULL "
+            "AND p13_contract_version IS NOT NULL)",
+            name=op.f("ck_human_handoffs_p13_contract_shape"),
         ),
     )
     _tenant_table(

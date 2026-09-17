@@ -9,9 +9,11 @@
   "multiarch": "PASS",
   "non_root_runtime": "PASS",
   "phase": "NXS-P17",
-  "recorded_at": "2026-09-17T14:30:20Z",
+  "recorded_at": "2026-09-17T19:16:00Z",
   "result": "PASS",
   "runtime_health": "PASS",
   "schema_version": "1.0.0",
-  "script": "scripts/clean-room.sh"
+  "script": "scripts/clean-room.sh",
+  "tests_passed": 1864,
+  "coverage_percent": 91.06
 }

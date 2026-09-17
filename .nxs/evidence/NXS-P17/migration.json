@@ -6,7 +6,7 @@
   "forced_rls_schema_guard": "PASS",
   "migration_revision": "f17a0b1c2d3e",
   "phase": "NXS-P17",
-  "recorded_at": "2026-09-17T14:30:20Z",
+  "recorded_at": "2026-09-17T19:16:00Z",
   "result": "PASS",
   "runtime_role_bypassrls": false,
   "runtime_role_superuser": false,
@@ -20,5 +20,8 @@
     "human_handoffs",
     "human_action_authorizations",
     "human_transition_history"
-  ]
+  ],
+  "ownership_authority_check": "PASS",
+  "p13_handoff_contract_column": "p13_contract_version",
+  "migration_change": "Updated unmerged f17a0b1c2d3e migration; no deployed data rewritten"
 }

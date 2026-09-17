@@ -223,6 +223,15 @@ class ConversationOwnershipRecord(TenantOwnedMixin, Base):
         ),
         CheckConstraint("mode IN ('AI','HUMAN','UNASSIGNED')", name="mode_known"),
         CheckConstraint("ownership_generation >= 1", name="generation_positive"),
+        CheckConstraint(
+            "(mode = 'AI' AND ai_session_id IS NOT NULL AND assignment_id IS NULL "
+            "AND agent_user_id IS NULL) OR "
+            "(mode = 'HUMAN' AND assignment_id IS NOT NULL AND agent_user_id IS NOT NULL "
+            "AND ai_session_id IS NULL) OR "
+            "(mode = 'UNASSIGNED' AND assignment_id IS NULL AND agent_user_id IS NULL "
+            "AND ai_session_id IS NULL)",
+            name="authority_shape",
+        ),
     )
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
     conversation_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
@@ -322,6 +331,13 @@ class HumanHandoffRecord(TenantOwnedMixin, Base):
             "'AMBIGUOUS','COMPLETED')",
             name="state_known",
         ),
+        CheckConstraint(
+            "(direction = 'AI_TO_HUMAN' AND p13_idempotency_key IS NULL "
+            "AND p13_contract_version IS NULL) OR "
+            "(direction = 'HUMAN_TO_AI' AND p13_idempotency_key IS NOT NULL "
+            "AND p13_contract_version IS NOT NULL)",
+            name="p13_contract_shape",
+        ),
     )
     id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), primary_key=True)
     conversation_id: Mapped[uuid.UUID] = mapped_column(PgUUID(as_uuid=True), nullable=False)
@@ -332,6 +348,7 @@ class HumanHandoffRecord(TenantOwnedMixin, Base):
     semantic_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
     ownership_generation: Mapped[int] = mapped_column(Integer, nullable=False)
     p13_idempotency_key: Mapped[str | None] = mapped_column(String(200))
+    p13_contract_version: Mapped[str | None] = mapped_column(String(64))
     p13_session_id: Mapped[uuid.UUID | None] = mapped_column(PgUUID(as_uuid=True))
     error_code: Mapped[str | None] = mapped_column(String(96))
     created_at: Mapped[dt.datetime] = mapped_column(
