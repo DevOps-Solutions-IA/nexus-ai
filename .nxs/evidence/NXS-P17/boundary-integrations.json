@@ -1,0 +1,13 @@
+{
+  "advisory_copilot_only": "PASS",
+  "p04_transactional_events": "PASS",
+  "p09_only_human_messaging": "PASS",
+  "p11_p12_voice_reference_only": "PASS",
+  "p13_return_to_ai_exact_binding": "PASS",
+  "p25_ambiguous_reconciliation_deferred": "PASS",
+  "phase": "NXS-P17",
+  "provider_sdk_bypass_absent": "PASS",
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

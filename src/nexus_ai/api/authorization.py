@@ -149,3 +149,11 @@ CampaignExecuteDep = Annotated[
 CampaignConfigureDep = Annotated[
     TenantSession, Depends(_permission_check(PermissionKey.CAMPAIGN_CONFIGURE))
 ]
+HumanReadDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.HUMAN_READ))]
+HumanWorkDep = Annotated[TenantSession, Depends(_permission_check(PermissionKey.HUMAN_WORK))]
+HumanConfigureDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.HUMAN_CONFIGURE))
+]
+HumanSuperviseDep = Annotated[
+    TenantSession, Depends(_permission_check(PermissionKey.HUMAN_SUPERVISE))
+]

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 from enum import StrEnum
-from typing import Annotated, Any
+from typing import Annotated, Any, ClassVar
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
@@ -45,6 +45,7 @@ ApiBase = Annotated[
 
 MAX_TOOL_KEYS = 32
 MAX_CONFIG_KEYS = 12
+AGENT_SESSION_CONTRACT_VERSION = "NXS-P13.agent-session.v1"
 
 #: The ONLY provider-neutral session-metadata keys a caller may set. Deliberately
 #: excludes anything that could select a model, an endpoint, a credential or an
@@ -181,6 +182,7 @@ class AgentDefinition(BaseModel):
 
 class AgentSession(BaseModel):
     model_config = ConfigDict(frozen=True)
+    CONTRACT_VERSION: ClassVar[str] = AGENT_SESSION_CONTRACT_VERSION
 
     id: UUID
     organization_id: UUID

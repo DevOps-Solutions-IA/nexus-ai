@@ -571,9 +571,10 @@ production deployment.
 
 ## Implementation certification prerequisites
 
-Future P17 implementation must start through the canonical lifecycle only after this
-governance change merges to exact-green `main` and explicit human authorization is granted.
-Certification will require migrations, forced-RLS/schema proof, real PostgreSQL concurrency
-tests, tenant adversarial tests, boundary integration tests, failure/race coverage, full
-quality/security gates, clean-room reproduction and exact-head GitHub CI/Security. Governance
-alignment alone leaves `NXS-HUMAN-001` PLANNED and NXS-P17 PLANNED/PENDING.
+P17 implementation started through the canonical lifecycle after the governance contract merged
+to exact-green `main` and explicit human authorization was granted. The runtime follows ADR 0098
+and implements the described PostgreSQL authority, P04/P09/P13 boundaries and P11/P12 reference
+boundary. Certification still requires migrations, forced-RLS/schema proof, real PostgreSQL
+concurrency tests, tenant adversarial tests, boundary integration tests, failure/race coverage,
+full quality/security gates, clean-room reproduction and exact-head GitHub CI/Security. Until
+closure and merge, `NXS-HUMAN-001` remains in progress and P17 is not a canonical capability.

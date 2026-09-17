@@ -32,7 +32,15 @@ async def test_openapi_describes_implemented_surface(app_client) -> None:
     # ``/messages`` only ever appears under ``/messaging/``.
     assert "/api/v1/messaging/messages" in paths
     assert "/api/v1/webhooks/messaging/{provider}/{token}" in paths
-    assert all("/messages" not in path or "/messaging/" in path for path in paths)
+    assert all(
+        "/messages" not in path
+        or "/messaging/" in path
+        or path == "/api/v1/human-assignments/{assignment_id}/messages"
+        for path in paths
+    )
+    assert "/api/v1/human-queues" in paths
+    assert "/api/v1/human-work-items/claim" in paths
+    assert "/api/v1/human-assignments/{assignment_id}/return-to-ai" in paths
     # The P05 provisioning and P06 customer/conversation surfaces are advertised;
     # arbitrary-id administration is not.
     assert "/api/v1/organizations" in paths

@@ -1,0 +1,12 @@
+{
+  "bandit": "PASS",
+  "container_high_critical_findings": 0,
+  "gitleaks": "PASS",
+  "phase": "NXS-P17",
+  "pip_audit": "PASS",
+  "recorded_at": "2026-09-17T19:17:00Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "trivy": "PASS",
+  "container_image": "sha256:bcd654331153ef8bcf19bc07bcd3a947ff14438ba43046f0fab05cb275bfbfff"
+}

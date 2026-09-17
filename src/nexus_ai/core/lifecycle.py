@@ -49,6 +49,8 @@ from nexus_ai.domain.telephony.repository import TelephonySecretStore
 from nexus_ai.domain.tools.repository import ToolIdempotencyRepository
 from nexus_ai.domain.voice.repository import VoiceSecretStore
 from nexus_ai.events.service import EventPlatform
+from nexus_ai.humans import events as human_events  # noqa: F401 - payload registration
+from nexus_ai.humans.service import HumanOperationsService
 from nexus_ai.infrastructure.cache import Cache
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.messaging import Messaging
@@ -129,6 +131,7 @@ class Resources:
     workflows: WorkflowService
     scheduler: SchedulerService
     campaigns: CampaignService
+    humans: HumanOperationsService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -374,6 +377,13 @@ class ApplicationLifespan:
             channel_service,
             service_name=settings.service_name,
         )
+        human_service = HumanOperationsService(
+            database,
+            event_platform.publisher,
+            channel_service,
+            agent_service,
+            service_name=settings.service_name,
+        )
 
         self._resources = Resources(
             settings=settings,
@@ -411,6 +421,7 @@ class ApplicationLifespan:
             workflows=workflow_service,
             scheduler=scheduler_service,
             campaigns=campaign_service,
+            humans=human_service,
         )
         await logger.ainfo(
             "runtime_started",

@@ -1,0 +1,10 @@
+{
+  "branch_aware": true,
+  "line_percent": 91.06,
+  "phase": "NXS-P17",
+  "recorded_at": "2026-09-17T19:40:36Z",
+  "required_percent": 90,
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "validation_source": "Stage B canonical nxs-gate full suite"
+}

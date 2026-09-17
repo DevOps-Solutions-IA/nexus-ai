@@ -1,0 +1,16 @@
+{
+  "composite_foreign_keys": "PASS",
+  "cross_tenant_assignment_rejected": "PASS",
+  "cross_tenant_handoff_rejected": "PASS",
+  "cross_tenant_ownership_rejected": "PASS",
+  "cross_tenant_presence_rejected": "PASS",
+  "cross_tenant_queue_rejected": "PASS",
+  "forced_rls": "PASS",
+  "organization_context_trusted": "PASS",
+  "phase": "NXS-P17",
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "runtime_role_non_bypass": "PASS",
+  "schema_version": "1.0.0",
+  "tests": 3
+}

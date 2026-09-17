@@ -91,6 +91,11 @@ class PermissionKey(StrEnum):
     CAMPAIGN_READ = "campaign:read"
     CAMPAIGN_EXECUTE = "campaign:execute"
     CAMPAIGN_CONFIGURE = "campaign:configure"
+    # P17 additions (seeded by the P17 migration):
+    HUMAN_READ = "human:read"
+    HUMAN_WORK = "human:work"
+    HUMAN_CONFIGURE = "human:configure"
+    HUMAN_SUPERVISE = "human:supervise"
 
 
 class RoleKey(StrEnum):
@@ -190,6 +195,10 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.CAMPAIGN_READ: UUID("b2000000-0000-7000-8000-000000000036"),
     PermissionKey.CAMPAIGN_EXECUTE: UUID("b2000000-0000-7000-8000-000000000037"),
     PermissionKey.CAMPAIGN_CONFIGURE: UUID("b2000000-0000-7000-8000-000000000038"),
+    PermissionKey.HUMAN_READ: UUID("b2000000-0000-7000-8000-000000000039"),
+    PermissionKey.HUMAN_WORK: UUID("b2000000-0000-7000-8000-00000000003a"),
+    PermissionKey.HUMAN_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000003b"),
+    PermissionKey.HUMAN_SUPERVISE: UUID("b2000000-0000-7000-8000-00000000003c"),
 }
 
 _CATALOG_SQL = """

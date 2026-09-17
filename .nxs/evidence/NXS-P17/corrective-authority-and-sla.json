@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P17",
+  "corrective": 1,
+  "starting_head": "0dea18309d07f81b58a111e132f86a153b91cdf5",
+  "original_implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
+  "implementation_commit": "13832df618ffa3b2e6c7a75451ecc7c7e7badb35",
+  "result": "PASS",
+  "fail_first": {
+    "failed": 6,
+    "passed": 3,
+    "findings": [
+      "Successful human reply left first_response_at null",
+      "Handoff lacked expected P13 contract version",
+      "Mismatched P13 contract was accepted",
+      "PostgreSQL accepted three invalid ownership authority shapes"
+    ]
+  },
+  "intermediate_gate": {
+    "executed_at": "2026-09-17T19:07:16Z",
+    "result": "FAIL",
+    "failed_gates": [
+      "formatting",
+      "lint"
+    ],
+    "reason": "One 101-character error-message line; subsequently formatted with Ruff",
+    "tests_passed": 1864,
+    "tests_failed": 0,
+    "coverage_percent": 90.91,
+    "runtime_seconds": 372.68,
+    "typing": "PASS",
+    "repository_integrity": "PASS",
+    "sast": "PASS",
+    "dependency_security": "PASS"
+  },
+  "contract_version": "NXS-P13.agent-session.v1",
+  "contract_identity_scope": "Certified in-process AgentSession boundary, not provider/model configuration",
+  "p25_boundary": "Ambiguous P09/P13 effects remain fenced and require later reconciliation",
+  "p18_started": false,
+  "deployment_performed": false,
+  "recorded_at": "2026-09-17T19:40:36Z",
+  "contract_version_match": "PASS",
+  "contract_version_mismatch": "PASS",
+  "duplicate_exact_binding": "PASS",
+  "conflicting_execution_binding": "PASS",
+  "ownership_database_negative_cases": 3,
+  "ownership_database_negative_tests": "PASS",
+  "first_successful_response": "PASS",
+  "later_response_and_replay_preserve_timestamp": "PASS",
+  "failed_and_ambiguous_response_preserve_null": "PASS",
+  "focused_p17_tests": 48,
+  "final_local_gate": {
+    "result": "PASS",
+    "tests_passed": 1864,
+    "coverage_percent": 91.04,
+    "runtime_seconds": 375.06
+  },
+  "clean_room": {
+    "result": "PASS",
+    "tests_passed": 1864,
+    "coverage_percent": 91.06,
+    "runtime_seconds": 366.06
+  },
+  "migration": "PASS",
+  "forced_rls": "PASS",
+  "docker_multiarch": "PASS",
+  "security": "PASS",
+  "exact_implementation_ci": "PASS",
+  "implementation_ci_full_suite": {
+    "run_id": 35264650818,
+    "passed": 1864,
+    "failed": 0,
+    "coverage_percent": 91.06,
+    "runtime_seconds": 419.97
+  },
+  "exact_implementation_security": "PASS",
+  "closure_gate": {
+    "result": "PASS",
+    "tests_passed": 1864,
+    "tests_failed": 0,
+    "coverage_percent": 91.06,
+    "runtime_seconds": 373.62
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "agent_capacity_boundary": "PASS",
+  "ai_handoff_vs_output_generation": "PASS",
+  "claim_same_work_item": "PASS",
+  "human_return_vs_send": "PASS",
+  "phase": "NXS-P17",
+  "postgresql_authority": "PASS",
+  "queue_disable_revision_vs_claim": "PASS",
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "supervisor_release_vs_reply": "PASS",
+  "tests": 7,
+  "transfer_vs_reply": "PASS"
+}

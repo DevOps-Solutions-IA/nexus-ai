@@ -1,0 +1,20 @@
+{
+  "advisory_copilot_cannot_act": "PASS",
+  "ambiguous_p09_not_replayed_with_new_identity": "PASS",
+  "ambiguous_p13_not_replayed_with_new_identity": "PASS",
+  "browser_connection_not_presence_authority": "PASS",
+  "cross_tenant_authority_rejected": "PASS",
+  "direct_provider_bypass_rejected": "PASS",
+  "duplicate_handoff_idempotent": "PASS",
+  "human_and_ai_simultaneous_authority_prevented": "PASS",
+  "offline_away_claim_rejected": "PASS",
+  "phase": "NXS-P17",
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "stale_claim_token_rejected": "PASS",
+  "supervisor_impersonation_absent": "PASS",
+  "terminal_resurrection_rejected": "PASS",
+  "unbounded_routing_expression_rejected": "PASS",
+  "voice_media_authority_not_reimplemented": "PASS"
+}

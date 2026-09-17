@@ -1,0 +1,20 @@
+{
+  "action_authorization_fence": "PASS",
+  "ai_to_human_generation_fence": "PASS",
+  "assignment_claim_token_hashing": "PASS",
+  "capacity_transaction_fence": "PASS",
+  "conversation_single_owner": "PASS",
+  "deterministic_routing": "PASS",
+  "global_lock_order": "PASS",
+  "human_to_ai_ambiguous_p25_boundary": "PASS",
+  "human_to_ai_exact_p13_binding": "PASS",
+  "human_to_ai_known_rejection_requeue": "PASS",
+  "lease_version_monotonic": "PASS",
+  "phase": "NXS-P17",
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "skip_locked_claim": "PASS",
+  "terminal_absorption": "PASS",
+  "transfer_fresh_token": "PASS"
+}

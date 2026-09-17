@@ -175,13 +175,13 @@
     },
     {
       "branch": "feat/nxs-p17-human-agents",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P09",
         "NXS-P13"
       ],
       "id": "NXS-P17",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "Human Agent Operations"
     },
     {

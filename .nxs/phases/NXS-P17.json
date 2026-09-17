@@ -1,0 +1,82 @@
+{
+  "$schema": "../phase-manifest.schema.json",
+  "branch": "feat/nxs-p17-human-agents",
+  "closure_commit": null,
+  "decision": "GO",
+  "dependencies": [
+    "NXS-P09",
+    "NXS-P13"
+  ],
+  "evidence": [
+    ".nxs/evidence/NXS-P17/authority-and-fencing.json",
+    ".nxs/evidence/NXS-P17/boundary-integrations.json",
+    ".nxs/evidence/NXS-P17/clean-room.json",
+    ".nxs/evidence/NXS-P17/closure.json",
+    ".nxs/evidence/NXS-P17/concurrency.json",
+    ".nxs/evidence/NXS-P17/corrective-authority-and-sla.json",
+    ".nxs/evidence/NXS-P17/coverage.json",
+    ".nxs/evidence/NXS-P17/docker.json",
+    ".nxs/evidence/NXS-P17/events-rbac-api.json",
+    ".nxs/evidence/NXS-P17/git.json",
+    ".nxs/evidence/NXS-P17/github-ci.json",
+    ".nxs/evidence/NXS-P17/migration.json",
+    ".nxs/evidence/NXS-P17/preflight.json",
+    ".nxs/evidence/NXS-P17/quality-gates.json",
+    ".nxs/evidence/NXS-P17/quality-matrix.json",
+    ".nxs/evidence/NXS-P17/red-team.json",
+    ".nxs/evidence/NXS-P17/security.json",
+    ".nxs/evidence/NXS-P17/tenant-isolation.json",
+    ".nxs/evidence/NXS-P17/tests.json"
+  ],
+  "id": "NXS-P17",
+  "implementation_commit": "13832df618ffa3b2e6c7a75451ecc7c7e7badb35",
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
+  "non_scope": [
+    "automatic stale-lease reaping, orphan recovery, ambiguous P09 or P13 reconciliation, and distributed failover (NXS-P25)",
+    "telephony transport, SIP/media routing, WebRTC, call recording, predictive dialing, and infrastructure scaling",
+    "campaign orchestration, workforce forecasting, payroll, shift scheduling, QA scoring, billing, global observability, disaster recovery, frontend delivery, and production deployment"
+  ],
+  "objective": "Deliver tenant-isolated Human Agent Operations with durable queues, explicit presence and bounded capacity, exclusive assignments and conversation ownership, fenced AI-to-human and human-to-AI handoffs, controlled transfers and supervisor actions, advisory copilot context, P09-only human messaging, P11/P12 voice references, P13-bound AI return, P04 events, RBAC, append-only audit history, and PostgreSQL-authoritative concurrency.",
+  "requirements_implemented": [
+    "NXS-HUMAN-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "READY",
+  "timestamps": {
+    "closed_at": "2026-09-17T19:40:37Z",
+    "started_at": "2026-09-17T13:08:19Z"
+  },
+  "title": "Human Agent Operations"
+}
