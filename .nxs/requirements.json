@@ -1677,12 +1677,22 @@
       ],
       "description": "A tenant-isolated human-agent operations subsystem durably manages bounded work queues, explicit agent presence and capacity, exclusive assignment and conversation ownership, controlled AI-to-human handoff and human-to-AI return, fenced transfers and supervisor actions, and advisory copilot context under PostgreSQL-authoritative claims, organization-scoped RBAC, append-only audit history, P04 events, and certified P09 messaging, P11/P12 voice and P13 AI boundaries, without reimplementing providers, media, model execution, generic workflows, scheduling, infrastructure scaling, billing, observability or recovery/failover.",
       "id": "NXS-HUMAN-001",
-      "implementation_evidence": [],
+      "implementation_evidence": [
+        ".nxs/evidence/NXS-P17/migration.json",
+        ".nxs/evidence/NXS-P17/tenant-isolation.json",
+        ".nxs/evidence/NXS-P17/authority-and-fencing.json",
+        ".nxs/evidence/NXS-P17/boundary-integrations.json",
+        ".nxs/evidence/NXS-P17/events-rbac-api.json",
+        ".nxs/evidence/NXS-P17/concurrency.json",
+        ".nxs/evidence/NXS-P17/tests.json"
+      ],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P17",
       "title": "Durable human agent operations",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P17/quality-gates.json"
+      ]
     },
     {
       "category": "SCALING",

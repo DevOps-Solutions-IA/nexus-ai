@@ -1,0 +1,13 @@
+{
+  "active_phase": null,
+  "branch": "feat/nxs-p17-human-agents",
+  "closure_commit": null,
+  "decision": "GO",
+  "implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
+  "next_allowed_execution": "NXS-P18",
+  "phase": "NXS-P17",
+  "recorded_at": "2026-09-17T14:31:50Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "status": "READY"
+}

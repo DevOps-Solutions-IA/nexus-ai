@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": "NXS-P17",
+  "active_phase": null,
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -19,24 +19,25 @@
     "NXS-P13",
     "NXS-P14",
     "NXS-P15",
-    "NXS-P16"
+    "NXS-P16",
+    "NXS-P17"
   ],
   "current_phase": {
     "branch": "feat/nxs-p17-human-agents",
     "closure_commit": null,
-    "decision": "PENDING",
+    "decision": "GO",
     "id": "NXS-P17",
-    "implementation_commit": null,
-    "status": "BUILDING"
+    "implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
+    "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-17T13:08:19Z",
+  "last_updated_at": "2026-09-17T14:31:50Z",
   "next_allowed_execution": {
-    "condition": "ACTIVE_PHASE_ONLY",
-    "phase": "NXS-P17"
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P18"
   },
   "product": {
     "name": "Nexus AI",

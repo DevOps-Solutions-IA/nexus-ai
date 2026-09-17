@@ -1,0 +1,10 @@
+{
+  "base_sha": "36904096eedd935a045301a1a380c6c4ce10c5ce",
+  "branch": "feat/nxs-p17-human-agents",
+  "implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
+  "phase": "NXS-P17",
+  "pull_request": 38,
+  "recorded_at": "2026-09-17T14:30:20Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

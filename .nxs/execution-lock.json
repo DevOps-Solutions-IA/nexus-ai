@@ -1,10 +1,10 @@
 {
-  "actor": "codex",
-  "branch": "feat/nxs-p17-human-agents",
-  "expires_at": "2026-09-17T17:08:19Z",
-  "phase": "NXS-P17",
-  "repository_commit": "36904096eedd935a045301a1a380c6c4ce10c5ce",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-17T13:08:19Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

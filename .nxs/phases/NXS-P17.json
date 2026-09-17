@@ -2,14 +2,33 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p17-human-agents",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P09",
     "NXS-P13"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P17/authority-and-fencing.json",
+    ".nxs/evidence/NXS-P17/boundary-integrations.json",
+    ".nxs/evidence/NXS-P17/clean-room.json",
+    ".nxs/evidence/NXS-P17/closure.json",
+    ".nxs/evidence/NXS-P17/concurrency.json",
+    ".nxs/evidence/NXS-P17/coverage.json",
+    ".nxs/evidence/NXS-P17/docker.json",
+    ".nxs/evidence/NXS-P17/events-rbac-api.json",
+    ".nxs/evidence/NXS-P17/git.json",
+    ".nxs/evidence/NXS-P17/github-ci.json",
+    ".nxs/evidence/NXS-P17/migration.json",
+    ".nxs/evidence/NXS-P17/preflight.json",
+    ".nxs/evidence/NXS-P17/quality-gates.json",
+    ".nxs/evidence/NXS-P17/quality-matrix.json",
+    ".nxs/evidence/NXS-P17/red-team.json",
+    ".nxs/evidence/NXS-P17/security.json",
+    ".nxs/evidence/NXS-P17/tenant-isolation.json",
+    ".nxs/evidence/NXS-P17/tests.json"
+  ],
   "id": "NXS-P17",
-  "implementation_commit": null,
+  "implementation_commit": "1257fbe397ac3d7d2c3439a1ae3c266f2141f101",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -53,9 +72,9 @@
     "NXS-HUMAN-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-17T14:31:50Z",
     "started_at": "2026-09-17T13:08:19Z"
   },
   "title": "Human Agent Operations"
