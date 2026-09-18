@@ -2,7 +2,7 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p18-cell-scaling",
   "closure_commit": null,
-  "decision": "GO",
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P13",
     "NXS-P17"
@@ -32,7 +32,7 @@
     ".nxs/evidence/NXS-P18/tests.json"
   ],
   "id": "NXS-P18",
-  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -78,9 +78,9 @@
     "NXS-SCALE-001"
   ],
   "schema_version": "1.0.0",
-  "status": "READY",
+  "status": "VALIDATING",
   "timestamps": {
-    "closed_at": "2026-09-18T20:31:14Z",
+    "closed_at": null,
     "started_at": "2026-09-18T17:08:56Z"
   },
   "title": "Horizontal Cell Scaling"

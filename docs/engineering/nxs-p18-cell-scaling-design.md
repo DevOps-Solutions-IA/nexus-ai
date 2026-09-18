@@ -1,14 +1,24 @@
-# NXS-P18 — Horizontal Cell Scaling: pre-implementation contract
+# NXS-P18 — Horizontal Cell Scaling: approved contract and evidence context
 
-Status: approved contract; implementation certified READY/GO on the feature branch,
-pending external post-closure audit and merge. Canonical main remains completed through P17.
-This document specifies acceptance obligations, not proof of completed capabilities
-or passing runtime tests by itself. See `.nxs/evidence/NXS-P18/` for certification evidence
-and `nxs-p18-implementation-progress.md` for the preserved historical partial checkpoint.
+Status: implemented contract, originally certified READY/GO on the feature branch at
+`c2de25360aff1644528f2ce314e98403cb3fdbf4`. The phase is currently VALIDATING/PENDING
+for a documentation-only corrective; external audit and separately authorized reclosure
+are pending. Canonical main remains completed through P17; P18 is not merged.
+The runtime implementation is `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, unchanged
+by this corrective. This document retains the approved acceptance obligations;
+normative or proposed-design wording records the contract, not absent runtime.
+See `nxs-p18-runtime.md` for implemented mechanics and `.nxs/evidence/NXS-P18/`
+for executed C01–C18/AC01–AC23 mappings and original certification. Sections 1 and 13
+are historical governance records. `nxs-p18-implementation-progress.md` is a separate
+historical partial checkpoint, not the current implementation status.
 Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
 P17 READY/GO. See ADR-0099 for the placement-authority decision.
 
-## 1. Governance and canonical inputs
+## 1. Historical pre-implementation governance and canonical inputs
+
+This section records governance commit `de032d55e1425a2076c6f0c9454c32474bac956f`.
+Its references to PLANNED, no evidence and a later start describe that point in time,
+not the implemented branch or its current corrective lifecycle.
 
 The registered branch is `feat/nxs-p18-cell-scaling`. Branch selection does not
 start a phase. Initial repository validation and actual-branch preflight passed
@@ -55,7 +65,7 @@ compute. No automatic balancing, health-based placement or capacity certificatio
 is implied. P18 uses the existing PostgreSQL transactional authority domain;
 per-Cell database sharding or cross-database consensus is not part of this phase.
 
-Future P18 owns a durable Cell inventory, initial Organization placement,
+P18 owns a durable Cell inventory, initial Organization placement,
 administrative placement suspension/reactivation on the SAME Cell, deterministic
 resolution, admission fencing, bounded administrative inspection, idempotent
 mutations, placement history and P04 assignment events.
@@ -146,7 +156,7 @@ ACTIVE state before a domain claim or authorization can commit.
 
 Admission verifies the server-configured/authenticated worker Cell identity, not
 a client assertion. Worker Cell identity never grants Organization permissions.
-The future implementation must provide one reusable guard invoked in the SAME
+The implemented contract requires one reusable guard invoked in the SAME
 tenant transaction as each protected domain mutation/permit; a remote resolver
 check alone cannot close the TOCTOU window. No DB transaction spans provider I/O.
 
@@ -221,7 +231,7 @@ outbox relay recovery remains unchanged and is not new P18 failover behavior.
 
 ## 9. Subsystem compatibility obligations
 
-| Boundary | Preserved semantics and future proof |
+| Boundary | Preserved semantics and regression obligations |
 | --- | --- |
 | P06 customers/conversations | Original tenant IDs, composite references and conversation identity survive routing; no data copied into Cell metadata. |
 | P07/P08 integrations/tools | Placement does not grant credentials, tool permission or arbitrary network access. Stable semantic keys and tool dispatch authority remain mandatory. |
@@ -235,11 +245,16 @@ outbox relay recovery remains unchanged and is not new P18 failover behavior.
 | P17 Human Operations | Preserve queues/capacity/order, tokens/lease versions, authority-shape CHECKs, conversation generations, supervisor actions and two-stage AI return with expected P13 contract/exact binding. No stale Cell may restore ownership. First-response timestamp remains once-only with successful consumed P09 result, not route acceptance. |
 | P04/audit producers | Business state and tenant event intent/history remain atomic; cache/event replay never restores an older placement or domain owner. |
 
-## 10. Future concurrency and failure matrix
+## 10. Approved concurrency and failure matrix — executed evidence
 
-All rows are **REQUIRED / NOT EXECUTED for P18**, not PASS evidence. Real independent
-PostgreSQL sessions, explicit barriers and actual downstream invocation counts are
-required; sleep timing and SQLite do not prove these obligations.
+At pre-implementation governance, these rows were **REQUIRED / NOT EXECUTED**.
+They are now mapped to executed PASS results in
+`.nxs/evidence/NXS-P18/execution-criteria.json` (C01–C18), bound to the immutable
+implementation and original certification. The table retains the original expected
+outcomes; it is not itself test evidence. Real independent PostgreSQL sessions,
+explicit barriers and downstream invocation counts remain required; sleep timing
+and SQLite do not prove these obligations. Reopening this documentation corrective
+does not erase the executed evidence or authorize reclosure.
 
 | Case | Serialization / expected observable result |
 | --- | --- |
@@ -262,11 +277,14 @@ required; sleep timing and SQLite do not prove these obligations.
 | C17 duplicate workflow/schedule/campaign delivery | Original domain idempotency and tokens decide; route retry creates no new logical work. |
 | C18 malformed/unbounded metadata or cursor | Strict bounded contract rejects; no arbitrary URL, shell, SQL, secrets or unbounded scan. |
 
-## 11. Future acceptance and evidence plan
+## 11. Approved acceptance criteria and executed evidence
 
-Each criterion below is **REQUIRED, NOT VALIDATED**. Later implementation must map
-each to named tests and executed evidence under `.nxs/evidence/NXS-P18/`; that
-directory is not created here. The manifest retains all 31 canonical gate names.
+The original governance classified these criteria as **REQUIRED, NOT VALIDATED**.
+The implementation subsequently mapped all 23 to named executed tests in
+`.nxs/evidence/NXS-P18/execution-criteria.json` (AC01–AC23), with original closure
+results in `quality-matrix.json`, `tests.json` and `closure.json`. These artifacts
+record the prior certification, not authorization to close the present corrective.
+The obligations below remain binding; the manifest retains all 31 canonical gates.
 
 1. Repeated authoritative reads return the same Organization/Cell/generation tuple.
 2. Database rejects multiple current placements for one Organization (C01).
@@ -290,7 +308,7 @@ directory is not created here. The manifest retains all 31 canonical gate names.
 19. C01–C08/C13/C16 races run against real PostgreSQL with deterministic barriers.
 20. Adversarial tenant/auth tests cover placement, history, cache and worker context.
 21. C09–C18 failure paths prove no unsafe reassignment or ambiguous redispatch.
-22. Future additive migrations pass clean upgrade, upgrade from canonical schema,
+22. Additive migrations pass clean upgrade, upgrade from canonical schema,
     Alembic check, forced-RLS guard and isolated downgrade/reupgrade where safe;
     production rollback/roll-forward notes follow engineering standards. No
     destructive rollback or deployed migration rewriting is authorized here.
@@ -318,14 +336,19 @@ authority over availability; initial placement plus same-Cell suspension is not
 live migration. Global inventory administration requires least-privilege review;
 Organization authorization must not be inferred from access to inventory metadata.
 
-Governance GO means the design and manifest validate, not P18 READY/GO. Governance
-alignment left the phase PLANNED/PENDING, with no lock or implementation timestamps.
-A separately authorized implementation must reverify canonical Git/state, start the lifecycle,
-implement/test every acceptance criterion, and close with real evidence. No push
-or PR is needed to perform these local governance validations; review and exact-head
-checks remain mandatory before any later authorized merge.
+Historically, governance GO meant only that the design and manifest validated;
+governance left the phase PLANNED/PENDING without an execution lock. Separately
+authorized implementation and closure subsequently produced the evidence cited above.
+The present documentation corrective reopens the phase as VALIDATING/PENDING; it
+does not restart implementation, invalidate immutable historical results or authorize
+reclosure. Exact-head checks and external review remain required before any separately
+authorized reclosure or merge. P19 and later phases remain unactivated.
 
-## 13. Governance-only validation record
+## 13. Historical governance-only validation record
+
+The following record is preserved from the pre-implementation governance commit.
+Its branch-creation, missing-runtime and planned-state statements are historical,
+not descriptions of the current feature branch.
 
 Baseline discovery verified a clean tree and unchanged canonical main
 `49020eacc03ddc4a9c6a399b23244e692d7d96a8`. Exact-main NXS CI run 35268072924 and

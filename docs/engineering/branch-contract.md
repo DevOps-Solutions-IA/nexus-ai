@@ -4,17 +4,25 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
-## NXS-P18 pre-implementation governance contract
+## NXS-P18 implemented contract and documentation corrective
+
+Historical lineage: governance `de032d55e1425a2076c6f0c9454c32474bac956f`, immutable
+runtime `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, original READY/GO closure
+`c2de25360aff1644528f2ce314e98403cb3fdbf4`. Current lifecycle: VALIDATING/PENDING
+after canonical reopen for documentation-only correction. Runtime is unchanged;
+external corrective audit and separate reclosure authorization are required.
+Canonical main remains through P17. No restart, closure, merge or P19 start is
+authorized by this corrective.
 
 - Registered branch: `feat/nxs-p18-cell-scaling`; dependencies: NXS-P13 and NXS-P17 READY/GO. Requirement: `NXS-SCALE-001`, retaining its NXS-PLATFORM-002 dependency.
 - Objective/scope: stateless Cell compute with durable inventory, one PostgreSQL-authoritative Organization placement, deterministic resolution, same-Cell suspend/reactivate, generation fencing, stable mutation identities, history and tenant P04 outbox intent.
-- Canonical design: `docs/engineering/nxs-p18-cell-scaling-design.md`; proposed authority decision: `docs/adr/0099-cell-placement-authority.md`. The 23 acceptance criteria and 18 race/failure cases are future obligations, not passing implementation evidence.
-- Governance preparation uses the schema-supported existing-manifest path: PLANNED/PENDING, empty evidence, null commits/timestamps. Branch preflight does not enter BUILDING. No `nxs-start`, lock acquisition or lifecycle transition is authorized by this governance change.
+- Canonical design: `docs/engineering/nxs-p18-cell-scaling-design.md`; approved authority decision: `docs/adr/0099-cell-placement-authority.md`. The 23 acceptance criteria and 18 race/failure cases have executed mappings in `.nxs/evidence/NXS-P18/execution-criteria.json`; original closure evidence remains historical certification, not a new corrective GO.
+- Historical governance preparation used the schema-supported existing-manifest path: PLANNED/PENDING, empty evidence and null commits/timestamps. Those were pre-implementation facts. The current corrective uses READY → VALIDATING and canonical lock acquisition, not `nxs-start`.
 - Invariants: Organization/organization_id remains the tenant; forced RLS, tenant composite FKs and non-bypass runtime role remain mandatory. One common placement-admission boundary serializes with mutations before existing domain locks; it supplements P13/P17 authority rather than replacing it.
 - Non-scope: cross-Cell relocation/sharding, automated scaling/failover/reconciliation, frontend, SIP/Kamailio and P19–P29 capabilities, production infrastructure/deployment P32, and unverified capacity claims.
-- Evidence/rollback: no P18 runtime evidence exists yet. Future implementation must execute every manifest gate, real PostgreSQL race/tenant/failure tests, subsystem regressions and migration upgrade/rollback checks. This governance delta can be reverted without any database operation.
+- Evidence/rollback: original implementation and certification evidence exists under `.nxs/evidence/NXS-P18/`, including PostgreSQL race/tenant/failure tests, subsystem regressions and migration checks. The documentation corrective adds separate evidence without rewriting those results; it changes no runtime or database schema.
 - Observability: bounded safe placement history/reason codes and tenant assignment events, not a global P24 observability platform.
-- Readiness: governance GO only prepares a separate implementation prompt. P18 remains PLANNED until separately authorized lifecycle execution; implementation READY/GO requires real evidence, canonical two-commit closure and exact-head CI/Security. No merge, deployment or later-phase activation is authorized.
+- Readiness: P18 previously reached READY/GO through canonical closure; its reopened corrective remains VALIDATING/PENDING until external audit and separately authorized reclosure. Main has not received P18. No merge, deployment or later-phase activation is authorized.
 
 ## NXS-P00 contract
 

@@ -1,7 +1,9 @@
 # ADR-0099: Cell placement authority without tenant or execution-identity replacement
 
-Status: approved P18 contract; implementation certified READY/GO on the feature branch,
-pending external post-closure audit and merge. Canonical main remains completed through P17.
+Status: approved and implemented P18 contract. The feature branch was certified READY/GO
+at `c2de25360aff1644528f2ce314e98403cb3fdbf4`; it is now VALIDATING/PENDING for a
+documentation-only corrective, pending external audit and separately authorized reclosure.
+Runtime and architectural decisions are unchanged. Canonical main remains through P17.
 
 ## Context
 
@@ -32,8 +34,11 @@ new authorization. Ambiguity does not create another owner or identity.
 
 ## Consequences and current versus target
 
-This is a future implementation contract, detailed in
-`../engineering/nxs-p18-cell-scaling-design.md`, not a capacity or availability
-certification. Registration expands placement choices for new Organizations;
+This ADR originated as the pre-implementation authority contract, detailed in
+`../engineering/nxs-p18-cell-scaling-design.md`. That contract is implemented by
+`b655e615b18aafec4f7a1cc57e25bd97cf6b0a79` and its original certification evidence is
+preserved under `.nxs/evidence/NXS-P18/`; see `../engineering/nxs-p18-runtime.md` for
+the implemented boundaries. It is not a capacity or availability certification.
+Registration expands placement choices for new Organizations;
 existing assignments cannot be live-moved. P25 recovery and P28 capacity remain
 separate. No existing ADR or certified execution boundary is superseded.
