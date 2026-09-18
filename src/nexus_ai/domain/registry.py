@@ -40,6 +40,12 @@ from nexus_ai.domain.campaigns.models import (
     CampaignThrottleWindowRecord,
     CampaignTransitionHistoryRecord,
 )
+from nexus_ai.domain.cells.models import (
+    CellControlHistoryRecord,
+    CellRecord,
+    OrganizationPlacementRecord,
+    PlacementMutationRecord,
+)
 from nexus_ai.domain.customers.models import (
     ConversationActivityRecord,
     ConversationParticipantRecord,
@@ -142,6 +148,8 @@ __all__ = [
     "CampaignSuppressionRecord",
     "CampaignThrottleWindowRecord",
     "CampaignTransitionHistoryRecord",
+    "CellControlHistoryRecord",
+    "CellRecord",
     "ConsumerReceiptRecord",
     "ConversationActivityRecord",
     "ConversationOwnershipRecord",
@@ -170,10 +178,12 @@ __all__ = [
     "MessagingMessageRecord",
     "MessagingSecretRecord",
     "MessagingSendIdempotencyRecord",
+    "OrganizationPlacementRecord",
     "OrganizationRecord",
     "OrganizationSettingsRecord",
     "OtpChallengeRecord",
     "PermissionRecord",
+    "PlacementMutationRecord",
     "PlatformGrantRecord",
     "ProvisioningRequestRecord",
     "RefreshSessionRecord",

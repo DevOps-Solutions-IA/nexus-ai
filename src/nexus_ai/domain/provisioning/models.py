@@ -92,7 +92,9 @@ class PlatformGrantRecord(Base):
 
     __tablename__ = "platform_grants"
     __table_args__ = (
-        CheckConstraint("capability IN ('organization:create')", name="capability_known"),
+        CheckConstraint(
+            "capability IN ('organization:create','cell:control')", name="capability_known"
+        ),
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(

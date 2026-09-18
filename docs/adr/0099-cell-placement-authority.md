@@ -1,6 +1,7 @@
 # ADR-0099: Cell placement authority without tenant or execution-identity replacement
 
-Status: Proposed for NXS-P18 governance review; not implemented.
+Status: approved P18 contract; implementation candidate on the feature branch,
+pending external audit, closure and merge. Not a canonical runtime certification.
 
 ## Context
 

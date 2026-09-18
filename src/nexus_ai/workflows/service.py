@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from nexus_ai.agents.entities import AgentChannel, StartAgentSessionRequest, SubmitTurnRequest
 from nexus_ai.agents.service import AgentService
+from nexus_ai.cells.errors import CellUnavailableError, PlacementFencedError, PlacementRequiredError
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import NxsError
 from nexus_ai.domain.auth.entities import Principal
@@ -184,7 +185,7 @@ class WorkflowService:
         version = await self.get_version(organization_id, request.workflow_version_id)
         fingerprint = self._fingerprint({"version": str(version.id), "input": request.input})
         try:
-            async with self._db.tenant_transaction(organization_id) as tenant:
+            async with self._db.execution_transaction(organization_id) as tenant:
                 repo = WorkflowRepository(tenant)
                 run, created = await repo.start_run(
                     version=version,
@@ -218,7 +219,7 @@ class WorkflowService:
         except IntegrityError:
             if request.idempotency_key is None:
                 raise
-            async with self._db.tenant_transaction(organization_id) as tenant:
+            async with self._db.execution_transaction(organization_id) as tenant:
                 resolved_run = await WorkflowRepository(tenant).run_by_idempotency(
                     version.id, request.idempotency_key
                 )
@@ -311,7 +312,7 @@ class WorkflowService:
     async def claim_next(
         self, organization_id: uuid.UUID, run_id: uuid.UUID, *, owner_id: uuid.UUID | None = None
     ) -> StepClaim | None:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             claim = await WorkflowRepository(tenant).claim(run_id, owner_id or uuid.uuid7())
             if claim is not None:
                 await self._event(
@@ -332,7 +333,7 @@ class WorkflowService:
             return None
         try:
             output, reference, skipped = await self._execute(principal, claim)
-            async with self._db.tenant_transaction(principal.organization_id) as tenant:
+            async with self._db.execution_transaction(principal.organization_id) as tenant:
                 repo = WorkflowRepository(tenant)
                 before = {step.step_key: step.state for step in await repo.list_steps(run_id)}
                 if skipped is None:
@@ -379,9 +380,11 @@ class WorkflowService:
                         self._run_payload(run),
                     )
                 return run
+        except CellUnavailableError, PlacementFencedError, PlacementRequiredError:
+            raise
         except NxsError as exc:
             retryable = exc.retryable and exc.code in claim.spec.retry.retryable_codes
-            async with self._db.tenant_transaction(principal.organization_id) as tenant:
+            async with self._db.execution_transaction(principal.organization_id) as tenant:
                 run = await WorkflowRepository(tenant).fail_step(
                     claim, error_code=exc.code, retryable=retryable
                 )

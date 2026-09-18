@@ -171,9 +171,12 @@ def test_later_phases_remain_planned() -> None:
 
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())
     phases = {p["id"]: p for p in registry["phases"]}
-    # Human Agent Operations may now be active; P18+ remains future scope.
     assert phases["NXS-P14"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P15"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P16"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P17"]["status"] in {"BUILDING", "VALIDATING", "READY"}
-    assert phases["NXS-P18"]["status"] == "PLANNED"
+    assert phases["NXS-P18"]["status"] in {"BUILDING", "VALIDATING", "READY"}
+    for phase_number in range(19, 33):
+        phase = phases[f"NXS-P{phase_number:02d}"]
+        assert phase["status"] == "PLANNED"
+        assert phase["decision"] == "PENDING"

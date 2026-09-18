@@ -1,0 +1,17 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "make",
+    "nxs-validate-repo",
+    "nxs-preflight",
+    "PHASE=NXS-P18"
+  ],
+  "exit_code": 0,
+  "output_sha256": "d8c66dd6438b146e3e6f8b281a5bffafaecc6d3d1ae00242d69426475f540956",
+  "output_tail": "uv run python -m scripts.nxs_validate\n{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\nuv run python -m scripts.nxs_guard --phase \"NXS-P18\"\nNXS EXECUTION GUARD\nRESULT: PASS\nCODE: AUTHORIZED\n",
+  "phase": "NXS-P18",
+  "recorded_at": "2026-09-18T19:52:03Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

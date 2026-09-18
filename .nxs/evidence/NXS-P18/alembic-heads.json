@@ -1,0 +1,15 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "alembic",
+    "heads"
+  ],
+  "exit_code": 0,
+  "output_sha256": "1443e6fc5d5fc271da9a0ee68e60b31e1d30e4b4e3332eec2ea9c3e3b254a841",
+  "output_tail": "c18a0b1c2d3e (head)\n",
+  "phase": "NXS-P18",
+  "recorded_at": "2026-09-18T19:52:05Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

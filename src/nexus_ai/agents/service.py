@@ -410,7 +410,7 @@ class AgentService:
 
         now = dt.datetime.now(dt.UTC)
         try:
-            async with self._db.tenant_transaction(organization_id) as tenant:
+            async with self._db.execution_transaction(organization_id) as tenant:
                 await self._assert_references(tenant, request)
                 session = await AgentSessionRepository(tenant).insert(
                     {
@@ -684,7 +684,7 @@ class AgentService:
         """
         expired = False
         owner = False
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             session_repo = AgentSessionRepository(tenant)
             session = await session_repo.by_id(session_id, for_update=True)
             if session is None:
@@ -1036,7 +1036,7 @@ class AgentService:
         runs entirely outside it. Persists NO prompt, context, or credential material —
         only enough to prove this iteration was authorized (see migration
         ``a3b4c5d6e7f8``)."""
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)
@@ -1118,7 +1118,7 @@ class AgentService:
         — only this DB round trip; ``AgentToolBridge.execute`` always runs entirely
         outside it, matching the documented preference against long-held
         transactions."""
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             session_row = await AgentSessionRepository(tenant).by_id(session_id, for_update=True)
             if session_row is not None and session_is_terminal(session_row.state):
                 raise ExecutionRevoked(session_row)

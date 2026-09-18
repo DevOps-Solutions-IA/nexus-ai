@@ -1703,7 +1703,7 @@
       "id": "NXS-SCALE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P18",
       "title": "Horizontal cells",
       "validation_evidence": []

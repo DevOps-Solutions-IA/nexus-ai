@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "codex",
+  "branch": "feat/nxs-p18-cell-scaling",
+  "expires_at": "2026-09-18T21:08:56Z",
+  "phase": "NXS-P18",
+  "repository_commit": "de032d55e1425a2076c6f0c9454c32474bac956f",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-18T17:08:56Z",
+  "state": "ACTIVE"
 }

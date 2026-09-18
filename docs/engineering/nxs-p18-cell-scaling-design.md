@@ -1,8 +1,9 @@
 # NXS-P18 — Horizontal Cell Scaling: pre-implementation contract
 
-Status: governance/design only; NXS-P18 and NXS-SCALE-001 remain PLANNED.
-This document specifies future acceptance obligations, not implemented capabilities
-or passing runtime tests. Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
+Status: approved contract; implementation in progress on the feature branch, not certified.
+This document specifies acceptance obligations, not proof of completed capabilities
+or passing runtime tests. See `nxs-p18-implementation-progress.md` for the partial
+implementation checkpoint. Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
 P17 READY/GO. See ADR-0099 for the placement-authority decision.
 
 ## 1. Governance and canonical inputs
@@ -315,9 +316,9 @@ authority over availability; initial placement plus same-Cell suspension is not
 live migration. Global inventory administration requires least-privilege review;
 Organization authorization must not be inferred from access to inventory metadata.
 
-Governance GO means the design and manifest validate, not P18 READY/GO. The phase
-stays PLANNED/PENDING, no lock and no implementation timestamps. A later explicit
-implementation authorization must reverify canonical Git/state, start the lifecycle,
+Governance GO means the design and manifest validate, not P18 READY/GO. Governance
+alignment left the phase PLANNED/PENDING, with no lock or implementation timestamps.
+A separately authorized implementation must reverify canonical Git/state, start the lifecycle,
 implement/test every acceptance criterion, and close with real evidence. No push
 or PR is needed to perform these local governance validations; review and exact-head
 checks remain mandatory before any later authorized merge.
