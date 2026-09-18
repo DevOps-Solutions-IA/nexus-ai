@@ -2,14 +2,37 @@
   "$schema": "../phase-manifest.schema.json",
   "branch": "feat/nxs-p18-cell-scaling",
   "closure_commit": null,
-  "decision": "PENDING",
+  "decision": "GO",
   "dependencies": [
     "NXS-P13",
     "NXS-P17"
   ],
-  "evidence": [],
+  "evidence": [
+    ".nxs/evidence/NXS-P18/alembic-heads.json",
+    ".nxs/evidence/NXS-P18/candidate-integrity.json",
+    ".nxs/evidence/NXS-P18/clean-room.json",
+    ".nxs/evidence/NXS-P18/closure-control-validation.json",
+    ".nxs/evidence/NXS-P18/closure-documentation.json",
+    ".nxs/evidence/NXS-P18/container-scan.json",
+    ".nxs/evidence/NXS-P18/docker-build.json",
+    ".nxs/evidence/NXS-P18/execution-criteria.json",
+    ".nxs/evidence/NXS-P18/execution-lock.json",
+    ".nxs/evidence/NXS-P18/git.json",
+    ".nxs/evidence/NXS-P18/github-ci.json",
+    ".nxs/evidence/NXS-P18/implementation-evidence-audit.json",
+    ".nxs/evidence/NXS-P18/migration-schema.json",
+    ".nxs/evidence/NXS-P18/multiarch.json",
+    ".nxs/evidence/NXS-P18/quality-gates-implementation.json",
+    ".nxs/evidence/NXS-P18/quality-gates.json",
+    ".nxs/evidence/NXS-P18/quality-matrix.json",
+    ".nxs/evidence/NXS-P18/repository-preflight.json",
+    ".nxs/evidence/NXS-P18/secret-history.json",
+    ".nxs/evidence/NXS-P18/secret-source.json",
+    ".nxs/evidence/NXS-P18/security.json",
+    ".nxs/evidence/NXS-P18/tests.json"
+  ],
   "id": "NXS-P18",
-  "implementation_commit": null,
+  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -55,9 +78,9 @@
     "NXS-SCALE-001"
   ],
   "schema_version": "1.0.0",
-  "status": "BUILDING",
+  "status": "READY",
   "timestamps": {
-    "closed_at": null,
+    "closed_at": "2026-09-18T20:31:14Z",
     "started_at": "2026-09-18T17:08:56Z"
   },
   "title": "Horizontal Cell Scaling"

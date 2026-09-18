@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "result": "PASS",
+  "recorded_at": "2026-09-18T20:23:14Z",
+  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "command": [
+    "uv",
+    "run",
+    "pytest",
+    "tests/unit/test_control_core.py",
+    "tests/unit/test_control_cli.py",
+    "tests/unit/test_lifecycle.py",
+    "tests/integration/test_agent_handoff.py",
+    "--no-cov",
+    "-q"
+  ],
+  "exit_code": 0,
+  "passed": 52,
+  "output_tail": "....................................................                     [100%]\n52 passed in 5.81s",
+  "output_sha256": "3eb19e0162ed938b34f2bcf76acbf408b2aff05ce5522aca9158f8c9c6a0def3",
+  "toolchain_check": {
+    "command": "uv lock --check",
+    "exit_code": 0,
+    "result": "PASS"
+  },
+  "initial_repository_validation": {
+    "command": "make nxs-validate-repo",
+    "exit_code": 0,
+    "result": "PASS"
+  },
+  "initial_preflight": {
+    "command": "make nxs-preflight PHASE=NXS-P18",
+    "exit_code": 0,
+    "result": "PASS",
+    "code": "AUTHORIZED"
+  },
+  "lock": "ACTIVE, codex, not stale; no recovery or second start",
+  "post_closure_validation": {
+    "repository_validation_exit_code": 0,
+    "diff_check_exit_code": 0,
+    "runtime_source_diff_exit_code": 0,
+    "control_tests_passed": 52,
+    "control_tests_runtime_seconds": 5.9,
+    "secret_directory_scan_exit_code": 0,
+    "result": "PASS"
+  }
+}

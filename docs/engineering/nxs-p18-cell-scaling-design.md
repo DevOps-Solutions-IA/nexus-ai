@@ -1,9 +1,11 @@
 # NXS-P18 — Horizontal Cell Scaling: pre-implementation contract
 
-Status: approved contract; implementation in progress on the feature branch, not certified.
+Status: approved contract; implementation certified READY/GO on the feature branch,
+pending external post-closure audit and merge. Canonical main remains completed through P17.
 This document specifies acceptance obligations, not proof of completed capabilities
-or passing runtime tests. See `nxs-p18-implementation-progress.md` for the partial
-implementation checkpoint. Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
+or passing runtime tests by itself. See `.nxs/evidence/NXS-P18/` for certification evidence
+and `nxs-p18-implementation-progress.md` for the preserved historical partial checkpoint.
+Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
 P17 READY/GO. See ADR-0099 for the placement-authority decision.
 
 ## 1. Governance and canonical inputs

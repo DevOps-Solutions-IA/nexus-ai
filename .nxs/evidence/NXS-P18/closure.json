@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "result": "PASS",
+  "recorded_at": "2026-09-18T20:32:29Z",
+  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "branch": "feat/nxs-p18-cell-scaling",
+  "status": "READY",
+  "decision": "GO",
+  "active_phase": null,
+  "next_allowed_execution": "NXS-P19",
+  "closed_at": "2026-09-18T20:31:14Z",
+  "closure_commit": null,
+  "command": [
+    "make",
+    "nxs-close",
+    "PHASE=NXS-P18",
+    "IMPLEMENTATION_COMMIT=b655e615b18aafec4f7a1cc57e25bd97cf6b0a79"
+  ],
+  "exit_code": 0,
+  "lock": "RELEASED",
+  "state_transition": {
+    "command": "uv run python -m scripts.nxs_state NXS-P18 VALIDATING",
+    "exit_code": 0,
+    "from": "BUILDING",
+    "to": "VALIDATING"
+  },
+  "merge_authorized": false,
+  "deployment_authorized": false,
+  "p19_start_authorized": false,
+  "implementation_evidence_binding": "Immutable implementation commit; historical candidate hashes remain scoped to that commit, not closure metadata"
+}

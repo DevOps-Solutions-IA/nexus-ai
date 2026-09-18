@@ -1,7 +1,7 @@
 # ADR-0099: Cell placement authority without tenant or execution-identity replacement
 
-Status: approved P18 contract; implementation candidate on the feature branch,
-pending external audit, closure and merge. Not a canonical runtime certification.
+Status: approved P18 contract; implementation certified READY/GO on the feature branch,
+pending external post-closure audit and merge. Canonical main remains completed through P17.
 
 ## Context
 

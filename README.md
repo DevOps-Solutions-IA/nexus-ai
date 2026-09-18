@@ -35,11 +35,11 @@ P12 is contract-certified against the platform abstraction and test suite; live-
 The canonical source of truth for execution state is `.nxs/`, not this README. Always verify the current phase registry and project state before implementation.
 
 NXS-P17 is canonical `READY / GO` after PR #38 merged at
-`49020eacc03ddc4a9c6a399b23244e692d7d96a8`. P18 implementation is in progress on
-`feat/nxs-p18-cell-scaling` (BUILDING, pending merge and certification). It is not a
-canonical main capability. The branch integrates transactional placement admission into
-agent, human, workflow, scheduler, campaign and messaging authority boundaries; external
-audit and phase closure remain pending.
+`49020eacc03ddc4a9c6a399b23244e692d7d96a8`. P18 is `READY / GO` on
+`feat/nxs-p18-cell-scaling` after implementation certification and canonical NXS closure,
+pending external post-closure audit and merge. It is not yet a canonical main capability.
+The branch integrates transactional placement admission into agent, human, workflow,
+scheduler, campaign and messaging authority boundaries. P19 has not been started.
 See [the P18 design contract](docs/engineering/nxs-p18-cell-scaling-design.md).
 
 ## Architecture
@@ -306,7 +306,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P17. P18 implementation is in progress on its feature branch; it has no runtime, capacity or failover certification. Planned Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P17. P18 is certified `READY / GO` on its feature branch, pending external post-closure audit and merge. This correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

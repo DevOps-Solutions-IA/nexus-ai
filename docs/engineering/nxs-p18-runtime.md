@@ -1,8 +1,9 @@
-# P18 implementation candidate — no closure or capacity certification
+# P18 implementation — branch certification, pending merge
 
 This feature-branch implementation follows ADR-0099 and the approved P18 design.
-Canonical main remains certified through P17. P18 stays BUILDING/PENDING; no READY,
-GO, deployment, capacity, failover or physical exactly-once claim is made here.
+Canonical main remains certified through P17. P18 is READY/GO on its feature branch
+after canonical closure, pending external post-closure audit and merge. This certifies
+placement correctness, not deployment, capacity, failover or physical exactly-once.
 
 ## Durable structures and control boundary
 

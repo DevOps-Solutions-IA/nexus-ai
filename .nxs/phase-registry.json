@@ -186,13 +186,13 @@
     },
     {
       "branch": "feat/nxs-p18-cell-scaling",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P13",
         "NXS-P17"
       ],
       "id": "NXS-P18",
-      "status": "BUILDING",
+      "status": "READY",
       "title": "Horizontal Cell Scaling"
     },
     {

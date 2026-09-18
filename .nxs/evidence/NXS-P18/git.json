@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "result": "PASS",
+  "recorded_at": "2026-09-18T20:23:14Z",
+  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "base_sha": "49020eacc03ddc4a9c6a399b23244e692d7d96a8",
+  "governance_commit": "de032d55e1425a2076c6f0c9454c32474bac956f",
+  "branch": "feat/nxs-p18-cell-scaling",
+  "implementation_parent": "de032d55e1425a2076c6f0c9454c32474bac956f",
+  "pull_request": null,
+  "merged": false,
+  "working_tree_at_initial_verification": "clean"
+}

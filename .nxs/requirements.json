@@ -1703,10 +1703,12 @@
       "id": "NXS-SCALE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P18",
       "title": "Horizontal cells",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P18/quality-gates.json"
+      ]
     },
     {
       "category": "SCALING",
