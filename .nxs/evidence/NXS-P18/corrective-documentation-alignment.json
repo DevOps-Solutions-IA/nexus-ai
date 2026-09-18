@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "corrective": 1,
+  "reason": "Post-closure semantic documentation alignment; no architectural or runtime correction",
+  "starting_head": "c2de25360aff1644528f2ce314e98403cb3fdbf4",
+  "original_implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "canonical_main": "49020eacc03ddc4a9c6a399b23244e692d7d96a8",
+  "recorded_at": "2026-09-18T20:54:58Z",
+  "result": "PASS",
+  "result_scope": "Local documentation/control validation only; exact corrective-head workflows must be verified after push. Not reclosure authorization.",
+  "files_reviewed_and_corrected": [
+    "README.md",
+    "docs/adr/0099-cell-placement-authority.md",
+    "docs/engineering/nxs-p18-cell-scaling-design.md",
+    "docs/engineering/nxs-p18-runtime.md",
+    "docs/engineering/nxs-p18-implementation-progress.md",
+    "docs/engineering/branch-contract.md"
+  ],
+  "contradictions_found": [
+    "README described both certified and planned placement",
+    "ADR certified header conflicted with future implementation wording",
+    "Design described executed criteria as not executed without historical qualification",
+    "Branch contract described absent runtime evidence and PLANNED as current",
+    "Runtime certification header needed reopened lifecycle context",
+    "Partial progress checkpoint needed explicit temporal qualification"
+  ],
+  "classification": {
+    "historical_context": "Preserved governance and partial-checkpoint facts with explicit historical labels",
+    "preimplementation_contract": "Preserved normative obligations and linked executed criteria",
+    "current_state": "Previously certified implementation; now VALIDATING/PENDING for documentation corrective, main through P17",
+    "future_boundaries": "Preserved excluded relocation, recovery/failover, SIP, capacity and deployment phases"
+  },
+  "runtime_changed": false,
+  "migration_changed": false,
+  "tests_changed": false,
+  "architecture_changed": false,
+  "later_phases_changed": false,
+  "main_canonical_through_p17": true,
+  "lifecycle": {
+    "reopen_command": "uv run python -m scripts.nxs_state NXS-P18 VALIDATING",
+    "reopen_exit_code": 0,
+    "lock_command": "make nxs-lock-acquire PHASE=NXS-P18 ACTOR=codex",
+    "lock_exit_code": 0,
+    "status": "VALIDATING",
+    "decision": "PENDING",
+    "active_phase": "NXS-P18",
+    "nxs_start_executed": false,
+    "nxs_close_executed": false,
+    "reclosure": "NOT_AUTHORIZED"
+  },
+  "previous_closure_workflows": {
+    "head_sha": "c2de25360aff1644528f2ce314e98403cb3fdbf4",
+    "nxs_ci": {
+      "run_id": 35392102640,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "nxs_security": {
+      "run_id": 35392102551,
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "validation": [
+    {
+      "command": "make nxs-validate-repo",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "NXS_REPOSITORY PASS"
+    },
+    {
+      "command": "make nxs-preflight PHASE=NXS-P18",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "AUTHORIZED"
+    },
+    {
+      "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_cell_scope.py tests/contracts/test_otp_contracts.py --no-cov -q",
+      "exit_code": 0,
+      "result": "PASS",
+      "passed": 63,
+      "failed": 0,
+      "seconds": 6.65
+    },
+    {
+      "command": "make lint",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "691 files already formatted; All checks passed"
+    },
+    {
+      "command": "make type",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "No issues found in 315 source files"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --exit-code c2de25360aff1644528f2ce314e98403cb3fdbf4 -- src migrations tests uv.lock .github scripts",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "No changes"
+    }
+  ],
+  "semantic_audit": {
+    "current_p18_planned": false,
+    "current_runtime_future_or_unimplemented": false,
+    "false_canonical_main_claim": false,
+    "cross_cell_relocation_claim": false,
+    "automatic_failover_claim": false,
+    "capacity_certification_claim": false,
+    "production_deployment_claim": false,
+    "cell_as_tenant_claim": false,
+    "cache_or_event_authority_claim": false
+  },
+  "historical_evidence_preserved": true,
+  "commit_binding": "Containing corrective commit; no self-referential SHA",
+  "limitations": [
+    "No runtime suite rerun locally: runtime, migrations and tests unchanged",
+    "Previous closure evidence is historical, not current READY/GO",
+    "New exact-head CI/Security results are not asserted before execution"
+  ]
+}

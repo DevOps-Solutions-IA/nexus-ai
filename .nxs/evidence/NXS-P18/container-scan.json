@@ -1,0 +1,25 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "docker",
+    "run",
+    "--rm",
+    "-v",
+    "/var/run/docker.sock:/var/run/docker.sock",
+    "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+    "image",
+    "--exit-code",
+    "1",
+    "--severity",
+    "HIGH,CRITICAL",
+    "nexus-ai:de032d5"
+  ],
+  "exit_code": 0,
+  "output_sha256": "9c881baa488bbff3867a90f13f2c800a3446054831cb0ded7860523f8b468483",
+  "output_tail": "O\t[vulndb] Downloading artifact...\trepo=\"mirror.gcr.io/aquasec/trivy-db:2\"\n127.24 KiB / 114.38 MiB [>___________________________________________________________] 0.11% ? p/s ?1.12 MiB / 114.38 MiB [>_____________________________________________________________] 0.98% ? p/s ?7.93 MiB / 114.38 MiB [---->_________________________________________________________] 6.93% ? p/s ?17.45 MiB / 114.38 MiB [------->_______________________________________] 15.26% 28.88 MiB p/s ETA 3s26.49 MiB / 114.38 MiB [---------->____________________________________] 23.16% 28.88 MiB p/s ETA 3s35.67 MiB / 114.38 MiB [-------------->________________________________] 31.18% 28.88 MiB p/s ETA 2s45.57 MiB / 114.38 MiB [------------------>____________________________] 39.84% 30.03 MiB p/s ETA 2s54.35 MiB / 114.38 MiB [---------------------->________________________] 47.51% 30.03 MiB p/s ETA 1s63.65 MiB / 114.38 MiB [-------------------------->____________________] 55.64% 30.03 MiB p/s ETA 1s73.01 MiB / 114.38 MiB [----------------------------->_________________] 63.83% 31.05 MiB p/s ETA 1s82.53 MiB / 114.38 MiB [--------------------------------->_____________] 72.15% 31.05 MiB p/s ETA 1s92.08 MiB / 114.38 MiB [------------------------------------->_________] 80.50% 31.05 MiB p/s ETA 0s101.24 MiB / 114.38 MiB [---------------------------------------->_____] 88.51% 32.08 MiB p/s ETA 0s110.42 MiB / 114.38 MiB [-------------------------------------------->_] 96.54% 32.08 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 32.08 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 31.43 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 31.43 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 31.43 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 29.40 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 29.40 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 29.40 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 27.50 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 27.50 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 27.50 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 25.73 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 25.73 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-------------------------------------------->] 100.00% 25.73 MiB p/s ETA 0s114.38 MiB / 114.38 MiB [-----------------------------------------------] 100.00% 21.36 MiB p/s 5.6s2026-09-18T19:51:59Z\tINFO\t[vulndb] Artifact successfully downloaded\trepo=\"mirror.gcr.io/aquasec/trivy-db:2\"\n2026-09-18T19:51:59Z\tINFO\t[vuln] Vulnerability scanning is enabled\n2026-09-18T19:51:59Z\tINFO\t[secret] Secret scanning is enabled\n2026-09-18T19:51:59Z\tINFO\t[secret] If your scanning is slow, please try '--scanners vuln' to disable secret scanning\n2026-09-18T19:51:59Z\tINFO\t[secret] Please see https://trivy.dev/docs/v0.74/guide/scanner/secret#recommendation for faster secret detection\n2026-09-18T19:52:02Z\tINFO\t[python] Licenses acquired from one or more METADATA files may be subject to additional terms. Use `--debug` flag to see all affected packages.\n2026-09-18T19:52:02Z\tINFO\tDetected OS\tfamily=\"wolfi\" version=\"20230201\"\n2026-09-18T19:52:02Z\tINFO\t[wolfi] Detecting vulnerabilities...\tpkg_num=25\n2026-09-18T19:52:02Z\tINFO\tNumber of language-specific files\tnum=1\n2026-09-18T19:52:02Z\tINFO\t[python-pkg] Detecting vulnerabilities...\n2026-09-18T19:52:02Z\tWARN\tUsing severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.74/guide/scanner/vulnerability#severity-selection for details.\n",
+  "phase": "NXS-P18",
+  "recorded_at": "2026-09-18T19:52:03Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

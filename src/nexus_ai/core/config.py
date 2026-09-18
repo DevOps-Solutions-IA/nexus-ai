@@ -12,6 +12,7 @@ import enum
 from functools import lru_cache
 from typing import Literal, Self
 from urllib.parse import urlsplit, urlunsplit
+from uuid import UUID
 
 from pydantic import (
     BaseModel,
@@ -721,6 +722,12 @@ class AuthSettings(BaseModel):
         return [item.strip() for item in self.verification_key_seeds.split(",") if item.strip()]
 
 
+class CellSettings(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    worker_cell_id: UUID | None = None
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_prefix="NXS_",
@@ -754,6 +761,7 @@ class Settings(BaseSettings):
     telephony: TelephonySettings = Field(default_factory=TelephonySettings)
     voice: VoiceSettings = Field(default_factory=VoiceSettings)
     agents: AgentRuntimeSettings = Field(default_factory=AgentRuntimeSettings)
+    cells: CellSettings = Field(default_factory=CellSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

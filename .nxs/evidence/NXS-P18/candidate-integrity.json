@@ -1,0 +1,34 @@
+{
+  "artifact_sha256": {
+    "alembic-heads.json": "79f1a4a1df6bffde396738d46d7bd66ccf5dd9f4284825d4afb795c1382b0db3",
+    "clean-room.json": "3f2e2f6dd7954b5bf2642f6af5781e6021e6d6c56b8652b2ce20ffbbba609c50",
+    "container-scan.json": "d9f24135591d7af056aa30a17d9888cb2003ce79bb42eef81151eacb3f96c0d3",
+    "docker-build.json": "578ade71d283921a8ef7fc37311934d31b4ee701ff3dc57e69d5efec4484c7a2",
+    "execution-criteria.json": "2fdfca2b87dc796f7f397c74990dfc96d7010a78ccdb7476f1085f16d6d64e83",
+    "execution-lock.json": "5dfd567627b7b7bc75e1b7e821aaa012dadfe799bb09040b0a553091eda0085a",
+    "migration-schema.json": "6b4d5c230cf9bab30e84d27c2f67401312b6797ce70f95dccfd736e2d88a3abe",
+    "multiarch.json": "c4a468071893e571231d07ac3dd6663b6436ca1f0d111ab10e263dca83c871d6",
+    "quality-gates.json": "ce394c4026f9aa66b8ff5383212d2b791569ec2fd8714c83fb42330dd59b3e1d",
+    "repository-preflight.json": "45c21a061c05992e5ff939c11d1574771515acf5dd6b5ec7c97f0671351b3640",
+    "secret-history.json": "9081d140d3eda49c2da99beb077bc12472b26089b33fdc3e2c4bf506eac4d8d0",
+    "secret-source.json": "8147b56bb5467761fe73f319b6d89eac4e6218dd7f140099bc4ca98c075622d6",
+    "security.json": "60921ba221325cded01eca142bd7f83b10f66e1e529c38bd32642aa0c6b26905"
+  },
+  "base_commit": "de032d55e1425a2076c6f0c9454c32474bac956f",
+  "closure": "NOT_AUTHORIZED",
+  "implementation_commit_binding": "Containing Git commit; no self-referential SHA",
+  "limitations": [
+    "Local evidence is not GitHub exact-head CI",
+    "pip-audit cannot audit the local nexus-ai package via PyPI",
+    "Multiarch builds are cache-only, not registry publication",
+    "Capacity, failover and deployment are not certified"
+  ],
+  "phase": "NXS-P18",
+  "phase_decision": "PENDING",
+  "phase_status": "BUILDING",
+  "recorded_at": "2026-09-18T19:59:58Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "source_drift": [],
+  "source_snapshot": "execution-criteria.json#source_sha256"
+}

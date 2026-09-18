@@ -1,0 +1,15 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "make",
+    "security"
+  ],
+  "exit_code": 0,
+  "output_sha256": "534e24263a1c7867330d7fa69851cd29fe2ef9a17b21a23dc98385d653c858eb",
+  "output_tail": "uv run bandit -q -lll -c pyproject.toml -r src scripts\nuv run pip-audit\nName     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n",
+  "phase": "NXS-P18",
+  "recorded_at": "2026-09-18T19:51:32Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

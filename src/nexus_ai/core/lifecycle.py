@@ -20,6 +20,7 @@ from nexus_ai.agents.service import AgentService
 from nexus_ai.api.tenancy import TenantContextResolver, build_resolver
 from nexus_ai.campaigns import events as campaign_events  # noqa: F401 - payload registration
 from nexus_ai.campaigns.service import CampaignService
+from nexus_ai.cells.service import CellPlacementService
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import ConfigurationError
 from nexus_ai.core.health import DependencyHealth, Probe, ReadinessEvaluator
@@ -132,6 +133,7 @@ class Resources:
     scheduler: SchedulerService
     campaigns: CampaignService
     humans: HumanOperationsService
+    cells: CellPlacementService
 
 
 def _bind(adapter: _Probeable, timeout: float) -> Probe:
@@ -162,7 +164,9 @@ class ApplicationLifespan:
         logger = get_logger("nexus_ai.lifecycle")
 
         database = Database(
-            settings.database, context_setting=settings.tenancy.context_setting_name
+            settings.database,
+            context_setting=settings.tenancy.context_setting_name,
+            worker_cell_id=settings.cells.worker_cell_id,
         )
         cache = Cache(settings.cache)
         messaging = Messaging(settings.messaging)
@@ -422,6 +426,7 @@ class ApplicationLifespan:
             scheduler=scheduler_service,
             campaigns=campaign_service,
             humans=human_service,
+            cells=CellPlacementService(database, event_platform.publisher),
         )
         await logger.ainfo(
             "runtime_started",

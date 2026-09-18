@@ -279,7 +279,7 @@ class SchedulerService:
         if not 1 <= limit <= MAX_BATCH:
             raise ValueError(f"limit must be between 1 and {MAX_BATCH}")
         materialized: list[ScheduleOccurrence] = []
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = SchedulerRepository(tenant)
             now = await repo.database_now()
             rows = await repo.due_schedule_rows(limit=limit)
@@ -428,7 +428,7 @@ class SchedulerService:
     async def claim_due(
         self, organization_id: uuid.UUID, owner_id: uuid.UUID
     ) -> OccurrenceClaim | None:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             claim = await SchedulerRepository(tenant).claim_due(
                 owner_id, correlation_id=self._correlation_id()
             )

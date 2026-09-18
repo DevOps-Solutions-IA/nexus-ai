@@ -194,7 +194,7 @@ class HumanOperationsService:
         *,
         actor_user_id: uuid.UUID | None = None,
     ) -> HumanWorkItem:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             queue = await repo.queue_row(request.queue_id, lock="share")
             if (
@@ -311,7 +311,7 @@ class HumanOperationsService:
         self, organization_id: uuid.UUID, agent_user_id: uuid.UUID, request: ClaimWorkRequest
     ) -> ClaimResult:
         token = opaque_token()
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             work, assignment, generation = await repo.claim(
                 queue_id=request.queue_id,
@@ -354,7 +354,7 @@ class HumanOperationsService:
         *,
         actor_user_id: uuid.UUID,
     ) -> HumanWorkItem:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             assignment, work, ownership, _ = await repo.authority_context(assignment_id)
             if assignment.owner_agent_id != actor_user_id:
@@ -494,7 +494,7 @@ class HumanOperationsService:
         *,
         actor_user_id: uuid.UUID,
     ) -> HumanWorkItem:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             assignment, work, ownership, presence = await repo.validate_authority(
                 assignment_id,
@@ -559,7 +559,7 @@ class HumanOperationsService:
         actor_user_id: uuid.UUID,
     ) -> ClaimResult:
         new_token = opaque_token()
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             assignment, work, ownership, source_presence = await repo.validate_authority(
                 assignment_id,
@@ -726,7 +726,7 @@ class HumanOperationsService:
         actor_user_id: uuid.UUID,
     ) -> ClaimResult:
         new_token = opaque_token()
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             probe = await repo.assignment_row(assignment_id)
             if probe is None:
@@ -924,7 +924,7 @@ class HumanOperationsService:
         ownership_generation: int,
         ai_session_id: uuid.UUID,
     ) -> None:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             ownership = await HumanOperationsRepository(tenant).ownership_row(conversation_id)
             if (
                 ownership is None
@@ -954,7 +954,7 @@ class HumanOperationsService:
         handoff_id: uuid.UUID
         conversation_id: uuid.UUID
         customer_id: uuid.UUID | None
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             replay = await repo.handoff_by_key(request.idempotency_key)
             if replay is not None:
@@ -1095,7 +1095,7 @@ class HumanOperationsService:
                 raise HumanExecutionFencedError("P13 returned a mismatched contract version")
             raise HumanExecutionFencedError("P13 returned a mismatched execution identity")
 
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             handoff_probe = await repo.handoff_by_key(request.idempotency_key)
             if handoff_probe is None or handoff_probe.id != handoff_id:
@@ -1254,7 +1254,7 @@ class HumanOperationsService:
             }
         )
         p09_key = downstream_key("p09-send", request.idempotency_key)
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             replay = await repo.authorization_by_key(p09_key, for_update=True)
             if replay is not None:
@@ -1387,7 +1387,7 @@ class HumanOperationsService:
         *,
         principal: Principal,
     ) -> CopilotSuggestion:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = HumanOperationsRepository(tenant)
             assignment, work, ownership, _ = await repo.validate_authority(
                 assignment_id,

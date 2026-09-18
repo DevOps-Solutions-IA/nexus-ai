@@ -1,0 +1,22 @@
+{
+  "closure": "NOT_AUTHORIZED",
+  "command": [
+    "make",
+    "clean-room"
+  ],
+  "coverage_percent": 91.16,
+  "exit_code": 0,
+  "health_readiness_shutdown": "PASS",
+  "log_sha256": "88249f441cb68d3363cbec315d1c4d34386b1ac8e69fedbb5328b6c0ec309255",
+  "multiarch_output": "build cache only; no image push",
+  "non_root_runtime": "65532:65532",
+  "phase": "NXS-P18",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "recorded_at": "2026-09-18T19:51:21Z",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tests": 1962
+}

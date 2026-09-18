@@ -322,7 +322,7 @@ class CampaignService:
     async def confirm_release(
         self, organization_id: uuid.UUID, campaign_run_id: uuid.UUID
     ) -> CampaignRun:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             row = await CampaignRepository(tenant).run_row(campaign_run_id)
             if row is None:
                 raise CampaignRunNotFoundError()
@@ -332,16 +332,16 @@ class CampaignService:
         release = await self._workflows.get_run(organization_id, release_id)
         if release.state is not WorkflowRunState.COMPLETED:
             raise CampaignInvalidStateError("release workflow is not complete")
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             run = await CampaignRepository(tenant).begin_run_activation(campaign_run_id)
         if not run.attempt_materialization_complete:
-            async with self._db.tenant_transaction(organization_id) as tenant:
+            async with self._db.execution_transaction(organization_id) as tenant:
                 run, _ = await CampaignRepository(tenant).materialize_attempt_batch(
                     campaign_run_id, limit=MATERIALIZATION_BATCH
                 )
         if not run.attempt_materialization_complete:
             return run
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = CampaignRepository(tenant)
             campaign = await repo.campaign(run.campaign_id)
             if campaign is None:
@@ -354,7 +354,7 @@ class CampaignService:
     async def claim_recipient(
         self, organization_id: uuid.UUID, campaign_run_id: uuid.UUID, owner_id: uuid.UUID
     ) -> RecipientClaim | None:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             claim = await CampaignRepository(tenant).claim_recipient(campaign_run_id, owner_id)
             if claim is not None:
                 await self._recipient_event(
@@ -368,7 +368,7 @@ class CampaignService:
     async def start_recipient_workflow(
         self, organization_id: uuid.UUID, claim: RecipientClaim
     ) -> RecipientAttempt:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             revision = await CampaignRepository(tenant).revision_row(claim.run.campaign_revision_id)
             if revision is None:
                 raise CampaignExecutionFencedError("campaign revision is absent")
@@ -385,7 +385,7 @@ class CampaignService:
                 correlation_id=self._correlation_id(),
             ),
         )
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             repo = CampaignRepository(tenant)
             attempt = await repo.mark_workflow_started(claim, workflow.id)
             current_claim = claim.model_copy(update={"attempt": attempt})
@@ -400,18 +400,18 @@ class CampaignService:
     async def confirm_recipient_workflow(
         self, organization_id: uuid.UUID, claim: RecipientClaim
     ) -> RecipientAttempt:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             workflow_run_id = await CampaignRepository(tenant).owned_workflow_run_id(claim)
         workflow = await self._workflows.get_run(organization_id, workflow_run_id)
         if workflow.state is not WorkflowRunState.COMPLETED:
             raise CampaignInvalidStateError("recipient workflow is not complete")
         if workflow.output is not None and len(str(workflow.output)) > 16_384:
             raise CampaignInvalidStateError("recipient workflow output is not bounded")
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             return await CampaignRepository(tenant).mark_workflow_completed(claim)
 
     async def authorize_send(self, organization_id: uuid.UUID, claim: RecipientClaim) -> SendPermit:
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        async with self._db.execution_transaction(organization_id) as tenant:
             permit, denial = await CampaignRepository(tenant).authorize_permit(claim)
         if denial is not None:
             raise CampaignInvalidStateError(f"recipient final authorization denied: {denial.value}")

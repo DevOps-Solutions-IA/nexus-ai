@@ -1699,14 +1699,16 @@
       "dependencies": [
         "NXS-PLATFORM-002"
       ],
-      "description": "Stateless compute and explicit ownership permit adding another VPS or certified cell safely.",
+      "description": "Stateless compute and explicit PostgreSQL-authoritative Organization-to-Cell assignment permit adding another VPS or Cell safely, with deterministic resolution, one active placement per Organization, generation-fenced and idempotent control mutations, and transactional P04 event intent, while preserving organization_id tenancy, forced RLS and existing execution authority; automated failover, live relocation, deployment and capacity certification remain outside NXS-P18.",
       "id": "NXS-SCALE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P18",
       "title": "Horizontal cells",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P18/quality-gates.json"
+      ]
     },
     {
       "category": "SCALING",

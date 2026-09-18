@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "result": "PASS",
+  "recorded_at": "2026-09-18T22:12:49.363535+00:00",
+  "implementation_commit": "cfa98bd76c0b0e00653356651d672b4e213ef630",
+  "runtime_implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "initial_repository_validation": {
+    "command": "make nxs-validate-repo",
+    "exit_code": 0
+  },
+  "initial_preflight": {
+    "command": "make nxs-preflight PHASE=NXS-P18",
+    "exit_code": 0,
+    "code": "AUTHORIZED"
+  },
+  "toolchain_check": {
+    "command": "uv lock --check",
+    "exit_code": 0
+  },
+  "lock": "ACTIVE/non-stale at preclosure; RELEASED by canonical close",
+  "generic_lifecycle_proof": "Fresh full quality gate includes control/lifecycle/handoff tests",
+  "runtime_source_diff": {
+    "command": "git diff --exit-code b655e615b18aafec4f7a1cc57e25bd97cf6b0a79 HEAD -- src migrations tests scripts .github uv.lock pyproject.toml",
+    "exit_code": 0
+  },
+  "post_closure_validation": {
+    "repository_validation_exit_code": 0,
+    "diff_check_exit_code": 0,
+    "runtime_source_diff_exit_code": 0,
+    "control_tests_passed": 63,
+    "control_tests_seconds": 6.95,
+    "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_cell_scope.py tests/contracts/test_otp_contracts.py --no-cov -q",
+    "exit_code": 0,
+    "result": "PASS"
+  }
+}

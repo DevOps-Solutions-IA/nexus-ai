@@ -344,7 +344,7 @@ class MessagingSendIdempotencyRepository:
     ) -> SendClaimOutcome:
         now = dt.datetime.now(dt.UTC)
         try:
-            async with self._db.tenant_transaction(organization_id) as tenant:
+            async with self._db.execution_transaction(organization_id) as tenant:
                 tenant.session.add(
                     MessagingSendIdempotencyRecord(
                         id=uuid.uuid7(),

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "uv",
+    "run",
+    "make",
+    "nxs-lock-status"
+  ],
+  "exit_code": 0,
+  "output_sha256": "0c737fdd1836c88b65e3fd465abdfd026cd2d5bc79c77f8e641f42ca13e586a4",
+  "output_tail": "uv run python -m scripts.nxs_guard lock status\nNXS EXECUTION LOCK\nOPERATION: status\nSTATE: ACTIVE\nPHASE: NXS-P18\nACTOR: codex\nSTALE: false\nSECONDS_REMAINING: 4611\n",
+  "phase": "NXS-P18",
+  "recorded_at": "2026-09-18T19:52:06Z",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

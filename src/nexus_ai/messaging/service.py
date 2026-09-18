@@ -504,7 +504,12 @@ class MessagingService:
             created_at=now,
             updated_at=now,
         )
-        async with self._db.tenant_transaction(organization_id) as tenant:
+        transaction = (
+            self._db.execution_transaction
+            if request.idempotency_key is None
+            else self._db.tenant_transaction
+        )
+        async with transaction(organization_id) as tenant:
             stored = await MessagingMessageRepository(tenant).insert(message)
             await ConversationActivityRepository(tenant).append(
                 customer_id=stored.customer_id,

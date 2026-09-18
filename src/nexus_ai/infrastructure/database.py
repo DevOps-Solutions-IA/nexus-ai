@@ -12,7 +12,9 @@ from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import text
+from sqlalchemy import select, text
+from sqlalchemy.exc import InterfaceError, OperationalError
+from sqlalchemy.exc import TimeoutError as DatabaseTimeoutError
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -20,6 +22,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from nexus_ai.cells.admission import PlacementAdmission, current_placement_route, snapshot
+from nexus_ai.cells.errors import PlacementFencedError, PlacementRequiredError
 from nexus_ai.core.config import DatabaseSettings
 from nexus_ai.core.errors import (
     ConfigurationError,
@@ -27,6 +31,8 @@ from nexus_ai.core.errors import (
     TenantContextInvalidError,
 )
 from nexus_ai.core.health import DependencyHealth, HealthStatus, timed_probe
+from nexus_ai.domain.cells.models import OrganizationPlacementRecord
+from nexus_ai.domain.organizations.models import OrganizationRecord
 from nexus_ai.infrastructure.tenant_session import TenantSession
 
 DEFAULT_CONTEXT_SETTING = "nxs.organization_id"
@@ -58,10 +64,15 @@ class RuntimeRoleReport:
 
 class Database:
     def __init__(
-        self, settings: DatabaseSettings, *, context_setting: str = DEFAULT_CONTEXT_SETTING
+        self,
+        settings: DatabaseSettings,
+        *,
+        context_setting: str = DEFAULT_CONTEXT_SETTING,
+        worker_cell_id: UUID | None = None,
     ) -> None:
         self._settings = settings
         self._context_setting = context_setting
+        self._worker_cell_id = worker_cell_id
         self._engine: AsyncEngine | None = None
         self._sessionmaker: async_sessionmaker[AsyncSession] | None = None
 
@@ -150,6 +161,49 @@ class Database:
             if bound != str(organization_id):
                 raise TenantContextInvalidError("failed to bind transaction-local tenant context")
             yield TenantSession(organization_id=organization_id, session=session)
+
+    @asynccontextmanager
+    async def execution_transaction(self, organization_id: UUID) -> AsyncIterator[TenantSession]:
+        try:
+            async with self._execution_transaction(organization_id) as tenant:
+                yield tenant
+        except InterfaceError, OperationalError, DatabaseTimeoutError, ConnectionError:
+            raise DependencyUnavailableError("Placement authority is unavailable.") from None
+
+    @asynccontextmanager
+    async def _execution_transaction(self, organization_id: UUID) -> AsyncIterator[TenantSession]:
+        """Acquire placement authority before any domain lock.
+
+        Unconfigured pre-placement workers only serve unassigned Organizations.
+        The Organization shared lock serializes that rollout boundary with initial
+        assignment. Once placed, an Organization requires its configured Cell worker.
+        Bootstrap, authentication and terminal-result transactions use tenant_transaction.
+        """
+        if not self.is_connected:
+            raise DependencyUnavailableError("Placement authority is unavailable.")
+        async with self.tenant_transaction(organization_id) as tenant:
+            if self._worker_cell_id is None:
+                await tenant.session.execute(
+                    select(OrganizationRecord.id)
+                    .where(OrganizationRecord.id == organization_id)
+                    .with_for_update(read=True)
+                )
+            placement = (
+                await tenant.session.execute(
+                    select(OrganizationPlacementRecord).where(
+                        OrganizationPlacementRecord.organization_id == organization_id
+                    )
+                )
+            ).scalar_one_or_none()
+            if self._worker_cell_id is None:
+                if placement is not None:
+                    raise PlacementFencedError()
+            else:
+                if placement is None:
+                    raise PlacementRequiredError()
+                expected = current_placement_route() or snapshot(placement)
+                await PlacementAdmission(self._worker_cell_id).admit(tenant, expected)
+            yield tenant
 
     @asynccontextmanager
     async def principal_session(self, principal_id: UUID) -> AsyncIterator[AsyncSession]:
