@@ -124,8 +124,10 @@ instrumented P09/P13 boundaries. They cover committed-response loss, durable que
 work after worker disappearance, no orphan takeover, and exact P14/P15/P16 identities.
 `python -m scripts.nxs_p18_evidence` executes the criteria suite using the existing
 phase-evidence command runner, records pytest call/setup/teardown outcomes and fails
-on absent, skipped or failed mapped tests. Source hashes bind the uncommitted candidate
-without inventing a self-referential implementation SHA. `make nxs-gate PHASE=NXS-P18`
+on absent, skipped or failed mapped tests. During original implementation, source hashes
+bound the then-uncommitted candidate without inventing a self-referential SHA; that
+runtime is now committed at `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`.
+`make nxs-gate PHASE=NXS-P18`
 records canonical quality results; neither command closes the phase.
 
 The migration adds no placement data. Clean, canonical-schema upgrade and isolated

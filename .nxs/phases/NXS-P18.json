@@ -73,7 +73,7 @@
     "NXS-P32 Production Deployment, frontend, production infrastructure, arbitrary Organizations-per-Cell capacity claims",
     "Live Organization reassignment between Cells, data relocation, per-Cell database sharding, media/session migration and automatic scaling decisions"
   ],
-  "objective": "Establish stateless Cell compute and PostgreSQL-authoritative, deterministic Organization-to-Cell assignment, generation fencing, idempotent control mutations and P04 event consistency without changing Organization tenancy or P13/P17 execution authority. Scope, invariants and future acceptance criteria: docs/engineering/nxs-p18-cell-scaling-design.md.",
+  "objective": "Establish stateless Cell compute and PostgreSQL-authoritative, deterministic Organization-to-Cell assignment, generation fencing, idempotent control mutations and P04 event consistency without changing Organization tenancy or P13/P17 execution authority. Scope, invariants, implemented acceptance criteria and certification evidence: docs/engineering/nxs-p18-cell-scaling-design.md.",
   "requirements_implemented": [
     "NXS-SCALE-001"
   ],

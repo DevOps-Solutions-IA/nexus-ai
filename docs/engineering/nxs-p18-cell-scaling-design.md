@@ -6,7 +6,7 @@ for a documentation-only corrective; external audit and separately authorized re
 are pending. Canonical main remains completed through P17; P18 is not merged.
 The runtime implementation is `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, unchanged
 by this corrective. This document retains the approved acceptance obligations;
-normative or proposed-design wording records the contract, not absent runtime.
+normative wording records continuing contract obligations, not absent runtime.
 See `nxs-p18-runtime.md` for implemented mechanics and `.nxs/evidence/NXS-P18/`
 for executed C01–C18/AC01–AC23 mappings and original certification. Sections 1 and 13
 are historical governance records. `nxs-p18-implementation-progress.md` is a separate
@@ -100,7 +100,14 @@ P25. P18 must not silently implement relocation as an ordinary UPDATE cell_id.
   credentials or tenant content. This classification is not an RLS exemption for
   assignment/history/receipts. Global Cell references use the catalog PK; references
   between tenant-owned entities use `(organization_id, id)` composite integrity.
-  Future schema/role review must prove tenant callers cannot mutate the inventory.
+  Implementation and original certification prove that tenant callers cannot mutate
+  inventory without explicit platform `cell:control`. PostgreSQL non-superuser,
+  non-BYPASSRLS runtime-role, RLS/control-policy and adversarial evidence is recorded
+  under `.nxs/evidence/NXS-P18/`. In particular, `execution-criteria.json` maps
+  `test_runtime_without_control_cannot_mutate_catalog_or_placement`,
+  `test_organization_owner_is_not_platform_control` and
+  `test_cell_control_requires_platform_grant_and_ignores_forged_headers` to executed
+  PASS results. This remains an enforced security obligation, not deferred review.
 
 ## 4. Required invariants
 
@@ -160,7 +167,8 @@ The implemented contract requires one reusable guard invoked in the SAME
 tenant transaction as each protected domain mutation/permit; a remote resolver
 check alone cannot close the TOCTOU window. No DB transaction spans provider I/O.
 
-Proposed error semantics (stable NXS codes finalized with implementation contracts):
+Implemented error-semantics contract (concrete codes are defined in
+`src/nexus_ai/cells/errors.py`):
 
 | Situation | Required behavior |
 | --- | --- |
@@ -175,16 +183,19 @@ Proposed error semantics (stable NXS codes finalized with implementation contrac
 Caches may hint where to connect, but the destination always rechecks PostgreSQL
 admission. No TTL, cache invalidation event or JetStream receipt is an authority
 lease. Internal transport must authenticate callers, bound forwarding/retries and
-reject routing loops; concrete transport is not selected in this governance task.
+reject routing loops. The original governance did not select a cross-Cell network
+transport; implementing one remains outside the certified placement boundary.
 
 Existing Organizations require explicit bounded, audited initial placements before
-Cell-enforced execution is enabled in a later rollout. No fabricated default
-assignment or silent legacy bypass. Migration can add the structures without
-dispatching work; rollout/data backfill needs a reviewed implementation plan.
+Cell-enforced execution is enabled. The implemented bounded administration and
+rollout seam is described in `nxs-p18-runtime.md`; no fabricated default assignment
+or silent legacy bypass is allowed. The migration adds structures without placement
+data or work dispatch. An actual production rollout/backfill still requires separate
+review and authorization; it is not a missing P18 implementation.
 
 ## 7. Serialization and external-effect ordering
 
-Proposed common outer order: referenced Cell catalog rows (ascending Cell ID),
+Implemented common outer order: referenced Cell catalog rows (ascending Cell ID),
 Organization placement authority (ascending Organization ID), then the subsystem's
 existing lock order, then receipt/history/outbox writes. Runtime paths take shared
 placement locks; placement mutations take exclusive locks. Initial placement
@@ -209,7 +220,7 @@ for P25. P18 never substitutes itself for existing safe replay contracts.
 
 ## 8. Events and audit
 
-Candidate tenant event types: `cell.assignment.created`,
+Implemented version-one tenant event types: `cell.assignment.created`,
 `cell.assignment.suspended`, `cell.assignment.resumed`. Use the P04 versioned
 envelope/registry, tenant outbox in the mutation transaction and existing subject
 builder; payload is bounded opaque IDs, old/new state, generation, reason and

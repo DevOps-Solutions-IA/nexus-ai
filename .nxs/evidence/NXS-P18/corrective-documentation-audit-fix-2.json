@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P18",
+  "external_audit_fix": 2,
+  "starting_head": "99d60fb83d2dc79812253c31c204aad408580fa7",
+  "original_closure": "c2de25360aff1644528f2ce314e98403cb3fdbf4",
+  "original_implementation": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "recorded_at": "2026-09-18T21:45:10Z",
+  "previous_evidence": ".nxs/evidence/NXS-P18/corrective-documentation-alignment.json",
+  "local_corrective_pass_1": "PASS",
+  "external_audit_pass_1": "NO_GO",
+  "external_result_source": "Human-provided external audit fix #2; prior local PASS is preserved, not rewritten",
+  "external_findings_corrected": [
+    "Current phase manifest called implemented criteria future acceptance criteria",
+    "Current design deferred certified tenant inventory mutation security proof"
+  ],
+  "additional_corrections": [
+    "Replaced proposed error/lock-order and candidate event labels with implemented contract labels",
+    "Distinguished implemented rollout seam from future production rollout/network transport",
+    "Qualified original evidence generator's then-uncommitted candidate as historical",
+    "README separates implemented placement foundation from later fleet deployment"
+  ],
+  "files_reviewed": [
+    ".nxs/phases/NXS-P18.json",
+    ".nxs/requirements.json",
+    "README.md",
+    "docs/adr/0099-cell-placement-authority.md",
+    "docs/engineering/nxs-p18-cell-scaling-design.md",
+    "docs/engineering/nxs-p18-runtime.md",
+    "docs/engineering/nxs-p18-implementation-progress.md",
+    "docs/engineering/branch-contract.md"
+  ],
+  "semantic_classification": {
+    "HISTORICAL": [
+      "Design sections 1 and 13: PLANNED/no evidence/governance record",
+      "Design sections 10-12: original unexecuted acceptance and governance state contrasted with executed evidence",
+      "Implementation-progress checkpoint: incomplete evidence and old test-name/state assertions",
+      "Runtime evidence paragraph: then-uncommitted candidate now bound to immutable implementation",
+      "Branch contract P18 historical preparation; older P02/P16 phase contract language is not current P18 state"
+    ],
+    "CURRENT": [
+      "Manifest: implemented criteria and certification evidence; candidate-integrity is an artifact filename, not absent certification",
+      "Requirement NXS-SCALE-001: validated placement scope and explicit exclusions; unchanged",
+      "README implemented-not-planned statement and general roadmap caution",
+      "Design normative invariants remain enforced obligations; security evidence names actual executed tests",
+      "ADR, runtime and branch contract: prior certification, current VALIDATING/PENDING, canonical main through P17",
+      "Unsupported future event version: current fail-closed rule, not deferred implementation",
+      "Progress opening: links current executed candidate evidence while explicitly preserving historical failures"
+    ],
+    "FUTURE-PHASE": [
+      "Separately governed relocation/quiescence contract",
+      "P19-P32 remain planned; recovery/failover, capacity and deployment excluded",
+      "Future deployed rollback, transport and production rollout require separate governance",
+      "README later infrastructure/fleet deployment and frontend do not imply missing P18 placement runtime"
+    ]
+  },
+  "security_evidence": {
+    "source": ".nxs/evidence/NXS-P18/execution-criteria.json",
+    "tests": [
+      "tests/integration/test_cell_placement.py::test_runtime_without_control_cannot_mutate_catalog_or_placement",
+      "tests/integration/test_cell_placement.py::test_organization_owner_is_not_platform_control",
+      "tests/integration/test_cell_api.py::test_cell_control_requires_platform_grant_and_ignores_forged_headers"
+    ],
+    "scope": "Previously executed certification evidence inspected; not a newly executed runtime security suite"
+  },
+  "runtime_changed": false,
+  "architecture_changed": false,
+  "scope_changed": false,
+  "migrations_changed": false,
+  "tests_changed": false,
+  "scripts_changed": false,
+  "workflows_changed": false,
+  "lockfile_changed": false,
+  "requirements_changed": false,
+  "lifecycle": {
+    "status": "VALIDATING",
+    "decision": "PENDING",
+    "active_phase": "NXS-P18",
+    "lock": "Existing ACTIVE/non-stale lock reused",
+    "lock_expires_at": "2026-09-19T00:50:38Z",
+    "reopened": false,
+    "restarted": false,
+    "reclosed": false
+  },
+  "validation": [
+    {
+      "command": "make nxs-validate-repo",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-preflight PHASE=NXS-P18",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "AUTHORIZED"
+    },
+    {
+      "command": "make lint",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "691 files formatted; Ruff checks passed"
+    },
+    {
+      "command": "make type",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "315 source files"
+    },
+    {
+      "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_cell_scope.py tests/contracts/test_otp_contracts.py --no-cov -q",
+      "exit_code": 0,
+      "result": "PASS",
+      "passed": 63,
+      "failed": 0,
+      "seconds": 6.51
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --exit-code 99d60fb83d2dc79812253c31c204aad408580fa7 -- src migrations tests scripts .github uv.lock pyproject.toml",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "semantic_assertions": {
+    "A": "NO",
+    "B": "NO",
+    "C": "NO",
+    "D": "NO",
+    "E": "NO",
+    "F": "NO",
+    "G": "NO",
+    "H": "NO",
+    "I": "NO",
+    "J": "NO",
+    "K": "NO",
+    "L": "NO"
+  },
+  "current_candidate_result": "PASS",
+  "result": "PASS",
+  "external_reaudit_required": true,
+  "limitations": [
+    "Result is local semantic/control gate only, not external audit approval",
+    "Post-push exact-head workflows must be independently verified",
+    "No lifecycle state transition or reclosure authorized",
+    "Existing corrective #1 and original certification artifacts remain unchanged"
+  ]
+}

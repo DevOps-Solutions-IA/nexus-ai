@@ -189,7 +189,9 @@ Primary backend stack:
 - Docker / Docker Compose
 - Asterisk 22 LTS
 
-Planned or later-stage infrastructure includes Kamailio, Nomad and horizontally distributed NXS Cells.
+Later-stage infrastructure deployment includes Kamailio, Nomad and a distributed
+Cell fleet. P18's placement/admission foundation is implemented on the unmerged
+feature branch; this does not certify or authorize fleet deployment.
 
 The frontend will be developed after backend certification and is expected to use Next.js.
 
