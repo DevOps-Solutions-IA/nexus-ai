@@ -1,13 +1,14 @@
-# P18 implementation — prior certification, documentation corrective pending
+# P18 implementation — corrective reclosure certified, pending merge
 
 This feature-branch implementation follows ADR-0099 and the approved P18 design.
 Canonical main remains certified through P17. P18 runtime was implemented at
 `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79` and certified READY/GO at
 `c2de25360aff1644528f2ce314e98403cb3fdbf4`, both preserved on the unmerged branch.
-The current phase is VALIDATING/PENDING for a documentation-only corrective; runtime
-is unchanged, and external corrective audit plus separate reclosure authorization
-are required. Prior certification covers placement correctness, not deployment,
-capacity, failover or physical exactly-once. Historical evidence is not a new GO.
+The documentation-only corrective passed external audit and authorized canonical
+reclosure; current branch state is READY/GO, bound to corrective candidate
+`cfa98bd76c0b0e00653356651d672b4e213ef630`. Runtime is unchanged. Final external
+post-reclosure audit and merge remain pending. Certification covers placement
+correctness, not deployment, capacity, failover or physical exactly-once.
 
 ## Durable structures and control boundary
 

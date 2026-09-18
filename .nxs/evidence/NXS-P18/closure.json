@@ -2,31 +2,33 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P18",
   "result": "PASS",
-  "recorded_at": "2026-09-18T20:32:29Z",
-  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "recorded_at": "2026-09-18T22:15:18.074606+00:00",
+  "implementation_commit": "cfa98bd76c0b0e00653356651d672b4e213ef630",
+  "runtime_implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "passed": 1962,
+  "failed": 0,
+  "coverage_percent": 91.14,
+  "runtime_seconds": 421.84,
+  "validation_source": "Fresh make nxs-gate PHASE=NXS-P18; quality-gates.json#details.tests",
+  "warnings": [
+    "Local test HTTP server emitted BrokenPipeError after client disconnect; pytest exit 0, 1962 passed; original stderr preserved in quality-gates.json"
+  ],
+  "corrective": 2,
+  "previous_original_closure": "c2de25360aff1644528f2ce314e98403cb3fdbf4",
+  "previous_corrective": "99d60fb83d2dc79812253c31c204aad408580fa7",
   "branch": "feat/nxs-p18-cell-scaling",
   "status": "READY",
   "decision": "GO",
   "active_phase": null,
   "next_allowed_execution": "NXS-P19",
-  "closed_at": "2026-09-18T20:31:14Z",
-  "closure_commit": null,
-  "command": [
-    "make",
-    "nxs-close",
-    "PHASE=NXS-P18",
-    "IMPLEMENTATION_COMMIT=b655e615b18aafec4f7a1cc57e25bd97cf6b0a79"
-  ],
-  "exit_code": 0,
   "lock": "RELEASED",
-  "state_transition": {
-    "command": "uv run python -m scripts.nxs_state NXS-P18 VALIDATING",
-    "exit_code": 0,
-    "from": "BUILDING",
-    "to": "VALIDATING"
-  },
+  "closed_at": "2026-09-18T22:13:48Z",
+  "closure_commit": null,
+  "command": "make nxs-close PHASE=NXS-P18 IMPLEMENTATION_COMMIT=cfa98bd76c0b0e00653356651d672b4e213ef630",
+  "exit_code": 0,
   "merge_authorized": false,
-  "deployment_authorized": false,
   "p19_start_authorized": false,
-  "implementation_evidence_binding": "Immutable implementation commit; historical candidate hashes remain scoped to that commit, not closure metadata"
+  "deployment_authorized": false,
+  "prior_closure_preserved": "original-closure-certification-history.json#artifacts.closure",
+  "scope": "Corrective reclosure; containing closure Git SHA intentionally not self-referenced"
 }

@@ -1,8 +1,10 @@
 # ADR-0099: Cell placement authority without tenant or execution-identity replacement
 
 Status: approved and implemented P18 contract. The feature branch was certified READY/GO
-at `c2de25360aff1644528f2ce314e98403cb3fdbf4`; it is now VALIDATING/PENDING for a
-documentation-only corrective, pending external audit and separately authorized reclosure.
+at `c2de25360aff1644528f2ce314e98403cb3fdbf4`; its documentation-only corrective
+subsequently passed external audit and authorized canonical reclosure. Current branch
+state is READY/GO, bound to `cfa98bd76c0b0e00653356651d672b4e213ef630`, pending final
+external post-reclosure audit and merge.
 Runtime and architectural decisions are unchanged. Canonical main remains through P17.
 
 ## Context

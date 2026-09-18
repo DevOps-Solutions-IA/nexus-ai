@@ -37,9 +37,11 @@ The canonical source of truth for execution state is `.nxs/`, not this README. A
 NXS-P17 is canonical `READY / GO` after PR #38 merged at
 `49020eacc03ddc4a9c6a399b23244e692d7d96a8`. P18 was certified `READY / GO` on
 `feat/nxs-p18-cell-scaling` at closure `c2de25360aff1644528f2ce314e98403cb3fdbf4`.
-Its unchanged runtime is implemented, not planned. The phase is now reopened as
-`VALIDATING / PENDING` for documentation-only corrective review; reclosure requires
-separate authorization. P18 is not yet a canonical main capability.
+Its unchanged runtime is implemented, not planned. After external corrective audit
+and authorized canonical reclosure, P18 is now `READY / GO` on the feature branch,
+binding corrective candidate `cfa98bd76c0b0e00653356651d672b4e213ef630`.
+Final external post-reclosure audit and merge remain pending. P18 is not yet a
+canonical main capability.
 The branch integrates transactional placement admission into agent, human, workflow,
 scheduler, campaign and messaging authority boundaries. P19 has not been started.
 See [the P18 design contract](docs/engineering/nxs-p18-cell-scaling-design.md).
@@ -249,7 +251,7 @@ CALL     → Telephony / P11
 VOICE    → Voice / P12
 ```
 
-P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement is implemented and previously certified on its unmerged feature branch; its documentation-only corrective is currently VALIDATING/PENDING. Placement does not replace these execution authorities.
+P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement is implemented and reclosed READY/GO on its unmerged feature branch, pending final external post-reclosure audit and merge. Placement does not replace these execution authorities.
 
 ## Security model
 
@@ -310,7 +312,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P17. P18 implementation and its original READY/GO certification remain recorded on the feature branch; the current documentation corrective is VALIDATING/PENDING, awaiting external corrective audit and separately authorized reclosure. P18 is not merged. The original correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P17. P18 is READY/GO after authorized corrective reclosure on the feature branch, pending final external post-reclosure audit and merge. Historical implementation, closure and corrective evidence remains preserved. This correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

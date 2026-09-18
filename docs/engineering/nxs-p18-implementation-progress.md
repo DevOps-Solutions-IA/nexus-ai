@@ -7,8 +7,9 @@ below are retained, not relabeled as final-candidate certification.
 
 Subsequent runtime implementation `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79` and
 closure `c2de25360aff1644528f2ce314e98403cb3fdbf4` superseded this partial checkpoint.
-The phase is now VALIDATING/PENDING for documentation-only corrective review, not
-missing runtime. All incomplete/not-certified statements below describe the original
+The later documentation corrective was reviewed externally and canonically reclosed
+READY/GO against `cfa98bd76c0b0e00653356651d672b4e213ef630`, pending final external
+post-reclosure audit and merge. All incomplete/not-certified statements below describe the original
 checkpoint only; its failures and measurements remain unchanged.
 
 The implementation branch is `feat/nxs-p18-cell-scaling`, based on audited governance

@@ -2,11 +2,15 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P18",
   "result": "PASS",
-  "recorded_at": "2026-09-18T20:31:13Z",
-  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "recorded_at": "2026-09-18T22:12:49.363535+00:00",
+  "implementation_commit": "cfa98bd76c0b0e00653356651d672b4e213ef630",
+  "runtime_implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
   "passed": 1962,
   "failed": 0,
-  "runtime_seconds": 413.94,
-  "coverage_percent": 91.12,
-  "validation_source": "Stage B canonical make nxs-gate PHASE=NXS-P18; quality-gates.json"
+  "coverage_percent": 91.14,
+  "runtime_seconds": 421.84,
+  "validation_source": "Fresh make nxs-gate PHASE=NXS-P18; quality-gates.json#details.tests",
+  "warnings": [
+    "Local test HTTP server emitted BrokenPipeError after client disconnect; pytest exit 0, 1962 passed; original stderr preserved in quality-gates.json"
+  ]
 }

@@ -1,9 +1,10 @@
 # NXS-P18 — Horizontal Cell Scaling: approved contract and evidence context
 
 Status: implemented contract, originally certified READY/GO on the feature branch at
-`c2de25360aff1644528f2ce314e98403cb3fdbf4`. The phase is currently VALIDATING/PENDING
-for a documentation-only corrective; external audit and separately authorized reclosure
-are pending. Canonical main remains completed through P17; P18 is not merged.
+`c2de25360aff1644528f2ce314e98403cb3fdbf4`. After external corrective audit and
+authorized canonical reclosure, current branch state is READY/GO, bound to
+`cfa98bd76c0b0e00653356651d672b4e213ef630`. Final external post-reclosure audit and
+merge remain pending. Canonical main remains completed through P17; P18 is not merged.
 The runtime implementation is `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, unchanged
 by this corrective. This document retains the approved acceptance obligations;
 normative wording records continuing contract obligations, not absent runtime.
@@ -264,8 +265,9 @@ They are now mapped to executed PASS results in
 implementation and original certification. The table retains the original expected
 outcomes; it is not itself test evidence. Real independent PostgreSQL sessions,
 explicit barriers and downstream invocation counts remain required; sleep timing
-and SQLite do not prove these obligations. Reopening this documentation corrective
-does not erase the executed evidence or authorize reclosure.
+and SQLite do not prove these obligations. The historical corrective reopen did not
+erase executed evidence or itself authorize reclosure; subsequent explicit human
+authorization and canonical reclosure are recorded separately.
 
 | Case | Serialization / expected observable result |
 | --- | --- |
@@ -294,7 +296,9 @@ The original governance classified these criteria as **REQUIRED, NOT VALIDATED**
 The implementation subsequently mapped all 23 to named executed tests in
 `.nxs/evidence/NXS-P18/execution-criteria.json` (AC01–AC23), with original closure
 results in `quality-matrix.json`, `tests.json` and `closure.json`. These artifacts
-record the prior certification, not authorization to close the present corrective.
+record certification, not authority to self-authorize closure. Original artifact text
+is preserved in `original-closure-certification-history.json`; current tests and matrix
+bind the externally approved corrective candidate and fresh quality gate.
 The obligations below remain binding; the manifest retains all 31 canonical gates.
 
 1. Repeated authoritative reads return the same Organization/Cell/generation tuple.
@@ -350,10 +354,11 @@ Organization authorization must not be inferred from access to inventory metadat
 Historically, governance GO meant only that the design and manifest validated;
 governance left the phase PLANNED/PENDING without an execution lock. Separately
 authorized implementation and closure subsequently produced the evidence cited above.
-The present documentation corrective reopens the phase as VALIDATING/PENDING; it
-does not restart implementation, invalidate immutable historical results or authorize
-reclosure. Exact-head checks and external review remain required before any separately
-authorized reclosure or merge. P19 and later phases remain unactivated.
+The documentation corrective reopened the phase as VALIDATING/PENDING without
+restarting implementation or invalidating immutable historical results. It subsequently
+passed external audit and explicitly authorized canonical reclosure to READY/GO.
+Final exact-head checks and external post-reclosure review remain required before any
+separately authorized merge. P19 and later phases remain unactivated.
 
 ## 13. Historical governance-only validation record
 

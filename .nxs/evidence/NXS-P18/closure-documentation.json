@@ -2,8 +2,9 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P18",
   "result": "PASS",
-  "recorded_at": "2026-09-18T20:32:29Z",
-  "implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
+  "recorded_at": "2026-09-18T22:15:18.074606+00:00",
+  "implementation_commit": "cfa98bd76c0b0e00653356651d672b4e213ef630",
+  "runtime_implementation_commit": "b655e615b18aafec4f7a1cc57e25bd97cf6b0a79",
   "reviewed": [
     "AGENTS.md",
     "CLAUDE.md",
@@ -15,19 +16,31 @@
     "docs/runbooks/phase-lifecycle.md"
   ],
   "canonical_main_completed_through": "NXS-P17",
-  "runtime_changed": false,
-  "capacity_claim": false,
-  "failover_claim": false,
-  "deployment_claim": false,
-  "closure_scope": "Canonical closure completed; README/ADR/design/runtime status synchronized to feature-branch READY/GO only",
-  "agent_handoff": "Repository-only reconstruction test passed; immutable implementation and evidence audit recorded",
   "status": "READY",
   "decision": "GO",
-  "pending": "External post-closure audit and explicit human merge authorization",
+  "runtime_changed": false,
+  "semantic_assertions": {
+    "current_implementation_planned": false,
+    "current_runtime_unexecuted": false,
+    "current_acceptance_future": false,
+    "inventory_security_deferred": false,
+    "false_main_claim": false,
+    "automatic_failover_claim": false,
+    "relocation_claim": false,
+    "capacity_claim": false,
+    "deployment_claim": false,
+    "cell_as_tenant": false,
+    "cache_event_authority": false
+  },
+  "source": "Post-canonical-reclosure documentation review; current feature branch READY/GO, canonical main through P17; historical corrective text qualified",
+  "external_review": "external-reaudit-authorization.json",
   "updated_document_sha256": {
-    "README.md": "6e380eb540557e0d1756ddd37e49f631119ea33f910bbe2fe8b92f76d37c673a",
-    "docs/adr/0099-cell-placement-authority.md": "f4cb6d1186fa56cc3547f065159ee0e62b77443607bc9476573203de4b5e6933",
-    "docs/engineering/nxs-p18-cell-scaling-design.md": "f5929c425106f82d7c33779f6269b8afa99a8355987419b029b18ac0e3ce5008",
-    "docs/engineering/nxs-p18-runtime.md": "4615b467f57258401caa4d5a660e03738bc4b2eb66fb85ae728222379995dea0"
-  }
+    "README.md": "17f3836cbf18cb72195639633b0db6ec649baadbc4d22ce11473f727cb11408a",
+    "docs/adr/0099-cell-placement-authority.md": "64f3580f90bde4ffb20dc3edb4af945b95fd0eec9d275e4ffb15d848023b4ac0",
+    "docs/engineering/nxs-p18-cell-scaling-design.md": "608e55ee83a0fda0932595a686930c2b463f19b9b6aae7d6c3d205b026a04993",
+    "docs/engineering/nxs-p18-runtime.md": "968a657f8f78c6f86ea5c7d933ea025b93733c9864bdd8ef6b299bcb6354b10b",
+    "docs/engineering/nxs-p18-implementation-progress.md": "be17c1fe5d65c85f929a8cbd1c8243d66f99e7a853c100b5f71b7445a5ca2133",
+    "docs/engineering/branch-contract.md": "9ead98aeeddeda0f645cecc7ea8bbca37b62c03debe5854181e5becfe7fca50e"
+  },
+  "pending": "Final external post-reclosure audit and separately authorized merge"
 }
