@@ -1,18 +1,19 @@
 # NXS-P18 — Horizontal Cell Scaling: approved contract and evidence context
 
-Status: implemented contract, originally certified READY/GO on the feature branch at
-`c2de25360aff1644528f2ce314e98403cb3fdbf4`. After external corrective audit and
-authorized canonical reclosure, current branch state is READY/GO, bound to
-`cfa98bd76c0b0e00653356651d672b4e213ef630`. Final external post-reclosure audit and
-merge remain pending. Canonical main remains completed through P17; P18 is not merged.
-The runtime implementation is `b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, unchanged
-by this corrective. This document retains the approved acceptance obligations;
+Current status: P18 READY/GO on canonical main after merge
+`e2114cfe8f150e85b9ae432a9af557ceb52cf836`. Original runtime
+`b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, corrective candidate
+`cfa98bd76c0b0e00653356651d672b4e213ef630` and reclosure
+`9c6949aca7b53c1d4c4c8839933ad8b2a7a66c71` remain preserved.
+P19 is PLANNED/PENDING in governance preparation; no production deployment occurred.
+
+This document retains the approved acceptance obligations;
 normative wording records continuing contract obligations, not absent runtime.
 See `nxs-p18-runtime.md` for implemented mechanics and `.nxs/evidence/NXS-P18/`
 for executed C01–C18/AC01–AC23 mappings and original certification. Sections 1 and 13
 are historical governance records. `nxs-p18-implementation-progress.md` is a separate
 historical partial checkpoint, not the current implementation status.
-Baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
+Historical pre-implementation baseline: main `49020eacc03ddc4a9c6a399b23244e692d7d96a8`,
 P17 READY/GO. See ADR-0099 for the placement-authority decision.
 
 ## 1. Historical pre-implementation governance and canonical inputs
@@ -357,8 +358,8 @@ authorized implementation and closure subsequently produced the evidence cited a
 The documentation corrective reopened the phase as VALIDATING/PENDING without
 restarting implementation or invalidating immutable historical results. It subsequently
 passed external audit and explicitly authorized canonical reclosure to READY/GO.
-Final exact-head checks and external post-reclosure review remain required before any
-separately authorized merge. P19 and later phases remain unactivated.
+Subsequent exact-head checks and external review preceded merge to canonical main at
+`e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 and later phases remain unactivated.
 
 ## 13. Historical governance-only validation record
 

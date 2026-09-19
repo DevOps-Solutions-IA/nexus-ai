@@ -1,14 +1,14 @@
-# P18 implementation — corrective reclosure certified, pending merge
+# P18 implementation — canonical placement runtime
 
-This feature-branch implementation follows ADR-0099 and the approved P18 design.
-Canonical main remains certified through P17. P18 runtime was implemented at
-`b655e615b18aafec4f7a1cc57e25bd97cf6b0a79` and certified READY/GO at
-`c2de25360aff1644528f2ce314e98403cb3fdbf4`, both preserved on the unmerged branch.
-The documentation-only corrective passed external audit and authorized canonical
-reclosure; current branch state is READY/GO, bound to corrective candidate
-`cfa98bd76c0b0e00653356651d672b4e213ef630`. Runtime is unchanged. Final external
-post-reclosure audit and merge remain pending. Certification covers placement
-correctness, not deployment, capacity, failover or physical exactly-once.
+Current status: P18 READY/GO on canonical main after merge
+`e2114cfe8f150e85b9ae432a9af557ceb52cf836`. Original runtime
+`b655e615b18aafec4f7a1cc57e25bd97cf6b0a79`, corrective candidate
+`cfa98bd76c0b0e00653356651d672b4e213ef630` and reclosure
+`9c6949aca7b53c1d4c4c8839933ad8b2a7a66c71` remain preserved.
+P19 is PLANNED/PENDING in governance preparation; no production deployment occurred.
+
+This implementation follows ADR-0099. Certification covers placement correctness,
+not capacity, failover, physical exactly-once or deployment.
 
 ## Durable structures and control boundary
 
