@@ -81,7 +81,9 @@ Names below are conceptual until additive migration design; invariants are bindi
 | CellSipTarget | Platform-global: UUID, cell_id FK to P18 Cell, Cell-wide target_revision, immutable host/port/transport tuple, state, DB timestamps. |
 | CellSipTargetHead | One row per Cell, current active target/revision or none, monotonic control revision for every effective mutation; FK prevents a pointer to another Cell's target. |
 | TargetMutationReceipt/History | Platform-global: actor, operation, expected/result revision, target IDs, bounded reason/correlation, key hash/fingerprint, original result, DB timestamp; append-only. |
-| PeerProfile / AccountScope | Operations-controlled authenticated carrier/internal-source identities and allowed existing P11 `(organization_id, account_id)` references. No DID list or DID ownership column. Account-scope links are tenant-owned, forced RLS and composite-FK constrained. |
+| PeerProfile / AccountScope | Operations-controlled source authentication and traffic policy. Optional account restrictions are checked after discovery, never enumerated to discover tenants. Tenant-owned account links retain forced RLS and composite FKs. |
+| SipDidLocator | Minimal platform-global discovery index: immutable locator_id, canonical unique e164, organization_id, P11 phone_number_id/account_id, positive revision, active and DB timestamps. Exact composite source binding; no ownership, Cell, target, SIP payload or credential authority. |
+| SipEgressPermit | Tenant-owned: permit_id, Organization/P11 call/account, Cell/placement_generation, destination fingerprint, approved upstream ID/revision, owning Asterisk identity, semantic fingerprint, DB issued_at/expires_at, token digest, consumption state and exact transaction/edge owner. One durable permit slot per logical P11 call; no raw token in logs/events. |
 | UpstreamProfile | Operations-controlled immutable revision of approved trunk address/transport/secret reference; never raw SIP URI or tenant address. Referenced from approved P11 account/endpoint binding. |
 | SipRouteAuthorization | Tenant-owned: UUID route_id, P11 number/account (and outbound call) references, direction, Cell/placement identity/generation, immutable target or upstream revision, transaction fingerprint, owning edge/boot identity, authorization/issue/expiry times and terminal/ambiguous status. |
 | RouteTransitionHistory | Tenant-owned append-only exact route/state/reason and authenticated actor correlation, no message/SDP payload. |
@@ -135,33 +137,65 @@ P11 `telephony_phone_numbers.e164` is globally unique, but its repository is ten
 scoped. Existing inbound webhooks resolve a signed/token-bound P11 account before
 `by_e164`; there is no certified global unscoped DID resolver to pretend to reuse.
 
-P19 chooses bounded account-scoped discovery, not a new DID directory or RLS bypass:
-an authenticated carrier/trunk profile supplies at most 32 operations-approved
-existing P11 account scopes. The pre-tenant candidate list comes from authenticated,
-operations-owned edge/trunk configuration, not an unscoped read of tenant AccountScope
-rows; it is a bounded discovery hint, not authorization. After establishing each
-candidate's trusted tenant context, verify the durable AccountScope/profile revision
-and actual account/number. Stale config fails closed. Using these scopes, query canonical E.164 in
-each scoped P11 repository, requiring matching account, verified/inbound-enabled
-number, active account and active Organization. The matched P11 number row is the
-sole DID→Organization authority; the profile only bounds who may deliver to it.
-Zero matches, an ambiguous match, exceeded scope bound or disabled profile denies.
-Never scan all Organizations, guess a tenant from SIP or duplicate DID ownership.
-Large shared-carrier scopes need separately reviewed bounded provisioning, not an
-unbounded fallback. Account deletion/revocation invalidates references.
+P19 uses SipDidLocator solely to discover the tenant context for P11 revalidation.
+One indexed equality lookup by canonical E.164 returns at most one candidate
+Organization/number/account plus locator_id/revision. It never returns a route.
+This constant-count lookup supports a shared carrier serving more than 32
+Organizations without a tenant/account list or linear tenant enumeration; index
+cost may grow logarithmically, and no throughput claim is made. Carrier profiles
+authenticate traffic, not DID ownership. Optional carrier/account restrictions are
+checked against the discovered account, not used as a discovery search space.
 
-The lookup yields a candidate only. Re-read/lock the same number/account and
-profile revision inside final authorization; ownership/verified/inbound changes
-must serialize on those actual P11 rows. No requirement to alter P11 public
-contracts or widen its RLS. A later global discovery design requires a separate
-security decision, not a SECURITY DEFINER shortcut in this implementation.
+Open trusted tenant context from the candidate only inside the authenticated
+resolver. Under forced RLS, re-read canonical P11 rows and require exact number ID,
+account ID, Organization, E.164, verified=true, inbound_enabled=true, account ACTIVE
+and Organization ACTIVE. In final authorization lock these rows and the locator;
+require the same active locator_id/revision and exact binding. Only then admit P18
+placement and authorize the target using the common lock order (pre-lock snapshots
+are hints). Missing, revoked, stale or disagreeing locator/P11 state fails closed,
+with zero sends and no fallback scan. A locator row alone never authorizes a call.
+
+P11 remains the only ownership authority. Future internal P11 persistence seams
+must synchronously maintain the projection in the SAME PostgreSQL transaction as
+number registration/ownership creation, verification/inbound changes, account or
+number disable/delete. Source mutation + derived locator change + relevant history
+commit or roll back together. Account-wide changes use indexed affected-account
+rows in deterministic order, never a fleet tenant scan; lock/statement deadlines
+roll back the entire operation, never partially commit projection changes. Final
+P11 revalidation remains mandatory even with this transactional synchronization.
+Organization ACTIVE is independently checked under its authority lock. No async
+event consumer can grant locator validity. P11 public APIs, ownership, call state,
+idempotency and forced RLS do not change; no independent locator ownership API.
+
+Require unique canonical E.164 and exact composite FK binding to the P11
+Organization/number/account/E.164 tuple. Additive source uniqueness/FK support may
+be needed; never rewrite a canonical migration. Revocation increments revision;
+deletion removes the locator atomically before source deletion. Re-creation uses
+a new immutable locator_id, preventing delete/recreate ABA even if revision starts
+again. No locator may outlive a deleted source as an active discoverable row.
+
+The locator is sensitive global discovery data, not a public directory. Grant a
+dedicated authenticated resolver principal only exact-key lookup of its minimal
+columns, with no tenant-table privileges or generic listing API. Use a narrowly
+scoped non-superuser/non-BYPASSRLS DB role for this lookup, separate from tenant
+sessions. The final transaction reads/locks only its candidate locator through a
+tenant-scoped locator policy; the global discovery connection is never held across
+that transaction and grants no authority. Final P11 reads still use nexus_runtime
+and forced tenant RLS. Projection
+DML belongs only to the controlled P11 write seam, constrained to the trusted
+tenant and exact source binding through grants/policies; ordinary tenant callers
+cannot create arbitrary locator entries. No SECURITY DEFINER function, broad tenant
+SELECT, role escalation or Kamailio SQL access. Role/policy and adversarial tests
+must prove these separations. Neither locator credentials nor rows reach Kamailio.
 
 ## 7. Inbound authorization and exact route contract
 
 1. Edge authenticates the transport peer against an operations-controlled profile;
    validates bounded SIP syntax and method; rejects unsolicited preloaded routes;
    strips internal-looking X-NXS/Organization/Cell/generation headers, case-insensitively.
-2. Extract numeric called user from the profile-approved Request-URI host only.
+2. Extract the called number only from the canonical numeric USER part of the
+   Request-URI, and only when its HOST matches the authenticated carrier/profile's
+   approved ingress domain/host policy.
    Normalize using P11 E.164 vocabulary. To/From/Contact are not fallback DID
    authority. Reject inconsistent/ambiguous called-number representations and URI
    parameters/escapes that can smuggle a new destination. Raw SIP never enters the
@@ -213,10 +247,13 @@ an explicit ACTIVE placement.
 ## 8. Serialization, retries and two-edge consistency
 
 Common lock order: P18 Cell catalog (ascending IDs) → Organization/placement
-authority → P11 account/number rows (ascending IDs) → P19 peer/profile/head/target
-rows in a fixed documented order → route/receipt/history/outbox. Reference discovery
+authority → P11 account/number/call rows (fixed class order, ascending IDs) → locator rows (canonical E.164
+order) → P19 peer/profile/head/target
+rows in a fixed documented order → permit → route/receipt/history/outbox. Reference discovery
 before locks is not authoritative; recheck after locks. Target control uses the same
 Cell-first order; it never acquires an earlier class after a target/route lock.
+P11 projection maintenance takes source rows before locator rows and never later
+acquires placement/Cell locks. Tenant context is never switched while locks are held.
 Profile mutation must respect this order and never take tenant locks after profile
 locks. Missing per-Cell head creation serializes through the Cell row.
 
@@ -274,14 +311,69 @@ adapter → assigned Asterisk → trusted internal SIP peer → Kamailio → app
 Do not change P11 request/account/call models, signed webhooks, ARI endpoint aliases,
 DTMF or media state. P19 adds routing checks around that boundary, not call creation.
 
-Internal Asterisk source identity is operations-bound to one Cell and allowed P11
-account scopes. A trusted bridge/correlation adapter must bind the SIP leg to the
-existing P11 call/account and canonical destination (not accept a bare caller-supplied
-call UUID). P19 verifies that linkage against P11 and ACTIVE P18 placement in its
-new-dialog authorization. Missing proof denies; source IP alone never authorizes
-an arbitrary tenant call. Upstream profile comes from the operations-approved
-account/trunk binding, not SIP R-URI host, From, Contact, Route, user options or an
-LLM. The peer profile's approved upstream tuple is immutable and pinned per dialog.
+### 10.1 Exact permit chain and internal ARI seam
+
+After P11 commits its durable logical call, its trusted internal originator requests
+one SipEgressPermit before ARI I/O. P19 checks that exact tenant/call/account and
+canonical destination, P18 ACTIVE Cell/generation, approved account-to-upstream
+revision and configured owning Asterisk identity. It persists the complete binding
+from section 4, a stable semantic fingerprint and an opaque unpredictable token
+(at least 256 bits). A unique `(organization_id, call_id)` slot prevents retries
+from minting a second permit. Same semantic request returns the original result;
+changed destination/upstream/generation conflicts rather than replacing the permit.
+The token is a secret: digest lookup, encrypted replay material restricted to the
+trusted originator, never plaintext in history/logs/events/prompts or public APIs.
+
+The current Asterisk adapter originates with endpoint/app/callerId and an empty
+JSON body; it does NOT already propagate this proof. The future internal adapter
+seam must set server-generated ARI body `variables.NXS_SIP_EGRESS_PERMIT` from the
+trusted permit result, never request options or tenant headers. ARI supports
+creation-time channel variables in its JSON body ([official channels API](https://docs.asterisk.org/Latest_API/API_Documentation/Asterisk_REST_Interface/Channels_REST_API/)).
+Operations-owned Asterisk/PJSIP integration copies only this opaque value into a
+single internal `X-NXS-Egress-Permit` header on the actual outbound channel before
+its initial INVITE. Channel inheritance/pre-dial handling must be tested on the
+pinned Asterisk integration; merely setting a variable without proving its wire
+delivery is insufficient. Public CreateCallRequest, caller-ID/account authority,
+call state, idempotency, DTMF and media semantics remain unchanged.
+
+Kamailio accepts that header ONLY on an authenticated internal Asterisk peer path
+and submits token + bounded transaction identity + observed canonical destination
+to the authenticated P19 consume endpoint. Both authenticated Asterisk identity
+AND valid permit are required. The resolver checks exact owning peer/Cell, existing
+P11 call/account, destination fingerprint, placement generation and approved
+upstream ID/revision. Source IP, Caller-ID, From, arbitrary Call-ID, client call UUID
+and R-URI host are never substitutes. A peer authenticating for another Cell fails.
+Strip the token before carrier relay; inbound/untrusted copies are stripped/rejected.
+The complete permit tuple is never transported in SIP. The upstream comes solely
+from the bound operations-approved profile, never tenant/LLM input or SIP hosts.
+
+### 10.2 Consumption, expiry and ambiguity
+
+Permit states: AUTHORIZED → CONSUMED → ENDED or AMBIGUOUS; AUTHORIZED → EXPIRED
+or REVOKED. Terminal/ambiguous records retain the unique call slot and exact binding.
+Use PostgreSQL UTC time, a fixed 30-second unconsumed TTL from issued_at, and no
+extension on retry. An expired unconsumed permit grants nothing. Expiry of a
+consumed permit never proves absence of external work or permits reissuance.
+
+Minting reserves a conditional permit, NOT an unconditional wire authorization.
+Consumption, in one transaction using section 8 ordering, rechecks current P11
+call/account eligibility, P18 ACTIVE generation, peer policy and exact ACTIVE
+upstream revision, then locks the permit. The first valid CAS atomically marks
+CONSUMED and creates the exact ISSUED SipRouteAuthorization, transaction/edge/boot
+owner, receipt and history/outbox. This commit is outbound initial-relay
+authorization; unlike inbound, no separate issue CAS is needed. Suspension or
+upstream revision change committing first denies consumption; consumption first
+pins the approved tuple. No DB locks span ARI, resolver HTTP or SIP transmission.
+
+Exactly one winning response carries an initial-relay grant. Same transaction/key
+replay returns durable state, not another initial-send grant. Another independent
+transaction, destination, upstream or owner cannot consume the same permit again.
+The still-live owning Kamailio transaction may retransmit its existing SIP branch;
+this is not a new dialog grant. Lost consume response after commit retains the
+CONSUMED fence (AMBIGUOUS when observed), with no second permit, fresh route,
+carrier selection or reconstructed initial send. Edge death and ambiguous ARI
+originate similarly retain durable identities. P25 alone owns later automatic
+reconciliation. An established dialog stays pinned if profiles change later.
 
 No tenant-controlled upstream/credential/transport selection, unrestricted proxying,
 carrier hunting or failover. Existing P11 ambiguous ARI outcomes retain the original
@@ -355,6 +447,9 @@ map to peer-safe SIP outcomes; no error initiates fallback or fan-out.
 | Failure | Required outcome |
 | --- | --- |
 | Unknown/unverified/disabled DID or wrong carrier-account binding | Deny (uniform 404 to authenticated carrier); zero target sends. |
+| Missing/revoked/stale locator or source-binding disagreement | Same safe denial; no tenant enumeration or alternate candidate. |
+| Missing/expired/altered permit, wrong peer/Cell/destination/upstream revision | Deny; zero upstream INVITEs. |
+| Permit consumption response lost after commit | Preserve consumed/ambiguous fence; replay state without a new initial-relay grant. |
 | Missing/suspended placement; missing/retired target | Unavailable (503); zero new dialog, no bootstrap default. |
 | Resolver/DB down, deadline exceeded | Bounded 503; no cached new authorization. |
 | Malformed SIP/URI/headers | 400; oversized input 513; ACK failures are dropped rather than answered. |
@@ -402,6 +497,13 @@ and actual received INVITEs/dialogs, not only resolver return values.
 | C23 | DB/outbox rollback or worker death after ISSUED: no partial authorization, no new owner/key on restart. |
 | C24 | Retire draining target with outstanding/ambiguous dialog: refuse; explicit completed references permit retirement. |
 | C25 | Cross-tenant FK/raw SQL, unauthenticated resolver, stale signed request, duplicate/reordered events: deny unauthorized authority. |
+| C26 | Shared carrier with DIDs across more than 32 Organizations/accounts: one indexed locator lookup plus one candidate's RLS revalidation; no profile enumeration. |
+| C27 | Locator wrong/stale Organization, number, account, E.164, revision or deleted/revoked binding: fail closed, zero target sends. |
+| C28 | P11 register/verify/inbound/disable/delete and account mutation race authorization: source/projection atomic rollback and final locks linearize; stale ownership cannot authorize. |
+| C29 | Two independent outbound transactions consume one permit concurrently: exactly one initial-relay grant; same-transaction replay grants no second logical dialog. |
+| C30 | Valid permit presented by wrong authenticated Asterisk Cell/peer: deny, zero carrier INVITEs. |
+| C31 | Trusted Asterisk presents missing/expired/altered permit or mismatched destination/upstream revision: deny, zero carrier INVITEs. |
+| C32 | Consume commit succeeds but response is lost: same durable permit/route/owner; no second authorization or alternate carrier. |
 
 ## 15. Acceptance matrix
 
@@ -411,7 +513,7 @@ executed test nodes, versions/digests, observed counts and failure injections.
 | ID | Acceptance and required proof |
 | --- | --- |
 | AC01 | NXS-SCALE-002 maps to one P19 contract/manifest; schema and mapping validators. |
-| AC02 | P11 DID ownership only; account-scoped discovery tests, no duplicate directory. |
+| AC02 | P11 DID ownership only; minimal locator candidate followed by exact RLS revalidation, no independent ownership directory. |
 | AC03 | P18 placement/admission consumed; no second placement model. |
 | AC04 | Suspended/inactive placement blocks new dialogs; C02/C03. |
 | AC05 | PostgreSQL bounded target state; DB constraints and adversarial input tests. |
@@ -440,6 +542,19 @@ executed test nodes, versions/digests, observed counts and failure injections.
 | AC28 | Forced RLS/composite FKs/platform control and bounded bootstrap; C18/C21/C25. |
 | AC29 | Route authorization/issue ordering, response loss and no duplicate cross-edge issue; C12/C13/C23. |
 | AC30 | Target drain/retire safety and route history atomicity; C22–C24. |
+| AC31 | Scalable indexed DID discovery; unique E.164/exact source FK and deleted/recreated locator identity tests. |
+| AC32 | P11 source + locator synchronization in one transaction for every mutation path; injected rollback and C28. |
+| AC33 | Final forced-RLS P11 revalidation of exact IDs/E.164/verified/inbound/account/Organization and locator revision; C27. |
+| AC34 | No tenant scan: query-count/plan assertions independent of carrier tenant count, including missing DID. |
+| AC35 | Locator-specific least privilege; actual non-superuser/non-BYPASSRLS roles, no SECURITY DEFINER or unrestricted tenant SELECT. |
+| AC36 | Kamailio has no SQL access/credentials, including locator credentials; config/grant/secret inspection. |
+| AC37 | Real shared-carrier fixture exceeds 32 Organizations/accounts without profile tenant enumeration; C26. |
+| AC38 | Opaque server-only permit bound to durable P11 call; forged/public input denied and token absent from logs/events/LLM contexts. |
+| AC39 | ARI channel-variable → operations-owned PJSIP header propagation proven on real integration; P11 public semantics/regressions unchanged. |
+| AC40 | Authenticated Asterisk AND permit required; wrong peer/Cell, IP-only and Caller-ID-only attempts denied; C30/C31. |
+| AC41 | Atomic one-time consumption, DB-time TTL and persistent per-call fence; C29 plus real SIP retransmission/dialog counts. |
+| AC42 | Injected lost response after consume commit retains exact state and creates zero new grant/permit/carrier choice; C32. |
+| AC43 | Exact approved upstream ID/revision/destination binding, rotation race and replay against another upstream denied; C31. |
 
 ## 16. Future implementation test and artifact strategy
 
@@ -470,13 +585,30 @@ P18 regression. Preserve existing >=90% coverage without exclusions. Real races 
 independent sessions and explicit barriers/DB lock assertions; count actual UAS
 dialog creations separately from legitimate SIP packet retransmissions.
 
+Add a real ARI/Asterisk-PJSIP permit-propagation fixture for AC39; SIP UAS-only
+tests cannot prove channel-variable delivery. Assert received initial INVITEs
+separately from retransmissions and count permit grants. Locator tests require
+raw SQL uniqueness/FK/role attacks, wrong tenant/number/account, disabled account
+and number, revocation/deletion, transactional failure injection and >32 tenant
+fixtures. C28/C29 require independent PostgreSQL sessions and deterministic barriers.
+
 ## 17. Migrations, rollout and rollback
 
-Governance creates no migration. Future implementation adds new P19 structures only,
+Governance creates no migration. Future implementation adds P19 structures and the
+minimal additive P11 source-binding constraints/internal synchronization seams,
 following current Alembic head and schema guard; never edits deployed P11/P18 history.
 Require fresh upgrade, canonical-schema upgrade, one head, `alembic check`, runtime
 role attacks and disposable downgrade/re-upgrade. Do not backfill default targets,
 peer trust, DID ownership or placements. Existing P11/P18 APIs keep their contracts.
+
+Existing numbers require an explicit auditable, idempotent locator backfill using
+bounded keyset batches under each trusted tenant context. Install synchronous P11
+maintenance before backfill; each batch revalidates/locks source then locator and
+cannot overwrite a newer revision. No fabricated ownership or active defaults.
+Absent projections deny routing until provisioned; no carrier-wide discovery scan
+on requests. Rollback must disable new ingress/egress first and preserve consumed
+permit fences/history; dropping locator maintenance while routing remains enabled
+is prohibited. Test all grants, source FKs and synchronization on upgrade/re-upgrade.
 
 Reference setup is explicit/bounded: grant platform control, register validated
 target/profile, verify P11 account/number ownership and P18 placement, activate target,
@@ -499,12 +631,12 @@ P26 DR, P27 final hardening, P28 capacity, P29 chaos and P32 production remain s
 Governance done: schema/mapping/preflight/control checks pass, documents align with
 main through P18, P19 remains PLANNED/PENDING with empty evidence, no lock/start,
 one governance commit and exact-head CI/Security, then external architecture audit.
-Implementation done later: every C01–C25 and AC01–AC30 has executed evidence, all
+Implementation done later: every C01–C32 and AC01–AC43 has executed evidence, all
 31 manifest gates pass, artifact/config provenance and real SIP/PG proofs exist,
 separate implementation/closure commits follow authorized lifecycle and external
 review. Governance test success is not runtime acceptance or permission to start.
 
-## 19. Governance validation record
+## 19. Historical initial governance validation record
 
 At baseline verification, local HEAD, origin/main and the existing remote P19 branch
 all equaled `e2114cfe8f150e85b9ae432a9af557ceb52cf836`; the tree was clean. Checkout
@@ -526,3 +658,22 @@ new tenant authority, Kamailio DB access, P11/P12 redesign, open relay, forged h
 authority, arbitrary tenant target hosts, failover, migration, capacity and deployment
 are NO. P18 canonical on main and P19 PLANNED/PENDING are YES. Exact governance-head
 CI/Security must be verified after commit/push; no pre-push PASS is asserted here.
+
+## 20. External architecture audit corrective #1
+
+The preceding record describes initial governance, not architecture approval.
+External review of `a2f8db2d2aeb602fbbab76ed71fe809f74233543` returned NO-GO:
+bounded account enumeration did not solve shared-carrier discovery, and outbound
+correlation lacked an explicit permit/ARI propagation mechanism. Sections 4, 6–8
+and 10 now define the locator and egress permit contracts; C26–C32 and AC31–AC43
+add future executable obligations. This is a governance correction only; none of
+these new runtime proofs has been executed. External re-audit remains required.
+
+Corrective local validation: repository/schema validation and P19 preflight passed
+(exit 0, AUTHORIZED); lint passed (693 formatted files, Ruff clean), typing passed
+(315 source files), and the same existing control/lifecycle/handoff suite passed
+52 tests in 5.99 seconds. Protected source/migrations/tests/scripts/workflows,
+dependency and all `.nxs` files remain unchanged from the audited governance HEAD.
+README was reviewed: canonical main through P18 and P19 planned wording remains
+accurate. Requirement description/dependencies and manifest need no change.
+These results certify governance consistency only, not implementation behavior.

@@ -15,12 +15,21 @@ SIP domains, carrier profiles, edge nodes nor Cells become tenant identities.
 
 An authenticated edge submits a bounded canonical DID and SIP transaction identity
 to one internal resolver, never Organization/Cell/host authority. The resolver
-uses P11 phone-number ownership within operations-approved account scopes under
-forced RLS, then P18 ACTIVE placement, then the one active PostgreSQL P19 target.
+uses a minimal global SipDidLocator indexed by canonical E.164 to discover one
+candidate tenant, then revalidates exact P11 number/account/E.164 and enabled,
+verified, active status under forced RLS, then P18 ACTIVE placement and the one
+active PostgreSQL P19 target. The locator is NOT DID ownership authority. Final
+authorization locks/rechecks its immutable ID/revision and canonical P11 rows.
+Missing/stale/disagreeing entries fail closed, never trigger a tenant scan.
 It creates a durable, exact-tuple route authorization before returning a route.
 No tenant database credential reaches Kamailio. The existing webhook lookup is
 not misrepresented as a globally readable DID directory. The engineering contract
-specifies bounded account-scoped discovery and authoritative revalidation.
+specifies locator-specific least privilege, exact source FKs and same-transaction
+P11 source/projection maintenance. No BYPASSRLS, SECURITY DEFINER shortcut or broad
+tenant SELECT is permitted. Carrier profiles authenticate traffic without listing
+every tenant; shared carriers exceeding 32 Organizations use the same indexed
+discovery. Internal P11 synchronization seams may change later, but its ownership,
+public API, call state and RLS authority do not.
 
 PostgreSQL commit of route authorization is the new-dialog linearization point.
 Placement suspension first denies authorization; authorization first may proceed
@@ -44,9 +53,24 @@ presence alone is never proof of a dialog. Duplicate transactions preserve the
 same durable route/edge owner; ambiguous transmission or owner loss does not
 authorize another edge to create a new downstream dialog.
 
-Outbound calls still originate through P11 → ARI → Asterisk. Only authenticated
-internal Asterisk peers bound to the Cell and P11 account/call may use an
-operations-approved upstream profile. Tenant destinations remain P11-canonical
+Outbound calls use P11 durable call → P19 SipEgressPermit → ARI server-generated
+channel variable → operations-owned PJSIP opaque header → authenticated Asterisk
+peer at Kamailio → P19 atomic consumption → bound approved upstream. Both trusted
+peer AND permit are mandatory; IP, caller ID, SIP Call-ID or client UUID alone
+grant nothing. The current adapter does not carry this permit; a future internal
+adapter seam must prove channel-variable propagation without changing public P11
+call/idempotency/account/media semantics. No tenant or LLM supplies or sees tokens.
+
+The tenant-scoped permit binds P11 call/account, Cell/placement generation,
+destination fingerprint, upstream ID/revision, Asterisk identity, semantic
+fingerprint and DB-time 30-second validity. Minting is conditional; consumption
+revalidates authority and atomically grants one initial relay, pins transaction/
+edge ownership and persists history. A unique per-call slot survives expiry and
+ambiguity. Same-transaction replay returns state, not a second send grant; live
+SIP retransmissions retain the original branch. Wrong peer/destination/revision
+denies. Lost consumption response never mints another permit or carrier route;
+P25 owns automatic reconciliation. Only an opaque secret token travels on the
+internal SIP leg and is stripped before external relay. Tenant destinations remain P11-canonical
 numbers/aliases, never hostnames or Route headers. No arbitrary Internet relay,
 3xx retargeting or automatic alternate-carrier selection is allowed.
 
@@ -77,7 +101,7 @@ traffic through two Kamailio edges/two SIP UAS targets plus independent PostgreS
 race sessions, native config validation and immutable artifact provenance.
 
 The detailed models, RLS bootstrap, exact locking, replay, failure semantics and
-future C01–C25 / AC01–AC30 proof obligations are in
+future C01–C32 / AC01–AC43 proof obligations are in
 `../engineering/nxs-p19-sip-edge-scaling-design.md`. None is marked executed here.
 No P11/P12/P18 redesign, relocation, database sharding, RTP relay/transcoding,
 media migration, automatic failover, Nomad/fleet orchestration, frontend, capacity,
