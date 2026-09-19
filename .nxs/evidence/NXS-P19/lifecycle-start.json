@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "command": "make nxs-start PHASE=NXS-P19 ACTOR=cdxm",
+  "exit_code": 0,
+  "result": "PASS",
+  "scope": "Canonical lifecycle start only; not implementation certification",
+  "repository_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
+  "branch": "feat/nxs-p19-sip-scaling",
+  "actor": "cdxm",
+  "started_at": "2026-09-19T19:31:44Z",
+  "phase_status": "BUILDING",
+  "phase_decision": "PENDING",
+  "requirement_status": "IN_PROGRESS",
+  "active_phase": "NXS-P19",
+  "lock_state": "ACTIVE",
+  "lock_expires_at": "2026-09-19T23:31:44Z",
+  "start_count": 1,
+  "closure": "NOT_AUTHORIZED"
+}

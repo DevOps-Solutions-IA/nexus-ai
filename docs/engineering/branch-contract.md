@@ -15,8 +15,8 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Security: platform `sip_edge:control`, trusted edge/peer identity, no tenant database credentials in Kamailio, no arbitrary URI/host/header authority, no open relay, forced RLS/composite FKs and bounded traffic.
 - Concurrency: P18 Cell/placement locks precede P11/locator/P19 authority; unique active target, expected revisions, durable route/owner receipts, one-time egress consumption and deterministic suspend/authorize ordering. C01–C32 are future proof obligations, not passing tests.
 - Failure model: unknown DID, suspended placement, missing target, DB/resolver outage or ambiguity denies new routing; no default/fallback/fan-out; existing dialog stays pinned.
-- Evidence: ADR-0100 and `docs/engineering/nxs-p19-sip-edge-scaling-design.md` define AC01–AC43, real SIP/two-edge/two-Cell, ARI permit propagation and PostgreSQL tests, migration/rollback and observability limits. No P19 implementation evidence yet.
-- Readiness: governance remains PLANNED/PENDING, null commits/timestamps, no lock or start. All 31 canonical gates, exact-head CI/Security and separately authorized lifecycle/closure are required for later READY/GO. Governance success authorizes external audit only, not implementation, merge or deployment.
+- Evidence: ADR-0100 and `docs/engineering/nxs-p19-sip-edge-scaling-design.md` define AC01–AC43, real SIP/two-edge/two-Cell, ARI permit propagation and PostgreSQL tests, migration/rollback and observability limits. Development evidence is scoped and does not certify the implementation matrices.
+- Readiness: historical governance was PLANNED/PENDING with null commits/timestamps and no lock or start. Separate authorization started P19 as BUILDING/PENDING, actor `cdxm`, on 2026-09-19. Implementation is incomplete. All 31 canonical gates and exact-head CI/Security remain required; closure, merge and deployment are not authorized.
 
 ## NXS-P18 canonical implemented contract
 
@@ -27,7 +27,8 @@ as VALIDATING/PENDING, audited externally, and canonically reclosed READY/GO aga
 `cfa98bd76c0b0e00653356651d672b4e213ef630`. Reclosure commit
 `9c6949aca7b53c1d4c4c8839933ad8b2a7a66c71` subsequently merged to canonical main at
 `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P18 is canonical READY/GO; runtime and
-architecture are unchanged. P19 remains governance-only; no start or deployment.
+architecture are unchanged. P19 is now BUILDING/PENDING on its implementation branch;
+no P19 closure, merge or deployment has occurred.
 
 - Registered branch: `feat/nxs-p18-cell-scaling`; dependencies: NXS-P13 and NXS-P17 READY/GO. Requirement: `NXS-SCALE-001`, retaining its NXS-PLATFORM-002 dependency.
 - Objective/scope: stateless Cell compute with durable inventory, one PostgreSQL-authoritative Organization placement, deterministic resolution, same-Cell suspend/reactivate, generation fencing, stable mutation identities, history and tenant P04 outbox intent.

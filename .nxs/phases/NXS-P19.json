@@ -1,23 +1,15 @@
 {
   "$schema": "../phase-manifest.schema.json",
-  "schema_version": "1.0.0",
-  "id": "NXS-P19",
-  "title": "SIP Edge Scaling",
-  "objective": "Define and later implement the horizontally scalable Kamailio SIP signaling edge: canonical P11 DID ownership, P18 placement admission and PostgreSQL-authoritative P19 Cell SIP targets, pinned dialogs, trusted inbound/outbound peers and fail-closed relay security. Scope, future acceptance criteria and evidence obligations: docs/engineering/nxs-p19-sip-edge-scaling-design.md; ADR-0100.",
   "branch": "feat/nxs-p19-sip-scaling",
+  "closure_commit": null,
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P11",
     "NXS-P18"
   ],
-  "requirements_implemented": [
-    "NXS-SCALE-002"
-  ],
-  "non_scope": [
-    "Organization relocation/cross-Cell failover, database sharding, active-call or media migration, RTPengine/media anchoring and transcoding",
-    "Lossless edge failover, automatic carrier failover, Nomad orchestration, fleet autoscaling and frontend",
-    "P20 Sentinel; P21 compliance; P22 full audit; P23 metering; P24 global observability; P25 automated recovery/reconciliation/failover; P26 DR; P27 final security hardening",
-    "P28 capacity; P29 chaos/failover certification; P32 production infrastructure/deployment; unsupported throughput/SLA/RTO/RPO claims"
-  ],
+  "evidence": [],
+  "id": "NXS-P19",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -51,13 +43,21 @@
     "regression",
     "github_ci"
   ],
-  "status": "PLANNED",
-  "decision": "PENDING",
-  "evidence": [],
-  "implementation_commit": null,
-  "closure_commit": null,
+  "non_scope": [
+    "Organization relocation/cross-Cell failover, database sharding, active-call or media migration, RTPengine/media anchoring and transcoding",
+    "Lossless edge failover, automatic carrier failover, Nomad orchestration, fleet autoscaling and frontend",
+    "P20 Sentinel; P21 compliance; P22 full audit; P23 metering; P24 global observability; P25 automated recovery/reconciliation/failover; P26 DR; P27 final security hardening",
+    "P28 capacity; P29 chaos/failover certification; P32 production infrastructure/deployment; unsupported throughput/SLA/RTO/RPO claims"
+  ],
+  "objective": "Define and later implement the horizontally scalable Kamailio SIP signaling edge: canonical P11 DID ownership, P18 placement admission and PostgreSQL-authoritative P19 Cell SIP targets, pinned dialogs, trusted inbound/outbound peers and fail-closed relay security. Scope, future acceptance criteria and evidence obligations: docs/engineering/nxs-p19-sip-edge-scaling-design.md; ADR-0100.",
+  "requirements_implemented": [
+    "NXS-SCALE-002"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
   "timestamps": {
-    "started_at": null,
-    "closed_at": null
-  }
+    "closed_at": null,
+    "started_at": "2026-09-19T19:31:44Z"
+  },
+  "title": "SIP Edge Scaling"
 }

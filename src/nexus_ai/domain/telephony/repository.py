@@ -269,6 +269,7 @@ class TelephonyPhoneNumberRepository:
         inbound_enabled: bool,
         verified: bool,
     ) -> PhoneNumber:
+        await self._lock_account(account_id)
         now = dt.datetime.now(dt.UTC)
         record = TelephonyPhoneNumberRecord(
             id=uuid.uuid7(),
@@ -287,6 +288,17 @@ class TelephonyPhoneNumberRepository:
         return _to_number(record)
 
     async def apply(self, number_id: uuid.UUID, changes: dict[str, Any]) -> PhoneNumber | None:
+        account_id = (
+            await self._session.execute(
+                select(TelephonyPhoneNumberRecord.account_id).where(
+                    TelephonyPhoneNumberRecord.id == number_id,
+                    TelephonyPhoneNumberRecord.organization_id == self._tenant.organization_id,
+                )
+            )
+        ).scalar_one_or_none()
+        if account_id is None:
+            return None
+        await self._lock_account(account_id)
         row = (
             (
                 await self._session.execute(
@@ -303,6 +315,16 @@ class TelephonyPhoneNumberRepository:
             .one_or_none()
         )
         return None if row is None else _to_number(row)
+
+    async def _lock_account(self, account_id: uuid.UUID) -> None:
+        await self._session.execute(
+            select(TelephonyAccountRecord.id)
+            .where(
+                TelephonyAccountRecord.id == account_id,
+                TelephonyAccountRecord.organization_id == self._tenant.organization_id,
+            )
+            .with_for_update(read=True)
+        )
 
 
 class TelephonyCallRepository:

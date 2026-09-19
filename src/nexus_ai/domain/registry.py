@@ -97,6 +97,12 @@ from nexus_ai.domain.scheduler.models import (
     SchedulerScheduleRecord,
     SchedulerTransitionHistoryRecord,
 )
+from nexus_ai.domain.sip_edge.models import (
+    CellSipTargetHeadRecord,
+    CellSipTargetRecord,
+    SipDidLocatorRecord,
+    SipTargetMutationRecord,
+)
 from nexus_ai.domain.telephony.models import (
     TelephonyAccountRecord,
     TelephonyCallEventRecord,
@@ -150,6 +156,8 @@ __all__ = [
     "CampaignTransitionHistoryRecord",
     "CellControlHistoryRecord",
     "CellRecord",
+    "CellSipTargetHeadRecord",
+    "CellSipTargetRecord",
     "ConsumerReceiptRecord",
     "ConversationActivityRecord",
     "ConversationOwnershipRecord",
@@ -193,6 +201,8 @@ __all__ = [
     "SchedulerOccurrenceRecord",
     "SchedulerScheduleRecord",
     "SchedulerTransitionHistoryRecord",
+    "SipDidLocatorRecord",
+    "SipTargetMutationRecord",
     "TelephonyAccountRecord",
     "TelephonyCallEventRecord",
     "TelephonyCallRecord",

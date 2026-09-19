@@ -2,10 +2,15 @@
 
 ## 1. Status, baseline and canonical inputs
 
-GOVERNANCE ONLY: PLANNED/PENDING, no implementation, migration, Kamailio config,
+Historical governance baseline: PLANNED/PENDING, no implementation, migration, Kamailio config,
 execution lock, implementation evidence or certification. All acceptance/race
 criteria below are REQUIRED / NOT EXECUTED. A separate implementation authorization
 and canonical lifecycle start are required. Branch: `feat/nxs-p19-sip-scaling`.
+
+Current feature-branch state: implementation was separately authorized and started
+on 2026-09-19 through `nxs-start`, actor `cdxm`. P19 is BUILDING/PENDING;
+implementation and certification remain incomplete. The governance obligations below
+remain binding; individual development tests do not certify the C/AC matrices.
 
 Canonical main `e2114cfe8f150e85b9ae432a9af557ceb52cf836` includes P18 READY/GO.
 Exact-main NXS CI 35403869973 and Security 35403870005 were independently verified

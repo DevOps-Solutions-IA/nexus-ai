@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "cdxm",
+  "branch": "feat/nxs-p19-sip-scaling",
+  "expires_at": "2026-09-19T23:31:44Z",
+  "phase": "NXS-P19",
+  "repository_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-19T19:31:44Z",
+  "state": "ACTIVE"
 }

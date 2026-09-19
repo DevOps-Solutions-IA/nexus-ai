@@ -1720,7 +1720,7 @@
       "id": "NXS-SCALE-002",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P19",
       "title": "Kamailio SIP edge",
       "validation_evidence": []

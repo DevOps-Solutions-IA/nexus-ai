@@ -17,6 +17,10 @@ BEGIN
     CREATE ROLE nexus_runtime LOGIN PASSWORD 'local-runtime-only'
       NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
   END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nexus_sip_locator') THEN
+    CREATE ROLE nexus_sip_locator LOGIN PASSWORD 'local-sip-locator-only'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+  END IF;
 END
 $$;
 
@@ -24,6 +28,9 @@ GRANT CONNECT ON DATABASE nexus_local TO nexus_migration, nexus_runtime;
 
 GRANT CREATE, USAGE ON SCHEMA public TO nexus_migration;
 GRANT USAGE ON SCHEMA public TO nexus_runtime;
+GRANT CONNECT ON DATABASE nexus_local TO nexus_sip_locator;
+GRANT USAGE ON SCHEMA public TO nexus_sip_locator;
+REVOKE CREATE ON SCHEMA public FROM nexus_sip_locator;
 REVOKE CREATE ON SCHEMA public FROM nexus_runtime;
 
 -- Tables the migration role creates later become usable by the runtime role.

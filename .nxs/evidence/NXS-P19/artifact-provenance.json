@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "scope": "Upstream artifact discovery and native version inspection only",
+  "image": "ghcr.io/kamailio/kamailio",
+  "discovery_tag": "6.1.4-bookworm",
+  "immutable_index": "sha256:c54f770ab74ae64588cc174e206aa337108cc777b6162d738189d1cb0c32d116",
+  "amd64_manifest": "sha256:d95f95007a8451aac1ff7275df1b4084522ccad6b55899a437bf21379144abde",
+  "native_version": "kamailio 6.1.4 (x86_64/Linux)",
+  "inspection_commands": [
+    "docker buildx imagetools inspect ghcr.io/kamailio/kamailio:6.1.4-bookworm",
+    "docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges --entrypoint /usr/sbin/kamailio ghcr.io/kamailio/kamailio@sha256:c54f770ab74ae64588cc174e206aa337108cc777b6162d738189d1cb0c32d116 -V"
+  ],
+  "exit_codes": [0, 0],
+  "version_verification": "PASS",
+  "reference_configuration_validation": "NOT_EXECUTED",
+  "protocol_certification": "NOT_EXECUTED",
+  "arm64_manifest": null,
+  "limitations": [
+    "This inspected upstream index has an amd64 image and an attestation, not an arm64 runtime image.",
+    "No P19 reference configuration, SIP protocol test or Asterisk integration is certified by this artifact."
+  ],
+  "result": "INCOMPLETE",
+  "closure": "NOT_AUTHORIZED"
+}

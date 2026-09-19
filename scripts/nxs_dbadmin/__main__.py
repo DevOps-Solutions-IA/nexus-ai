@@ -1,6 +1,6 @@
 """Idempotent database role bootstrap for local and CI (NXS-SEC-003).
 
-Creates the ``nexus_migration`` and ``nexus_runtime`` roles by running
+Creates the ``nexus_migration``, ``nexus_runtime`` and narrow ``nexus_sip_locator`` roles by running
 ``infrastructure/postgres/roles.sql`` as a superuser. Safe to re-run. Never used at
 application request runtime.
 
@@ -34,8 +34,9 @@ async def _bootstrap(dsn: str) -> None:
     try:
         await connection.execute(sql)
         roles = await connection.fetch(
-            "SELECT rolname, rolsuper, rolbypassrls FROM pg_roles "
-            "WHERE rolname IN ('nexus_migration', 'nexus_runtime') ORDER BY rolname"
+            "SELECT rolname, rolsuper, rolbypassrls, rolcreaterole, rolcreatedb, rolreplication "
+            "FROM pg_roles WHERE rolname IN "
+            "('nexus_migration', 'nexus_runtime', 'nexus_sip_locator') ORDER BY rolname"
         )
     finally:
         await connection.close()
@@ -43,10 +44,17 @@ async def _bootstrap(dsn: str) -> None:
         print(
             f"role {role['rolname']}: superuser={role['rolsuper']} bypassrls={role['rolbypassrls']}"
         )
-    if len(roles) != 2:
-        raise SystemExit("bootstrap did not create both roles")
-    if any(role["rolsuper"] or role["rolbypassrls"] for role in roles):
-        raise SystemExit("a bootstrapped role can bypass tenancy")
+    if len(roles) != 3:
+        raise SystemExit("bootstrap did not create the required roles")
+    if any(
+        role["rolsuper"]
+        or role["rolbypassrls"]
+        or role["rolcreaterole"]
+        or role["rolcreatedb"]
+        or role["rolreplication"]
+        for role in roles
+    ):
+        raise SystemExit("a bootstrapped role has unsafe privileges")
 
 
 def main() -> int:
