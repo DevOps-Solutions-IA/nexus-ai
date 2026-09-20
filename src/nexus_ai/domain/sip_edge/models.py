@@ -130,3 +130,116 @@ class SipTargetMutationRecord(Base):
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
+
+
+class SipEdgeAuthHeadRecord(Base):
+    __tablename__ = "sip_edge_auth_heads"
+    edge_id: Mapped[UUID] = mapped_column(primary_key=True)
+
+
+class SipEdgeReplayRecord(Base):
+    __tablename__ = "sip_edge_replays"
+    __table_args__ = (
+        CheckConstraint("nonce_digest ~ '^[a-f0-9]{64}$'", name="nonce_digest_valid"),
+        CheckConstraint("request_digest ~ '^[a-f0-9]{64}$'", name="request_digest_valid"),
+        Index("ix_sip_edge_replays_expiry", "edge_id", "expires_at"),
+    )
+    edge_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sip_edge_auth_heads.edge_id", ondelete="RESTRICT"), primary_key=True
+    )
+    nonce_digest: Mapped[str] = mapped_column(String(64), primary_key=True)
+    boot_id: Mapped[UUID] = mapped_column()
+    request_digest: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class SipRouteAuthorizationRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_route_authorizations"
+    __table_args__: Any = (
+        UniqueConstraint("organization_id", "id", name="uq_sip_routes_org_id"),
+        UniqueConstraint("peer_id", "transaction_digest", name="uq_sip_routes_transaction"),
+        ForeignKeyConstraint(
+            ["organization_id", "phone_number_id", "account_id", "e164"],
+            [
+                "telephony_phone_numbers.organization_id",
+                "telephony_phone_numbers.id",
+                "telephony_phone_numbers.account_id",
+                "telephony_phone_numbers.e164",
+            ],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "placement_id"],
+            ["organization_placements.organization_id", "organization_placements.id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["cell_id", "target_id"],
+            ["cell_sip_targets.cell_id", "cell_sip_targets.id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("placement_generation > 0 AND target_revision > 0", name="positive_fences"),
+        CheckConstraint(
+            "state IN ('AUTHORIZED','ISSUED','ESTABLISHED','ENDED','FAILED','AMBIGUOUS','EXPIRED')",
+            name="state_known",
+        ),
+        CheckConstraint(
+            "issue_deadline > authorized_at "
+            "AND issue_deadline <= authorized_at + interval '5 seconds'",
+            name="issue_window",
+        ),
+        CheckConstraint(
+            "transaction_digest ~ '^[a-f0-9]{64}$' AND semantic_digest ~ '^[a-f0-9]{64}$'",
+            name="digests_valid",
+        ),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    peer_id: Mapped[UUID] = mapped_column()
+    phone_number_id: Mapped[UUID] = mapped_column()
+    account_id: Mapped[UUID] = mapped_column()
+    e164: Mapped[str] = mapped_column(String(16))
+    placement_id: Mapped[UUID] = mapped_column()
+    cell_id: Mapped[UUID] = mapped_column()
+    placement_generation: Mapped[int] = mapped_column(BigInteger)
+    target_id: Mapped[UUID] = mapped_column()
+    target_revision: Mapped[int] = mapped_column(BigInteger)
+    transaction_digest: Mapped[str] = mapped_column(String(64))
+    semantic_digest: Mapped[str] = mapped_column(String(64))
+    edge_id: Mapped[UUID] = mapped_column()
+    boot_id: Mapped[UUID] = mapped_column()
+    state: Mapped[str] = mapped_column(String(16))
+    authorized_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    issue_deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SipTargetRouteReferenceRecord(Base):
+    __tablename__ = "sip_target_route_references"
+    route_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sip_route_authorizations.id", ondelete="RESTRICT"), primary_key=True
+    )
+    target_id: Mapped[UUID] = mapped_column(
+        ForeignKey("cell_sip_targets.id", ondelete="RESTRICT"), index=True
+    )
+
+
+class SipRouteHistoryRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_route_history"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "route_id"],
+            ["sip_route_authorizations.organization_id", "sip_route_authorizations.id"],
+            ondelete="RESTRICT",
+        ),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    route_id: Mapped[UUID] = mapped_column(index=True)
+    previous_state: Mapped[str | None] = mapped_column(String(16))
+    state: Mapped[str] = mapped_column(String(16))
+    edge_id: Mapped[UUID] = mapped_column()
+    boot_id: Mapped[UUID] = mapped_column()
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

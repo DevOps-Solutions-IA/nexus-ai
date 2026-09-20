@@ -20,7 +20,14 @@ from nexus_ai.domain.sip_edge.models import (
     SipTargetMutationRecord,
 )
 from nexus_ai.infrastructure.database import Database
-from nexus_ai.sip_edge.contracts import Page, RegisterTarget, StrictContract, fingerprint
+from nexus_ai.sip_edge.contracts import (
+    Page,
+    RegisterTarget,
+    StrictContract,
+    TargetMutation,
+    TargetState,
+    fingerprint,
+)
 from nexus_ai.sip_edge.errors import SipConflictError, SipRouteDeniedError
 
 
@@ -94,6 +101,145 @@ class TargetRegistry:
     def __init__(self, database: Database, network_policy: TargetNetworkPolicy) -> None:
         self._database = database
         self._network_policy = network_policy
+
+    async def transition(
+        self, actor_user_id: UUID, request: TargetMutation, correlation_id: UUID
+    ) -> TargetResult:
+        request = TargetMutation.model_validate(request.model_dump())
+        if request.state not in {TargetState.ACTIVE, TargetState.DRAINING, TargetState.RETIRED}:
+            raise SipConflictError()
+        try:
+            return await self._transition(actor_user_id, request, correlation_id)
+        except IntegrityError:
+            raise SipConflictError() from None
+
+    async def _transition(
+        self, actor_user_id: UUID, request: TargetMutation, correlation_id: UUID
+    ) -> TargetResult:
+        key_hash = fingerprint({"key": request.idempotency_key})
+        semantic = fingerprint(request.model_dump(mode="json", exclude={"idempotency_key"}))
+        async with self._database.transaction() as session:
+            await authorize_control(session, actor_user_id)
+            cell = (
+                await session.execute(
+                    select(CellRecord).where(CellRecord.id == request.cell_id).with_for_update()
+                )
+            ).scalar_one_or_none()
+            if cell is None or cell.state != "REGISTERED":
+                raise SipRouteDeniedError()
+            receipt = (
+                await session.execute(
+                    select(SipTargetMutationRecord).where(
+                        SipTargetMutationRecord.operation == request.state.value,
+                        SipTargetMutationRecord.key_hash == key_hash,
+                    )
+                )
+            ).scalar_one_or_none()
+            if receipt is not None:
+                if receipt.fingerprint != semantic:
+                    raise SipConflictError()
+                return TargetResult(
+                    target_id=receipt.target_id,
+                    cell_id=receipt.cell_id,
+                    control_revision=receipt.result_revision,
+                    state=receipt.result_state,
+                )
+            head = (
+                await session.execute(
+                    select(CellSipTargetHeadRecord)
+                    .where(CellSipTargetHeadRecord.cell_id == request.cell_id)
+                    .with_for_update()
+                )
+            ).scalar_one_or_none()
+            if head is None or head.control_revision != request.expected_revision:
+                raise SipConflictError()
+            identities = {request.target_id}
+            if head.active_target_id is not None:
+                identities.add(head.active_target_id)
+            targets = {
+                row.id: row
+                for row in (
+                    await session.execute(
+                        select(CellSipTargetRecord)
+                        .where(
+                            CellSipTargetRecord.cell_id == request.cell_id,
+                            CellSipTargetRecord.id.in_(identities),
+                        )
+                        .order_by(CellSipTargetRecord.id)
+                        .with_for_update()
+                    )
+                ).scalars()
+            }
+            target = targets.get(request.target_id)
+            if target is None:
+                raise SipConflictError()
+            if request.state == TargetState.ACTIVE:
+                if target.state != "REGISTERED":
+                    raise SipConflictError()
+                if head.active_target_id is not None:
+                    previous = targets.get(head.active_target_id)
+                    if previous is None or previous.state != "ACTIVE":
+                        raise SipConflictError()
+                    previous.state = "DRAINING"
+                    await session.flush()
+                target.state = "ACTIVE"
+                head.active_target_id = target.id
+            elif request.state == TargetState.DRAINING:
+                if target.state != "ACTIVE" or head.active_target_id != target.id:
+                    raise SipConflictError()
+                target.state = "DRAINING"
+                head.active_target_id = None
+            else:
+                if target.state not in {"REGISTERED", "DRAINING"}:
+                    raise SipConflictError()
+                target.state = "RETIRED"
+            head.control_revision += 1
+            session.add(
+                SipTargetMutationRecord(
+                    id=uuid7(),
+                    cell_id=request.cell_id,
+                    target_id=request.target_id,
+                    operation=request.state.value,
+                    key_hash=key_hash,
+                    fingerprint=semantic,
+                    expected_revision=request.expected_revision,
+                    result_revision=head.control_revision,
+                    result_state=target.state,
+                    actor_user_id=actor_user_id,
+                    reason_code=request.reason_code,
+                    correlation_id=correlation_id,
+                )
+            )
+            await session.flush()
+            return TargetResult(
+                target_id=target.id,
+                cell_id=target.cell_id,
+                control_revision=head.control_revision,
+                state=target.state,
+            )
+
+    async def inspect(self, actor_user_id: UUID, cell_id: UUID, target_id: UUID) -> TargetView:
+        async with self._database.transaction() as session:
+            await authorize_control(session, actor_user_id)
+            target = (
+                await session.execute(
+                    select(CellSipTargetRecord).where(
+                        CellSipTargetRecord.cell_id == cell_id,
+                        CellSipTargetRecord.id == target_id,
+                    )
+                )
+            ).scalar_one_or_none()
+            if target is None:
+                raise SipRouteDeniedError()
+            return TargetView(
+                target_id=target.id,
+                cell_id=target.cell_id,
+                target_revision=target.target_revision,
+                host=target.host,
+                port=target.port,
+                transport=target.transport,
+                state=target.state,
+            )
 
     async def register(
         self, actor_user_id: UUID, request: RegisterTarget, correlation_id: UUID
