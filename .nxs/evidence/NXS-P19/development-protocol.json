@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "INCOMPLETE",
+  "closure": "NOT_AUTHORIZED",
+  "implementation_complete": false,
+  "recorded_at": "2026-09-20T07:16:02.724138+00:00",
+  "worktree_base": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "source_sha256": {
+    "infrastructure/kamailio/Dockerfile": "45c75024dff86bb5f834d35d349fbac9cb0f9ebbe62bfab350ca61b27573a0d8",
+    "infrastructure/kamailio/README.md": "1c55ec8f04da605e740275098608084171efdb1485c6ca921d5c7e35bbb9bfad",
+    "infrastructure/kamailio/asterisk-extensions.conf": "384de5a7d5240321c888a61360f485dca66d3ba5fdaad7a0991f5330b1e2f6c7",
+    "infrastructure/kamailio/asterisk.Dockerfile": "79dde604db5bed7e19cb0b2a12483d8263cb84e90de4a4e11363b2e16ee2f51f",
+    "infrastructure/kamailio/edge.py": "3471fa967e49c5d423a22a91ede70088ef31c84e0fab3c0f4a2a99d48b3411cf",
+    "infrastructure/kamailio/kamailio.cfg": "587520996307f81f1bc6745faf4c7a7c6140d40fa456b18adbb2799ce196308e",
+    "migrations/versions/20260919_1940-d19a0b1c2d3e_sip_did_locator.py": "351afadfec2900ed0b1ba8cccd0c5e134f6c44216281f01a52681f4d121e5c55",
+    "migrations/versions/20260919_1955-d19b0b1c2d3e_sip_target_authority.py": "4b9371f778b9bf094b5e80d4e7910fe1e86029c04d9ed927904d26d5eef0eb78",
+    "migrations/versions/20260919_2310-d19c0b1c2d3e_sip_edge_replay.py": "8001e8e5c41ddbebe606537cf1d6c6eb690f37ab68126b047c7dee32a46b7eb5",
+    "migrations/versions/20260919_2320-d19d0b1c2d3e_sip_inbound_routes.py": "afd59cdf9280318e9235b60e067b75abb8ed7bfc389b9187bcf61b289fb7fe34",
+    "migrations/versions/20260920_0645-d19e0b1c2d3e_sip_egress_permits.py": "bfb32aff773dd6887f637b9bd98c98163b6ad2225b1f22a43175120130bf420a",
+    "migrations/versions/20260920_0740-d19f0b1c2d3e_sip_dialog_binding.py": "a3e883db04214b822d113d7d55ce9892aa8c7635573e188fede973517c59bcce",
+    "src/nexus_ai/domain/registry.py": "9284613f694134b8f4d6b94005570a2cf276748b2aebf4d122972cf4a1734128",
+    "src/nexus_ai/domain/sip_edge/__init__.py": "4c2631809967a878d9c07a462ce6a53fcdc5e223f390d321879040495766ff09",
+    "src/nexus_ai/domain/sip_edge/models.py": "dd796a7acce9bc042121906fe45693a9aeefa3698e00513062118067b653e692",
+    "src/nexus_ai/sip_edge/__init__.py": "55b57b06d9a7559c166fe3fea597a5d2ed3ba1ae62ce3542d0266edeb13bc9db",
+    "src/nexus_ai/sip_edge/api.py": "de81144b335c5b3542a2619c5fdb2bfa078477a98d246f5f82cac01a2220930b",
+    "src/nexus_ai/sip_edge/authentication.py": "f4b80ad17c1d3d87628eb59a3323a9920455a13c2bad38054109146e388796d9",
+    "src/nexus_ai/sip_edge/backfill.py": "84c573030756e7f15b99c605c0e139590fa856e39181ea2df30c48bbc287ea59",
+    "src/nexus_ai/sip_edge/contracts.py": "61bb1893d192bf69625848fead33b879a2c5ad1e95a6aa416e1c406f368a9ca6",
+    "src/nexus_ai/sip_edge/dialogs.py": "80557c385a0792751403325ad5d36a1d384d068f14ffc2d135c5f39a643eca95",
+    "src/nexus_ai/sip_edge/egress.py": "3cf802b1485a936bb49aaec494c00327298972fab338010044d5d786e0d94fbe",
+    "src/nexus_ai/sip_edge/errors.py": "57b3aa5f1ef3a3cd24ba5efcf10a7a11ab424f9d3c9f74f59db935130a70303e",
+    "src/nexus_ai/sip_edge/inbound.py": "c76e4fc20ce4c329bb85b2edcd7f6b61ef00a6d833a217441e99157f7f5ee443",
+    "src/nexus_ai/sip_edge/locator.py": "8579bc3bd54bc3db59107331f1425cb001588ec21765ef31e676d332185f08b1",
+    "src/nexus_ai/sip_edge/originator.py": "45f091a30de13949e7b01fd9806d4f032bd8879586aae93e31459bcf2139ef12",
+    "src/nexus_ai/sip_edge/peers.py": "be7bd2efc55a19f71bd47bece47f318205eaa389def7907dd505937350ba7072",
+    "src/nexus_ai/sip_edge/security.py": "7887a9703f8e940503b93a15f9a344f6c470cc371a908f36c5040cc4a913adb4",
+    "src/nexus_ai/sip_edge/targets.py": "39f575926778f6750f5d96fd69cb494c86caab1730e79d33c2ea09f72823bdd2",
+    "src/nexus_ai/sip_edge/upstreams.py": "f3fc35232343f23ff672aa314f7488e31fd8bdb2daf9b563f789cf893c633447",
+    "src/nexus_ai/telephony/providers/asterisk.py": "b50f6429a8de972810410f91aa41040cd4b21227fe63db50390c0cd0053ed01a",
+    "src/nexus_ai/telephony/providers/base.py": "034f6dfb89e071d2823ce7429fb110eec5d87e3874bc00147cff231e8f85c2ef",
+    "src/nexus_ai/telephony/service.py": "6313305c309b27bbaf923468ae5e5aafc3205064c4fcd5df2b3a9442b79f2da5",
+    "tests/integration/test_sip_asterisk_wire.py": "aafaaed6cf87763feee0cd6a815a4633fb3dd7842b90ec9bc0f0efb9b56bb775",
+    "tests/integration/test_sip_did_locator.py": "d72996113486e023469d1647f33b451a5d2f767e6965a412bc1ce47dbdbcc140",
+    "tests/integration/test_sip_edge_authentication.py": "50fa34ca9d9fbda2d81d3e2c183bc9966622f08b1779c25f1e55950b86fa4846",
+    "tests/integration/test_sip_egress_permits.py": "2624c0661b8808804f892a5d24a8fc6e3f20809315d87af8f17ce7594e383da4",
+    "tests/integration/test_sip_inbound_routes.py": "167ff1e42f295a86293347eef94962cfcb5a157343db5730155b04a40d3a60e5",
+    "tests/integration/test_sip_locator_backfill.py": "46489d7f733bd6f98a3adb4e23c5e89e42f81ae1ba9f98e27c0d8c8d50868b11",
+    "tests/integration/test_sip_target_constraints.py": "e95935d12e824f100584ad829cbdc31f46a8d9df788d43d9713f3776a10aff68",
+    "tests/integration/test_sip_wire.py": "424791a916dbc7cfd718469b245466c973089116cd422f77984485290ea58269",
+    "tests/unit/test_sip_edge_contracts.py": "1b6c036e2c5872f5a181b64835d01bb4b15a21775ed1b4b1bf2abbc3c71905eb",
+    "tests/unit/test_sip_edge_security.py": "c81104f7080713b5cfd0ac31195aea67a97bd8ba8f8338b7c19cba5061b1471c",
+    "tests/unit/test_sip_peer_policy.py": "414a07649755e73c5320a23630e692ae0900a479cade7d73d19fa41f28b0a675"
+  },
+  "scope": "Development protocol and authority checks only; C01-C32 and AC01-AC43 not certified.",
+  "checkpoint_commits": [
+    "24f64003a8fb077e0cfd411ad000e5138757a781",
+    "f1befaf604448ce4645f64368f3f1733665bcddf"
+  ],
+  "lock_continuation": {
+    "recovered": true,
+    "commands": [
+      "make nxs-lock-recover",
+      "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm"
+    ],
+    "result": "ACTIVE",
+    "started_at": "2026-09-20T06:37:50Z",
+    "expires_at": "2026-09-20T10:37:50Z",
+    "original_phase_started_at": "2026-09-19T19:31:44Z",
+    "second_phase_start": false
+  },
+  "checks": [
+    {
+      "command": "uv run pytest tests/integration/test_sip_inbound_routes.py tests/integration/test_sip_egress_permits.py tests/integration/test_sip_locator_backfill.py tests/integration/test_sip_wire.py tests/integration/test_sip_asterisk_wire.py --no-cov -q",
+      "environment": "Unique disposable PostgreSQL database, actual non-bypass roles, real Kamailio and Asterisk containers",
+      "exit_code": 0,
+      "passed": 5,
+      "failed": 0,
+      "duration_seconds": 3.09,
+      "result": "PASS"
+    },
+    {
+      "command": "uv run alembic upgrade head",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv run alembic check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv run alembic downgrade c18a0b1c2d3e",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv run alembic upgrade head",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv run alembic check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-schema-guard",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-validate-repo",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-preflight PHASE=NXS-P19",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make lint",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make type",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make security",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "proved": [
+    "Real HTTPS ARI creation-time inherited variable reaches a PJSIP INVITE opaque header; plaintext absent from Asterisk logs.",
+    "Real Kamailio INVITE/200/ACK/BYE/200 produces durable ESTABLISHED/ENDED observations and releases target reference.",
+    "Negative preloaded Route, ingress host, REGISTER and Max-Forwards failures produce no observed target packet.",
+    "Two concurrent initial issue requests grant exactly one initial relay.",
+    "Per-call permit consumption, durable outbound route and history commit together; replay grants no second relay.",
+    "Backfill is bounded, explicitly platform-controlled, tenant-scoped, and does not overwrite an existing projection."
+  ],
+  "limitations": [
+    "Not complete C/AC mapping.",
+    "No full current clean-room certification.",
+    "Real Asterisk fixture is not yet composed through Kamailio to demonstrate carrier-leg permit stripping.",
+    "Bidirectional dialog/method/attack matrix incomplete.",
+    "Production application configuration and durable peer/upstream administration incomplete.",
+    "Local package unavailable on PyPI; pip-audit does not audit nexus-ai itself.",
+    "No implementation candidate pushed or exact implementation-head GitHub CI checked."
+  ],
+  "failed_attempts": [
+    {
+      "check": "Asterisk fixture startup",
+      "result": "FAIL",
+      "cause": "Temporary configuration directory not traversable by container UID 10001; Asterisk could not read its configured writable DB path.",
+      "correction": "Directory traversal permission fixed; container remains non-root/read-only; rerun passed."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "INCOMPLETE",
+  "recorded_at": "2026-09-20T07:55:00Z",
+  "worktree_base": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "closure": "NOT_AUTHORIZED",
+  "implementation_complete": false,
+  "scope": "Executed development checks, not complete C01-C32/AC01-AC43 certification.",
+  "source_sha256": {
+    "infrastructure/kamailio/Dockerfile": "939b4cd1704a3dfb3aa95ab1520e921a8f98cc6c29ea715025630c5455c14324",
+    "infrastructure/kamailio/asterisk.Dockerfile": "ae783c4a84d8319e412bc57e94ded8cdb23c61d49148bcd22af7ba5c02c7ecc0",
+    "infrastructure/kamailio/kamailio.cfg": "52973564ae63438a57daf9899d43b97af56931de622b59f7ee66d84310ce8f23",
+    "infrastructure/kamailio/edge.py": "f7c0f6b87b74970d0d332b7c671cd2108bd4f4ada6a58c766f499a955cda1cf9"
+  },
+  "checks": [
+    {
+      "command": "uv run pytest tests/integration/test_sip_egress_wire.py --no-cov -q",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 1,
+      "duration_seconds": 2.68,
+      "proves": "Durable P11 call and permit, real HTTPS ARI/PJSIP through Kamailio, approved carrier UAS receives no permit header; call retry retains one durable egress route."
+    },
+    {
+      "command": "uv run pytest tests/integration/test_sip_egress_permits.py --no-cov -q",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 2,
+      "duration_seconds": 1.02,
+      "proves": "Concurrent consumption yields one grant; explicit ConnectionResetError after winning commit leaves one consumed permit, one route and two history states; retry grants nothing."
+    },
+    {
+      "command": "uv run pytest tests/integration/test_sip_wire.py --no-cov -q",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 2,
+      "duration_seconds": 4.01,
+      "proves": "Real INVITE, ACK, re-INVITE, UPDATE, INFO, BYE, CANCEL/non-2xx ACK, two-edge replay fencing, target rotation and pinned dialog behavior."
+    },
+    {
+      "command": "uv run pytest tests/integration/test_sip_native_configuration.py --no-cov -q",
+      "result": "PASS",
+      "exit_code": 0,
+      "passed": 6,
+      "duration_seconds": 3.46,
+      "proves": "Native 6.1.4 version/config validation on amd64 and arm64; missing/invalid bounds and trust fail startup."
+    },
+    {
+      "commands": ["uv run alembic upgrade head", "uv run alembic check", "uv run alembic downgrade c18a0b1c2d3e", "uv run alembic upgrade head", "uv run alembic check", "make nxs-schema-guard"],
+      "environment": "Fresh uniquely named disposable PostgreSQL databases, actual non-bypass roles; round-trip after each focused authority suite.",
+      "result": "PASS",
+      "exit_codes": [0, 0, 0, 0, 0, 0]
+    }
+  ],
+  "container_security": {
+    "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+    "scanner_version": "0.74.0",
+    "command": "docker run --rm -v /tmp/nxs-p19-image-scan:/scan:ro <pinned-scanner> image --input <saved-image.tar> --scanners vuln --severity HIGH,CRITICAL --exit-code 1",
+    "docker_socket_mounted": false,
+    "kamailio": {
+      "image_config_digest": "sha256:295d5b4f06730b993f9dac8527d667aa541633ba4d1b7c303a2a87bfd8c3439b",
+      "exit_code": 0,
+      "high_critical_findings": 0,
+      "result": "PASS"
+    },
+    "asterisk": {
+      "image_config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "exit_code": 0,
+      "high_critical_findings": 0,
+      "result": "PASS"
+    },
+    "limitation": "OS-package scan is not proof that publisher source-built C components have no vulnerabilities. Image config hashes are not OCI manifest hashes."
+  },
+  "historical_failures": [
+    "Debian runtime scans: Kamailio 89 HIGH/CRITICAL findings, Asterisk 67; replaced runtime bases without vulnerability suppressions.",
+    "Wolfi Asterisk initially lacked libxml2.so.16; pinned libxml2-16 runtime package corrected the fixture.",
+    "Native config tests initially omitted the non-root writable runtime directory; adding -Y /run/nxs corrected both architecture tests.",
+    "Re-INVITE test initially accepted 100 Trying as final response; assertion corrected to require 200 and exact CSeq."
+  ],
+  "limitations": [
+    "Full current-source regression still required.",
+    "Complete bidirectional SIP, PRACK and adversarial/failure matrix not certified.",
+    "Topology protection and complete C/AC evidence remain unfinished.",
+    "No completed clean-room, final implementation candidate, push or exact implementation-head GitHub CI."
+  ]
+}

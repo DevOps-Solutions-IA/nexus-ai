@@ -16,8 +16,11 @@ from nexus_ai.domain.sip_edge.models import (
 )
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.sip_edge.contracts import InboundRequest, StrictContract, fingerprint
+from nexus_ai.sip_edge.dialogs import DialogResult, record_dialog_result
 from nexus_ai.sip_edge.errors import SipConflictError, SipRouteDeniedError, SipRouteUnavailableError
 from nexus_ai.sip_edge.locator import DidLocator, revalidate_source
+from nexus_ai.sip_edge.peer_registry import PeerRegistry, require_peer_revision
+from nexus_ai.sip_edge.peers import PeerProfile
 
 
 class InboundAuthorization(StrictContract):
@@ -44,8 +47,24 @@ class InboundRoutes:
         self._locator = locator
         self._placement = PlacementResolver(database)
 
+    async def peer_snapshot(self, profile: PeerProfile) -> int:
+        return await PeerRegistry(self._database).snapshot(profile)
+
+    async def record_result(
+        self,
+        organization_id: UUID,
+        route_id: UUID,
+        edge_id: UUID,
+        boot_id: UUID,
+        transaction_digest: str,
+        result: DialogResult,
+    ) -> str:
+        return await record_dialog_result(
+            self._database, organization_id, route_id, edge_id, boot_id, transaction_digest, result
+        )
+
     async def authorize(
-        self, request: InboundRequest, *, edge_id: UUID, boot_id: UUID
+        self, request: InboundRequest, *, edge_id: UUID, boot_id: UUID, peer_revision: int
     ) -> InboundAuthorization:
         request = InboundRequest.model_validate(request.model_dump())
         candidate = await self._locator.discover(request.called_number)
@@ -56,6 +75,7 @@ class InboundRoutes:
             async with self._database.tenant_transaction(candidate.organization_id) as tenant:
                 await PlacementAdmission(placement.cell_id).admit(tenant, placement)
                 await revalidate_source(tenant, candidate)
+                await require_peer_revision(tenant.session, request.peer_id, peer_revision)
                 session = tenant.session
                 head = (
                     await session.execute(

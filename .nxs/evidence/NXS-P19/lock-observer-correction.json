@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "scope": "Focused correction of the PostgreSQL race-test observer, not a replacement full gate",
+  "failed_gate": "quality-gates-attempt-1.json",
+  "failed_node": "tests/integration/test_sip_admission_races.py::test_suspension_linearizes_with_new_route_admission[number-True]",
+  "observed_defect": "A transaction that reads pg_stat_activity before a new contender connects can retain a snapshot without that backend; repeatedly reading that snapshot cannot prove the contender is waiting",
+  "independent_database_reproduction": {
+    "role": "nexus_runtime",
+    "cached_contender_visible": 0,
+    "after_pg_stat_clear_snapshot_contender_visible": 1,
+    "exit_code": 0
+  },
+  "correction": "Refresh the statistics snapshot before each bounded pg_blocking_pids observation; retain the actual blocking assertion, independent sessions and event barriers",
+  "regression": "tests/integration/test_sip_admission_races.py::test_lock_observer_refreshes_new_postgresql_sessions",
+  "command": "uv run pytest tests/integration/test_sip_admission_races.py --no-cov -x",
+  "exit_code": 0,
+  "passed": 7,
+  "failed": 0,
+  "runtime_seconds": 1.82,
+  "runtime_authority_changed": false,
+  "sleeps_added": false,
+  "assertions_weakened": false,
+  "reference": "https://www.postgresql.org/docs/17/monitoring-stats.html",
+  "limitations": "The failed canonical gate retained only its output tail; the independent reproduction proves this observer defect, not the discarded original traceback. Subsequent complete gates remain required.",
+  "closure": "NOT_AUTHORIZED"
+}

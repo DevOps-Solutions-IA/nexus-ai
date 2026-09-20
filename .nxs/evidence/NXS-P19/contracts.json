@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T10:10:30Z",
+  "result": "PASS",
+  "base_commit": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "candidate_binding": "execution-criteria.json source_sha256; no self-referential commit",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "0b4548237d7fec14421dc851e96a9d987abfdd402e71c992ff35f2e4dee0b78d",
+  "closure": "NOT_AUTHORIZED",
+  "expected": "All selected executable proof nodes pass without skips",
+  "actual": {
+    "passed": 159,
+    "failed": 0,
+    "skipped": 0
+  },
+  "test_selection": [
+    "tests/contracts/*"
+  ],
+  "test_files": [
+    "tests/contracts/test_agent_contracts.py",
+    "tests/contracts/test_campaign_contracts.py",
+    "tests/contracts/test_cell_scope.py",
+    "tests/contracts/test_error_contract.py",
+    "tests/contracts/test_event_contracts.py",
+    "tests/contracts/test_http_contract.py",
+    "tests/contracts/test_integration_contracts.py",
+    "tests/contracts/test_messaging_contracts.py",
+    "tests/contracts/test_openapi.py",
+    "tests/contracts/test_otp_contracts.py",
+    "tests/contracts/test_scheduler_contracts.py",
+    "tests/contracts/test_schema_contract.py",
+    "tests/contracts/test_sip_edge_scope.py",
+    "tests/contracts/test_telephony_contracts.py",
+    "tests/contracts/test_tenant_contracts.py",
+    "tests/contracts/test_tool_contracts.py",
+    "tests/contracts/test_voice_contracts.py",
+    "tests/contracts/test_workflow_contracts.py"
+  ],
+  "exact_node_source": "executed-test-nodes.json; full suite aggregate in tests.json",
+  "command": [
+    "uv",
+    "run",
+    "pytest",
+    "-p",
+    "scripts.nxs_p19_evidence",
+    "--cov-report=json:/home/wundah/nexus-ai/.nxs/runtime/p19-coverage.json",
+    "--cov-report=term"
+  ]
+}

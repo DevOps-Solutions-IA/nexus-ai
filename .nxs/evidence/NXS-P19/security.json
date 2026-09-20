@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "recorded_at": "2026-09-20T09:20:13.854574+00:00",
+  "checks": [
+    {
+      "command": "make security",
+      "exit_code": 0,
+      "result": "PASS",
+      "components": [
+        "Bandit configured HIGH severity scan of src and scripts",
+        "pip-audit"
+      ]
+    },
+    {
+      "command": "pinned Gitleaks v8.28.0 dir public-source-snapshot --config .gitleaks.toml --redact --exit-code 1",
+      "exit_code": 0,
+      "result": "PASS",
+      "includes": "tracked and untracked implementation source, infrastructure, tests, scripts and evidence; no source exclusions"
+    },
+    {
+      "command": "pinned Gitleaks v8.28.0 git --config .gitleaks.toml --redact --exit-code 1",
+      "exit_code": 0,
+      "result": "PASS",
+      "commits_scanned": 264
+    }
+  ],
+  "log_sha256": {
+    "nxs-p19-security-current.log": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8",
+    "nxs-p19-final-source-secrets.log": "5ef030f77e65c59cf53f199cd1acbf234d83197e414f66f856d5f2415d20dee4",
+    "nxs-p19-final-secret-history.log": "679f0ff45d1f735c503dc5631fef5aae46b8bd93664b5ce92287e28aec04274b"
+  },
+  "limitations": [
+    "pip-audit cannot audit the local nexus-ai package because it is not published on PyPI; application source is separately scanned and tested",
+    "Exact implementation-head GitHub Security is a separate pending external gate",
+    "Historical scanner setup failures remain in validation-history.json"
+  ],
+  "container_evidence": [
+    "container-provenance-current.json",
+    "application-container-scan.json"
+  ],
+  "closure": "NOT_AUTHORIZED"
+}

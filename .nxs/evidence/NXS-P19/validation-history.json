@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "INFORMATIONAL",
+  "scope": "Preserve failed attempts; these are not PASS certificates",
+  "attempts": [
+    {
+      "check": "clean-room initial continuation",
+      "result": "FAIL",
+      "cause": "Callable parameter-name typing mismatch in resolver endpoint dispatch",
+      "correction": "Explicit Callable annotation; subsequent clean-room passed"
+    },
+    {
+      "check": "upstream direct deletion adversarial test",
+      "result": "FAIL",
+      "cause": "Database rejected deletion with SQLSTATE 42501 rather than returning zero rows",
+      "correction": "Assert either permission rejection or zero changed rows within a savepoint; history and binding remain intact"
+    },
+    {
+      "check": "egress terminal observation test",
+      "result": "FAIL",
+      "cause": "SIP ACK can precede asynchronous resolver result commit",
+      "correction": "Synchronize on actual committed-result event, not ACK or sleep"
+    },
+    {
+      "check": "source secret scan first attempts",
+      "result": "FAIL",
+      "cause": "Scanner configuration path and temporary snapshot readability",
+      "correction": "Explicit existing Gitleaks configuration and readable public-source snapshot; no exclusions added; subsequent scan passed"
+    },
+    {
+      "check": "arm64 image scan first attempt",
+      "result": "FAIL",
+      "cause": "Non-secret saved image archive not readable by scanner UID",
+      "correction": "Correct archive read permission; pinned scanner subsequently passed without vulnerability suppression"
+    },
+    {
+      "check": "post-clean-room evidence preparation migration",
+      "result": "FAIL",
+      "cause": "Direct Alembic invocation omitted required migration DSN",
+      "correction": "Supply canonical local migration-role DSN; no schema or lifecycle bypass"
+    }
+  ],
+  "earlier_history": [
+    "development-regression.json",
+    "development-checks.json",
+    "development-protocol.json",
+    "development-wire-continuation.json",
+    "container-provenance-current.json"
+  ],
+  "closure": "NOT_AUTHORIZED"
+}

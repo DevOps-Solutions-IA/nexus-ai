@@ -40,9 +40,14 @@ Canonical main is completed through P18, merged at
 PostgreSQL-authoritative Cell placement and transactional admission into existing
 agent, human, workflow, scheduler, campaign and messaging boundaries.
 P19 is BUILDING/PENDING on `feat/nxs-p19-sip-scaling` after authorized lifecycle
-start. Implementation is incomplete and unmerged; no P19 certification is claimed.
+start. The SIP reference runtime and authority implementation are undergoing local
+implementation certification and remain unmerged; no P19 READY/GO is claimed.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
+The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
+rollout, real SIP/ARI fixtures and security limitations. Canonical evidence under
+`.nxs/evidence/NXS-P19/` distinguishes historical development failures, local proofs
+and exact-head external gates.
 No production deployment, capacity certification or automatic failover is claimed.
 
 ## Architecture
@@ -311,7 +316,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P18 at `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 is BUILDING/PENDING on its implementation branch, incomplete and not certified or merged. Historical implementation, closure and corrective evidence remains preserved. P18 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P18 at `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 is BUILDING/PENDING on its implementation branch, with local executable proofs and separate exact-head/external audit gates; it is not READY/GO or merged. Historical implementation, closure and corrective evidence remains preserved. P18 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

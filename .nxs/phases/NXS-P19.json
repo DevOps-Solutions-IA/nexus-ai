@@ -49,7 +49,7 @@
     "P20 Sentinel; P21 compliance; P22 full audit; P23 metering; P24 global observability; P25 automated recovery/reconciliation/failover; P26 DR; P27 final security hardening",
     "P28 capacity; P29 chaos/failover certification; P32 production infrastructure/deployment; unsupported throughput/SLA/RTO/RPO claims"
   ],
-  "objective": "Define and later implement the horizontally scalable Kamailio SIP signaling edge: canonical P11 DID ownership, P18 placement admission and PostgreSQL-authoritative P19 Cell SIP targets, pinned dialogs, trusted inbound/outbound peers and fail-closed relay security. Scope, future acceptance criteria and evidence obligations: docs/engineering/nxs-p19-sip-edge-scaling-design.md; ADR-0100.",
+  "objective": "Implement the horizontally scalable Kamailio SIP signaling edge: canonical P11 DID ownership, P18 placement admission and PostgreSQL-authoritative P19 Cell SIP targets, pinned dialogs, trusted inbound/outbound peers and fail-closed relay security. Scope, acceptance criteria and implementation evidence obligations: docs/engineering/nxs-p19-sip-edge-scaling-design.md; ADR-0100.",
   "requirements_implemented": [
     "NXS-SCALE-002"
   ],

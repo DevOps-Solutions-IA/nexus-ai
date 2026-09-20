@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "evidence": [
+    "clean-room.json",
+    "container-provenance-current.json",
+    "application-container-scan.json"
+  ],
+  "runtime_users": {
+    "application": "65532:65532",
+    "sip_fixtures": "10001:10001"
+  },
+  "scope": "Reference/test containers, no deployment",
+  "closure": "NOT_AUTHORIZED"
+}

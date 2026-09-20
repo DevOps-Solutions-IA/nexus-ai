@@ -19,6 +19,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from nexus_ai.infrastructure.orm import TENANT_OWNED, TENANT_SCOPED_KEY, Base, TenantOwnedMixin
@@ -240,6 +241,229 @@ class SipRouteHistoryRecord(TenantOwnedMixin, Base):
     state: Mapped[str] = mapped_column(String(16))
     edge_id: Mapped[UUID] = mapped_column()
     boot_id: Mapped[UUID] = mapped_column()
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipPeerProfileRecord(Base):
+    __tablename__ = "sip_peer_profiles"
+    __table_args__ = (
+        CheckConstraint("revision > 0", name="revision_positive"),
+        CheckConstraint("octet_length(profile::text) <= 16384", name="profile_bounded"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    revision: Mapped[int] = mapped_column(BigInteger)
+    profile: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    active: Mapped[bool] = mapped_column()
+
+
+class SipPeerHistoryRecord(Base):
+    __tablename__ = "sip_peer_history"
+    peer_id: Mapped[UUID] = mapped_column(
+        ForeignKey("sip_peer_profiles.id", ondelete="RESTRICT"), primary_key=True
+    )
+    revision: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    profile: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    active: Mapped[bool] = mapped_column()
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipUpstreamRecord(Base):
+    __tablename__ = "sip_upstreams"
+    __table_args__ = (
+        CheckConstraint("revision > 0", name="revision_positive"),
+        CheckConstraint("port BETWEEN 1024 AND 65535", name="port_bounded"),
+        CheckConstraint("transport IN ('UDP','TCP','TLS')", name="transport_known"),
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    revision: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    host: Mapped[str] = mapped_column(String(45))
+    port: Mapped[int] = mapped_column()
+    transport: Mapped[str] = mapped_column(String(3))
+    cell_id: Mapped[UUID] = mapped_column(ForeignKey("cells.id", ondelete="RESTRICT"))
+    asterisk_peer_id: Mapped[UUID] = mapped_column()
+
+
+class SipAccountUpstreamRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_account_upstreams"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "account_id"],
+            ["telephony_accounts.organization_id", "telephony_accounts.id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["upstream_id", "upstream_revision"],
+            ["sip_upstreams.id", "sip_upstreams.revision"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("revision > 0", name="revision_positive"),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    account_id: Mapped[UUID] = mapped_column(primary_key=True)
+    upstream_id: Mapped[UUID] = mapped_column()
+    upstream_revision: Mapped[int] = mapped_column(BigInteger)
+    revision: Mapped[int] = mapped_column(BigInteger)
+
+
+class SipEgressPermitRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_egress_permits"
+    __table_args__: Any = (
+        UniqueConstraint("organization_id", "id", name="uq_sip_egress_org_id"),
+        UniqueConstraint("organization_id", "call_id", name="uq_sip_egress_call"),
+        UniqueConstraint("token_digest"),
+        ForeignKeyConstraint(
+            ["organization_id", "call_id"],
+            ["telephony_calls.organization_id", "telephony_calls.id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "account_id"],
+            ["telephony_accounts.organization_id", "telephony_accounts.id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["upstream_id", "upstream_revision"],
+            ["sip_upstreams.id", "sip_upstreams.revision"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["organization_id", "placement_id"],
+            ["organization_placements.organization_id", "organization_placements.id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint(
+            "state IN ('AUTHORIZED','CONSUMED','ENDED','AMBIGUOUS','EXPIRED','REVOKED')",
+            name="state_known",
+        ),
+        CheckConstraint("placement_generation > 0", name="generation_positive"),
+        CheckConstraint("expires_at = issued_at + interval '30 seconds'", name="ttl_fixed"),
+        CheckConstraint(
+            "token_digest ~ '^[a-f0-9]{64}$' AND destination_digest ~ '^[a-f0-9]{64}$' "
+            "AND semantic_digest ~ '^[a-f0-9]{64}$'",
+            name="digests_valid",
+        ),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    call_id: Mapped[UUID] = mapped_column()
+    account_id: Mapped[UUID] = mapped_column()
+    placement_id: Mapped[UUID] = mapped_column()
+    cell_id: Mapped[UUID] = mapped_column(ForeignKey("cells.id", ondelete="RESTRICT"))
+    placement_generation: Mapped[int] = mapped_column(BigInteger)
+    upstream_id: Mapped[UUID] = mapped_column()
+    upstream_revision: Mapped[int] = mapped_column(BigInteger)
+    asterisk_peer_id: Mapped[UUID] = mapped_column()
+    destination_digest: Mapped[str] = mapped_column(String(64))
+    token_digest: Mapped[str] = mapped_column(String(64))
+    semantic_digest: Mapped[str] = mapped_column(String(64))
+    state: Mapped[str] = mapped_column(String(16))
+    issued_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    edge_id: Mapped[UUID | None] = mapped_column()
+    boot_id: Mapped[UUID | None] = mapped_column()
+    transaction_digest: Mapped[str | None] = mapped_column(String(64))
+
+
+class SipEgressRouteRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_egress_routes"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "permit_id"],
+            ["sip_egress_permits.organization_id", "sip_egress_permits.id"],
+            ondelete="RESTRICT",
+        ),
+        UniqueConstraint("peer_id", "transaction_digest", name="uq_sip_egress_route_transaction"),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    permit_id: Mapped[UUID] = mapped_column(primary_key=True)
+    peer_id: Mapped[UUID] = mapped_column()
+    edge_id: Mapped[UUID] = mapped_column()
+    boot_id: Mapped[UUID] = mapped_column()
+    transaction_digest: Mapped[str] = mapped_column(String(64))
+    authorized_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipDialogBindingRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_dialog_bindings"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "route_id"],
+            ["sip_route_authorizations.organization_id", "sip_route_authorizations.id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("dialog_digest ~ '^[a-f0-9]{64}$'", name="digest_valid"),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    route_id: Mapped[UUID] = mapped_column(primary_key=True)
+    dialog_digest: Mapped[str] = mapped_column(String(64))
+    established_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipEgressDialogBindingRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_egress_dialog_bindings"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "permit_id"],
+            ["sip_egress_permits.organization_id", "sip_egress_permits.id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("dialog_digest ~ '^[a-f0-9]{64}$'", name="digest_valid"),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    permit_id: Mapped[UUID] = mapped_column(primary_key=True)
+    dialog_digest: Mapped[str] = mapped_column(String(64))
+    established_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipAccountUpstreamHistoryRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_account_upstream_history"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "account_id"],
+            ["telephony_accounts.organization_id", "telephony_accounts.id"],
+            ondelete="RESTRICT",
+        ),
+        ForeignKeyConstraint(
+            ["upstream_id", "upstream_revision"],
+            ["sip_upstreams.id", "sip_upstreams.revision"],
+            ondelete="RESTRICT",
+        ),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    account_id: Mapped[UUID] = mapped_column(primary_key=True)
+    revision: Mapped[int] = mapped_column(BigInteger, primary_key=True)
+    upstream_id: Mapped[UUID] = mapped_column()
+    upstream_revision: Mapped[int] = mapped_column(BigInteger)
+    actor_user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", ondelete="RESTRICT"))
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+
+class SipEgressHistoryRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_egress_history"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "permit_id"],
+            ["sip_egress_permits.organization_id", "sip_egress_permits.id"],
+            ondelete="RESTRICT",
+        ),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    id: Mapped[UUID] = mapped_column(primary_key=True)
+    permit_id: Mapped[UUID] = mapped_column(index=True)
+    previous_state: Mapped[str | None] = mapped_column(String(16))
+    state: Mapped[str] = mapped_column(String(16))
     occurred_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

@@ -1,0 +1,209 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T10:10:30Z",
+  "result": "PASS",
+  "base_commit": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "candidate_binding": "execution-criteria.json source_sha256; no self-referential commit",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "0b4548237d7fec14421dc851e96a9d987abfdd402e71c992ff35f2e4dee0b78d",
+  "closure": "NOT_AUTHORIZED",
+  "real_postgresql": true,
+  "independent_sessions": true,
+  "deterministic_database_barriers": true,
+  "sleep_as_race_proof": false,
+  "criteria": {
+    "C01": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C01",
+      "executed_nodes": 25,
+      "missing": []
+    },
+    "C02": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C02",
+      "executed_nodes": 6,
+      "missing": []
+    },
+    "C03": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C03",
+      "executed_nodes": 1,
+      "missing": []
+    },
+    "C04": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C04",
+      "executed_nodes": 27,
+      "missing": []
+    },
+    "C05": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C05",
+      "executed_nodes": 3,
+      "missing": []
+    },
+    "C06": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C06",
+      "executed_nodes": 1,
+      "missing": []
+    },
+    "C07": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C07",
+      "executed_nodes": 1,
+      "missing": []
+    },
+    "C08": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C08",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C09": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C09",
+      "executed_nodes": 26,
+      "missing": []
+    },
+    "C10": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C10",
+      "executed_nodes": 3,
+      "missing": []
+    },
+    "C11": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C11",
+      "executed_nodes": 27,
+      "missing": []
+    },
+    "C12": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C12",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C13": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C13",
+      "executed_nodes": 25,
+      "missing": []
+    },
+    "C14": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C14",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C15": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C15",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C16": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C16",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C17": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C17",
+      "executed_nodes": 24,
+      "missing": []
+    },
+    "C18": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C18",
+      "executed_nodes": 18,
+      "missing": []
+    },
+    "C19": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C19",
+      "executed_nodes": 75,
+      "missing": []
+    },
+    "C20": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C20",
+      "executed_nodes": 25,
+      "missing": []
+    },
+    "C21": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C21",
+      "executed_nodes": 13,
+      "missing": []
+    },
+    "C22": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C22",
+      "executed_nodes": 10,
+      "missing": []
+    },
+    "C23": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C23",
+      "executed_nodes": 26,
+      "missing": []
+    },
+    "C24": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C24",
+      "executed_nodes": 1,
+      "missing": []
+    },
+    "C25": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C25",
+      "executed_nodes": 7,
+      "missing": []
+    },
+    "C26": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C26",
+      "executed_nodes": 1,
+      "missing": []
+    },
+    "C27": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C27",
+      "executed_nodes": 7,
+      "missing": []
+    },
+    "C28": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C28",
+      "executed_nodes": 13,
+      "missing": []
+    },
+    "C29": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C29",
+      "executed_nodes": 6,
+      "missing": []
+    },
+    "C30": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C30",
+      "executed_nodes": 6,
+      "missing": []
+    },
+    "C31": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C31",
+      "executed_nodes": 8,
+      "missing": []
+    },
+    "C32": {
+      "result": "PASS",
+      "evidence": "execution-criteria.json#concurrency/C32",
+      "executed_nodes": 6,
+      "missing": []
+    }
+  }
+}

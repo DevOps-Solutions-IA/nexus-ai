@@ -2,7 +2,9 @@
 
 Status: externally approved P19 implementation contract. Its historical governance
 state was PLANNED/PENDING. P19 is now BUILDING/PENDING on its feature branch after
-separate implementation authorization; implementation and certification are incomplete.
+separate implementation authorization. The runtime candidate and local executable
+proofs exist; exact-head validation and independent certification remain separate
+gates recorded under `.nxs/evidence/NXS-P19/`. No READY/GO or merge is declared here.
 This ADR refines historical ADR-0013; it does not itself implement Kamailio.
 Canonical baseline is `e2114cfe8f150e85b9ae432a9af557ceb52cf836`, through P18 READY/GO.
 

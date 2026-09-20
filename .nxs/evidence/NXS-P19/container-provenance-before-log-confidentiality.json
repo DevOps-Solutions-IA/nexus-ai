@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T08:57:23.602381+00:00",
+  "result": "PASS",
+  "historical_context": "Kamailio build before debugger module used for log confidentiality",
+  "scope": "Built fixture provenance and executed HIGH/CRITICAL image scans, not full phase certification",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "scanner_version": "0.74.0",
+  "command": "docker run [read-only archive mount; no Docker socket] <pinned-trivy> image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --input <archive>",
+  "build_command": "bash scripts/build-sip-fixtures.sh",
+  "artifacts": [
+    {
+      "artifact": "kamailio-amd64",
+      "manifest_digest": "sha256:ec92d70918a152c924de1225db05594de3da78f83855bf31d6f2a2447caff0b8",
+      "config_digest": "sha256:295d5b4f06730b993f9dac8527d667aa541633ba4d1b7c303a2a87bfd8c3439b",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "a51d5d8cc79600a796ac8e3140212bef32c1b734e58590d5d4f171eac729eaf5"
+    },
+    {
+      "artifact": "kamailio-arm64",
+      "manifest_digest": "sha256:089a0ac07475fc94f764c36661f2819fcc6f35da2d2ced582466101b6b8bcf4c",
+      "config_digest": "sha256:930bca663c90c8031b77eb7cb374b5becae10fd0ae41f487c530303ef8f8e532",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "a79827a7e9b87294b2609d9588a2396da72a8efb19d2c7105218a3624b51a7b2"
+    },
+    {
+      "artifact": "asterisk-amd64",
+      "manifest_digest": "sha256:89a9a23b7e4ea3d521af0072dee24e32b050891b9722a3ad1e5a03563553c626",
+      "config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "b7c44a1a4be43c8626032e0958231e67ecdb9f32c1d2b95168261543f7726035"
+    }
+  ],
+  "source_sha256": {
+    "infrastructure/kamailio/Dockerfile": "939b4cd1704a3dfb3aa95ab1520e921a8f98cc6c29ea715025630c5455c14324",
+    "infrastructure/kamailio/asterisk.Dockerfile": "ae783c4a84d8319e412bc57e94ded8cdb23c61d49148bcd22af7ba5c02c7ecc0",
+    "scripts/build-sip-fixtures.sh": "9b8a87b1f005473ffeddd141d5785ea2c76f235edd62a6a92d541984e2a74710"
+  },
+  "historical_failures": [
+    "Debian Kamailio runtime: 89 HIGH/CRITICAL findings; replaced by pinned Wolfi runtime without suppressions",
+    "Debian Asterisk runtime: 67 HIGH/CRITICAL findings; replaced by pinned Wolfi runtime without suppressions",
+    "First arm64 archive scan failed before scanning because the saved archive was not readable by the scanner UID; read permission corrected on the non-secret local image archive and scan rerun successfully"
+  ],
+  "limitations": [
+    "OS/package scanning does not certify all source-built C code",
+    "ARM64 protocol runs use emulation, not performance certification",
+    "Local tags are build handles; immutable manifest and configuration digests above are the artifact identities",
+    "No production deployment or capacity claim"
+  ]
+}

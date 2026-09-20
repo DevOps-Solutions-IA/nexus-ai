@@ -16,9 +16,10 @@ import asyncio
 import datetime as dt
 import uuid
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 from uuid import UUID
 
+from pydantic import SecretStr
 from sqlalchemy.exc import IntegrityError
 
 from nexus_ai.core.config import Settings
@@ -96,6 +97,12 @@ class _CallClaim:
     is_owner: bool
 
 
+class SipPermitIssuer(Protocol):
+    async def issue_for_call(
+        self, organization_id: UUID, call_id: UUID, account_id: UUID
+    ) -> SecretStr: ...
+
+
 class TelephonyService:
     def __init__(
         self,
@@ -104,12 +111,17 @@ class TelephonyService:
         publisher: EventPublisher,
         vault: VaultClient,
         transport: TelephonyTransport,
+        *,
+        sip_permits: SipPermitIssuer | None = None,
     ) -> None:
+        if settings.sip_edge.enabled and sip_permits is None:
+            raise TelephonyConfigInvalidError("SIP edge requires its trusted permit issuer")
         self._settings = settings
         self._db = database
         self._publisher = publisher
         self._vault = vault
         self._transport = transport
+        self._sip_permits = sip_permits
         self._log = get_logger("nexus_ai.telephony")
 
     # -- accounts --------------------------------------------------------------
@@ -281,6 +293,11 @@ class TelephonyService:
         if not claim.is_owner:
             return claim.call
 
+        sip_permit = None
+        if account.provider == "asterisk" and self._sip_permits is not None:
+            sip_permit = await self._sip_permits.issue_for_call(
+                organization_id, call_id, account.id
+            )
         secret = await self._resolve_secret(organization_id, account)
         adapter = resolve_provider(account.provider)
         spec = OutboundCallSpec(
@@ -291,6 +308,7 @@ class TelephonyService:
             destination_value=to_address,
             correlation_id=request.correlation_id,
             metadata=dict(request.metadata),
+            sip_egress_permit=sip_permit,
         )
         try:
             async with asyncio.timeout(config.provider_timeout_seconds):

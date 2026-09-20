@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "scope": "Verified lineage before implementation candidate commit; not GitHub implementation-head CI",
+  "branch": "feat/nxs-p19-sip-scaling",
+  "canonical_main": "e2114cfe8f150e85b9ae432a9af557ceb52cf836",
+  "governance_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
+  "checkpoint_commits": [
+    "24f64003a8fb077e0cfd411ad000e5138757a781",
+    "f1befaf604448ce4645f64368f3f1733665bcddf"
+  ],
+  "candidate_parent": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "candidate_binding": "Containing implementation commit plus execution-criteria.json source_sha256; no self-referential SHA",
+  "governance_only_workflow_verification": {
+    "head_sha": "da0f28f6999e199f5348d63985292c8b93aa8f23",
+    "ci_run": 35413856124,
+    "security_run": 35413856101,
+    "status": "completed",
+    "conclusion": "success",
+    "all_child_jobs": "success",
+    "not_implementation_evidence": true
+  },
+  "history_rewritten": false,
+  "merged": false,
+  "deployed": false,
+  "closure": "NOT_AUTHORIZED"
+}

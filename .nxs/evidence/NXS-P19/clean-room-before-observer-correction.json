@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "historical_context": "Before explicit PostgreSQL observer snapshot refresh regression and current-state documentation synchronization",
+  "recorded_at": "2026-09-20T09:44:36.252800+00:00",
+  "command": "make clean-room",
+  "exit_code": 0,
+  "tests_passed": 2135,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "test_runtime_seconds": 675.24,
+  "coverage_percent": 91.11,
+  "log_sha256": "d7a5eba273dd94cb979542a67863f6cf76c9d92770ecb93563dfd2d4ab7adefb",
+  "source_binding": "execution-criteria.json source_sha256",
+  "source_drift": [],
+  "executed": [
+    "fresh uv dependency installation and lock verification",
+    "repository schema/invariants; formatting/lint/mypy",
+    "fresh disposable PostgreSQL, Valkey and NATS volumes",
+    "non-bypass roles; migration upgrade/check and schema guard",
+    "pinned Kamailio amd64 and arm64 builds; pinned Asterisk amd64 build",
+    "complete 2135-test suite including PostgreSQL authority races, real SIP on both edge architectures, real TLS ARI/PJSIP permit propagation",
+    "application image build and non-root UID 65532:65532 assertion",
+    "application linux/amd64 and linux/arm64 BuildKit build",
+    "application live/ready health and graceful stop",
+    "agent handoff regression"
+  ],
+  "application_image_config": "sha256:6c95c5bb03c399df4a2d5761f59c151c637a62fd0e021651dfc43c9846110932",
+  "limitations": [
+    "ARM64 execution is emulated, not capacity certification",
+    "BuildKit multiarch validation intentionally has no push/output; results remain in local build cache",
+    "Pre-existing application smoke uses host networking only for disposable local dependencies; SIP/Asterisk fixtures use isolated non-privileged networks",
+    "Host QEMU installation is build-host setup, not a privileged runtime requirement",
+    "Exact candidate GitHub CI/Security remains separate"
+  ],
+  "closure": "NOT_AUTHORIZED"
+}

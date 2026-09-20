@@ -68,7 +68,7 @@ jobs:
 
   integration:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with: {persist-credentials: false}
@@ -89,6 +89,10 @@ jobs:
           uv run alembic upgrade head
           uv run alembic check
           uv run python -m scripts.nxs_schema_guard
+      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a
+        with: {platforms: arm64}
+      - name: Build pinned real SIP and ARI fixtures
+        run: bash scripts/build-sip-fixtures.sh
       - name: Full suite with coverage gate (runtime role, RLS enforced)
         env:
           NXS_ENVIRONMENT: test

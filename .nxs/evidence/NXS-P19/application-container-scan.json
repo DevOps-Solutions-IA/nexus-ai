@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "recorded_at": "2026-09-20T09:07:20.965314+00:00",
+  "command": "pinned Trivy 0.74.0 image --input application-final.tar --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json",
+  "exit_code": 0,
+  "image_config_digest": "sha256:6c95c5bb03c399df4a2d5761f59c151c637a62fd0e021651dfc43c9846110932",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "high_critical_findings": 0,
+  "report_sha256": "8a1ac60269deab0b66f8d3c905cc48358af7d7d0503c0ee29126ea06d433ef1b",
+  "limitations": [
+    "Vulnerability database observed at execution time; not a future security guarantee",
+    "No production deployment"
+  ]
+}

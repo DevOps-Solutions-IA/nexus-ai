@@ -9,8 +9,10 @@ and canonical lifecycle start are required. Branch: `feat/nxs-p19-sip-scaling`.
 
 Current feature-branch state: implementation was separately authorized and started
 on 2026-09-19 through `nxs-start`, actor `cdxm`. P19 is BUILDING/PENDING;
-implementation and certification remain incomplete. The governance obligations below
-remain binding; individual development tests do not certify the C/AC matrices.
+the runtime candidate now has executed local C01–C32 and AC01–AC43 test mappings.
+The governance obligations below remain binding. Current outcomes and historical
+failures are recorded under `.nxs/evidence/NXS-P19/`; exact-head CI/Security and
+independent implementation audit remain distinct from local proof and phase closure.
 
 Canonical main `e2114cfe8f150e85b9ae432a9af557ceb52cf836` includes P18 READY/GO.
 Exact-main NXS CI 35403869973 and Security 35403870005 were independently verified
@@ -633,10 +635,10 @@ per-Cell/SLA/RTO/RPO claims. P20 Sentinel, P21 compliance, P22 full audit, P23 c
 P24 global observability, P25 recovery/reconciliation/stale-owner handling/failover,
 P26 DR, P27 final hardening, P28 capacity, P29 chaos and P32 production remain separate.
 
-Governance done: schema/mapping/preflight/control checks pass, documents align with
+Historical governance Definition of Done: schema/mapping/preflight/control checks pass, documents align with
 main through P18, P19 remains PLANNED/PENDING with empty evidence, no lock/start,
 one governance commit and exact-head CI/Security, then external architecture audit.
-Implementation done later: every C01–C32 and AC01–AC43 has executed evidence, all
+Implementation Definition of Done: every C01–C32 and AC01–AC43 has executed evidence, all
 31 manifest gates pass, artifact/config provenance and real SIP/PG proofs exist,
 separate implementation/closure commits follow authorized lifecycle and external
 review. Governance test success is not runtime acceptance or permission to start.
@@ -664,7 +666,7 @@ authority, arbitrary tenant target hosts, failover, migration, capacity and depl
 are NO. P18 canonical on main and P19 PLANNED/PENDING are YES. Exact governance-head
 CI/Security must be verified after commit/push; no pre-push PASS is asserted here.
 
-## 20. External architecture audit corrective #1
+## 20. Historical external architecture audit corrective #1
 
 The preceding record describes initial governance, not architecture approval.
 External review of `a2f8db2d2aeb602fbbab76ed71fe809f74233543` returned NO-GO:

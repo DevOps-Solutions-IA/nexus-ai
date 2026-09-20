@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "INCOMPLETE",
+  "scope": "Preserve observed defects and failing regressions before recertification",
+  "clean_room_attempt": {
+    "result": "FAIL",
+    "passed": 2135,
+    "failed": 1,
+    "runtime_seconds": 672.10,
+    "coverage_percent": 91.06,
+    "failed_node": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-none-False]",
+    "observation": "No UAS INVITE; edge returned bounded 503 instead of granting the expected normal test route"
+  },
+  "deterministic_budget_reproduction": {
+    "node": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-bounded_delay-False]",
+    "result_before_correction": "FAIL",
+    "resolver_observation": "Authoritative inbound response committed HTTP 200; a 0.9-second injected response delay caused the inherited 0.8-second socket timeout",
+    "edge_category": "TimeoutError",
+    "correction": "After TLS connection, use the remaining shared absolute deadline as socket timeout; retain the 1.8-second timer across authorize and issue. No retry or deadline extension."
+  },
+  "log_confidentiality": {
+    "observation": "Native core parser errors printed malformed SIP messages",
+    "correction": "Restrict native core diagnostics and retain bounded status/category messages through xlog; add actual malformed-message credential-marker and DID non-disclosure assertions",
+    "gates_suppressed": false,
+    "runtime_denial_checks_removed": false
+  },
+  "historical_evidence": [
+    "execution-criteria-attempt-1.json",
+    "execution-criteria-before-observer-correction.json",
+    "execution-criteria-before-edge-budget-correction.json",
+    "quality-gates-attempt-1.json"
+  ],
+  "closure": "NOT_AUTHORIZED",
+  "focused_after_correction": {
+    "node": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-bounded_delay-False]",
+    "result": "PASS",
+    "passed": 1,
+    "failed": 0,
+    "runtime_seconds": 8.39,
+    "credential_marker_and_did_absent_from_edge_logs": true,
+    "bounded_rejection_metadata_present": true,
+    "full_recertification_required": true
+  }
+}

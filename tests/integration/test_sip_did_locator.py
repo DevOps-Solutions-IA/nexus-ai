@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from collections.abc import AsyncIterator
 from typing import Any
 from uuid import uuid4
 
 import pytest
 from pydantic import SecretStr
-from sqlalchemy import select, text
+from sqlalchemy import event, select, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import DBAPIError
 
@@ -71,6 +72,46 @@ async def test_shared_carrier_more_than_32_tenants(
         assert candidate.phone_number_id == number.id
         async with telephony_stack.database.tenant_transaction(organization.id) as tenant:
             await revalidate_source(tenant, candidate)
+    queries: list[str] = []
+
+    def observe(
+        connection: Any,
+        cursor: Any,
+        statement: str,
+        parameters: Any,
+        context: Any,
+        executemany: bool,
+    ) -> None:
+        queries.append(statement)
+
+    event.listen(discovery_database.engine.sync_engine, "before_cursor_execute", observe)
+    try:
+        assert (await locator.discover(number.e164)).organization_id == organization.id
+        with pytest.raises(SipRouteDeniedError):
+            await locator.discover("+12025559999")
+    finally:
+        event.remove(discovery_database.engine.sync_engine, "before_cursor_execute", observe)
+    discovery_queries = [query for query in queries if "FROM sip_did_locators" in query]
+    assert len(discovery_queries) == 2
+    assert all("WHERE sip_did_locators.e164 =" in query for query in discovery_queries)
+    assert not any(
+        "telephony_phone_numbers" in query or "FROM organizations" in query for query in queries
+    )
+    async with discovery_database.transaction() as session:
+        await session.execute(
+            text("SELECT set_config('nxs.sip_lookup_e164', :number, true)"), {"number": number.e164}
+        )
+        await session.execute(text("SET LOCAL enable_seqscan=off"))
+        plan = (
+            await session.execute(
+                text(
+                    "EXPLAIN (FORMAT JSON) SELECT id FROM sip_did_locators "
+                    "WHERE e164=:number AND active"
+                ),
+                {"number": number.e164},
+            )
+        ).scalar_one()
+        assert "Index Cond" in json.dumps(plan) and "e164" in json.dumps(plan)
 
 
 async def test_stale_disabled_and_foreign_candidates_deny(

@@ -73,6 +73,7 @@ from nexus_ai.otp import events as otp_events  # noqa: F401 - payload registrati
 from nexus_ai.otp.service import OtpService
 from nexus_ai.scheduler import events as scheduler_events  # noqa: F401 - payload registration
 from nexus_ai.scheduler.service import SchedulerService
+from nexus_ai.sip_edge.runtime import build_issuer
 from nexus_ai.telephony import events as telephony_events  # noqa: F401 - payload registration
 from nexus_ai.telephony.providers.registry import GovernedTelephonyTransport
 from nexus_ai.telephony.service import TelephonyService
@@ -324,6 +325,7 @@ class ApplicationLifespan:
                 http_executor,
                 timeout_seconds=settings.telephony.provider_timeout_seconds,
             ),
+            sip_permits=build_issuer(settings, database) if settings.sip_edge.enabled else None,
         )
         telephony_webhooks = InboundTelephonyService(
             settings, database, event_platform.publisher, telephony_vault

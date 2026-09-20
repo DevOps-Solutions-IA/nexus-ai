@@ -15,6 +15,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
+from pydantic import SecretStr
+
 from nexus_ai.telephony.entities import (
     CallParticipant,
     NormalizedCallEvent,
@@ -75,6 +77,7 @@ class OutboundCallSpec:
     destination_value: str
     correlation_id: str | None
     metadata: dict[str, str] = field(default_factory=dict)
+    sip_egress_permit: SecretStr | None = field(default=None, repr=False)
 
 
 @dataclass(frozen=True, slots=True)
