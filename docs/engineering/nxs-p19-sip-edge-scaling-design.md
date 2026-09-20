@@ -474,8 +474,10 @@ map to peer-safe SIP outcomes; no error initiates fallback or fan-out.
 
 ## 14. Required concurrency/protocol matrix
 
-All rows are REQUIRED / NOT EXECUTED. Tests must assert route IDs, tuples, DB rows
-and actual received INVITEs/dialogs, not only resolver return values.
+At historical governance authoring, all rows were REQUIRED / NOT EXECUTED. They
+remain the binding contract; current executed results and exact test nodes are in
+`.nxs/evidence/NXS-P19/execution-criteria.json`. Tests assert route IDs, tuples,
+DB rows and actual received INVITEs/dialogs, not only resolver return values.
 
 | ID | Case and required result |
 | --- | --- |
@@ -514,8 +516,10 @@ and actual received INVITEs/dialogs, not only resolver return values.
 
 ## 15. Acceptance matrix
 
-All rows are REQUIRED / NOT EXECUTED; implementation evidence must map IDs to exact
-executed test nodes, versions/digests, observed counts and failure injections.
+At historical governance authoring, all rows were REQUIRED / NOT EXECUTED.
+Current implementation evidence maps these IDs to executed test nodes, artifact
+digests, observed counts and failure injections. AC26 also requires separate exact-head
+CI/Security; this contract text does not itself declare any criterion PASS.
 
 | ID | Acceptance and required proof |
 | --- | --- |

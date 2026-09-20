@@ -1,12 +1,12 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T10:10:30Z",
+  "recorded_at": "2026-09-20T10:51:09Z",
   "result": "PASS",
-  "base_commit": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "base_commit": "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9",
   "candidate_binding": "execution-criteria.json source_sha256; no self-referential commit",
   "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "0b4548237d7fec14421dc851e96a9d987abfdd402e71c992ff35f2e4dee0b78d",
+  "execution_evidence_sha256": "3a50ceefa17469889225edb3d6b4fb81802b5ac7da053f95594e61835f9744f0",
   "closure": "NOT_AUTHORIZED",
   "real_postgresql": true,
   "independent_sessions": true,
@@ -16,7 +16,7 @@
     "C01": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C01",
-      "executed_nodes": 25,
+      "executed_nodes": 29,
       "missing": []
     },
     "C02": {
@@ -34,7 +34,7 @@
     "C04": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C04",
-      "executed_nodes": 27,
+      "executed_nodes": 31,
       "missing": []
     },
     "C05": {
@@ -58,13 +58,13 @@
     "C08": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C08",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C09": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C09",
-      "executed_nodes": 26,
+      "executed_nodes": 30,
       "missing": []
     },
     "C10": {
@@ -76,43 +76,43 @@
     "C11": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C11",
-      "executed_nodes": 27,
+      "executed_nodes": 31,
       "missing": []
     },
     "C12": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C12",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C13": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C13",
-      "executed_nodes": 25,
+      "executed_nodes": 29,
       "missing": []
     },
     "C14": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C14",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C15": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C15",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C16": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C16",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C17": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C17",
-      "executed_nodes": 24,
+      "executed_nodes": 28,
       "missing": []
     },
     "C18": {
@@ -124,13 +124,13 @@
     "C19": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C19",
-      "executed_nodes": 75,
+      "executed_nodes": 79,
       "missing": []
     },
     "C20": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C20",
-      "executed_nodes": 25,
+      "executed_nodes": 29,
       "missing": []
     },
     "C21": {
@@ -148,7 +148,7 @@
     "C23": {
       "result": "PASS",
       "evidence": "execution-criteria.json#concurrency/C23",
-      "executed_nodes": 26,
+      "executed_nodes": 30,
       "missing": []
     },
     "C24": {

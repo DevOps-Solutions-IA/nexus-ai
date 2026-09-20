@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P19",
-  "result": "INCOMPLETE",
+  "result": "PASS",
   "scope": "Preserve observed defects and failing regressions before recertification",
   "clean_room_attempt": {
     "result": "FAIL",
     "passed": 2135,
     "failed": 1,
-    "runtime_seconds": 672.10,
+    "runtime_seconds": 672.1,
     "coverage_percent": 91.06,
     "failed_node": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-none-False]",
     "observation": "No UAS INVITE; edge returned bounded 503 instead of granting the expected normal test route"
@@ -41,5 +41,27 @@
     "credential_marker_and_did_absent_from_edge_logs": true,
     "bounded_rejection_metadata_present": true,
     "full_recertification_required": true
+  },
+  "complete_focused_regression": {
+    "command": "uv run pytest tests/integration/test_sip_wire.py tests/integration/test_sip_native_configuration.py tests/integration/test_sip_egress_wire.py tests/integration/test_sip_admission_races.py --no-cov -x",
+    "exit_code": 0,
+    "passed": 43,
+    "failed": 0,
+    "runtime_seconds": 238.26,
+    "scope": "Both Kamailio architectures, absolute-deadline response delay/loss, log non-disclosure, actual ARI egress, native config and PostgreSQL race observer",
+    "full_recertification_required": true
+  },
+  "final_recertification": {
+    "result": "PASS",
+    "evidence": [
+      "execution-criteria.json",
+      "clean-room.json",
+      "quality-gates.json"
+    ],
+    "passed": 2140,
+    "failed": 0,
+    "clean_room_coverage_percent": 91.09,
+    "canonical_gate_coverage_percent": 91.09,
+    "external_head_ci": "PENDING_EXTERNAL_GATE"
   }
 }

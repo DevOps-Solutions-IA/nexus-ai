@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T10:41:00.273948+00:00",
+  "result": "PASS",
+  "scope": "Current native fixture provenance and executed HIGH/CRITICAL image scans; full phase gates remain separate",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "scanner_version": "0.74.0",
+  "command": "docker run [read-only archive mount; no Docker socket] <pinned-trivy> image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --input <archive>",
+  "build_command": "bash scripts/build-sip-fixtures.sh",
+  "artifacts": [
+    {
+      "artifact": "kamailio-amd64",
+      "manifest_digest": "sha256:971d52ba9559fc68f194817aaf65d259685193bd31fe8f6e5bd6418d819ab259",
+      "config_digest": "sha256:685d6f2c402eb86f62a7c1667513f10550a1346d69801135cba1d5eaa9238d46",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "e22961ddc78497b588b42d84822670d68bc72b6d730891bbb6588b207a991799"
+    },
+    {
+      "artifact": "kamailio-arm64",
+      "manifest_digest": "sha256:396772a320b92efb2d126cfc1e7dcde7905f0a35a4c479f6f42df7beaab399df",
+      "config_digest": "sha256:0a3ac224d6f4e784b5b727cd73bd1078a311a723d2316b2da332503ca5eddadb",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "582e0d08f2f2fa62893da3068f932e80d06823e955bc24106bda7e94834b878a"
+    },
+    {
+      "artifact": "asterisk-amd64",
+      "manifest_digest": "sha256:89a9a23b7e4ea3d521af0072dee24e32b050891b9722a3ad1e5a03563553c626",
+      "config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "high_critical_findings": 0,
+      "scan_result": "PASS",
+      "scan_report_sha256": "b7c44a1a4be43c8626032e0958231e67ecdb9f32c1d2b95168261543f7726035"
+    }
+  ],
+  "source_sha256": {
+    "infrastructure/kamailio/Dockerfile": "847edfbf04f58a5233fb3e7e6ea6fd3e683ae2a4156ee01db000ceaa03e56374",
+    "infrastructure/kamailio/asterisk.Dockerfile": "ae783c4a84d8319e412bc57e94ded8cdb23c61d49148bcd22af7ba5c02c7ecc0",
+    "scripts/build-sip-fixtures.sh": "9b8a87b1f005473ffeddd141d5785ea2c76f235edd62a6a92d541984e2a74710"
+  },
+  "historical_failures": [
+    "Debian Kamailio runtime: 89 HIGH/CRITICAL findings; replaced by pinned Wolfi runtime without suppressions",
+    "Debian Asterisk runtime: 67 HIGH/CRITICAL findings; replaced by pinned Wolfi runtime without suppressions",
+    "First arm64 archive scan failed before scanning because the saved archive was not readable by the scanner UID; read permission corrected on the non-secret local image archive and scan rerun successfully"
+  ],
+  "limitations": [
+    "OS/package scanning does not certify all source-built C code",
+    "ARM64 protocol runs use emulation, not performance certification",
+    "Local tags are build handles; immutable manifest and configuration digests above are the artifact identities",
+    "No production deployment or capacity claim"
+  ],
+  "reference_configuration_sha256": {
+    "infrastructure/kamailio/edge.py": "a49878dd366b6b4c84e09a8c1c582a03b1275d51d2d5f746e146c5de2347aaa1",
+    "infrastructure/kamailio/kamailio.cfg": "88fa88806e07490bfa701dbcdff809a514f1c4f8fb0cf7c6cb72150388e62a08",
+    "infrastructure/kamailio/asterisk-extensions.conf": "384de5a7d5240321c888a61360f485dca66d3ba5fdaad7a0991f5330b1e2f6c7"
+  },
+  "build_warnings": [
+    "Upstream make install emits /bin/sh: 1: --ldflags: not found; build exits 0. Native config/version and actual Python KEMI wire execution pass on both architectures. Diagnostic is retained, not suppressed or treated as independent PASS."
+  ]
+}

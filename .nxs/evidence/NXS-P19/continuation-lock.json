@@ -8,7 +8,8 @@
   "nxs_start_rerun": false,
   "local_only_checkpoints": [
     "24f64003a8fb077e0cfd411ad000e5138757a781",
-    "f1befaf604448ce4645f64368f3f1733665bcddf"
+    "f1befaf604448ce4645f64368f3f1733665bcddf",
+    "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9"
   ],
   "expired_lock_preserved_in_checkpoints": {
     "repository_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
@@ -33,5 +34,31 @@
   },
   "work_discarded": false,
   "history_rewritten": false,
-  "closure": "NOT_AUTHORIZED"
+  "closure": "NOT_AUTHORIZED",
+  "subsequent_recovery": {
+    "previous_expiry": "2026-09-20T10:37:50Z",
+    "clean_tree_verified": true,
+    "commands": [
+      "make nxs-lock-status",
+      "make nxs-lock-recover",
+      "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm",
+      "make nxs-lock-status",
+      "make nxs-validate-repo",
+      "make nxs-preflight PHASE=NXS-P19"
+    ],
+    "all_exit_codes": 0,
+    "recovered_to": "RELEASED",
+    "reacquired": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p19-sip-scaling",
+      "expires_at": "2026-09-20T14:38:13Z",
+      "phase": "NXS-P19",
+      "repository_commit": "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-20T10:38:13Z",
+      "state": "ACTIVE"
+    },
+    "phase_start_unchanged": true,
+    "second_nxs_start": false
+  }
 }

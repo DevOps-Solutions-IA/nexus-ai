@@ -8,9 +8,10 @@
   "governance_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
   "checkpoint_commits": [
     "24f64003a8fb077e0cfd411ad000e5138757a781",
-    "f1befaf604448ce4645f64368f3f1733665bcddf"
+    "f1befaf604448ce4645f64368f3f1733665bcddf",
+    "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9"
   ],
-  "candidate_parent": "f1befaf604448ce4645f64368f3f1733665bcddf",
+  "candidate_parent": "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9",
   "candidate_binding": "Containing implementation commit plus execution-criteria.json source_sha256; no self-referential SHA",
   "governance_only_workflow_verification": {
     "head_sha": "da0f28f6999e199f5348d63985292c8b93aa8f23",

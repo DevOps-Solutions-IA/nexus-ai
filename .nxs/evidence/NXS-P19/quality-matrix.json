@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T11:22:50.705721+00:00",
+  "closure": "NOT_AUTHORIZED",
+  "result": "PENDING_EXTERNAL_GATE",
+  "local_result": "PASS",
+  "candidate_binding": "Containing implementation commit; candidate-integrity.json reconstructs exact validated source",
+  "gates": {
+    "repository_integrity": "PASS",
+    "formatting": "PASS",
+    "lint": "PASS",
+    "typing": "PASS",
+    "unit_tests": "PASS",
+    "integration_tests": "PASS",
+    "contract_tests": "PASS",
+    "security_tests": "PASS",
+    "concurrency_tests": "PASS",
+    "resilience_tests": "PASS",
+    "coverage": "PASS",
+    "sast": "PASS",
+    "secret_scan": "PASS",
+    "dependency_security": "PASS",
+    "container_scan": "PASS",
+    "docker_build": "PASS",
+    "non_root_runtime": "PASS",
+    "graceful_shutdown": "PASS",
+    "migration_validation": "PASS",
+    "execution_guard": "PASS",
+    "generic_phase_start": "PASS",
+    "generic_closure": "PASS",
+    "generic_next_phase": "PASS",
+    "execution_lock": "PASS",
+    "phase_neutral_ci": "PENDING_EXTERNAL_GATE",
+    "toolchain_consistency": "PASS",
+    "agent_handoff": "PASS",
+    "clean_room": "PASS",
+    "documentation": "PASS",
+    "regression": "PASS",
+    "github_ci": "PENDING_EXTERNAL_GATE"
+  },
+  "evidence_sources": {
+    "repository_integrity": [
+      "repository-final-validation.json",
+      "quality-gates.json"
+    ],
+    "formatting": [
+      "quality-gates.json#details.formatting"
+    ],
+    "lint": [
+      "quality-gates.json#details.lint"
+    ],
+    "typing": [
+      "quality-gates.json#details.typing"
+    ],
+    "unit_tests": [
+      "executed-test-nodes.json",
+      "tests.json"
+    ],
+    "integration_tests": [
+      "executed-test-nodes.json",
+      "clean-room.json"
+    ],
+    "contract_tests": [
+      "contracts.json"
+    ],
+    "security_tests": [
+      "schema-security.json",
+      "open-relay-security.json",
+      "resolver-authentication.json"
+    ],
+    "concurrency_tests": [
+      "concurrency.json",
+      "execution-criteria.json#concurrency"
+    ],
+    "resilience_tests": [
+      "execution-criteria.json#concurrency",
+      "edge-budget-and-log-correction.json",
+      "sip-protocol.json"
+    ],
+    "coverage": [
+      "coverage.json",
+      "quality-gates.json#details.tests",
+      "clean-room.json"
+    ],
+    "sast": [
+      "security.json",
+      "quality-gates.json#details.sast"
+    ],
+    "secret_scan": [
+      "security.json"
+    ],
+    "dependency_security": [
+      "security.json",
+      "quality-gates.json#details.dependency_security"
+    ],
+    "container_scan": [
+      "container-provenance-current.json",
+      "application-container-scan.json"
+    ],
+    "docker_build": [
+      "docker.json",
+      "clean-room.json"
+    ],
+    "non_root_runtime": [
+      "clean-room.json",
+      "container-provenance-current.json",
+      "kamailio-config.json"
+    ],
+    "graceful_shutdown": [
+      "clean-room.json",
+      "executed-test-nodes.json"
+    ],
+    "migration_validation": [
+      "migration.json",
+      "schema-security.json"
+    ],
+    "execution_guard": [
+      "repository-final-validation.json"
+    ],
+    "generic_phase_start": [
+      "lifecycle-start.json",
+      "executed-test-nodes.json"
+    ],
+    "generic_closure": [
+      "executed-test-nodes.json"
+    ],
+    "generic_next_phase": [
+      "executed-test-nodes.json"
+    ],
+    "execution_lock": [
+      "continuation-lock.json",
+      "repository-final-validation.json"
+    ],
+    "phase_neutral_ci": [
+      "Exact final implementation-head GitHub NXS CI required after push"
+    ],
+    "toolchain_consistency": [
+      "clean-room.json",
+      "quality-gates.json"
+    ],
+    "agent_handoff": [
+      "clean-room.json",
+      "executed-test-nodes.json"
+    ],
+    "clean_room": [
+      "clean-room.json"
+    ],
+    "documentation": [
+      "documentation-certification.json"
+    ],
+    "regression": [
+      "regressions.json",
+      "quality-gates.json#details.tests"
+    ],
+    "github_ci": [
+      "Exact final implementation-head NXS CI and NXS Security required after push"
+    ]
+  },
+  "missing_mandatory_gates": [],
+  "external_evidence_policy": "Live exact-head workflow results recorded after push in implementation report; no self-referential commit or older governance run substituted",
+  "generic_closure_scope": "Generic closure-engine regression only; P19 closure not executed"
+}

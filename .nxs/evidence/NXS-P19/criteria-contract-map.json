@@ -10,7 +10,7 @@
       "id": "C01",
       "expected": "Two edges resolve same DID concurrently for independent transactions: same authoritative Organization/Cell/target tuple under unchanged state.",
       "actual": {
-        "passed": 25,
+        "passed": 29,
         "failed": 0,
         "missing": []
       },
@@ -46,7 +46,7 @@
       "id": "C04",
       "expected": "Unknown DID: fail closed, zero Asterisk routes.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
@@ -94,7 +94,7 @@
       "id": "C08",
       "expected": "Forged Organization/Cell/internal headers: strip/reject, no authority.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -106,7 +106,7 @@
       "id": "C09",
       "expected": "Untrusted outbound source: denied, no open proxy.",
       "actual": {
-        "passed": 26,
+        "passed": 30,
         "failed": 0,
         "missing": []
       },
@@ -130,7 +130,7 @@
       "id": "C11",
       "expected": "Resolver/DB unavailable: new dialog fails closed; no cache authority.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
@@ -142,7 +142,7 @@
       "id": "C12",
       "expected": "Resolver timeout, including committed response loss: bounded failure/same-key replay, no alternate Cell.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -154,7 +154,7 @@
       "id": "C13",
       "expected": "INVITE retransmission on same/different edges: one logical downstream dialog; owning transaction retained, other edge cannot issue.",
       "actual": {
-        "passed": 25,
+        "passed": 29,
         "failed": 0,
         "missing": []
       },
@@ -166,7 +166,7 @@
       "id": "C14",
       "expected": "Target rotation after establishment: old dialog pinned; independent new dialog uses current target.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -178,7 +178,7 @@
       "id": "C15",
       "expected": "Delayed BYE/re-INVITE/ACK/CANCEL: matched transaction/dialog route, not current placement lookup.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -190,7 +190,7 @@
       "id": "C16",
       "expected": "Injected R-URI/To/Contact/Route and conflicting lengths: safe rejection, no header/host injection.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -202,7 +202,7 @@
       "id": "C17",
       "expected": "Max-Forwards exhaustion/loop: bounded rejection, no recursive resolver loop.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -226,7 +226,7 @@
       "id": "C19",
       "expected": "P18 Cell vs requested/forged target mismatch: reject; no source-header override.",
       "actual": {
-        "passed": 75,
+        "passed": 79,
         "failed": 0,
         "missing": []
       },
@@ -238,7 +238,7 @@
       "id": "C20",
       "expected": "Many independent dialogs across two edges: deterministic same Cell, no singleton coordinator.",
       "actual": {
-        "passed": 25,
+        "passed": 29,
         "failed": 0,
         "missing": []
       },
@@ -274,7 +274,7 @@
       "id": "C23",
       "expected": "DB/outbox rollback or worker death after ISSUED: no partial authorization, no new owner/key on restart.",
       "actual": {
-        "passed": 26,
+        "passed": 30,
         "failed": 0,
         "missing": []
       },
@@ -490,7 +490,7 @@
       "id": "AC09",
       "expected": "No open relay; C09/C10 plus unsolicited route-set tests.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
@@ -502,7 +502,7 @@
       "id": "AC10",
       "expected": "Forged internal headers grant zero authority; C08/C19.",
       "actual": {
-        "passed": 75,
+        "passed": 79,
         "failed": 0,
         "missing": []
       },
@@ -514,7 +514,7 @@
       "id": "AC11",
       "expected": "Unknown DID zero route; C04 and received-INVITE count.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
@@ -538,7 +538,7 @@
       "id": "AC13",
       "expected": "Resolver/DB failure zero new route; C11/C12.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
@@ -550,7 +550,7 @@
       "id": "AC14",
       "expected": "Two edges equivalent authoritative independent routing; C01/C20.",
       "actual": {
-        "passed": 25,
+        "passed": 29,
         "failed": 0,
         "missing": []
       },
@@ -562,7 +562,7 @@
       "id": "AC15",
       "expected": "Existing dialogs pinned across target/placement changes; C14/C15, real BYE/re-INVITE.",
       "actual": {
-        "passed": 24,
+        "passed": 28,
         "failed": 0,
         "missing": []
       },
@@ -610,7 +610,7 @@
       "id": "AC19",
       "expected": "No automated failover; unavailable-target/owner-loss tests.",
       "actual": {
-        "passed": 28,
+        "passed": 32,
         "failed": 0,
         "missing": []
       },
@@ -658,7 +658,7 @@
       "id": "AC23",
       "expected": "Real SIP INVITE/ACK/CANCEL/BYE/re-INVITE and retransmission tests, not Python mocks alone.",
       "actual": {
-        "passed": 26,
+        "passed": 30,
         "failed": 0,
         "missing": []
       },
@@ -682,7 +682,7 @@
       "id": "AC25",
       "expected": "URI injection/relay/forged authority matrix with zero unintended target traffic.",
       "actual": {
-        "passed": 26,
+        "passed": 30,
         "failed": 0,
         "missing": []
       },
@@ -730,7 +730,7 @@
       "id": "AC29",
       "expected": "Route authorization/issue ordering, response loss and no duplicate cross-edge issue; C12/C13/C23.",
       "actual": {
-        "passed": 27,
+        "passed": 31,
         "failed": 0,
         "missing": []
       },
