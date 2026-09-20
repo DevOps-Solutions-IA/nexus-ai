@@ -13,9 +13,21 @@ from nexus_ai.sip_edge.contracts import (
     Page,
     RegisterTarget,
     SipTransaction,
+    TransportIdentity,
     fingerprint,
     private_target,
 )
+
+
+@pytest.mark.parametrize("transport", ["UDP", "TCP", "TLS"])
+@pytest.mark.parametrize("pin", [None, "ab" * 32, "ABC", "a" * 65, "a\r\nRoute:bad"])
+def test_transport_requires_exact_tls_identity_only(transport: str, pin: str | None) -> None:
+    valid = (transport == "TLS" and pin == "ab" * 32) or (transport != "TLS" and pin is None)
+    if valid:
+        assert TransportIdentity(transport=transport, certificate_sha256=pin).transport == transport
+    else:
+        with pytest.raises(ValidationError):
+            TransportIdentity(transport=transport, certificate_sha256=pin)
 
 
 def transaction(**changes: object) -> SipTransaction:

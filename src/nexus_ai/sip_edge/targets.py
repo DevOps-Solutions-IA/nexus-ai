@@ -45,6 +45,7 @@ class TargetView(StrictContract):
     host: str
     port: int
     transport: str
+    certificate_sha256: str | None = None
     state: str
 
 
@@ -238,6 +239,7 @@ class TargetRegistry:
                 host=target.host,
                 port=target.port,
                 transport=target.transport,
+                certificate_sha256=target.certificate_sha256,
                 state=target.state,
             )
 
@@ -255,7 +257,9 @@ class TargetRegistry:
         request = RegisterTarget.model_validate(request.model_dump())
         self._network_policy.require(request)
         key_hash = fingerprint({"key": request.idempotency_key})
-        semantic = fingerprint(request.model_dump(mode="json", exclude={"idempotency_key"}))
+        semantic = fingerprint(
+            request.model_dump(mode="json", exclude={"idempotency_key"}, exclude_none=True)
+        )
         async with self._database.transaction() as session:
             await authorize_control(session, actor_user_id)
             cell = (
@@ -298,6 +302,7 @@ class TargetRegistry:
                     host=request.host,
                     port=request.port,
                     transport=request.transport.value,
+                    certificate_sha256=request.certificate_sha256,
                     state="REGISTERED",
                 )
             )
@@ -347,6 +352,7 @@ class TargetRegistry:
                     host=row.host,
                     port=row.port,
                     transport=row.transport,
+                    certificate_sha256=row.certificate_sha256,
                     state=row.state,
                 )
                 for row in rows

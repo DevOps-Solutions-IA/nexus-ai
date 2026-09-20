@@ -60,6 +60,66 @@ async def authenticate(session: Any, actor: Any) -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "transport,pin", [("TLS", None), ("TLS", "invalid"), ("UDP", "ab" * 32), ("TCP", "ab" * 32)]
+)
+async def test_database_rejects_transport_identity_mismatch(
+    target_control: Any,
+    tenant_database: Any,
+    transport: str,
+    pin: str | None,
+) -> None:
+    cell, actor = target_control
+    with pytest.raises(DBAPIError):
+        async with tenant_database.transaction() as session:
+            await authenticate(session, actor)
+            await session.execute(
+                text(
+                    "INSERT INTO cell_sip_targets "
+                    "(id,cell_id,target_revision,host,port,transport,certificate_sha256,state) "
+                    "VALUES (:id,:cell,1,'10.1.2.3',5061,:transport,:pin,'REGISTERED')"
+                ),
+                {"id": uuid4(), "cell": cell, "transport": transport, "pin": pin},
+            )
+
+
+async def test_tls_target_pin_and_transport_are_immutable(
+    target_control: Any,
+    tenant_database: Any,
+) -> None:
+    cell, actor = target_control
+    registry = TargetRegistry(
+        tenant_database, TargetNetworkPolicy(("10.0.0.0/8",), frozenset({5061}))
+    )
+    request = RegisterTarget(
+        cell_id=cell,
+        host="10.1.2.3",
+        port=5061,
+        transport="TLS",
+        certificate_sha256="ab" * 32,
+        expected_revision=0,
+        idempotency_key=uuid4().hex,
+        reason_code="TEST",
+    )
+    result = await registry.register(actor, request, uuid4())
+    assert await registry.register(actor, request, uuid4()) == result
+    with pytest.raises(SipConflictError):
+        await registry.register(
+            actor, request.model_copy(update={"certificate_sha256": "cd" * 32}), uuid4()
+        )
+    for query in (
+        "UPDATE cell_sip_targets SET certificate_sha256=repeat('cd',32) WHERE id=:id",
+        "UPDATE cell_sip_targets SET transport='TCP',certificate_sha256=NULL WHERE id=:id",
+    ):
+        with pytest.raises(DBAPIError):
+            async with tenant_database.transaction() as session:
+                await authenticate(session, actor)
+                await session.execute(
+                    text(query),
+                    {"id": result.target_id},
+                )
+
+
 async def test_target_write_requires_explicit_platform_grant(
     target_control: Any, tenant_database: Any
 ) -> None:

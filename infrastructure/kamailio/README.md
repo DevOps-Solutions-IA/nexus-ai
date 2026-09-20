@@ -1,8 +1,12 @@
-# P19 SIP reference laboratory — implementation in progress
+# P19 SIP reference implementation — unclosed candidate
 
 This directory is development/test infrastructure, not a deployment. P19 remains
 BUILDING/PENDING. No capacity, availability, active-call failover, production or
-full protocol certification is claimed.
+production protocol certification is claimed. Published candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772`
+completed the original C01–C32/AC01–AC43 local matrix, clean-room and exact-head CI.
+External review required this transport corrective; historical certificates cannot
+certify changed source. Current corrective evidence and source hashes live under
+`.nxs/evidence/NXS-P19/`. Closure and merge remain unauthorized.
 
 ## Artifact provenance
 
@@ -25,8 +29,8 @@ docker buildx build --platform linux/amd64 --load -f infrastructure/kamailio/ast
 
 These tags are local build handles, not immutable release identifiers. Certification
 must record the resulting image/config/manifest digests and source hashes. Rebuild
-after Dockerfile changes. Both Kamailio architectures have executed native version,
-configuration and real UDP wire tests. ARM64 runs under explicit host emulation;
+after Dockerfile changes. Both Kamailio architectures require native configuration
+and UDP/TCP/TLS wire validation for this corrective. ARM64 uses explicit emulation;
 this is protocol compatibility evidence, not ARM64 performance certification.
 
 The Asterisk fixture builds publisher-checksummed 22.11.0 source. It is a disposable
@@ -41,9 +45,36 @@ payloads or credentials. Real malformed-message tests assert that injected crede
 markers and called numbers are absent while rejection metadata remains observable.
 This is a log-confidentiality boundary, not a suppression of failed validation gates.
 
-The current reference is UDP on an explicitly isolated test network. Source-address
-peer policy is not Internet-grade cryptographic peer authentication. Production
-network enforcement and deployment remain outside this directory's certification.
+The reference listens on UDP/TCP 5060 and TLS 5061 inside the operations-controlled
+container network. Plain UDP/TCP require explicitly isolated links; source-address
+policy is not cryptographic authentication. TLS requires CA validation and the exact
+observed leaf-certificate SHA-256 approved by peer policy. `$proto` and native TLS
+state supply observations; SIP headers never do. No transport fallback exists.
+
+TLS identity/key/CA files are read-only mounts at `/run/secrets/sip/identity.pem`,
+`identity.key` and `ca.pem`. Keys cannot be world-readable; none of these files may
+be group/world-writable. Invalid material and expired local identities fail startup.
+Fixtures generate disposable PKI; no key/certificate is embedded in Git or images.
+TLS targets require a matching operations-controlled `tls_targets` host/port/pin
+entry and immutable PostgreSQL target/upstream fingerprint. Provision pins before
+activating revisions. Dialogs retain their original transport and peer identity;
+changing a pin or transport requires a new immutable revision.
+The same pin map includes approved TLS origin Contact endpoints for reverse dialog
+requests; arbitrary Contact ports are not accepted. `contact_port` is operations-owned
+for TCP/TLS peers, while authenticated source identity is independent of ephemeral
+TCP connection ports. Native TLS certificate checks also apply after reconnect.
+
+The source build uses checksummed OpenSSL 3.6.4 development libraries matching the
+pinned Wolfi runtime, without disabling Kamailio's OpenSSL compatibility check.
+`tls-connection-auth.patch` is an explicit derivative of upstream 6.1.4: upstream's
+connection-out callback is skipped without an `onsend` message, including transaction
+module sends. The patch supplies the actual connection receive context, invokes the
+callback for asynchronous handshakes, and rejects before queued SIP writes when the
+callback drops the connection. It never bypasses CA verification. The wrong-target-pin
+test reproduces unauthorized sending without the patch and requires zero target SIP
+messages with it. Artifact provenance includes the patch; this is not represented as
+an unmodified upstream binary. TLS connection-domain matching and disabled TCP aliases
+prevent reusing a server-domain connection as a validated outgoing client connection.
 
 Kamailio reads `/run/secrets/nxs-sip-edge.json` from a read-only secret mount. Required
 fields include an edge UUID, a per-edge HMAC secret of at least 32 bytes encoded as
@@ -86,7 +117,7 @@ executes P11 durable call creation, permit issuance, real ARI/PJSIP, Kamailio co
 and approved carrier-UAS reception with the internal permit removed. This is not
 production Asterisk certification or completion of the entire attack matrix.
 
-## Current executable checks and remaining work
+## Executable certification surfaces
 
 `tests/integration/test_sip_wire.py` runs actual Kamailio, an internal HTTPS resolver,
 PostgreSQL and UDP UAS; it checks INVITE/ACK/CANCEL/BYE/re-INVITE/UPDATE/INFO/PRACK,
@@ -97,6 +128,9 @@ initial relay grant. `test_sip_asterisk_wire.py` uses actual TLS ARI
 and PJSIP. Run against disposable databases with the P19 schema and local images built.
 Do not run competing test processes against the same NATS test streams.
 
-Complete peer/upstream control certification, all C01–C32/AC01–AC43 mappings,
-final current-source regression and clean-room certification
-remain required. These development tests are not an implementation-complete gate.
+`test_sip_stream_transports.py` exercises TCP/TLS certificate rejection, downgrade
+rejection, two edges, reconnect, CANCEL and pinned dialogs. Egress wire tests use
+real ARI/PJSIP and UDP/TCP/TLS carrier UAS. The canonical generator maps C01–C32,
+AC01–AC43 and supplemental T01–T10 to executed nodes. Current-source regression,
+clean-room and security evidence remain distinct from historical certificates,
+exact-head GitHub validation and independent external audit. Local PASS is not closure.

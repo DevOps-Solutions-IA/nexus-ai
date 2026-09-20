@@ -2,6 +2,20 @@
 
 ## 1. Status, baseline and canonical inputs
 
+Current corrective: the implemented transport contract is UDP/TCP/TLS with no
+fallback. TLS peer identity comes from the verified native TLS connection, never
+a header. Target/upstream revisions include an exact leaf-certificate SHA-256;
+plaintext revisions carry no TLS pin. Mounted secret material and CA verification
+are mandatory. Dialog bindings retain transport and peer identity across rotation.
+The reference source patch, immutable artifact provenance and real positive/negative
+wire tests are documented in `infrastructure/kamailio/README.md` and the runtime guide.
+The original candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772` completed its original
+C01–C32/AC01–AC43 evidence; changed corrective source requires fresh evidence, including
+supplemental T01–T10. P19 stays BUILDING/PENDING, unclosed and unmerged.
+
+The following pre-implementation wording records the historical governance moment;
+it does not assert that current runtime or acceptance evidence is absent.
+
 Historical governance baseline: PLANNED/PENDING, no implementation, migration, Kamailio config,
 execution lock, implementation evidence or certification. All acceptance/race
 criteria below are REQUIRED / NOT EXECUTED. A separate implementation authorization

@@ -33,6 +33,7 @@ class InboundAuthorization(StrictContract):
     target_host: str
     target_port: int
     target_transport: str
+    certificate_sha256: str | None = None
     edge_id: UUID
     boot_id: UUID
     issue_deadline: datetime
@@ -220,6 +221,7 @@ class InboundRoutes:
             target_host=target.host,
             target_port=target.port,
             target_transport=target.transport,
+            certificate_sha256=target.certificate_sha256,
             edge_id=route.edge_id,
             boot_id=route.boot_id,
             issue_deadline=route.issue_deadline,

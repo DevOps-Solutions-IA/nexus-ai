@@ -9,7 +9,14 @@ from enum import StrEnum
 from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 from nexus_ai.cells.contracts import Generation, ReasonCode, SafeKey
 
@@ -27,6 +34,19 @@ class Transport(StrEnum):
     UDP = "UDP"
     TCP = "TCP"
     TLS = "TLS"
+
+
+class TransportIdentity(StrictContract):
+    transport: Transport
+    certificate_sha256: Annotated[str, StringConstraints(pattern=r"^[a-f0-9]{64}$")] | None = None
+
+    @model_validator(mode="after")
+    def exact_tls_identity(self) -> TransportIdentity:
+        if (self.transport == Transport.TLS) != (self.certificate_sha256 is not None):
+            raise ValueError(
+                "TLS requires an exact certificate identity; plaintext cannot claim one"
+            )
+        return self
 
 
 class TargetState(StrEnum):
@@ -78,7 +98,7 @@ def private_target(value: str) -> str:
     return value
 
 
-class RegisterTarget(StrictContract):
+class RegisterTarget(TransportIdentity):
     cell_id: UUID
     host: Annotated[str, StringConstraints(min_length=2, max_length=45)]
     port: Annotated[int, Field(strict=True, ge=1024, le=65535)]

@@ -20,7 +20,7 @@ from typing import Any, Protocol
 from uuid import UUID
 
 from pydantic import SecretStr
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
@@ -88,6 +88,13 @@ class AmbiguousProviderTimeoutError(NxsError):
     code = "NXS_TELEPHONY_PROVIDER_TIMEOUT"
     status = 504
     title = "Telephony Provider Timeout"
+    retryable = False
+
+
+class TelephonyAdmissionUnavailableError(NxsError):
+    code = "NXS_TELEPHONY_ADMISSION_UNAVAILABLE"
+    status = 503
+    title = "Telephony admission unavailable"
     retryable = False
 
 
@@ -295,9 +302,18 @@ class TelephonyService:
 
         sip_permit = None
         if account.provider == "asterisk" and self._sip_permits is not None:
-            sip_permit = await self._sip_permits.issue_for_call(
-                organization_id, call_id, account.id
-            )
+            try:
+                async with asyncio.timeout(config.provider_timeout_seconds):
+                    sip_permit = await self._sip_permits.issue_for_call(
+                        organization_id, call_id, account.id
+                    )
+            except (NxsError, TimeoutError, DBAPIError) as exc:
+                await self._mark_failed(
+                    organization_id, call_id, error_code="NXS_TELEPHONY_ADMISSION_FAILED"
+                )
+                if isinstance(exc, NxsError):
+                    raise
+                raise TelephonyAdmissionUnavailableError() from None
         secret = await self._resolve_secret(organization_id, account)
         adapter = resolve_provider(account.provider)
         spec = OutboundCallSpec(
@@ -551,7 +567,13 @@ class TelephonyService:
             if current is not None and not is_terminal(current.state):
                 await repo.apply(call_id, {"error_code": "NXS_TELEPHONY_PROVIDER_TIMEOUT"})
 
-    async def _mark_failed(self, organization_id: UUID, call_id: UUID) -> Call:
+    async def _mark_failed(
+        self,
+        organization_id: UUID,
+        call_id: UUID,
+        *,
+        error_code: str = "NXS_TELEPHONY_PROVIDER_ERROR",
+    ) -> Call:
         now = dt.datetime.now(dt.UTC)
         async with self._db.tenant_transaction(organization_id) as tenant:
             repo = TelephonyCallRepository(tenant)
@@ -564,7 +586,7 @@ class TelephonyService:
                     "state": CallState.FAILED.value,
                     "state_rank": state_rank(CallState.FAILED),
                     "disposition": "FAILED",
-                    "error_code": "NXS_TELEPHONY_PROVIDER_ERROR",
+                    "error_code": error_code,
                     "ended_at": now,
                 },
             )

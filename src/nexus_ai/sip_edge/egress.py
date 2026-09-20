@@ -43,6 +43,7 @@ class EgressDecision(StrictContract):
     host: str
     port: int
     transport: str
+    certificate_sha256: str | None = None
     upstream_id: UUID
     upstream_revision: int
 
@@ -355,6 +356,7 @@ class EgressPermits:
                     host=upstream.host,
                     port=upstream.port,
                     transport=upstream.transport,
+                    certificate_sha256=upstream.certificate_sha256,
                     upstream_id=upstream.id,
                     upstream_revision=upstream.revision,
                 )

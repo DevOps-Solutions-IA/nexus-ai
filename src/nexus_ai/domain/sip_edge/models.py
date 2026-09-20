@@ -65,6 +65,12 @@ class CellSipTargetRecord(Base):
         CheckConstraint("port BETWEEN 1024 AND 65535", name="port_bounded"),
         CheckConstraint("transport IN ('UDP','TCP','TLS')", name="transport_known"),
         CheckConstraint(
+            "(transport = 'TLS' AND certificate_sha256 IS NOT NULL "
+            "AND certificate_sha256 ~ '^[a-f0-9]{64}$') OR "
+            "(transport <> 'TLS' AND certificate_sha256 IS NULL)",
+            name="tls_identity",
+        ),
+        CheckConstraint(
             "state IN ('REGISTERED','ACTIVE','DRAINING','RETIRED')", name="state_known"
         ),
         Index(
@@ -80,6 +86,7 @@ class CellSipTargetRecord(Base):
     host: Mapped[str] = mapped_column(String(45))
     port: Mapped[int] = mapped_column()
     transport: Mapped[str] = mapped_column(String(3))
+    certificate_sha256: Mapped[str | None] = mapped_column(String(64))
     state: Mapped[str] = mapped_column(String(16))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -277,12 +284,19 @@ class SipUpstreamRecord(Base):
         CheckConstraint("revision > 0", name="revision_positive"),
         CheckConstraint("port BETWEEN 1024 AND 65535", name="port_bounded"),
         CheckConstraint("transport IN ('UDP','TCP','TLS')", name="transport_known"),
+        CheckConstraint(
+            "(transport = 'TLS' AND certificate_sha256 IS NOT NULL "
+            "AND certificate_sha256 ~ '^[a-f0-9]{64}$') OR "
+            "(transport <> 'TLS' AND certificate_sha256 IS NULL)",
+            name="tls_identity",
+        ),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True)
     revision: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     host: Mapped[str] = mapped_column(String(45))
     port: Mapped[int] = mapped_column()
     transport: Mapped[str] = mapped_column(String(3))
+    certificate_sha256: Mapped[str | None] = mapped_column(String(64))
     cell_id: Mapped[UUID] = mapped_column(ForeignKey("cells.id", ondelete="RESTRICT"))
     asterisk_peer_id: Mapped[UUID] = mapped_column()
 

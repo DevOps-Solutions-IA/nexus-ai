@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T21:12:14Z",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "command": [
+    "uv",
+    "run",
+    "pytest",
+    "-p",
+    "scripts.nxs_p19_evidence",
+    "--cov-report=json:/home/wundah/nexus-ai/.nxs/runtime/p19-coverage.json",
+    "--cov-report=term"
+  ],
+  "exit_code": 0,
+  "runtime_seconds": 1057.8211795089883,
+  "passed": 2245,
+  "failed": 0,
+  "skipped": 0,
+  "coverage": {
+    "covered_branches": 3596,
+    "covered_lines": 23597,
+    "excluded_lines": 399,
+    "missing_branches": 1038,
+    "missing_lines": 1732,
+    "num_branches": 4634,
+    "num_partial_branches": 896,
+    "num_statements": 25329,
+    "percent_branches_covered": 77.60034527406128,
+    "percent_branches_covered_display": "78",
+    "percent_covered": 90.7552648266195,
+    "percent_covered_display": "91",
+    "percent_statements_covered": 93.16198823482964,
+    "percent_statements_covered_display": "93"
+  },
+  "source_drift": [],
+  "local_test_mapping_result": "PASS",
+  "closure": "NOT_AUTHORIZED",
+  "result": "PASS",
+  "scope": "First complete transport corrective execution before quality-runner ceiling/documentation adjustment; historical, not final candidate certification",
+  "original_evidence_sha256": "694a22d009c7baed3940940c52610473cc871ef63711e43a23e8685ddc02bf60",
+  "concurrency_passed": 32,
+  "acceptance_local_passed": 42,
+  "acceptance_external_pending": [
+    "AC26"
+  ],
+  "transport_passed": 10
+}

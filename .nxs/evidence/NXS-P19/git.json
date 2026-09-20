@@ -1,38 +1,31 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "result": "PASS",
-  "scope": "Verified lineage before implementation candidate commit; not GitHub implementation-head CI",
   "branch": "feat/nxs-p19-sip-scaling",
+  "candidate_binding": "Containing corrective commit; no amend or history rewrite",
+  "candidate_parent": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
   "canonical_main": "e2114cfe8f150e85b9ae432a9af557ceb52cf836",
-  "governance_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
   "checkpoint_commits": [
     "24f64003a8fb077e0cfd411ad000e5138757a781",
     "f1befaf604448ce4645f64368f3f1733665bcddf",
     "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9"
   ],
-  "candidate_parent": "a466c024c6247151e075e90bff4c039f2f89372d",
-  "candidate_binding": "Containing implementation commit plus execution-criteria.json source_sha256; no self-referential SHA",
+  "closure": "NOT_AUTHORIZED",
+  "deployed": false,
+  "governance_commit": "da0f28f6999e199f5348d63985292c8b93aa8f23",
   "governance_only_workflow_verification": {
-    "head_sha": "da0f28f6999e199f5348d63985292c8b93aa8f23",
-    "ci_run": 35413856124,
-    "security_run": 35413856101,
-    "status": "completed",
-    "conclusion": "success",
     "all_child_jobs": "success",
-    "not_implementation_evidence": true
+    "ci_run": 35413856124,
+    "conclusion": "success",
+    "head_sha": "da0f28f6999e199f5348d63985292c8b93aa8f23",
+    "not_implementation_evidence": true,
+    "security_run": 35413856101,
+    "status": "completed"
   },
   "history_rewritten": false,
   "merged": false,
-  "deployed": false,
-  "closure": "NOT_AUTHORIZED",
-  "previous_published_candidate": {
-    "commit": "a466c024c6247151e075e90bff4c039f2f89372d",
-    "ci_run": 35507722183,
-    "ci_result": "FAIL",
-    "security_run": 35507722210,
-    "security_result": "PASS",
-    "correction_evidence": "ci-network-correction.json",
-    "history_preserved": true
-  }
+  "phase": "NXS-P19",
+  "previous_published_candidate": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "recorded_at": "2026-09-20T22:10:14.470788+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scope": "Verified lineage before implementation candidate commit; not GitHub implementation-head CI"
 }

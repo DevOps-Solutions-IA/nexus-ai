@@ -14,12 +14,12 @@ from nexus_ai.cells.admission import PlacementAdmission, PlacementResolver
 from nexus_ai.domain.sip_edge.models import SipAccountUpstreamRecord, SipUpstreamRecord
 from nexus_ai.domain.telephony.models import TelephonyAccountRecord
 from nexus_ai.infrastructure.database import Database
-from nexus_ai.sip_edge.contracts import StrictContract, Transport
+from nexus_ai.sip_edge.contracts import Transport, TransportIdentity
 from nexus_ai.sip_edge.errors import SipConflictError, SipRouteDeniedError
 from nexus_ai.sip_edge.targets import authorize_control
 
 
-class RegisterUpstream(StrictContract):
+class RegisterUpstream(TransportIdentity):
     id: UUID
     revision: Annotated[int, Field(strict=True, ge=1, le=9_223_372_036_854_775_806)]
     host: Annotated[str, StringConstraints(max_length=45)]

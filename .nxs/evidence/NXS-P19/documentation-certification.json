@@ -1,8 +1,30 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T11:22:50.705721+00:00",
+  "authority": "PostgreSQL; P11 ownership/calls, P18 placement, P19 SIP target/route/permit",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "canonical_main": "P00-P18",
   "closure": "NOT_AUTHORIZED",
+  "current_phase": "BUILDING / PENDING; complete implementation and transport corrective candidate require external re-audit, not canonical main",
+  "historical_contracts_explicitly_qualified": true,
+  "historical_results_preserved": "Original 2140-test candidate is explicitly historical; transport-corrective-baseline.json pins all original evidence blobs.",
+  "lifecycle_test_change": "test_otp_contracts.py permits authorized P19 lifecycle and retains all P20-P32 PLANNED/PENDING assertions; no skip/xfail",
+  "migration_test_change": "test_cell_migration.py verifies one head and P18 in history rather than obsolete P18-is-head; roundtrip/RLS retained; dedicated P19 roundtrips added",
+  "no_claims": [
+    "READY/GO",
+    "automatic failover",
+    "cross-Cell relocation",
+    "physical exactly-once",
+    "capacity certification",
+    "production deployment"
+  ],
+  "phase": "NXS-P19",
+  "pre_ari_failure": "Known permit denial before provider I/O persists FAILED with unchanged logical call/idempotency key; whole-database outage cannot promise an unavailable durable write.",
+  "proof": [
+    "contracts.json",
+    "quality-gates.json",
+    "clean-room.json",
+    "transport-certification.json"
+  ],
+  "recorded_at": "2026-09-20T21:54:20.622610+00:00",
   "result": "PASS",
   "reviewed": [
     "README.md",
@@ -14,24 +36,21 @@
     "infrastructure/README.md",
     "infrastructure/kamailio/README.md"
   ],
-  "current_phase": "BUILDING / PENDING; implementation candidate pending external audit, not canonical main",
-  "canonical_main": "P00-P18",
-  "historical_contracts_explicitly_qualified": true,
+  "schema_version": "1.0.0",
+  "source_sha256": {
+    "README.md": "1ec4fca23509e39bdd9bbbcd310027465c0afadaaa07a81ca794d350e57c2817",
+    "docs/adr/0100-sip-edge-routing-authority.md": "8b0095bfe4e707e7343ae7ad45f8ae46b64210902eb532c0ccca3c991e385f8a",
+    "docs/engineering/branch-contract.md": "dd2758060c3cc2f2a6432dc6011534f558fb0f95d49d4c1f03765dc10c0dac6b",
+    "docs/engineering/nxs-p19-implementation-progress.md": "0c0dfa70d15e5e626dd06925f392798e4ed046a25692238b1c3a8e559c1de570",
+    "docs/engineering/nxs-p19-runtime.md": "ff3e3243ab142635fc2b08b0914e63e476275454b9c47827e3c0d3961c819dee",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "8827d7eb976180c57816f0d8bc0f9a368fe725126164a5665d0414c060fec71f",
+    "infrastructure/README.md": "231e68d7501acb8de92dd7f48817dabd4befe551dfe25102331a783b074ecb8f",
+    "infrastructure/kamailio/README.md": "06b800107220000ddaeaa9187b9bb31141ab6457dcc66db240aeae3361605d37"
+  },
   "tenant": "Organization / organization_id",
-  "authority": "PostgreSQL; P11 ownership/calls, P18 placement, P19 SIP target/route/permit",
-  "no_claims": [
-    "READY/GO",
-    "automatic failover",
-    "cross-Cell relocation",
-    "physical exactly-once",
-    "capacity certification",
-    "production deployment"
-  ],
-  "proof": [
-    "contracts.json",
-    "quality-gates.json",
-    "clean-room.json"
-  ],
-  "lifecycle_test_change": "test_otp_contracts.py permits authorized P19 lifecycle and retains all P20-P32 PLANNED/PENDING assertions; no skip/xfail",
-  "migration_test_change": "test_cell_migration.py verifies one head and P18 in history rather than obsolete P18-is-head; roundtrip/RLS retained; dedicated P19 roundtrips added"
+  "transport_contract": {
+    "TCP": "implemented; isolated-network source policy",
+    "TLS": "implemented; verified certificate chain and observed exact pins; versioned native callback patch",
+    "UDP": "implemented; isolated-network source policy"
+  }
 }

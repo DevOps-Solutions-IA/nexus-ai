@@ -22,8 +22,12 @@ from tests.integration.test_sip_target_constraints import target_control as targ
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 
+@pytest.mark.parametrize("initial_transport", ["UDP", "TCP", "TLS"])
 async def test_upstream_rotation_fences_old_permit_and_preserves_append_only_history(
-    routing: Any, telephony_stack: Any, make_organization: Any
+    routing: Any,
+    telephony_stack: Any,
+    make_organization: Any,
+    initial_transport: str,
 ) -> None:
     edge, peer, upstream = uuid4(), uuid4(), uuid4()
     profile = PeerProfile(
@@ -45,7 +49,10 @@ async def test_upstream_rotation_fences_old_permit_and_preserves_append_only_his
                 revision=revision,
                 host=f"10.9.8.{revision}",
                 port=5060,
-                transport="UDP",
+                transport=initial_transport if revision == 1 else "UDP",
+                certificate_sha256="ab" * 32
+                if revision == 1 and initial_transport == "TLS"
+                else None,
                 cell_id=routing.cell,
                 asterisk_peer_id=peer,
             ),
@@ -70,6 +77,15 @@ async def test_upstream_rotation_fences_old_permit_and_preserves_append_only_his
     )
     permits = EgressPermits(routing.database, Fernet.generate_key(), PeerPolicy((profile,)))
     token = await permits.issue_for_call(routing.organization.id, call.id, routing.account.id)
+    with pytest.raises(DBAPIError):
+        async with routing.database.transaction() as session:
+            await session.execute(
+                text(
+                    "UPDATE sip_upstreams SET transport='UDP', certificate_sha256=NULL "
+                    "WHERE id=:id AND revision=1"
+                ),
+                {"id": upstream},
+            )
     barrier = asyncio.Barrier(2)
 
     async def rotate(revision: int) -> int:

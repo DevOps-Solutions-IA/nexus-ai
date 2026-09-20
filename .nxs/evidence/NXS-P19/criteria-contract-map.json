@@ -1,912 +1,1028 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "result": "PENDING_EXTERNAL_GATE",
-  "local_test_mapping_result": "PASS",
-  "concurrency_count": 32,
   "acceptance_count": 43,
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "concurrency_count": 32,
   "criteria": {
-    "C01": {
-      "id": "C01",
-      "expected": "Two edges resolve same DID concurrently for independent transactions: same authoritative Organization/Cell/target tuple under unchanged state.",
-      "actual": {
-        "passed": 29,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C01",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C02": {
-      "id": "C02",
-      "expected": "P18 suspension vs new INVITE: authorization-first pinned route may proceed; suspension-first zero new authorization/send.",
-      "actual": {
-        "passed": 6,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C02",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C03": {
-      "id": "C03",
-      "expected": "Reactivation: new dialogs use new assignment_generation on same Cell; old generation cannot authorize.",
-      "actual": {
-        "passed": 1,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C03",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C04": {
-      "id": "C04",
-      "expected": "Unknown DID: fail closed, zero Asterisk routes.",
-      "actual": {
-        "passed": 31,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C04",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C05": {
-      "id": "C05",
-      "expected": "Valid Cell without active target: zero fallback/random routes.",
-      "actual": {
-        "passed": 3,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C05",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C06": {
-      "id": "C06",
-      "expected": "Concurrent target activations: at most one active target, stale expected revision loses.",
-      "actual": {
-        "passed": 1,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C06",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C07": {
-      "id": "C07",
-      "expected": "Target rotation vs resolver: atomic old/new tuple, never mixed revision/address.",
-      "actual": {
-        "passed": 1,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C07",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C08": {
-      "id": "C08",
-      "expected": "Forged Organization/Cell/internal headers: strip/reject, no authority.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C08",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C09": {
-      "id": "C09",
-      "expected": "Untrusted outbound source: denied, no open proxy.",
-      "actual": {
-        "passed": 30,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C09",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C10": {
-      "id": "C10",
-      "expected": "Trusted Asterisk with unapproved upstream: denied, zero upstream INVITEs.",
-      "actual": {
-        "passed": 3,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C10",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C11": {
-      "id": "C11",
-      "expected": "Resolver/DB unavailable: new dialog fails closed; no cache authority.",
-      "actual": {
-        "passed": 31,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C11",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C12": {
-      "id": "C12",
-      "expected": "Resolver timeout, including committed response loss: bounded failure/same-key replay, no alternate Cell.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C12",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C13": {
-      "id": "C13",
-      "expected": "INVITE retransmission on same/different edges: one logical downstream dialog; owning transaction retained, other edge cannot issue.",
-      "actual": {
-        "passed": 29,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C13",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C14": {
-      "id": "C14",
-      "expected": "Target rotation after establishment: old dialog pinned; independent new dialog uses current target.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C14",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C15": {
-      "id": "C15",
-      "expected": "Delayed BYE/re-INVITE/ACK/CANCEL: matched transaction/dialog route, not current placement lookup.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C15",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C16": {
-      "id": "C16",
-      "expected": "Injected R-URI/To/Contact/Route and conflicting lengths: safe rejection, no header/host injection.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C16",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C17": {
-      "id": "C17",
-      "expected": "Max-Forwards exhaustion/loop: bounded rejection, no recursive resolver loop.",
-      "actual": {
-        "passed": 28,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C17",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C18": {
-      "id": "C18",
-      "expected": "Wrong tenant attempts DID/profile/target manipulation: forced RLS/control denial, zero route authority.",
-      "actual": {
-        "passed": 18,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C18",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C19": {
-      "id": "C19",
-      "expected": "P18 Cell vs requested/forged target mismatch: reject; no source-header override.",
-      "actual": {
-        "passed": 79,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C19",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C20": {
-      "id": "C20",
-      "expected": "Many independent dialogs across two edges: deterministic same Cell, no singleton coordinator.",
-      "actual": {
-        "passed": 29,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C20",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C21": {
-      "id": "C21",
-      "expected": "P11 number/account disable/delete vs authorization: locked-row commit order; no unverified or dangling authorization.",
-      "actual": {
-        "passed": 13,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C21",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C22": {
-      "id": "C22",
-      "expected": "Same control key same/different fingerprint: one receipt/result or deterministic conflict; history atomic.",
-      "actual": {
-        "passed": 10,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C22",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C23": {
-      "id": "C23",
-      "expected": "DB/outbox rollback or worker death after ISSUED: no partial authorization, no new owner/key on restart.",
-      "actual": {
-        "passed": 30,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C23",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C24": {
-      "id": "C24",
-      "expected": "Retire draining target with outstanding/ambiguous dialog: refuse; explicit completed references permit retirement.",
-      "actual": {
-        "passed": 1,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C24",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C25": {
-      "id": "C25",
-      "expected": "Cross-tenant FK/raw SQL, unauthenticated resolver, stale signed request, duplicate/reordered events: deny unauthorized authority.",
-      "actual": {
-        "passed": 7,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C25",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C26": {
-      "id": "C26",
-      "expected": "Shared carrier with DIDs across more than 32 Organizations/accounts: one indexed locator lookup plus one candidate's RLS revalidation; no profile enumeration.",
-      "actual": {
-        "passed": 1,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C26",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C27": {
-      "id": "C27",
-      "expected": "Locator wrong/stale Organization, number, account, E.164, revision or deleted/revoked binding: fail closed, zero target sends.",
-      "actual": {
-        "passed": 7,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C27",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C28": {
-      "id": "C28",
-      "expected": "P11 register/verify/inbound/disable/delete and account mutation race authorization: source/projection atomic rollback and final locks linearize; stale ownership cannot authorize.",
-      "actual": {
-        "passed": 13,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C28",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C29": {
-      "id": "C29",
-      "expected": "Two independent outbound transactions consume one permit concurrently: exactly one initial-relay grant; same-transaction replay grants no second logical dialog.",
-      "actual": {
-        "passed": 6,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C29",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C30": {
-      "id": "C30",
-      "expected": "Valid permit presented by wrong authenticated Asterisk Cell/peer: deny, zero carrier INVITEs.",
-      "actual": {
-        "passed": 6,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C30",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C31": {
-      "id": "C31",
-      "expected": "Trusted Asterisk presents missing/expired/altered permit or mismatched destination/upstream revision: deny, zero carrier INVITEs.",
-      "actual": {
-        "passed": 8,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C31",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
-    "C32": {
-      "id": "C32",
-      "expected": "Consume commit succeeds but response is lost: same durable permit/route/owner; no second authorization or alternate carrier.",
-      "actual": {
-        "passed": 6,
-        "failed": 0,
-        "missing": []
-      },
-      "result": "PASS",
-      "exact_tests_and_results": "execution-criteria.json#concurrency/C32",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
-    },
     "AC01": {
-      "id": "AC01",
-      "expected": "NXS-SCALE-002 maps to one P19 contract/manifest; schema and mapping validators.",
       "actual": {
-        "passed": 2,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 2
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC01",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "NXS-SCALE-002 maps to one P19 contract/manifest; schema and mapping validators.",
+      "id": "AC01",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC02": {
-      "id": "AC02",
-      "expected": "P11 DID ownership only; minimal locator candidate followed by exact RLS revalidation, no independent ownership directory.",
       "actual": {
-        "passed": 7,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC02",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "P11 DID ownership only; minimal locator candidate followed by exact RLS revalidation, no independent ownership directory.",
+      "id": "AC02",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC03": {
-      "id": "AC03",
-      "expected": "P18 placement/admission consumed; no second placement model.",
       "actual": {
-        "passed": 7,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC03",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "P18 placement/admission consumed; no second placement model.",
+      "id": "AC03",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC04": {
-      "id": "AC04",
-      "expected": "Suspended/inactive placement blocks new dialogs; C02/C03.",
       "actual": {
-        "passed": 7,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC04",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Suspended/inactive placement blocks new dialogs; C02/C03.",
+      "id": "AC04",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC05": {
-      "id": "AC05",
-      "expected": "PostgreSQL bounded target state; DB constraints and adversarial input tests.",
       "actual": {
-        "passed": 61,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 81
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC05",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "PostgreSQL bounded target state; DB constraints and adversarial input tests.",
+      "id": "AC05",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC06": {
-      "id": "AC06",
-      "expected": "One active target per Cell; direct DB violation and C06.",
       "actual": {
-        "passed": 10,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 15
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC06",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "One active target per Cell; direct DB violation and C06.",
+      "id": "AC06",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC07": {
-      "id": "AC07",
-      "expected": "Revision/idempotency fencing; C07/C22 and zero-row stale-writer proof.",
       "actual": {
-        "passed": 11,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 16
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC07",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Revision/idempotency fencing; C07/C22 and zero-row stale-writer proof.",
+      "id": "AC07",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC08": {
-      "id": "AC08",
-      "expected": "No tenant DB credentials/access in edge image/config/environment; secret/config and role tests.",
       "actual": {
-        "passed": 13,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 18
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC08",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No tenant DB credentials/access in edge image/config/environment; secret/config and role tests.",
+      "id": "AC08",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC09": {
-      "id": "AC09",
-      "expected": "No open relay; C09/C10 plus unsolicited route-set tests.",
       "actual": {
-        "passed": 31,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 37
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC09",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No open relay; C09/C10 plus unsolicited route-set tests.",
+      "id": "AC09",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC10": {
-      "id": "AC10",
-      "expected": "Forged internal headers grant zero authority; C08/C19.",
       "actual": {
-        "passed": 79,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 144
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC10",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Forged internal headers grant zero authority; C08/C19.",
+      "id": "AC10",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC11": {
-      "id": "AC11",
-      "expected": "Unknown DID zero route; C04 and received-INVITE count.",
       "actual": {
-        "passed": 31,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 31
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC11",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Unknown DID zero route; C04 and received-INVITE count.",
+      "id": "AC11",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC12": {
-      "id": "AC12",
-      "expected": "Missing active target zero route; C05.",
       "actual": {
-        "passed": 3,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 3
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC12",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Missing active target zero route; C05.",
+      "id": "AC12",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC13": {
-      "id": "AC13",
-      "expected": "Resolver/DB failure zero new route; C11/C12.",
       "actual": {
-        "passed": 31,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 31
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC13",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Resolver/DB failure zero new route; C11/C12.",
+      "id": "AC13",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC14": {
-      "id": "AC14",
-      "expected": "Two edges equivalent authoritative independent routing; C01/C20.",
       "actual": {
-        "passed": 29,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 79
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC14",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Two edges equivalent authoritative independent routing; C01/C20.",
+      "id": "AC14",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC15": {
-      "id": "AC15",
-      "expected": "Existing dialogs pinned across target/placement changes; C14/C15, real BYE/re-INVITE.",
       "actual": {
-        "passed": 28,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 78
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC15",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Existing dialogs pinned across target/placement changes; C14/C15, real BYE/re-INVITE.",
+      "id": "AC15",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC16": {
-      "id": "AC16",
-      "expected": "P11 call lifecycle, ARI, number/account and idempotency regressions unchanged.",
       "actual": {
-        "passed": 23,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 36
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC16",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "P11 call lifecycle, ARI, number/account and idempotency regressions unchanged.",
+      "id": "AC16",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC17": {
-      "id": "AC17",
-      "expected": "P12 media/provider/handoff regressions unchanged; no media proxy introduced.",
       "actual": {
-        "passed": 23,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 23
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC17",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "P12 media/provider/handoff regressions unchanged; no media proxy introduced.",
+      "id": "AC17",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC18": {
-      "id": "AC18",
-      "expected": "No Organization relocation; explicit cross-Cell control request rejection.",
       "actual": {
-        "passed": 3,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 3
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC18",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No Organization relocation; explicit cross-Cell control request rejection.",
+      "id": "AC18",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC19": {
-      "id": "AC19",
-      "expected": "No automated failover; unavailable-target/owner-loss tests.",
       "actual": {
-        "passed": 32,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 32
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC19",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No automated failover; unavailable-target/owner-loss tests.",
+      "id": "AC19",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC20": {
-      "id": "AC20",
-      "expected": "No capacity certification; executable scope/documentation contract check.",
       "actual": {
-        "passed": 2,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 2
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC20",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No capacity certification; executable scope/documentation contract check.",
+      "id": "AC20",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC21": {
-      "id": "AC21",
-      "expected": "Native `kamailio -c` validation passes; invalid config fails deterministically.",
       "actual": {
-        "passed": 6,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 11
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC21",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Native `kamailio -c` validation passes; invalid config fails deterministically.",
+      "id": "AC21",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC22": {
-      "id": "AC22",
-      "expected": "Immutable Kamailio version/image digest verified; build provenance and no floating tags.",
       "actual": {
-        "passed": 2,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 2
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC22",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Immutable Kamailio version/image digest verified; build provenance and no floating tags.",
+      "id": "AC22",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC23": {
-      "id": "AC23",
-      "expected": "Real SIP INVITE/ACK/CANCEL/BYE/re-INVITE and retransmission tests, not Python mocks alone.",
       "actual": {
-        "passed": 30,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 84
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC23",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Real SIP INVITE/ACK/CANCEL/BYE/re-INVITE and retransmission tests, not Python mocks alone.",
+      "id": "AC23",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC24": {
-      "id": "AC24",
-      "expected": "Real independent PostgreSQL sessions/barriers prove placement/target races, no sleeps as proof.",
       "actual": {
-        "passed": 20,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 25
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC24",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Real independent PostgreSQL sessions/barriers prove placement/target races, no sleeps as proof.",
+      "id": "AC24",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC25": {
-      "id": "AC25",
-      "expected": "URI injection/relay/forged authority matrix with zero unintended target traffic.",
       "actual": {
-        "passed": 30,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 84
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC25",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "URI injection/relay/forged authority matrix with zero unintended target traffic.",
+      "id": "AC25",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC26": {
-      "id": "AC26",
-      "expected": "All canonical gates, exact-head CI/Security and clean-room evidence before closure.",
       "actual": {
-        "passed": 1,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 1
       },
-      "result": "PENDING_EXTERNAL_GATE",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC26",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "All canonical gates, exact-head CI/Security and clean-room evidence before closure.",
+      "id": "AC26",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PENDING_EXTERNAL_GATE"
     },
     "AC27": {
-      "id": "AC27",
-      "expected": "Docs distinguish P19 correctness from P25/P28/P29/P32 capabilities.",
       "actual": {
-        "passed": 2,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 2
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC27",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Docs distinguish P19 correctness from P25/P28/P29/P32 capabilities.",
+      "id": "AC27",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC28": {
-      "id": "AC28",
-      "expected": "Forced RLS/composite FKs/platform control and bounded bootstrap; C18/C21/C25.",
       "actual": {
-        "passed": 25,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 30
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC28",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Forced RLS/composite FKs/platform control and bounded bootstrap; C18/C21/C25.",
+      "id": "AC28",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC29": {
-      "id": "AC29",
-      "expected": "Route authorization/issue ordering, response loss and no duplicate cross-edge issue; C12/C13/C23.",
       "actual": {
-        "passed": 31,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 31
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC29",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Route authorization/issue ordering, response loss and no duplicate cross-edge issue; C12/C13/C23.",
+      "id": "AC29",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC30": {
-      "id": "AC30",
-      "expected": "Target drain/retire safety and route history atomicity; C22–C24.",
       "actual": {
-        "passed": 11,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 16
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC30",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Target drain/retire safety and route history atomicity; C22\u2013C24.",
+      "id": "AC30",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC31": {
-      "id": "AC31",
-      "expected": "Scalable indexed DID discovery; unique E.164/exact source FK and deleted/recreated locator identity tests.",
       "actual": {
-        "passed": 7,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC31",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Scalable indexed DID discovery; unique E.164/exact source FK and deleted/recreated locator identity tests.",
+      "id": "AC31",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC32": {
-      "id": "AC32",
-      "expected": "P11 source + locator synchronization in one transaction for every mutation path; injected rollback and C28.",
       "actual": {
-        "passed": 13,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 13
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC32",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "P11 source + locator synchronization in one transaction for every mutation path; injected rollback and C28.",
+      "id": "AC32",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC33": {
-      "id": "AC33",
-      "expected": "Final forced-RLS P11 revalidation of exact IDs/E.164/verified/inbound/account/Organization and locator revision; C27.",
       "actual": {
-        "passed": 7,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC33",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Final forced-RLS P11 revalidation of exact IDs/E.164/verified/inbound/account/Organization and locator revision; C27.",
+      "id": "AC33",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC34": {
-      "id": "AC34",
-      "expected": "No tenant scan: query-count/plan assertions independent of carrier tenant count, including missing DID.",
       "actual": {
-        "passed": 1,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 1
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC34",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "No tenant scan: query-count/plan assertions independent of carrier tenant count, including missing DID.",
+      "id": "AC34",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC35": {
-      "id": "AC35",
-      "expected": "Locator-specific least privilege; actual non-superuser/non-BYPASSRLS roles, no SECURITY DEFINER or unrestricted tenant SELECT.",
       "actual": {
-        "passed": 3,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 3
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC35",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Locator-specific least privilege; actual non-superuser/non-BYPASSRLS roles, no SECURITY DEFINER or unrestricted tenant SELECT.",
+      "id": "AC35",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC36": {
-      "id": "AC36",
-      "expected": "Kamailio has no SQL access/credentials, including locator credentials; config/grant/secret inspection.",
       "actual": {
-        "passed": 13,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 18
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC36",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Kamailio has no SQL access/credentials, including locator credentials; config/grant/secret inspection.",
+      "id": "AC36",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC37": {
-      "id": "AC37",
-      "expected": "Real shared-carrier fixture exceeds 32 Organizations/accounts without profile tenant enumeration; C26.",
       "actual": {
-        "passed": 1,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 1
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC37",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Real shared-carrier fixture exceeds 32 Organizations/accounts without profile tenant enumeration; C26.",
+      "id": "AC37",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC38": {
-      "id": "AC38",
-      "expected": "Opaque server-only permit bound to durable P11 call; forged/public input denied and token absent from logs/events/LLM contexts.",
       "actual": {
-        "passed": 8,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 12
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC38",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Opaque server-only permit bound to durable P11 call; forged/public input denied and token absent from logs/events/LLM contexts.",
+      "id": "AC38",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC39": {
-      "id": "AC39",
-      "expected": "ARI channel-variable → operations-owned PJSIP header propagation proven on real integration; P11 public semantics/regressions unchanged.",
       "actual": {
-        "passed": 3,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 7
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC39",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "ARI channel-variable \u2192 operations-owned PJSIP header propagation proven on real integration; P11 public semantics/regressions unchanged.",
+      "id": "AC39",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC40": {
-      "id": "AC40",
-      "expected": "Authenticated Asterisk AND permit required; wrong peer/Cell, IP-only and Caller-ID-only attempts denied; C30/C31.",
       "actual": {
-        "passed": 8,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 14
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC40",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Authenticated Asterisk AND permit required; wrong peer/Cell, IP-only and Caller-ID-only attempts denied; C30/C31.",
+      "id": "AC40",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC41": {
-      "id": "AC41",
-      "expected": "Atomic one-time consumption, DB-time TTL and persistent per-call fence; C29 plus real SIP retransmission/dialog counts.",
       "actual": {
-        "passed": 8,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 14
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC41",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Atomic one-time consumption, DB-time TTL and persistent per-call fence; C29 plus real SIP retransmission/dialog counts.",
+      "id": "AC41",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC42": {
-      "id": "AC42",
-      "expected": "Injected lost response after consume commit retains exact state and creates zero new grant/permit/carrier choice; C32.",
       "actual": {
-        "passed": 6,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 10
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC42",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Injected lost response after consume commit retains exact state and creates zero new grant/permit/carrier choice; C32.",
+      "id": "AC42",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
     },
     "AC43": {
-      "id": "AC43",
-      "expected": "Exact approved upstream ID/revision/destination binding, rotation race and replay against another upstream denied; C31.",
       "actual": {
-        "passed": 3,
         "failed": 0,
-        "missing": []
+        "missing": [],
+        "passed": 9
       },
-      "result": "PASS",
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC43",
-      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam"
+      "expected": "Exact approved upstream ID/revision/destination binding, rotation race and replay against another upstream denied; C31.",
+      "id": "AC43",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C01": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 79
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C01",
+      "expected": "Two edges resolve same DID concurrently for independent transactions: same authoritative Organization/Cell/target tuple under unchanged state.",
+      "id": "C01",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C02": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 6
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C02",
+      "expected": "P18 suspension vs new INVITE: authorization-first pinned route may proceed; suspension-first zero new authorization/send.",
+      "id": "C02",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C03": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C03",
+      "expected": "Reactivation: new dialogs use new assignment_generation on same Cell; old generation cannot authorize.",
+      "id": "C03",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C04": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 31
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C04",
+      "expected": "Unknown DID: fail closed, zero Asterisk routes.",
+      "id": "C04",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C05": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 3
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C05",
+      "expected": "Valid Cell without active target: zero fallback/random routes.",
+      "id": "C05",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C06": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C06",
+      "expected": "Concurrent target activations: at most one active target, stale expected revision loses.",
+      "id": "C06",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C07": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C07",
+      "expected": "Target rotation vs resolver: atomic old/new tuple, never mixed revision/address.",
+      "id": "C07",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C08": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 78
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C08",
+      "expected": "Forged Organization/Cell/internal headers: strip/reject, no authority.",
+      "id": "C08",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C09": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 34
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C09",
+      "expected": "Untrusted outbound source: denied, no open proxy.",
+      "id": "C09",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C10": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 9
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C10",
+      "expected": "Trusted Asterisk with unapproved upstream: denied, zero upstream INVITEs.",
+      "id": "C10",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C11": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 31
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C11",
+      "expected": "Resolver/DB unavailable: new dialog fails closed; no cache authority.",
+      "id": "C11",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C12": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 28
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C12",
+      "expected": "Resolver timeout, including committed response loss: bounded failure/same-key replay, no alternate Cell.",
+      "id": "C12",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C13": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 29
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C13",
+      "expected": "INVITE retransmission on same/different edges: one logical downstream dialog; owning transaction retained, other edge cannot issue.",
+      "id": "C13",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C14": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 78
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C14",
+      "expected": "Target rotation after establishment: old dialog pinned; independent new dialog uses current target.",
+      "id": "C14",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C15": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 78
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C15",
+      "expected": "Delayed BYE/re-INVITE/ACK/CANCEL: matched transaction/dialog route, not current placement lookup.",
+      "id": "C15",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C16": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 78
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C16",
+      "expected": "Injected R-URI/To/Contact/Route and conflicting lengths: safe rejection, no header/host injection.",
+      "id": "C16",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C17": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 28
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C17",
+      "expected": "Max-Forwards exhaustion/loop: bounded rejection, no recursive resolver loop.",
+      "id": "C17",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C18": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 23
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C18",
+      "expected": "Wrong tenant attempts DID/profile/target manipulation: forced RLS/control denial, zero route authority.",
+      "id": "C18",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C19": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 94
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C19",
+      "expected": "P18 Cell vs requested/forged target mismatch: reject; no source-header override.",
+      "id": "C19",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C20": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 29
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C20",
+      "expected": "Many independent dialogs across two edges: deterministic same Cell, no singleton coordinator.",
+      "id": "C20",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C21": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 13
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C21",
+      "expected": "P11 number/account disable/delete vs authorization: locked-row commit order; no unverified or dangling authorization.",
+      "id": "C21",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C22": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 15
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C22",
+      "expected": "Same control key same/different fingerprint: one receipt/result or deterministic conflict; history atomic.",
+      "id": "C22",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C23": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 30
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C23",
+      "expected": "DB/outbox rollback or worker death after ISSUED: no partial authorization, no new owner/key on restart.",
+      "id": "C23",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C24": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C24",
+      "expected": "Retire draining target with outstanding/ambiguous dialog: refuse; explicit completed references permit retirement.",
+      "id": "C24",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C25": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 7
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C25",
+      "expected": "Cross-tenant FK/raw SQL, unauthenticated resolver, stale signed request, duplicate/reordered events: deny unauthorized authority.",
+      "id": "C25",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C26": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C26",
+      "expected": "Shared carrier with DIDs across more than 32 Organizations/accounts: one indexed locator lookup plus one candidate's RLS revalidation; no profile enumeration.",
+      "id": "C26",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C27": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 7
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C27",
+      "expected": "Locator wrong/stale Organization, number, account, E.164, revision or deleted/revoked binding: fail closed, zero target sends.",
+      "id": "C27",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C28": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 13
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C28",
+      "expected": "P11 register/verify/inbound/disable/delete and account mutation race authorization: source/projection atomic rollback and final locks linearize; stale ownership cannot authorize.",
+      "id": "C28",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C29": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 10
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C29",
+      "expected": "Two independent outbound transactions consume one permit concurrently: exactly one initial-relay grant; same-transaction replay grants no second logical dialog.",
+      "id": "C29",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C30": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 10
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C30",
+      "expected": "Valid permit presented by wrong authenticated Asterisk Cell/peer: deny, zero carrier INVITEs.",
+      "id": "C30",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C31": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 14
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C31",
+      "expected": "Trusted Asterisk presents missing/expired/altered permit or mismatched destination/upstream revision: deny, zero carrier INVITEs.",
+      "id": "C31",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "C32": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 10
+      },
+      "exact_tests_and_results": "execution-criteria.json#concurrency/C32",
+      "expected": "Consume commit succeeds but response is lost: same durable permit/route/owner; no second authorization or alternate carrier.",
+      "id": "C32",
+      "implementation": "src/nexus_ai/sip_edge; src/nexus_ai/domain/sip_edge; infrastructure/kamailio; internal P11 ARI seam",
+      "result": "PASS"
+    },
+    "T01": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 28
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T01",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T01",
+      "result": "PASS"
+    },
+    "T02": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T02",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T02",
+      "result": "PASS"
+    },
+    "T03": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T03",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T03",
+      "result": "PASS"
+    },
+    "T04": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 18
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T04",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T04",
+      "result": "PASS"
+    },
+    "T05": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 6
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T05",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T05",
+      "result": "PASS"
+    },
+    "T06": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 6
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T06",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T06",
+      "result": "PASS"
+    },
+    "T07": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 9
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T07",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T07",
+      "result": "PASS"
+    },
+    "T08": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 11
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T08",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T08",
+      "result": "PASS"
+    },
+    "T09": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 38
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T09",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T09",
+      "result": "PASS"
+    },
+    "T10": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 4
+      },
+      "exact_tests_and_results": "execution-criteria.json#transport/T10",
+      "expected": "All exact transport proof nodes pass with zero unauthorized relay",
+      "id": "T10",
+      "result": "PASS"
     }
   },
-  "external_gate": "AC26 requires exact implementation-head GitHub CI/Security and current clean-room; local execution is not external PASS",
-  "closure": "NOT_AUTHORIZED"
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
+  "external_gate": "AC26 exact corrective-head GitHub CI/Security after push; current clean-room passed",
+  "local_test_mapping_result": "PASS",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T22:10:13.499462+00:00",
+  "result": "PENDING_EXTERNAL_GATE",
+  "schema_version": "1.0.0",
+  "transport_count": 10
 }

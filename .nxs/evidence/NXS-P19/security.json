@@ -1,76 +1,51 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "result": "PASS",
-  "recorded_at": "2026-09-20T11:01:40.832101+00:00",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
   "checks": [
     {
       "command": "make security",
-      "exit_code": 0,
-      "result": "PASS",
       "components": [
-        "Bandit configured HIGH severity scan of src and scripts",
+        "Bandit configured HIGH src/scripts",
         "pip-audit"
-      ]
-    },
-    {
-      "command": "pinned Gitleaks v8.28.0 dir public-source-snapshot --config .gitleaks.toml --redact --exit-code 1",
+      ],
       "exit_code": 0,
-      "result": "PASS",
-      "includes": "tracked and untracked implementation source, infrastructure, tests, scripts and evidence; no source exclusions"
-    },
-    {
-      "command": "pinned Gitleaks v8.28.0 git --config .gitleaks.toml --redact --exit-code 1",
-      "exit_code": 0,
-      "result": "PASS",
-      "commits_scanned": 265
+      "result": "PASS"
     },
     {
       "command": "uv run bandit -q -ll -c pyproject.toml -r infrastructure/kamailio",
       "exit_code": 0,
-      "result": "PASS",
-      "scope": "KEMI edge Python outside canonical src/scripts scan"
+      "result": "PASS"
+    },
+    {
+      "command": "pinned Gitleaks dir tracked+untracked public-source snapshot --config .gitleaks.toml --redact --exit-code 1",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "pinned Gitleaks git --config .gitleaks.toml --redact --exit-code 1",
+      "commits_scanned": 267,
+      "exit_code": 0,
+      "result": "PASS"
     }
-  ],
-  "log_sha256": {
-    "nxs-p19-security-final.log": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8",
-    "nxs-p19-complete-source-secrets.log": "e5117ca760368e5e673eafc6a89b0661d902f3f788b18f84f40bf3592f7209d3",
-    "nxs-p19-complete-history-secrets.log": "8a96ab76341326f507bec6b71c2f3e5d889f5b0f930911a777289c33371c1b35",
-    "nxs-p19-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  "limitations": [
-    "pip-audit cannot audit the local nexus-ai package because it is not published on PyPI; application source is separately scanned and tested",
-    "Exact implementation-head GitHub Security is a separate pending external gate",
-    "Historical scanner setup failures remain in validation-history.json"
-  ],
-  "container_evidence": [
-    "container-provenance-current.json",
-    "application-container-scan.json"
   ],
   "closure": "NOT_AUTHORIZED",
-  "final_candidate_secret_scan": {
-    "recorded_at": "2026-09-20T11:23:39.686879+00:00",
-    "source_exit_code": 0,
-    "history_exit_code": 0,
-    "commits_scanned": 265,
-    "result": "PASS",
-    "source_includes": "tracked and untracked source, tests, infrastructure, governance and current evidence",
-    "log_sha256": {
-      "nxs-p19-precommit-source-secrets.log": "aafee88632cebfe5757ba72263a3723c6fb190dd6cc36ec61dca693ebef28cc9",
-      "nxs-p19-precommit-history-secrets.log": "aef426cf1b5c1c8ecce39edf23aa33e834c5df5b136dc5d21df0cbe6195d33b4"
-    }
+  "container_evidence": [
+    "transport-container-scans.json"
+  ],
+  "gitleaks_image": "zricethezav/gitleaks@sha256:cdbb7c955abce02001a9f6c9f602fb195b7fadc1e812065883f695d1eeaba854",
+  "historical_security_evidence": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/security.json",
+  "limitations": [
+    "Local nexus-ai package is not published on PyPI and cannot be audited as a dependency; source is separately scanned/tested.",
+    "Source-built C code is not comprehensively certified by OS/package scanning; native TLS patch remains subject to external audit.",
+    "Exact corrective-head GitHub Security is separate after commit/push."
+  ],
+  "log_sha256": {
+    "nxs-p19-final-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nxs-p19-final-history-secrets.log": "455387d39e0564d08948e553b5adaf2b9e236c126a6925fec89d44511b99949c",
+    "nxs-p19-final-security.log": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8",
+    "nxs-p19-transport-precommit-secrets.log": "c3198d0c2bc1d84a9cb5e72d78466ae04d4225ee42e11eff164f435ed5df1521"
   },
-  "post_ci_correction_scan": {
-    "recorded_at": "2026-09-20T12:42:42.394768+00:00",
-    "source_exit_code": 0,
-    "history_exit_code": 0,
-    "commits_scanned": 266,
-    "result": "PASS",
-    "bandit_edge_exit_code": 0,
-    "canonical_security": "quality-gates.json current sast and dependency_security both PASS",
-    "log_sha256": {
-      "nxs-p19-corrective-source-secrets.log": "e6c938fc0d062d06f53e051ed8447c466892b1344bf7a1a841b8573a9e6059c9",
-      "nxs-p19-corrective-history-secrets.log": "dfd834ffa674b9a36b078bad5d8d1c40339300c6159ea322213b64a64cd51e16"
-    }
-  }
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T22:11:20.600965+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
 }

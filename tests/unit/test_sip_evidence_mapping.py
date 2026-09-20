@@ -12,7 +12,8 @@ import scripts.nxs_p19_evidence as evidence
 def test_every_governance_identifier_has_explicit_test_patterns() -> None:
     assert set(evidence.CONCURRENCY) == {f"C{index:02}" for index in range(1, 33)}
     assert set(evidence.ACCEPTANCE) == {f"AC{index:02}" for index in range(1, 44)}
-    for mapping in (evidence.CONCURRENCY, evidence.ACCEPTANCE):
+    assert set(evidence.TRANSPORT) == {f"T{index:02}" for index in range(1, 11)}
+    for mapping in (evidence.CONCURRENCY, evidence.ACCEPTANCE, evidence.TRANSPORT):
         assert all(patterns for patterns in mapping.values())
         assert all(item["result"] == "FAIL" for item in evidence.evaluate(mapping, {}).values())
 

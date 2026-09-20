@@ -40,8 +40,9 @@ Canonical main is completed through P18, merged at
 PostgreSQL-authoritative Cell placement and transactional admission into existing
 agent, human, workflow, scheduler, campaign and messaging boundaries.
 P19 is BUILDING/PENDING on `feat/nxs-p19-sip-scaling` after authorized lifecycle
-start. The SIP reference runtime and authority implementation are undergoing local
-implementation certification and remain unmerged; no P19 READY/GO is claimed.
+start. The complete SIP implementation candidate received external review; its
+UDP/TCP/TLS transport corrective and pre-ARI failure handling require fresh exact-head
+certification and external re-audit. P19 remains unmerged; no READY/GO is claimed.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit

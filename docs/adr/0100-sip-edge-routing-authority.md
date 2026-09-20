@@ -61,9 +61,12 @@ Outbound calls use P11 durable call → P19 SipEgressPermit → ARI server-gener
 channel variable → operations-owned PJSIP opaque header → authenticated Asterisk
 peer at Kamailio → P19 atomic consumption → bound approved upstream. Both trusted
 peer AND permit are mandatory; IP, caller ID, SIP Call-ID or client UUID alone
-grant nothing. The current adapter does not carry this permit; a future internal
-adapter seam must prove channel-variable propagation without changing public P11
-call/idempotency/account/media semantics. No tenant or LLM supplies or sees tokens.
+grant nothing. The implemented internal adapter carries the inherited server-generated
+ARI variable through the operations-owned PJSIP header; real Asterisk tests prove
+propagation without changing public P11 call/idempotency/account/media semantics.
+The original governance obligation is now executable proof, not deferred design.
+No tenant or LLM supplies or sees tokens. Pre-ARI permit denial follows P11's durable
+FAILED path; ambiguous external I/O retains its original fences.
 
 The tenant-scoped permit binds P11 call/account, Cell/placement generation,
 destination fingerprint, upstream ID/revision, Asterisk identity, semantic
@@ -105,8 +108,14 @@ traffic through two Kamailio edges/two SIP UAS targets plus independent PostgreS
 race sessions, native config validation and immutable artifact provenance.
 
 The detailed models, RLS bootstrap, exact locking, replay, failure semantics and
-future C01–C32 / AC01–AC43 proof obligations are in
-`../engineering/nxs-p19-sip-edge-scaling-design.md`. None is marked executed here.
+C01–C32 / AC01–AC43 certification contract is in
+`../engineering/nxs-p19-sip-edge-scaling-design.md`; results/source bindings reside
+under `.nxs/evidence/NXS-P19/`. Supplemental transport tests preserve these IDs.
+UDP/TCP/TLS are implemented transports, not authority selectable by SIP headers.
+Plain transports require controlled networking; TLS uses native certificate state,
+CA validation and exact immutable pins. Dialogs retain transport across rotation.
+The runtime guide records the explicit source-build patch enforcing outgoing TLS
+pins before queued transaction data is written.
 No P11/P12/P18 redesign, relocation, database sharding, RTP relay/transcoding,
 media migration, automatic failover, Nomad/fleet orchestration, frontend, capacity,
 production SLA or deployment is authorized. P19 is distinct from P20 Sentinel,

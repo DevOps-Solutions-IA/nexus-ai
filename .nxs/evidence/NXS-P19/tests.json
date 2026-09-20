@@ -1,12 +1,6 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T12:12:59Z",
-  "result": "PASS",
-  "base_commit": "a466c024c6247151e075e90bff4c039f2f89372d",
-  "candidate_binding": "execution-criteria.json source_sha256; no self-referential commit",
-  "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "ab73d7595da8ac9f4ea864d4fee48e2f3268273baf287605a53021a5b44d413e",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "closure": "NOT_AUTHORIZED",
   "command": [
     "uv",
@@ -17,10 +11,16 @@
     "--cov-report=json:/home/wundah/nexus-ai/.nxs/runtime/p19-coverage.json",
     "--cov-report=term"
   ],
+  "coverage_percent": 90.7552648266195,
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
   "exit_code": 0,
-  "passed": 2140,
   "failed": 0,
-  "skipped": 0,
-  "runtime_seconds": 725.6482930049533,
-  "coverage_percent": 90.82890648491531
+  "passed": 2245,
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T22:10:01.992082+00:00",
+  "result": "PASS",
+  "runtime_seconds": 1037.4439809540054,
+  "schema_version": "1.0.0",
+  "skipped": 0
 }

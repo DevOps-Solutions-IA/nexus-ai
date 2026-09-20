@@ -8,6 +8,8 @@ from uuid import uuid4
 
 import pytest
 
+from tests.integration.sip_tls import SipPKI, edge_tls_mounts
+
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 
@@ -39,9 +41,12 @@ async def run_container(*arguments: str) -> tuple[int, str]:
         "nexus-p19-kamailio:6.1.4-arm64-wolfi-development",
     ],
 )
-async def test_native_pinned_configuration_on_both_architectures(image: str) -> None:
+async def test_native_pinned_configuration_on_both_architectures(
+    image: str, tmp_path: Path
+) -> None:
     configuration = await asyncio.to_thread(Path("infrastructure/kamailio").resolve)
     code, output = await run_container(
+        *edge_tls_mounts(tmp_path),
         "-v",
         f"{configuration}:/etc/nxs:ro",
         image,
@@ -60,7 +65,18 @@ async def test_native_pinned_configuration_on_both_architectures(image: str) -> 
 
 
 @pytest.mark.parametrize(
-    "defect", ["missing_limits", "unbounded_limit", "wildcard_peer", "missing_trust"]
+    "defect",
+    [
+        "missing_limits",
+        "unbounded_limit",
+        "wildcard_peer",
+        "missing_trust",
+        "missing_key",
+        "readable_key",
+        "writable_key",
+        "invalid_ca",
+        "expired_identity",
+    ],
 )
 async def test_reference_startup_fails_closed(defect: str, tmp_path: Path) -> None:
     values = {
@@ -85,13 +101,26 @@ async def test_reference_startup_fails_closed(defect: str, tmp_path: Path) -> No
         values["limits"] = {"messages_per_second": 0, "pending_resolvers": 2, "dialogs": 100}
     elif defect == "wildcard_peer":
         values["peers"] = [{"id": str(uuid4()), "network": "0.0.0.0/0"}]
-    else:
+    elif defect == "missing_trust":
         values["isolated_test_network"] = False
+    mounts = edge_tls_mounts(tmp_path)
+    key = tmp_path / "sip" / "identity.key"
+    if defect == "missing_key":
+        key.unlink()
+    elif defect == "readable_key":
+        key.chmod(0o644)
+    elif defect == "writable_key":
+        key.chmod(0o660)
+    elif defect == "invalid_ca":
+        (tmp_path / "sip" / "ca.pem").write_text("invalid CA")
+    elif defect == "expired_identity":
+        SipPKI(tmp_path / "sip").issue("identity", "127.0.0.1", expired=True)
     secret = tmp_path / "secret.json"
     secret.write_text(json.dumps(values))
     secret.chmod(0o644)
     configuration = await asyncio.to_thread(Path("infrastructure/kamailio").resolve)
     code, output = await run_container(
+        *mounts,
         "-v",
         f"{configuration}:/etc/nxs:ro",
         "-v",

@@ -74,11 +74,28 @@ carrier relay. Request metadata, Caller-ID and source address cannot supply a pe
 
 ## Reference edge and reproduction
 
+Before ARI I/O, a rejected or unavailable P19 permit issuer marks the durable P11
+call FAILED with a safe admission error and transactional P04 failure event. The
+same idempotency key reconstructs that call without a second permit or ARI attempt.
+This follows P11 pre-provider failure semantics, not its ambiguous post-I/O timeout
+case. If PostgreSQL itself is unavailable, no successful durable update is claimed;
+the request fails closed and existing idempotency prevents a fresh logical call.
+No automatic reconciliation is introduced.
+
 See `infrastructure/kamailio/README.md` for pinned Kamailio 6.1.4, publisher source
-checksums, non-root images, bounds and secret mounts. This reference certifies only
-UDP SIP on explicitly isolated links; it makes no SIP TCP/TLS or Internet-grade
-source-address authentication claim. Unsupported transports fail closed. Resolver
-HTTPS and real Asterisk TLS ARI are separate, tested transport boundaries.
+checksums, non-root images, bounds and secret mounts. UDP/TCP require explicitly
+isolated links; neither claims cryptographic source authentication. SIP TLS verifies
+CA chains and exact leaf fingerprints from native connection state. Configured,
+authorized and actual transports must agree, without fallback. Typed destinations
+use SIP for UDP/TCP and SIPS for TLS, including bracketed IPv6 addresses.
+Equality is per signaling leg: an authenticated UDP Asterisk leg may have an
+explicitly authorized TLS carrier leg. That is not an implicit transport downgrade.
+TLS identities are immutable target/upstream revision attributes. Database CHECKs
+require a fingerprint for TLS and forbid one for plaintext. The reference validates
+secret permissions/expiry and pins downstream certificates before any SIP bytes.
+See the reference README for the explicit 6.1.4 connection-authentication patch
+and matching OpenSSL build provenance. Resolver HTTPS and Asterisk TLS ARI remain
+separate security boundaries; neither substitutes for SIP TLS evidence.
 
 Native transaction/dialog state, authenticated direction, tags, sequence semantics,
 safe route sets and the pinned remote target all constrain in-dialog requests.
@@ -104,7 +121,11 @@ GitHub PASS from local tests. Coverage remains at least 90%, without P19 exclusi
 
 ## Rollback and exclusions
 
-Only additive P19 migrations are changed. Disposable downgrade/re-upgrade is a test,
+Only additive P19 migrations are changed. The TLS-identity migration refuses legacy
+TLS rows without pins rather than inventing trust; inventory such rows before
+upgrade and resolve them under explicit platform migration authority. Published UDP
+rows are unchanged. TLS pin removal is unsafe with live TLS authorizations.
+Disposable downgrade/re-upgrade is a test,
 not permission to destroy durable permits or ambiguous call references in production.
 Stop new signaling first; preserve consumed fences and control history, and prefer
 reviewed roll-forward. No cross-Cell relocation, automatic carrier/Cell failover,

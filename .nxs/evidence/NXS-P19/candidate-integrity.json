@@ -1,17 +1,25 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T12:12:59Z",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "binding": "Containing transport corrective implementation candidate; exact final execution source map",
   "closure": "NOT_AUTHORIZED",
-  "result": "PASS",
-  "parent_commit": "a466c024c6247151e075e90bff4c039f2f89372d",
-  "binding": "Containing corrective implementation candidate; exact current execution source map",
+  "current_source_map_sha256": "78e880c93a5cbc6d8928ca3e714e38a36d94a692971cf148fb7cb43abd8f6078",
+  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
   "execution_source_map": "execution-criteria.json#source_sha256",
-  "execution_evidence_sha256": "ab73d7595da8ac9f4ea864d4fee48e2f3268273baf287605a53021a5b44d413e",
-  "source_entries": 809,
-  "current_source_map_sha256": "7045e56b6ff2c8dc6c52c72e8f9d00d0b95e207154096b985550e184e664dcdf",
-  "post_execution_changes": {},
+  "parent_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "phase": "NXS-P19",
+  "post_execution_changes": {
+    ".gitattributes": {
+      "classification": "Git patch-format metadata only; no runtime/test/migration/config behavior change",
+      "reason": "Unified-diff context lines necessarily contain a leading context space before upstream C tabs and blank lines. Scope the two Git text-whitespace interpretations to this exact native patch only; retain all native patch application, compile, protocol and security gates.",
+      "sha256": "6839cf458cd3017fc6bf74aa26438f68c38c113d420ca6e93ef8c791bb20bd6b",
+      "validation": "git check-attr whitespace and git diff --cached --check both executed successfully"
+    }
+  },
+  "recorded_at": "2026-09-20T22:13:33.799100+00:00",
+  "result": "PASS",
   "runtime_test_migration_script_workflow_config_drift": [],
+  "schema_version": "1.0.0",
+  "source_entries": 816,
   "subsequent_current_tree_validation": [
     "clean-room.json",
     "quality-gates.json",

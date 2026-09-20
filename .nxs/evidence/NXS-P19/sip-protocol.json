@@ -1,28 +1,12 @@
 {
-  "schema_version": "1.0.0",
-  "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T12:12:59Z",
-  "result": "PASS",
-  "base_commit": "a466c024c6247151e075e90bff4c039f2f89372d",
-  "candidate_binding": "execution-criteria.json source_sha256; no self-referential commit",
-  "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "ab73d7595da8ac9f4ea864d4fee48e2f3268273baf287605a53021a5b44d413e",
-  "closure": "NOT_AUTHORIZED",
-  "expected": "All selected executable proof nodes pass without skips",
   "actual": {
-    "passed": 30,
     "failed": 0,
+    "passed": 84,
     "skipped": 0
   },
-  "test_selection": [
-    "*test_sip_wire.py::*",
-    "*test_sip_egress_wire.py::*"
-  ],
-  "test_files": [
-    "tests/integration/test_sip_egress_wire.py",
-    "tests/integration/test_sip_wire.py"
-  ],
-  "exact_node_source": "executed-test-nodes.json; full suite aggregate in tests.json",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
   "command": [
     "uv",
     "run",
@@ -31,5 +15,23 @@
     "scripts.nxs_p19_evidence",
     "--cov-report=json:/home/wundah/nexus-ai/.nxs/runtime/p19-coverage.json",
     "--cov-report=term"
+  ],
+  "exact_node_source": "executed-test-nodes.json; full suite aggregate in tests.json",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
+  "expected": "All selected executable proof nodes pass without skips",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T22:10:00.705881+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "test_files": [
+    "tests/integration/test_sip_egress_wire.py",
+    "tests/integration/test_sip_stream_transports.py",
+    "tests/integration/test_sip_wire.py"
+  ],
+  "test_selection": [
+    "*test_sip_wire.py::*",
+    "*test_sip_egress_wire.py::*",
+    "*test_sip_stream_transports.py::*"
   ]
 }

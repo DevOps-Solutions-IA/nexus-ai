@@ -1,4 +1,4 @@
-"""Reference UDP signaling edge; PostgreSQL resolver grants every new relay."""
+"""Fenced UDP/TCP/TLS signaling; PostgreSQL grants every new relay."""
 
 import hashlib
 import hmac
@@ -10,6 +10,7 @@ import re
 import secrets
 import socket
 import ssl
+import stat
 import threading
 import time
 import uuid
@@ -17,6 +18,23 @@ from contextlib import suppress
 from pathlib import Path
 
 import KSR
+
+
+def sip_destination(host, port, transport, user=None):
+    address = ipaddress.ip_address(host)
+    if transport not in {"UDP", "TCP", "TLS"} or type(port) is not int or not 1024 <= port <= 65535:
+        raise ValueError("invalid destination transport")
+    if user is not None and not re.fullmatch(r"\+[1-9][0-9]{6,14}", user):
+        raise ValueError("invalid destination user")
+    literal = f"[{address}]" if address.version == 6 else str(address)
+    scheme = "sips" if transport == "TLS" else "sip"
+    return f"{scheme}:{user + '@' if user else ''}{literal}:{port};transport={transport.lower()}"
+
+
+def certificate_digest(encoded):
+    if not isinstance(encoded, str) or len(encoded) > 16384:
+        raise ValueError("invalid observed certificate")
+    return hashlib.sha256(ssl.PEM_cert_to_DER_cert(encoded)).hexdigest()
 
 
 class Edge:
@@ -30,6 +48,32 @@ class Edge:
         self.resolver_host = str(ipaddress.ip_address(configuration["resolver_host"]))
         self.resolver_port = configuration["resolver_port"]
         self.peers = configuration["peers"]
+        self.tls_targets = {}
+        for target in configuration.get("tls_targets", []):
+            if type(target["port"]) is not int or not 1024 <= target["port"] <= 65535:
+                raise ValueError("invalid TLS target port")
+            key = (str(ipaddress.ip_address(target["host"])), int(target["port"]))
+            digest = target["certificate_sha256"]
+            if key in self.tls_targets or not re.fullmatch(r"[a-f0-9]{64}", digest):
+                raise ValueError("invalid TLS target identity")
+            self.tls_targets[key] = digest
+        if len(self.tls_targets) > 256:
+            raise ValueError("unbounded TLS targets")
+        identity = Path("/run/secrets/sip/identity.key")
+        if not stat.S_ISREG(identity.stat().st_mode) or identity.stat().st_mode & 0o007:
+            raise ValueError("private TLS identity must not be accessible to others")
+        for filename in ("identity.key", "identity.pem", "ca.pem"):
+            if Path("/run/secrets/sip", filename).stat().st_mode & 0o022:
+                raise ValueError("TLS material must not be writable by group or others")
+        identity_context = ssl.create_default_context(cafile="/run/secrets/sip/ca.pem")
+        identity_context.load_cert_chain("/run/secrets/sip/identity.pem", str(identity))
+        identity_details = ssl._ssl._test_decode_cert("/run/secrets/sip/identity.pem")
+        if not (
+            ssl.cert_time_to_seconds(identity_details["notBefore"])
+            <= time.time()
+            < ssl.cert_time_to_seconds(identity_details["notAfter"])
+        ):
+            raise ValueError("TLS identity outside validity interval")
         self.edge_hosts = tuple(configuration.get("edge_hosts", ()))
         if any(peer.get("direction") == "OUTBOUND" for peer in self.peers) and (
             not 1 <= len(self.edge_hosts) <= 16
@@ -47,8 +91,10 @@ class Edge:
                 raise ValueError("invalid resource bound")
         if len(self.secret) < 32 or not 1024 <= self.resolver_port <= 65535:
             raise ValueError("invalid resolver configuration")
-        if configuration.get("isolated_test_network") is not True:
-            raise ValueError("reference UDP transport requires isolated network")
+        if any(peer.get("transport", "UDP") != "TLS" for peer in self.peers) and (
+            configuration.get("isolated_test_network") is not True
+        ):
+            raise ValueError("plain UDP/TCP transports require isolated network")
         if not 1 <= len(self.peers) <= 256:
             raise ValueError("bounded trusted peers required")
         for peer in self.peers:
@@ -56,12 +102,49 @@ class Edge:
             network = ipaddress.ip_network(peer["network"], strict=True)
             if network.prefixlen == 0:
                 raise ValueError("wildcard peer forbidden")
+            transport = peer.get("transport", "UDP")
+            if transport not in {"UDP", "TCP", "TLS"}:
+                raise ValueError("unsupported peer transport")
+            if transport == "TLS" and not re.fullmatch(
+                r"[a-f0-9]{64}", peer.get("certificate_sha256", "")
+            ):
+                raise ValueError("TLS peer identity required")
         self.resolver_tls = ssl.create_default_context(cafile="/run/secrets/resolver-ca.pem")
         self.resolver_tls.minimum_version = ssl.TLSVersion.TLSv1_2
 
     def child_init(self, rank):
         KSR.xlog.xwarn("nxs_edge_ready\n")
         return 0
+
+    def observed_transport(self):
+        transport = str(KSR.pv.get("$proto")).upper()
+        if transport not in {"UDP", "TCP", "TLS"}:
+            raise ValueError("unknown received transport")
+        return transport
+
+    def observed_certificate(self):
+        if KSR.tls.is_peer_verified() <= 0:
+            raise ValueError("TLS peer not verified")
+        return certificate_digest(KSR.pv.get("$tls_peer_raw_cert"))
+
+    def ksr_tls_event(self, message, event):
+        try:
+            if event != "tls:connection-out":
+                raise ValueError("unknown TLS event")
+            key = (
+                str(ipaddress.ip_address(KSR.pv.get("$si"))),
+                int(KSR.pv.get("$sp")),
+            )
+            expected = self.tls_targets.get(key)
+            if expected is None or not hmac.compare_digest(
+                expected, certificate_digest(KSR.pv.get("$tls_peer_raw_cert"))
+            ):
+                raise ValueError("TLS target identity mismatch")
+        except Exception:
+            KSR.set_drop()
+            KSR.xlog.xwarn("nxs_tls_target_denied\n")
+            return 0
+        return 1
 
     def resolver(self, path, payload):
         if not self.reserve("pending", self.limits["pending_resolvers"]):
@@ -181,9 +264,19 @@ class Edge:
     def ksr_route_reply(self, message):
         self.route_deadline = time.monotonic() + 1.8
         try:
-            if KSR.pv.get("$si") != KSR.pv.get("$avp(nxs_reply_host)") or str(
-                KSR.pv.get("$sp")
-            ) != KSR.pv.get("$avp(nxs_reply_port)"):
+            reply_transport = KSR.pv.get("$avp(nxs_reply_transport)") or "UDP"
+            if (
+                KSR.pv.get("$si") != KSR.pv.get("$avp(nxs_reply_host)")
+                or self.observed_transport() != reply_transport
+                or (
+                    reply_transport == "UDP"
+                    and str(KSR.pv.get("$sp")) != KSR.pv.get("$avp(nxs_reply_port)")
+                )
+                or (
+                    reply_transport == "TLS"
+                    and self.observed_certificate() != KSR.pv.get("$avp(nxs_reply_certificate)")
+                )
+            ):
                 KSR.set_drop()
                 return 0
             status = int(KSR.pv.get("$rs"))
@@ -313,7 +406,20 @@ class Edge:
     def route(self):
         method = KSR.pv.get("$rm")
         source = ipaddress.ip_address(KSR.pv.get("$si"))
-        peers = [peer for peer in self.peers if source in ipaddress.ip_network(peer["network"])]
+        transport = self.observed_transport()
+        certificate = self.observed_certificate() if transport == "TLS" else None
+        observation = {
+            "source_address": str(source),
+            "transport": transport,
+            "certificate_sha256": certificate,
+        }
+        peers = [
+            peer
+            for peer in self.peers
+            if source in ipaddress.ip_network(peer["network"])
+            and peer.get("transport", "UDP") == transport
+            and (transport != "TLS" or peer.get("certificate_sha256") == certificate)
+        ]
         reverse = False
         if (
             KSR.pv.get("$tt")
@@ -321,9 +427,18 @@ class Edge:
         ):
             reverse = KSR.pv.get("$ft") != KSR.pv.get("$dlg_var(origin_tag)")
             if reverse:
-                if str(source) != KSR.pv.get("$dlg_var(target_host)") or str(
-                    KSR.pv.get("$sp")
-                ) != KSR.pv.get("$dlg_var(target_port)"):
+                if (
+                    str(source) != KSR.pv.get("$dlg_var(target_host)")
+                    or transport != KSR.pv.get("$dlg_var(target_transport)")
+                    or (
+                        transport == "UDP"
+                        and str(KSR.pv.get("$sp")) != KSR.pv.get("$dlg_var(target_port)")
+                    )
+                    or (
+                        transport == "TLS"
+                        and certificate != KSR.pv.get("$dlg_var(target_certificate)")
+                    )
+                ):
                     return self.deny()
                 peers = [
                     peer for peer in self.peers if peer["id"] == KSR.pv.get("$dlg_var(peer_id)")
@@ -388,7 +503,14 @@ class Edge:
                 return self.deny()
             if not reverse and (
                 str(source) != KSR.pv.get("$dlg_var(origin_host)")
-                or str(KSR.pv.get("$sp")) != KSR.pv.get("$dlg_var(origin_port)")
+                or transport != KSR.pv.get("$dlg_var(origin_transport)")
+                or (
+                    transport == "UDP"
+                    and str(KSR.pv.get("$sp")) != KSR.pv.get("$dlg_var(origin_port)")
+                )
+                or (
+                    transport == "TLS" and certificate != KSR.pv.get("$dlg_var(origin_certificate)")
+                )
             ):
                 return self.deny()
             if KSR.rr.loose_route() < 0:
@@ -396,7 +518,19 @@ class Edge:
             prefix = "origin" if reverse else "target"
             pinned_host = KSR.pv.get("$dlg_var(" + prefix + "_host)")
             pinned_port = KSR.pv.get("$dlg_var(" + prefix + "_port)")
+            pinned_transport = KSR.pv.get("$dlg_var(" + prefix + "_transport)")
             if KSR.pv.get("$rd") != pinned_host or str(KSR.pv.get("$rp")) != pinned_port:
+                return self.deny()
+            request_uri = KSR.pv.get("$ru")
+            explicit_transport = re.search(r";transport=([a-z]+)(?:;|$)", request_uri)
+            requested_transport = (
+                explicit_transport.group(1).upper()
+                if explicit_transport
+                else ("TLS" if request_uri.startswith("sips:") else "UDP")
+            )
+            if requested_transport != pinned_transport or (
+                request_uri.startswith("sips:") != (pinned_transport == "TLS")
+            ):
                 return self.deny()
             sequence_valid = self.validate_dialog_sequence(method, reverse)
             if sequence_valid is None:
@@ -410,6 +544,12 @@ class Edge:
             KSR.pv.sets("$avp(nxs_protocol_owner)", KSR.pv.get("$dlg_var(protocol_owner)"))
             KSR.pv.sets("$avp(nxs_reply_host)", pinned_host)
             KSR.pv.sets("$avp(nxs_reply_port)", pinned_port)
+            KSR.pv.sets(
+                "$avp(nxs_reply_transport)", KSR.pv.get("$dlg_var(" + prefix + "_transport)")
+            )
+            KSR.pv.sets(
+                "$avp(nxs_reply_certificate)", KSR.pv.get("$dlg_var(" + prefix + "_certificate)")
+            )
             KSR.tm.t_on_reply("ksr_route_reply")
             handle = KSR.pv.get("$dlg_var(route_handle)")
             if handle:
@@ -422,13 +562,20 @@ class Edge:
         if KSR.pv.get("$hdr(Route)") or KSR.pv.get("$hdr(Record-Route)"):
             return self.deny()
         contact = re.fullmatch(
-            r"<(?P<uri>sip:[A-Za-z0-9_.+~-]+@(?P<host>[0-9.]+):(?P<port>[0-9]{1,5}))>",
+            r"<(?P<uri>sips?:[A-Za-z0-9_.+~-]+@(?P<host>\[[a-fA-F0-9:]+\]|[0-9.]+):(?P<port>[0-9]{1,5})(?:;transport=(?P<transport>udp|tcp|tls))?)>",
             KSR.pv.get("$ct") or "",
         )
         if (
             contact is None
-            or contact["host"] != str(source)
-            or contact["port"] != str(KSR.pv.get("$sp"))
+            or contact["host"].strip("[]") != str(source)
+            or not 1024 <= int(contact["port"]) <= 65535
+            or (contact["transport"] or "udp").upper() != transport
+            or (transport == "UDP" and contact["port"] != str(KSR.pv.get("$sp")))
+            or (transport != "UDP" and int(contact["port"]) != peer.get("contact_port"))
+            or (
+                transport == "TLS"
+                and self.tls_targets.get((str(source), int(contact["port"]))) != certificate
+            )
         ):
             return self.deny()
         if KSR.tmx.t_precheck_trans() > 0:
@@ -444,7 +591,9 @@ class Edge:
                 not re.fullmatch(r"\+[1-9][0-9]{6,14}", called or "")
                 or host not in peer["ingress_hosts"]
                 or not re.fullmatch(
-                    r"sip:\+[1-9][0-9]{6,14}@[A-Za-z0-9.-]+(?::[0-9]{1,5})?",
+                    ("sips" if transport == "TLS" else "sip")
+                    + r":\+[1-9][0-9]{6,14}@[A-Za-z0-9.-]+(?::[0-9]{1,5})?"
+                    + ("" if transport == "UDP" else ";transport=" + transport.lower()),
                     KSR.pv.get("$ru") or "",
                 )
             ):
@@ -482,7 +631,7 @@ class Edge:
                         "ingress_host": host,
                         "transaction": transaction,
                     },
-                    "observed_peer": {"source_address": str(source), "transport": "UDP"},
+                    "observed_peer": observation,
                 },
             )
             target = decision["route"]
@@ -494,7 +643,7 @@ class Edge:
                     "destination": called,
                     "transaction": transaction,
                     "peer_id": peer["id"],
-                    "observed_peer": {"source_address": str(source), "transport": "UDP"},
+                    "observed_peer": observation,
                 },
             )
             if decision.get("initial_relay_granted") is not True:
@@ -503,6 +652,7 @@ class Edge:
                 "target_host": decision["host"],
                 "target_port": decision["port"],
                 "target_transport": decision["transport"],
+                "certificate_sha256": decision.get("certificate_sha256"),
             }
         address = ipaddress.ip_address(target["target_host"])
         if (
@@ -514,7 +664,14 @@ class Edge:
             or (peer["direction"] == "INBOUND" and not address.is_private)
         ):
             return self.deny()
-        if target["target_transport"] != "UDP":
+        target_transport = target["target_transport"]
+        if target_transport not in {"UDP", "TCP", "TLS"}:
+            return self.deny()
+        if target_transport == "TLS" and (
+            not target.get("certificate_sha256")
+            or self.tls_targets.get((str(address), target["target_port"]))
+            != target["certificate_sha256"]
+        ):
             return self.deny()
         if peer["direction"] == "INBOUND":
             issued = self.resolver("/internal/sip/issue", {"handle": decision["handle"]})
@@ -553,21 +710,29 @@ class Edge:
         KSR.pv.sets("$dlg_var(route_handle)", decision["handle"])
         KSR.pv.sets("$avp(nxs_handle)", decision["handle"])
         KSR.tm.t_on_reply("ksr_route_reply")
-        uri_host = f"[{address}]" if address.version == 6 else str(address)
-        target_uri = f"sip:{uri_host}:{target['target_port']};transport=udp"
+        target_uri = sip_destination(str(address), target["target_port"], target_transport)
         if peer["direction"] == "OUTBOUND":
-            KSR.pv.sets("$ru", f"sip:{called}@{uri_host}:{target['target_port']};transport=udp")
+            KSR.pv.sets(
+                "$ru",
+                sip_destination(str(address), target["target_port"], target_transport, called),
+            )
         KSR.pv.sets("$dlg_var(peer_id)", peer["id"])
         KSR.pv.sets("$dlg_var(origin_tag)", KSR.pv.get("$ft"))
-        KSR.pv.sets("$dlg_var(origin_host)", contact["host"])
+        KSR.pv.sets("$dlg_var(origin_host)", str(source))
         KSR.pv.sets("$dlg_var(origin_port)", contact["port"])
         KSR.pv.sets("$dlg_var(origin_uri)", contact["uri"])
         KSR.pv.sets("$dlg_var(target_host)", str(address))
         KSR.pv.sets("$dlg_var(target_port)", str(target["target_port"]))
+        KSR.pv.sets("$dlg_var(target_transport)", target_transport)
+        KSR.pv.sets("$dlg_var(target_certificate)", target.get("certificate_sha256") or "")
+        KSR.pv.sets("$dlg_var(origin_transport)", transport)
+        KSR.pv.sets("$dlg_var(origin_certificate)", certificate or "")
         KSR.pv.sets("$dlg_var(target_uri)", target_uri)
         KSR.pv.sets("$du", target_uri)
         KSR.pv.sets("$avp(nxs_reply_host)", str(address))
         KSR.pv.sets("$avp(nxs_reply_port)", str(target["target_port"]))
+        KSR.pv.sets("$avp(nxs_reply_transport)", target_transport)
+        KSR.pv.sets("$avp(nxs_reply_certificate)", target.get("certificate_sha256") or "")
         KSR.tm.t_on_reply("ksr_route_reply")
         KSR.pv.sets(transaction_owner, peer["id"])
         if KSR.tm.t_relay() < 0:

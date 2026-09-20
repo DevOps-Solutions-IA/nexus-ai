@@ -1,16 +1,37 @@
 {
-  "schema_version": "1.0.0",
+  "artifact": {
+    "architecture": "amd64",
+    "config_digest": "sha256:f265f43083a93f25fe66d7d5431ce287ec0ec0b07c2ac072ffe3f01b5754d691",
+    "high_critical_findings": 0,
+    "name": "application",
+    "os": {
+      "Family": "wolfi",
+      "Name": "20230201"
+    },
+    "result": "PASS",
+    "scan_sha256": "64efa1df614a5f3f619b921a33afa4a3b78e65d68f36141057ad7f99d36f1054",
+    "scanner_created_at": "2026-09-20T20:55:28.968073363Z",
+    "targets": [
+      {
+        "target": "/scan/application.tar (wolfi 20230201)",
+        "type": "wolfi",
+        "vulnerabilities": []
+      },
+      {
+        "target": "Python",
+        "type": "python-pkg",
+        "vulnerabilities": []
+      }
+    ],
+    "user": "65532:65532"
+  },
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "closure": "NOT_AUTHORIZED",
+  "evidence": "transport-container-scans.json",
   "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T21:53:10.316920+00:00",
   "result": "PASS",
-  "recorded_at": "2026-09-20T09:07:20.965314+00:00",
-  "command": "pinned Trivy 0.74.0 image --input application-final.tar --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json",
-  "exit_code": 0,
-  "image_config_digest": "sha256:6c95c5bb03c399df4a2d5761f59c151c637a62fd0e021651dfc43c9846110932",
+  "same_clean_room_image": true,
   "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
-  "high_critical_findings": 0,
-  "report_sha256": "8a1ac60269deab0b66f8d3c905cc48358af7d7d0503c0ee29126ea06d433ef1b",
-  "limitations": [
-    "Vulnerability database observed at execution time; not a future security guarantee",
-    "No production deployment"
-  ]
+  "schema_version": "1.0.0"
 }

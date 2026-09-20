@@ -1,4 +1,43 @@
-# P19 implementation development status
+# P19 implementation candidate and corrective status
+
+## Current state — transport corrective
+
+P19 remains BUILDING/PENDING on `feat/nxs-p19-sip-scaling`; canonical main remains
+through P18. The complete original candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772`
+passed its 2140-test regression, original C/AC mapping, clean-room and exact-head
+CI/Security. External review then identified the control-plane UDP/TCP/TLS versus
+UDP-only reference-edge mismatch. Those original results are historical, not proof
+for changed source. This corrective implements the approved three-transport model,
+native TLS peer observation, immutable downstream pins and actual protocol tests.
+The separate P11 audit fixes pre-ARI permit denial to persist FAILED, preserving
+the logical call/idempotency identity and issuing no ARI request.
+
+Current results are source-bound in `.nxs/evidence/NXS-P19/`, including supplemental
+T01–T10 nodes. The final corrective candidate requires independent external review;
+neither local tests nor GitHub success declares READY/GO. Closure, merge, deployment
+and P20 start are not authorized. No phase restart occurred. Canonical recovery of
+the expired lock and reacquisition occurred on 2026-09-20 at 19:56:26Z; consult
+`make nxs-lock-status` rather than treating any documented expiry as current truth.
+
+Transport development failures are retained in corrective evidence: native config
+parameter mismatch, OpenSSL build/runtime version mismatch, strict test-PKI extension
+failure, and the upstream TLS connection callback's missed transaction sends. The
+last failure required a narrow, versioned source patch; a wrong-target-pin wire test
+must prove zero transmitted SIP, not merely a later error response.
+
+The first complete corrective execution passed 2245 tests with 90.76% coverage
+in 1048.02 seconds. Its real ARM64-emulated transport workload exceeded the old
+900-second quality-runner subprocess ceiling. The ceiling is now 1800 seconds;
+every command, test, security check and coverage threshold remains mandatory.
+Fresh clean-room and canonical gate runs certify the final source independently.
+
+## HISTORICAL — pre-candidate development and continuation
+
+All subsequent checkpoint descriptions, outstanding-work statements, lock times
+and intermediate test counts in this historical section describe their own earlier
+development moment. They are not current candidate status or missing-work claims.
+
+### Original development status
 
 This is an implementation workspace awaiting complete candidate certification and
 independent audit, not a READY/GO declaration. Canonical main remains through P18. The feature branch

@@ -25,7 +25,7 @@ from nexus_ai.sip_edge.peer_registry import PeerRegistry
 from nexus_ai.sip_edge.peers import PeerPolicy, PeerProfile
 from nexus_ai.sip_edge.security import EdgeCredential
 from nexus_ai.sip_edge.targets import TargetNetworkPolicy, TargetRegistry
-from tests.integration.sip_tls import resolver_certificate
+from tests.integration.sip_tls import edge_tls_mounts, resolver_certificate
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
 from tests.integration.test_sip_did_locator import provision
 from tests.integration.test_sip_target_constraints import target_control as target_control
@@ -160,6 +160,7 @@ async def start_edge(
         "ALL",
         "--security-opt",
         "no-new-privileges",
+        *edge_tls_mounts(configuration.parent),
         "--tmpfs",
         "/run/nxs:rw,noexec,nosuid,size=16m,uid=10001,gid=10001",
         "-v",
@@ -400,6 +401,7 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             "ALL",
             "--security-opt",
             "no-new-privileges",
+            *edge_tls_mounts(configuration.parent),
             "--tmpfs",
             "/run/nxs:rw,noexec,nosuid,size=16m,uid=10001,gid=10001",
             "-v",
@@ -650,6 +652,7 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             for line in progress_lines
             if line.lower().startswith("record-route:")
         ]
+        progress_routes.reverse()
         prack = (
             f"PRACK {progress_contact} SIP/2.0\r\n"
             f"Via: SIP/2.0/UDP {gateway}:{caller.getsockname()[1]};"
@@ -694,6 +697,7 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             for line in caller_response.decode().split("\r\n")
             if line.lower().startswith("record-route:")
         ]
+        route_set.reverse()
         assert route_set
         contact = next(
             line.split(":", 1)[1].strip().strip("<>")

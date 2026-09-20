@@ -23,6 +23,7 @@ def case(name: str) -> str:
 
 WIRE = case("test_real_kamailio_invite_and_forged_route_zero_send")
 EGRESS_WIRE = case("test_real_p11_ari_edge_permit_is_consumed_and_stripped")
+STREAM_WIRE = case("test_real_stream_dialog_and_two_edge_authority")
 LOCATOR = "tests/integration/test_sip_did_locator.py::*"
 TARGETS = "tests/integration/test_sip_target_constraints.py::*"
 PERMITS = case("test_egress_single_consumption_wrong_peer_destination_and_response_loss")
@@ -33,22 +34,22 @@ AUTH = "tests/integration/test_sip_edge_authentication.py::*"
 SCOPE = "tests/contracts/test_sip_edge_scope.py::*"
 
 CONCURRENCY = {
-    "C01": [case("test_concurrent_independent_edges_same_authoritative_tuple"), WIRE],
+    "C01": [case("test_concurrent_independent_edges_same_authoritative_tuple"), WIRE, STREAM_WIRE],
     "C02": [RACES],
     "C03": [case("test_reactivation_preserves_cell_and_advances_new_dialog_generation")],
     "C04": [WIRE, case("test_failures_create_zero_route_authority")],
     "C05": [case("test_failures_create_zero_route_authority")],
     "C06": [case("test_concurrent_target_activations_have_one_revision_winner")],
     "C07": [case("test_target_rotation_and_resolution_never_mix_tuple")],
-    "C08": [WIRE],
+    "C08": [WIRE, STREAM_WIRE],
     "C09": [EGRESS_WIRE, WIRE],
     "C10": [EGRESS_WIRE, UPSTREAMS],
     "C11": [case("test_failures_create_zero_route_authority"), WIRE],
     "C12": [WIRE],
     "C13": [WIRE, ROUTES],
-    "C14": [WIRE],
-    "C15": [WIRE],
-    "C16": [WIRE],
+    "C14": [WIRE, STREAM_WIRE],
+    "C15": [WIRE, STREAM_WIRE],
+    "C16": [WIRE, STREAM_WIRE],
     "C17": [WIRE],
     "C18": [LOCATOR, TARGETS, case("test_route_history_and_dialog_raw_sql_cannot_cross_tenant")],
     "C19": [WIRE, "tests/unit/test_sip_edge_contracts.py::*"],
@@ -97,16 +98,20 @@ ACCEPTANCE = {
     "AC13": CONCURRENCY["C11"] + CONCURRENCY["C12"],
     "AC14": CONCURRENCY["C01"] + CONCURRENCY["C20"],
     "AC15": CONCURRENCY["C14"] + CONCURRENCY["C15"],
-    "AC16": ["tests/integration/test_telephony*.py::*", EGRESS_WIRE],
+    "AC16": [
+        "tests/integration/test_telephony*.py::*",
+        EGRESS_WIRE,
+        "tests/integration/test_sip_permit_issuance_failure.py::*",
+    ],
     "AC17": ["tests/integration/test_voice*.py::*"],
     "AC18": [SCOPE, case("test_suspended_placement_cannot_be_relocated")],
     "AC19": CONCURRENCY["C23"] + [SCOPE],
     "AC20": [SCOPE],
     "AC21": ["tests/integration/test_sip_native_configuration.py::*"],
     "AC22": [case("test_native_pinned_configuration_on_both_architectures")],
-    "AC23": [WIRE, EGRESS_WIRE],
+    "AC23": [WIRE, EGRESS_WIRE, STREAM_WIRE],
     "AC24": [RACES, TARGETS, PERMITS],
-    "AC25": CONCURRENCY["C16"] + CONCURRENCY["C09"],
+    "AC25": CONCURRENCY["C16"] + CONCURRENCY["C09"] + [STREAM_WIRE],
     "AC26": ["tests/integration/test_agent_handoff.py::*"],
     "AC27": [SCOPE],
     "AC28": CONCURRENCY["C18"]
@@ -130,6 +135,31 @@ ACCEPTANCE = {
     "AC41": CONCURRENCY["C29"] + CONCURRENCY["C31"],
     "AC42": CONCURRENCY["C32"],
     "AC43": [UPSTREAMS, EGRESS_WIRE],
+}
+
+
+TRANSPORT = {
+    "T01": [WIRE],
+    "T02": ["*::test_real_stream_dialog_and_two_edge_authority[[]TCP-none-*]"],
+    "T03": ["*::test_real_stream_dialog_and_two_edge_authority[[]TLS-none-*]"],
+    "T04": [
+        "*::test_real_stream_dialog_and_two_edge_authority[[]TLS-wrong*]",
+        "*::test_real_stream_dialog_and_two_edge_authority[[]TLS-untrusted*]",
+        "*::test_real_stream_dialog_and_two_edge_authority[[]TLS-missing*]",
+        "*::test_real_stream_dialog_and_two_edge_authority[[]TLS-expired*]",
+    ],
+    "T05": ["*::test_real_stream_dialog_and_two_edge_authority[[]*downgrade*]"],
+    "T06": [EGRESS_WIRE],
+    "T07": ["tests/integration/test_sip_permit_issuance_failure.py::*"],
+    "T08": ["tests/integration/test_sip_native_configuration.py::*"],
+    "T09": [
+        case("test_tls_target_pin_and_transport_are_immutable"),
+        case("test_database_rejects_transport_identity_mismatch"),
+        case("test_transport_requires_exact_tls_identity_only"),
+        "tests/unit/test_sip_transport_uri.py::*",
+        UPSTREAMS,
+    ],
+    "T10": ["*::test_real_stream_dialog_and_two_edge_authority[[]*cancel*]"],
 }
 
 
@@ -171,6 +201,7 @@ def main() -> int:
     results = observed["tests"]
     concurrency = evaluate(CONCURRENCY, results)
     acceptance = evaluate(ACCEPTANCE, results)
+    transport = evaluate(TRANSPORT, results)
     current_paths = git(ROOT, "ls-files", "--cached", "--others", "--exclude-standard").splitlines()
     after = source_snapshot(ROOT, current_paths)
     drift = sorted(
@@ -181,7 +212,8 @@ def main() -> int:
         and observed["exit_code"] == 0
         and not drift
         and all(
-            value["result"] == "PASS" for value in (*concurrency.values(), *acceptance.values())
+            value["result"] == "PASS"
+            for value in (*concurrency.values(), *acceptance.values(), *transport.values())
         )
     )
     acceptance["AC26"]["result"] = "PENDING_EXTERNAL_GATE"
@@ -208,6 +240,7 @@ def main() -> int:
         else {},
         "concurrency": concurrency,
         "acceptance": acceptance,
+        "transport": transport,
         "source_sha256": before,
         "source_drift": drift,
         "closure": "NOT_AUTHORIZED",

@@ -34,9 +34,10 @@ from nexus_ai.telephony.entities import (
     RegisterPhoneNumberRequest,
 )
 from nexus_ai.telephony.service import TelephonyService
-from tests.integration.sip_tls import resolver_certificate
+from tests.integration.sip_tls import SipPKI, resolver_certificate
 from tests.integration.test_sip_asterisk_wire import AriTransport, write_configuration
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
+from tests.integration.test_sip_stream_transports import StreamUAS, values
 from tests.integration.test_sip_target_constraints import target_control as target_control
 from tests.integration.test_sip_wire import docker, isolated_sender, start_edge, udp_socket
 
@@ -57,6 +58,7 @@ class ObservedAriTransport(AriTransport):
 
 
 @pytest.mark.parametrize("lose_consume_response", [False, True])
+@pytest.mark.parametrize("upstream_transport", ["UDP", "TCP", "TLS"])
 async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
     target_control: Any,
     tenant_database: Any,
@@ -66,6 +68,7 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
     discovery_database: Any,
     tmp_path: Path,
     lose_consume_response: bool,
+    upstream_transport: str,
 ) -> None:
     cell, actor = target_control
     organization = await make_organization()
@@ -89,6 +92,26 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
     )
     await docker("network", "create", "--subnet", subnet + ".0/24", network)
     uas = udp_socket(gateway)
+    stream_uas = StreamUAS()
+    pki = SipPKI(tmp_path / "sip")
+    pki.issue("identity", "127.0.0.1")
+    upstream_certificate, upstream_key, upstream_pin = pki.issue("upstream", gateway)
+    upstream_tls = ssl.create_default_context(
+        ssl.Purpose.CLIENT_AUTH, cafile=str(pki.directory / "ca.pem")
+    )
+    upstream_tls.verify_mode = ssl.CERT_REQUIRED
+    upstream_tls.load_cert_chain(upstream_certificate, upstream_key)
+    stream_server = await asyncio.start_server(
+        stream_uas.accept,
+        gateway,
+        0,
+        ssl=upstream_tls if upstream_transport == "TLS" else None,
+    )
+    upstream_port = (
+        uas.getsockname()[1]
+        if upstream_transport == "UDP"
+        else stream_server.sockets[0].getsockname()[1]
+    )
     http_listener = socket.socket()
     http_listener.bind((gateway, 0))
     http_listener.listen(32)
@@ -154,6 +177,11 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 "isolated_test_network": True,
                 "edge_hosts": [subnet + ".2"],
                 "limits": {"messages_per_second": 100, "pending_resolvers": 2, "dialogs": 100},
+                "tls_targets": [
+                    {"host": gateway, "port": upstream_port, "certificate_sha256": upstream_pin}
+                ]
+                if upstream_transport == "TLS"
+                else [],
                 "peers": [
                     {
                         "id": str(peer),
@@ -256,8 +284,9 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 id=upstream,
                 revision=1,
                 host=gateway,
-                port=uas.getsockname()[1],
-                transport="UDP",
+                port=upstream_port,
+                transport=upstream_transport,
+                certificate_sha256=upstream_pin if upstream_transport == "TLS" else None,
                 cell_id=cell,
                 asterisk_peer_id=peer,
             ),
@@ -288,7 +317,10 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 await asyncio.wait_for(consume_committed.wait(), timeout=5)
                 with pytest.raises(TimeoutError):
                     async with asyncio.timeout(2):
-                        await asyncio.get_running_loop().sock_recvfrom(uas, 65536)
+                        if upstream_transport == "UDP":
+                            await asyncio.get_running_loop().sock_recvfrom(uas, 65536)
+                        else:
+                            await stream_uas.received.get()
                 async with tenant_database.tenant_transaction(organization.id) as tenant:
                     assert (
                         await tenant.session.execute(
@@ -304,8 +336,18 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 release_response.set()
                 return
             async with asyncio.timeout(10):
-                received, edge_address = await asyncio.get_running_loop().sock_recvfrom(uas, 65536)
-            assert received.startswith(f"INVITE sip:+12025550561@{gateway}:".encode())
+                if upstream_transport == "UDP":
+                    received, edge_address = await asyncio.get_running_loop().sock_recvfrom(
+                        uas, 65536
+                    )
+                else:
+                    received, stream_writer = await stream_uas.received.get()
+                    assert (stream_writer.get_extra_info("ssl_object") is not None) == (
+                        upstream_transport == "TLS"
+                    )
+            scheme = "sips" if upstream_transport == "TLS" else "sip"
+            assert received.startswith(f"INVITE {scheme}:+12025550561@{gateway}:".encode())
+            assert values(received, "Via")[0].startswith(f"SIP/2.0/{upstream_transport}")
             assert b"X-NXS-" not in received and b"tenant-forgery" not in received
             assert (await service.create_call(organization.id, None, request)).id == call.id
             async with tenant_database.tenant_transaction(organization.id) as tenant:
@@ -336,18 +378,23 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 if line.lower().startswith(("via:", "from:", "to:", "call-id:", "cseq:"))
             ]
             loop = asyncio.get_running_loop()
-            await loop.sock_sendto(
-                uas,
-                (
-                    "SIP/2.0 486 Busy Here\r\n"
-                    + "\r\n".join(response_headers)
-                    + "\r\nContent-Length: 0\r\n\r\n"
-                ).encode(),
-                edge_address,
-            )
+            response = (
+                "SIP/2.0 486 Busy Here\r\n"
+                + "\r\n".join(response_headers)
+                + "\r\nContent-Length: 0\r\n\r\n"
+            ).encode()
+            if upstream_transport == "UDP":
+                await loop.sock_sendto(uas, response, edge_address)
+            else:
+                stream_writer.write(response)
+                await stream_writer.drain()
             async with asyncio.timeout(5):
                 while True:
-                    acknowledgment, _ = await loop.sock_recvfrom(uas, 65536)
+                    acknowledgment, _ = (
+                        await loop.sock_recvfrom(uas, 65536)
+                        if upstream_transport == "UDP"
+                        else await stream_uas.received.get()
+                    )
                     if acknowledgment.startswith(b"ACK "):
                         break
             await asyncio.wait_for(result_committed.wait(), timeout=3)
@@ -381,6 +428,7 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
                 assert rejected.startswith(("SIP/2.0 403", "SIP/2.0 503"))
                 with pytest.raises(BlockingIOError):
                     uas.recvfrom(65536)
+                assert stream_uas.received.empty()
             assert token.get_secret_value() not in await docker("logs", edge_name)
     finally:
         release_response.set()
@@ -391,6 +439,9 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
         await server_task
         http_listener.close()
         uas.close()
+        stream_server.close()
+        await stream_server.wait_closed()
+        await stream_uas.close()
         await docker("network", "rm", network)
         edge_config.unlink(missing_ok=True)
         for path in asterisk_config.iterdir():
