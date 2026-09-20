@@ -162,8 +162,6 @@ async def start_edge(
         "no-new-privileges",
         "--tmpfs",
         "/run/nxs:rw,noexec,nosuid,size=16m,uid=10001,gid=10001",
-        "-p",
-        "127.0.0.1::5060/udp",
         "-v",
         f"{config_directory}:/etc/nxs:ro",
         "-v",
@@ -199,7 +197,8 @@ async def start_edge(
             if logs.returncode is None:
                 logs.terminate()
             await logs.wait()
-    return "127.0.0.1", int((await docker("port", name, "5060/udp")).split(":")[-1])
+    container = json.loads(await docker("inspect", name))[0]
+    return address or container["NetworkSettings"]["IPAddress"], 5060
 
 
 @pytest.mark.parametrize("rotate_target", [False, True])
@@ -403,8 +402,6 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             "no-new-privileges",
             "--tmpfs",
             "/run/nxs:rw,noexec,nosuid,size=16m,uid=10001,gid=10001",
-            "-p",
-            "127.0.0.1::5060/udp",
             "-v",
             f"{config_directory}:/etc/nxs:ro",
             "-v",
@@ -419,8 +416,8 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             "-f",
             "/etc/nxs/kamailio.cfg",
         )
-        endpoint = (await docker("port", name, "5060/udp")).split(":")
-        destination = ("127.0.0.1", int(endpoint[-1]))
+        container = json.loads(await docker("inspect", name))[0]
+        destination = (container["NetworkSettings"]["IPAddress"], 5060)
         call_id = uuid4().hex
         request = (
             f"INVITE sip:{number.e164}@ingress.test SIP/2.0\r\n"
@@ -455,6 +452,13 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
                     logs.terminate()
                 await logs.wait()
         attacks = (
+            (
+                request.replace(
+                    f"Contact: <sip:caller@{gateway}:{caller.getsockname()[1]}>".encode(),
+                    f"Contact: <sip:caller@{gateway}:1>".encode(),
+                ),
+                b"403",
+            ),
             (request.replace(b"Max-Forwards: 70", b"Max-Forwards: 0"), b"483"),
             (
                 request.replace(

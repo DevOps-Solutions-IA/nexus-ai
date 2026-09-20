@@ -11,7 +11,7 @@
     "f1befaf604448ce4645f64368f3f1733665bcddf",
     "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9"
   ],
-  "candidate_parent": "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9",
+  "candidate_parent": "a466c024c6247151e075e90bff4c039f2f89372d",
   "candidate_binding": "Containing implementation commit plus execution-criteria.json source_sha256; no self-referential SHA",
   "governance_only_workflow_verification": {
     "head_sha": "da0f28f6999e199f5348d63985292c8b93aa8f23",
@@ -25,5 +25,14 @@
   "history_rewritten": false,
   "merged": false,
   "deployed": false,
-  "closure": "NOT_AUTHORIZED"
+  "closure": "NOT_AUTHORIZED",
+  "previous_published_candidate": {
+    "commit": "a466c024c6247151e075e90bff4c039f2f89372d",
+    "ci_run": 35507722183,
+    "ci_result": "FAIL",
+    "security_run": 35507722210,
+    "security_result": "PASS",
+    "correction_evidence": "ci-network-correction.json",
+    "history_preserved": true
+  }
 }

@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T12:01:15.910067+00:00",
+  "result": "PASS",
+  "published_candidate": "a466c024c6247151e075e90bff4c039f2f89372d",
+  "previous_evidence_preservation": "All previous certification artifacts remain immutable in a466c024c6247151e075e90bff4c039f2f89372d; regenerated current files do not supersede historical failure truth",
+  "github_ci": {
+    "run": 35507722183,
+    "head_sha": "a466c024c6247151e075e90bff4c039f2f89372d",
+    "result": "FAIL",
+    "passed": 2112,
+    "failed": 28,
+    "runtime_seconds": 715.99,
+    "failed_scope": "All 28 test_sip_wire parameter combinations; unknown-DID attack received 403 before expected resolver 503"
+  },
+  "github_security": {
+    "run": 35507722210,
+    "head_sha": "a466c024c6247151e075e90bff4c039f2f89372d",
+    "result": "PASS"
+  },
+  "root_cause": "Published localhost UDP port crossed Docker NAT/userland proxy on the GitHub runner, rewriting source port. SIP Contact retained the original socket port; exact Contact/source binding correctly rejected it. CI Via sent-by and received rport demonstrate the mismatch. Local Docker preserved the port.",
+  "correction": "Use directly reachable isolated bridge container address:5060 in real SIP fixtures; remove published host ports. Preserve exact runtime Contact/source checks and add explicit forged Contact-port rejection to every wire parameter case.",
+  "files_changed": [
+    "tests/integration/test_sip_wire.py"
+  ],
+  "runtime_changed": false,
+  "assertions_weakened": false,
+  "focused_regression": {
+    "command": "uv run pytest tests/integration/test_sip_wire.py tests/integration/test_sip_egress_wire.py --no-cov -q",
+    "exit_code": 0,
+    "result": "PASS",
+    "passed": 30,
+    "failed": 0,
+    "runtime_seconds": 229.52
+  },
+  "log_sha256": {
+    "nxs-p19-ci-first-failure.log": "355492552c4e233de473b2c0ea5f9c73dbf3334364ace81b598f614f810a95a5",
+    "nxs-p19-direct-bridge-regression.log": "9eb9168ae95cb36062bb438b47e3dbab0a8790e4e2c590a0504d183f0477f9b1"
+  },
+  "closure": "NOT_AUTHORIZED",
+  "local_recertification": {
+    "result": "PASS",
+    "execution_map": "execution-criteria.json",
+    "passed": 2140,
+    "failed": 0,
+    "concurrency_mapped": 32,
+    "acceptance_local_mapped": 43,
+    "clean_room": "PASS / 2140 passed / 91.05% / 717.30 seconds",
+    "canonical_gate": "PASS / 2140 passed / 91.10% / 701.45 seconds",
+    "source_drift": [],
+    "exact_corrective_head_ci": "PENDING_EXTERNAL_GATE"
+  }
+}

@@ -1,22 +1,16 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T11:22:50.705721+00:00",
+  "recorded_at": "2026-09-20T12:12:59Z",
   "closure": "NOT_AUTHORIZED",
   "result": "PASS",
-  "parent_commit": "5ab2ebd3c09c08c8357f88f2db9ff543834b36b9",
-  "binding": "Containing implementation candidate; immutable execution source map plus explicit documentation-only hash override",
+  "parent_commit": "a466c024c6247151e075e90bff4c039f2f89372d",
+  "binding": "Containing corrective implementation candidate; exact current execution source map",
   "execution_source_map": "execution-criteria.json#source_sha256",
-  "execution_evidence_sha256": "3a50ceefa17469889225edb3d6b4fb81802b5ac7da053f95594e61835f9744f0",
+  "execution_evidence_sha256": "ab73d7595da8ac9f4ea864d4fee48e2f3268273baf287605a53021a5b44d413e",
   "source_entries": 809,
-  "current_source_map_sha256": "b4636bc6c399e05e45385019d1f7038e44b3ffb3fa0b3f09248ac926015b263a",
-  "post_execution_changes": {
-    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": {
-      "before": "07b254e06c3e1febf3a8bd55b9fcafa683951b7ea15451a10f166f210a7b413a",
-      "after": "9fa940c322db59b1941e4e8fa3d102c0064c07985a6073044326a670133d5281",
-      "classification": "documentation only; historical matrix obligations distinguished from actual executed results"
-    }
-  },
+  "current_source_map_sha256": "7045e56b6ff2c8dc6c52c72e8f9d00d0b95e207154096b985550e184e664dcdf",
+  "post_execution_changes": {},
   "runtime_test_migration_script_workflow_config_drift": [],
   "subsequent_current_tree_validation": [
     "clean-room.json",

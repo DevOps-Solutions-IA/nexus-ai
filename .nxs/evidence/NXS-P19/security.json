@@ -59,5 +59,18 @@
       "nxs-p19-precommit-source-secrets.log": "aafee88632cebfe5757ba72263a3723c6fb190dd6cc36ec61dca693ebef28cc9",
       "nxs-p19-precommit-history-secrets.log": "aef426cf1b5c1c8ecce39edf23aa33e834c5df5b136dc5d21df0cbe6195d33b4"
     }
+  },
+  "post_ci_correction_scan": {
+    "recorded_at": "2026-09-20T12:42:42.394768+00:00",
+    "source_exit_code": 0,
+    "history_exit_code": 0,
+    "commits_scanned": 266,
+    "result": "PASS",
+    "bandit_edge_exit_code": 0,
+    "canonical_security": "quality-gates.json current sast and dependency_security both PASS",
+    "log_sha256": {
+      "nxs-p19-corrective-source-secrets.log": "e6c938fc0d062d06f53e051ed8447c466892b1344bf7a1a841b8573a9e6059c9",
+      "nxs-p19-corrective-history-secrets.log": "dfd834ffa674b9a36b078bad5d8d1c40339300c6159ea322213b64a64cd51e16"
+    }
   }
 }
