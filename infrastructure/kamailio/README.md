@@ -1,13 +1,13 @@
-# P19 SIP reference implementation — feature-branch certified
+# P19 SIP reference implementation — canonical READY/GO
 
-This directory is development/test infrastructure, not a deployment. P19 is closed
-READY/GO on `feat/nxs-p19-sip-scaling`, binding externally audited implementation
-`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. Fresh certification covers UDP/TCP/TLS,
-pre-ARI admission recovery, C01–C32/AC01–AC43/T01–T10/A01–A07, clean-room and exact
-implementation-head CI/Security. Evidence and historical failures remain under
-`.nxs/evidence/NXS-P19/`. Main remains through P18; P19 is not merged or production
-deployed. External closure audit is pending. Merge and P20 start are unauthorized;
-no capacity, availability, active-call failover or production certification is claimed.
+This directory is development/test infrastructure, not a deployment. P19 is canonical
+READY/GO on `main`, binding externally audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`,
+audited closure `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8` and authorized merge `53051eca3eb1a79a59767c4f92676f4b7f275247` through PR #44.
+Fresh certification covers UDP/TCP/TLS, pre-ARI admission recovery,
+C01–C32/AC01–AC43/T01–T10/A01–A07, clean-room and exact-head CI/Security. Evidence
+and historical failures remain under `.nxs/evidence/NXS-P19/`. P19 is not production
+deployed; P20 has not started. No capacity, availability, active-call failover or
+production certification is claimed.
 
 ## Artifact provenance
 

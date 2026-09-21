@@ -2,11 +2,11 @@
 
 ## 1. Status, baseline and canonical inputs
 
-Current certification: P19 is closed READY/GO on `feat/nxs-p19-sip-scaling` against
-externally audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`.
-The fresh closure gate passed 2260 tests at 91.18% coverage. Implementation-head
-CI/Security and C01–C32, AC01–AC43, T01–T10, A01–A07 evidence passed. Main remains
-through P18; P19 is not merged or deployed. External closure audit is pending.
+Current certification: P19 is canonical READY/GO on `main` against externally
+audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`, audited closure `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8` and
+authorized merge `53051eca3eb1a79a59767c4f92676f4b7f275247` through PR #44. The fresh closure gate passed
+2260 tests at 91.18% coverage. Implementation/closure CI/Security and C01–C32,
+AC01–AC43, T01–T10, A01–A07 evidence passed. P19 is not production deployed.
 P20 remains PLANNED/PENDING; capacity and automatic failover remain outside scope.
 
 Pre-ARI corrective: an immutable, tenant-owned admission owner is committed with the

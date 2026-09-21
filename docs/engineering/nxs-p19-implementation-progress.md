@@ -1,14 +1,13 @@
-# P19 implementation candidate and corrective status
+# P19 canonical status and implementation history
 
-## Current state — feature-branch closure
+## Current state — canonical main
 
-P19 is READY/GO after externally authorized canonical closure against implementation
-`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. External implementation audit passed;
-exact implementation-head CI 35578134180 and Security 35578134184 succeeded.
-The fresh closure gate passed 2260 tests with 91.18% coverage. C01–C32, AC01–AC43,
-T01–T10 and A01–A07 remain evidenced. The execution lock is released and P20 is
-PLANNED/PENDING, not started. Main remains through P18; P19 is not merged or
-deployed. External closure audit and explicit merge authorization remain required.
+P19 is canonical READY/GO on `main` after external implementation audit, canonical
+closure, external closure audit and explicit human merge authorization. Implementation
+`860d9a129adad75d0e4d7f8470c8a9d9f224a5be` closed on `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8` and was merged through PR #44 at
+`53051eca3eb1a79a59767c4f92676f4b7f275247`. The fresh closure gate passed 2260 tests with 91.18% coverage.
+C01–C32, AC01–AC43, T01–T10 and A01–A07 remain evidenced. The execution lock is
+released and P20 is PLANNED/PENDING, not started. P19 is not production deployed.
 No capacity or automatic failover certification is claimed.
 
 ## HISTORICAL — pre-ARI admission corrective before closure
