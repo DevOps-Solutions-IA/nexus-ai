@@ -68,9 +68,10 @@ async def test_p19_fresh_and_p18_upgrade_roundtrip(from_p18: bool) -> None:
                     "sip_did_locators",
                     "sip_account_upstreams",
                     "sip_account_upstream_history",
+                    "sip_call_admissions",
                 ],
             )
-            assert len(tables) == 10 and all(row[1] and row[2] for row in tables)
+            assert len(tables) == 11 and all(row[1] and row[2] for row in tables)
             roles = await connection.fetch(
                 "SELECT rolname, rolsuper, rolbypassrls FROM pg_roles "
                 "WHERE rolname IN ('nexus_runtime','nexus_sip_locator')"

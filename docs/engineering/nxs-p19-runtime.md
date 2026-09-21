@@ -74,13 +74,40 @@ carrier relay. Request metadata, Caller-ID and source address cannot supply a pe
 
 ## Reference edge and reproduction
 
-Before ARI I/O, a rejected or unavailable P19 permit issuer marks the durable P11
-call FAILED with a safe admission error and transactional P04 failure event. The
-same idempotency key reconstructs that call without a second permit or ARI attempt.
-This follows P11 pre-provider failure semantics, not its ambiguous post-I/O timeout
-case. If PostgreSQL itself is unavailable, no successful durable update is claimed;
-the request fails closed and existing idempotency prevents a fresh logical call.
-No automatic reconciliation is introduced.
+P19-governed P11 call creation atomically persists the call, CREATED event and
+`sip_call_admissions` PENDING record. Its immutable owner and database-time 30-second
+deadline distinguish pre-provider work from an external dispatch. Permit issuance
+retains its existing P18/P11/upstream transaction and unique slot per call. Before
+ARI, a separate call-lock/owner CAS commits PENDING → DISPATCHED and
+`NXS_TELEPHONY_PROVIDER_DISPATCH_UNCONFIRMED`; it requires a live AUTHORIZED permit.
+Only that owner may proceed. No PostgreSQL transaction spans ARI or secret retrieval.
+
+Admission denial revokes PENDING and its unconsumed permit, and commits FAILED plus
+one P04 failure event. If the entire database is unavailable, the durable PENDING
+fence survives; no failure write is claimed during the outage. After recovery,
+`TelephonyService.recover_pending_admissions(organization_id, limit=100)` performs a
+bounded tenant-scoped sweep. Call reads/lists and same-key replay also reconcile
+expired PENDING records. The sweep returns the number of bounded candidates examined,
+including already-terminal calls whose admission fence is revoked, not a count of
+new FAILED events. Repeated batches reach zero without skipping those terminal rows.
+This includes calls without idempotency keys. Operations
+must run bounded recovery after a database outage; no global unbounded sweep or
+background failover coordinator is introduced.
+
+Recovery locks call → admission → permit and atomically changes PENDING → REVOKED,
+revokes any AUTHORIZED permit and writes FAILED/event. Expiry alone is not authority:
+the irreversible state CAS fences a resumed old owner before ARI. A concurrent replay
+before the deadline cannot revoke the owner. Neither recovery nor retry issues a
+replacement permit. A committed permit followed by a pre-dispatch crash is revoked
+the same way. DISPATCHED is never reclaimed: a crash after its commit, even before
+physical dispatch, is conservatively uncertain and never automatically re-originated.
+Successful ARI linkage clears the dispatch marker; post-ARI timeout retains existing
+P11 ambiguity semantics. This narrow pre-provider recovery is not SIP/Cell/carrier
+failover or P25 reconciliation of potentially issued external work.
+
+Legacy calls without an admission record are not guessed safe to terminate. The
+additive migration does not retrospectively assert that historical ARI effects were
+absent. Recovery is for calls governed by the new durable fence.
 
 See `infrastructure/kamailio/README.md` for pinned Kamailio 6.1.4, publisher source
 checksums, non-root images, bounds and secret mounts. UDP/TCP require explicitly

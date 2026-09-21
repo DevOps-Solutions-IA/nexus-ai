@@ -1,5 +1,6 @@
 {
-  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "checks": [
     {
       "command": "make security",
@@ -23,30 +24,33 @@
     },
     {
       "command": "pinned Gitleaks git --config .gitleaks.toml --redact --exit-code 1",
-      "commits_scanned": 271,
+      "commits_scanned": 272,
       "exit_code": 0,
       "result": "PASS"
     }
   ],
   "closure": "NOT_AUTHORIZED",
   "container_evidence": [
-    "transport-container-scans.json"
+    "admission-container-scans.json"
   ],
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
   "gitleaks_image": "zricethezav/gitleaks@sha256:cdbb7c955abce02001a9f6c9f602fb195b7fadc1e812065883f695d1eeaba854",
-  "historical_security_evidence": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/security.json",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "historical_security_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/security.json",
   "limitations": [
     "Local nexus-ai package is not published on PyPI and cannot be audited as a dependency; source is separately scanned/tested.",
     "Source-built C code is not comprehensively certified by OS/package scanning; native TLS patch remains subject to external audit.",
     "Exact corrective-head GitHub Security is separate after commit/push."
   ],
   "log_sha256": {
-    "nxs-p19-ci-budget-dir-secrets.log": "c80334cd6023170115e1975c342e26f127f7c025341a6f2c0cbdf2d571bd1505",
-    "nxs-p19-ci-budget-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "nxs-p19-ci-budget-git-secrets.log": "f03d9ee335632dbcb602a34521f2511dd9f5faac2b72920911a2b3d3dc56ad7b"
+    "nxs-p19-admission-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nxs-p19-admission-secrets-history-final2.log": "44e1dad37a90f2ae9a1c2f0b0150f27c41e98b016cc9edc2cc49a0466a3c1d71",
+    "nxs-p19-admission-secrets-source-final2.log": "644c0e44f5838c2a113dd088ae665a2090a7ead2f95f6f87e0088d2861fc31e9",
+    "nxs-p19-admission-security.log": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
   },
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-21T01:03:23.534261+00:00",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
   "result": "PASS",
-  "runtime_image_equivalence": "transport-ci-budget-correction.json#runtime_equivalence",
   "schema_version": "1.0.0"
 }

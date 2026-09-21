@@ -48,13 +48,18 @@
   "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
   "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "closure": "NOT_AUTHORIZED",
+  "command": "docker run --rm --user <local uid:gid> --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges -v <archives>:/scan:ro -v <cache>:/cache <pinned scanner> image --quiet --timeout 30m --cache-dir /cache --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --input /scan/<image>.tar",
   "execution_evidence": "execution-criteria.json",
   "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "exit_code": 0,
   "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
-  "native_source_provenance": "artifact-provenance.json",
+  "historical_setup_failure": "Initial scan could not read mode-0600 Docker archive with capabilities dropped; made non-secret image archive readable. Final refresh first hit vulnerability-database download timeout, then cache directory permission denial; reran as the cache-owning non-root uid with a 30-minute timeout and unchanged zero-HIGH/CRITICAL policy. No vulnerability result inferred from failed invocations.",
+  "limitations": [
+    "OS/package scanning does not comprehensively audit source-built native C."
+  ],
   "phase": "NXS-P19",
   "recorded_at": "2026-09-21T08:27:13.955685+00:00",
   "result": "PASS",
-  "scan_evidence": "admission-container-scans.json",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
   "schema_version": "1.0.0"
 }

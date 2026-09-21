@@ -1,10 +1,88 @@
 {
   "acceptance_count": 43,
-  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "admission_count": 7,
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
   "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "closure": "NOT_AUTHORIZED",
   "concurrency_count": 32,
   "criteria": {
+    "A01": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A01",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A01",
+      "result": "PASS"
+    },
+    "A02": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A02",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A02",
+      "result": "PASS"
+    },
+    "A03": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 1
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A03",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A03",
+      "result": "PASS"
+    },
+    "A04": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A04",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A04",
+      "result": "PASS"
+    },
+    "A05": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A05",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A05",
+      "result": "PASS"
+    },
+    "A06": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A06",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A06",
+      "result": "PASS"
+    },
+    "A07": {
+      "actual": {
+        "failed": 0,
+        "missing": [],
+        "passed": 2
+      },
+      "exact_tests_and_results": "execution-criteria.json#admission/A07",
+      "expected": "Durable pre-provider recovery without duplicate calls, permits or ARI dispatch",
+      "id": "A07",
+      "result": "PASS"
+    },
     "AC01": {
       "actual": {
         "failed": 0,
@@ -189,7 +267,7 @@
       "actual": {
         "failed": 0,
         "missing": [],
-        "passed": 36
+        "passed": 51
       },
       "exact_tests_and_results": "execution-criteria.json#acceptance/AC16",
       "expected": "P11 call lifecycle, ARI, number/account and idempotency regressions unchanged.",
@@ -1017,11 +1095,12 @@
     }
   },
   "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "19129c089e2fe258d310d3b7116b3ee3cf90d15c9ebb3a8d73a31141273f55bf",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
   "external_gate": "AC26 exact corrective-head GitHub CI/Security after push; current clean-room passed",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
   "local_test_mapping_result": "PASS",
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-21T00:16:55.468199+00:00",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
   "result": "PENDING_EXTERNAL_GATE",
   "schema_version": "1.0.0",
   "transport_count": 10

@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "result": "HISTORICAL_DEVELOPMENT",
+  "previous_evidence": "Immutable Git tree f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "attempts": [
+    {"result": "FAIL", "reason": "New uncommitted migration initially combined two statements in one asyncpg prepared statement; separated statements."},
+    {"result": "FAIL", "passed": 16, "failed": 2, "reason": "Total database disable raises ObjectNotInPrerequisiteStateError, not CannotConnectNowError; corrected assertion."},
+    {"result": "FAIL", "passed": 18, "failed": 2, "reason": "Connection-establishment PostgresError escaped SQLAlchemy DBAPIError handling; safely normalized admission outage without pretending failure persistence succeeded."},
+    {"result": "PASS", "passed": 22, "failed": 0, "scope": "Focused admission, existing permit denial and disposable migration tests."},
+    {"result": "INTERRUPTED", "exit_code": 130, "passed": 29, "failed": 0, "source_drift": [], "reason": "Agent interrupted first full run for review-discovered provider-link error clearing risk; added conditional clearing and terminal-error regression. Not a successful full gate."},
+    {"result": "PASS", "passed": 13, "failed": 0, "scope": "Final focused admission recovery module, including concurrent terminal callback preservation."}
+  ],
+  "superseded_intermediate_validation": {
+    "full_suite": {"passed": 2258, "failed": 0, "coverage_percent": 90.76805527871902},
+    "clean_room": {"result": "PASS", "passed": 2258, "failed": 0, "coverage_percent": 91.11, "pytest_seconds": 1110.23},
+    "reason": "Subsequent review added safe recovery for already REVOKED/EXPIRED unconsumed permits and candidate-count semantics for bounded terminal-row recovery; fresh full suite and clean-room required.",
+    "interrupted_quality_gate": "admission-interrupted-quality.json",
+    "final_focused_tests": {"passed": 15, "failed": 0, "pytest_seconds": 8.85}
+  },
+  "evidence_runner_timeout": {
+    "result": "TIMEOUT",
+    "seconds": 1200,
+    "log": "nxs-p19-admission-full-final2.log",
+    "correction": "P19 now requests the existing quality-gate 1800-second budget through the shared runner's new optional timeout parameter and preserves timeout output with exit 124. The runner default remains 1200 for existing phases; CI remains 120 minutes. No completion inferred from timed-out run."
+  },
+  "historical_tls_warning": "transport-quality-diagnostic.json remains unchanged; original ARM64 untrusted-target-CA failure has no invented root cause.",
+  "nxs_start_rerun": false,
+  "closure": "NOT_AUTHORIZED"
+}

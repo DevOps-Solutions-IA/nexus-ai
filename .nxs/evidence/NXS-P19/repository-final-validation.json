@@ -1,8 +1,8 @@
 {
   "P20": "PLANNED / PENDING",
   "active_phase": "NXS-P19",
-  "alembic_head": "d19c1b1c2d3e",
-  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "alembic_head": "d19d1b1c2d3e",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
   "checks": [
     {
       "command": "make nxs-validate-repo",
@@ -33,6 +33,16 @@
       "command": "uv run alembic heads",
       "exit_code": 0,
       "result": "PASS"
+    },
+    {
+      "command": "make migrate-check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-schema-guard",
+      "exit_code": 0,
+      "result": "PASS"
     }
   ],
   "closure": "NOT_AUTHORIZED",
@@ -48,9 +58,9 @@
     "exit_code": 0,
     "failed": 0,
     "passed": 54,
-    "runtime_seconds": 7.18
+    "runtime_seconds": 7.27
   },
-  "recorded_at": "2026-09-21T01:03:55.071147+00:00",
+  "recorded_at": "2026-09-21T08:28:00Z",
   "result": "PASS",
   "schema_version": "1.0.0",
   "source_drift": []

@@ -2,6 +2,16 @@
 
 ## 1. Status, baseline and canonical inputs
 
+Pre-ARI corrective: an immutable, tenant-owned admission owner is committed with the
+logical P11 call and CREATED event. PENDING has a DB-time 30-second deadline and
+can transition only to DISPATCHED or REVOKED. Only the matching owner with a live
+permit can commit DISPATCHED before ARI; no external I/O occurs inside that transaction.
+Expired PENDING recovery uses row locks and irreversible revocation, not age alone,
+and fails the logical call plus P04 event atomically. Non-idempotent calls are covered
+by the same fence and bounded tenant recovery. DISPATCHED uncertainty is not reclaimed.
+See the [runtime contract](nxs-p19-runtime.md) for operations, lock order and legacy
+boundaries. Supplemental A01–A07 preserve the C01–C32, AC01–AC43 and T01–T10 identities.
+
 Current corrective: the implemented transport contract is UDP/TCP/TLS with no
 fallback. TLS peer identity comes from the verified native TLS connection, never
 a header. Target/upstream revisions include an exact leaf-certificate SHA-256;

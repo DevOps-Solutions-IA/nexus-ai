@@ -68,6 +68,14 @@ The original governance obligation is now executable proof, not deferred design.
 No tenant or LLM supplies or sees tokens. Pre-ARI permit denial follows P11's durable
 FAILED path; ambiguous external I/O retains its original fences.
 
+The pre-ARI corrective makes that boundary durable even through total database
+unavailability: call/event/PENDING admission owner commit together. A live permit
+and immutable owner CAS must commit DISPATCHED before ARI. Bounded tenant recovery
+may revoke only expired PENDING work, atomically fencing the old owner and failing
+the call with its P04 event. DISPATCHED work remains conservatively ambiguous until
+the provider result is known; it is never automatically re-originated. This is an
+internal P11 integration fence, not a public API change or P25 SIP failover.
+
 The tenant-scoped permit binds P11 call/account, Cell/placement generation,
 destination fingerprint, upstream ID/revision, Asterisk identity, semantic
 fingerprint and DB-time 30-second validity. Minting is conditional; consumption

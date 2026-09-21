@@ -650,6 +650,21 @@
       "missing": [],
       "result": "PASS",
       "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_admission_owner_rls_and_database_fences": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_admission_recovery_and_outbox_are_atomic": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_concurrent_replay_does_not_revoke_active_owner": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_preexisting_revocation_and_terminal_call_recovery[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_preexisting_revocation_and_terminal_call_recovery[True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_provider_link_preserves_concurrent_terminal_error": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_recovery_wins_before_dispatch_and_old_owner_cannot_send": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[True]": "PASS",
         "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TCP-False]": "PASS",
         "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TCP-True]": "PASS",
         "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-False]": "PASS",
@@ -1317,7 +1332,63 @@
       }
     }
   },
-  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "admission": {
+    "A01": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[True]": "PASS"
+      }
+    },
+    "A02": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[True]": "PASS"
+      }
+    },
+    "A03": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[False]": "PASS"
+      }
+    },
+    "A04": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_concurrent_replay_does_not_revoke_active_owner": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_recovery_wins_before_dispatch_and_old_owner_cannot_send": "PASS"
+      }
+    },
+    "A05": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-False]": "PASS"
+      }
+    },
+    "A06": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-True]": "PASS"
+      }
+    },
+    "A07": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[True]": "PASS"
+      }
+    }
+  },
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
   "binding": "Current worktree hashes; no implementation commit or closure claim",
   "closure": "NOT_AUTHORIZED",
   "command": [
@@ -2394,29 +2465,29 @@
     }
   },
   "coverage": {
-    "covered_branches": 3599,
-    "covered_lines": 23601,
+    "covered_branches": 3630,
+    "covered_lines": 23704,
     "excluded_lines": 399,
-    "missing_branches": 1035,
-    "missing_lines": 1728,
-    "num_branches": 4634,
-    "num_partial_branches": 893,
-    "num_statements": 25329,
-    "percent_branches_covered": 77.66508416055244,
+    "missing_branches": 1040,
+    "missing_lines": 1731,
+    "num_branches": 4670,
+    "num_partial_branches": 898,
+    "num_statements": 25435,
+    "percent_branches_covered": 77.73019271948608,
     "percent_branches_covered_display": "78",
-    "percent_covered": 90.77862697326702,
+    "percent_covered": 90.79554891214084,
     "percent_covered_display": "91",
-    "percent_statements_covered": 93.17778040980694,
+    "percent_statements_covered": 93.19441714173384,
     "percent_statements_covered_display": "93"
   },
   "exit_code": 0,
   "failed": 0,
   "local_test_mapping_result": "PASS",
-  "passed": 2245,
+  "passed": 2260,
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-21T00:15:27Z",
+  "recorded_at": "2026-09-21T07:27:46Z",
   "result": "INCOMPLETE",
-  "runtime_seconds": 1086.3657360490179,
+  "runtime_seconds": 1156.1940393820405,
   "schema_version": "1.0.0",
   "skipped": 0,
   "source_drift": [],
@@ -2435,7 +2506,7 @@
     ".github/workflows/security.yml": "bf73527c43212b490bd537a13ff405f7fc0bde837d2a6c7713fe8bf9ef3f85f5",
     ".gitignore": "62fc465f4e307ac8348b05fde0dd3b7431eff25c706a8e3f479674bda18f2407",
     ".gitleaks.toml": "628b5f3f4340d308861581a40bff9a48006e4443761100d7f2283332938888b5",
-    ".nxs/execution-lock.json": "e7b4a21177bf041d38a3ab53d778c6d42c8cf4fd8449b4904de75ce28143c03a",
+    ".nxs/execution-lock.json": "0eaa9698814540dd72deb96a8de9eeac0e9b6c9666dd4c3b7a1fe019e6c9e8e2",
     ".nxs/execution-lock.schema.json": "d6add3cba6be74863f37390e6ce1d7b3f39f4466255b2de771cfc54f4975cb62",
     ".nxs/execution-policy.json": "61de5b03c3401f3efbd886df03356f7d67b560c84f21835aa4ac5ee6eeb579a6",
     ".nxs/execution-policy.schema.json": "bb1748504df734d3aa75d72a09cc79f58216988c87e6113b333e9a07b6799995",
@@ -2474,7 +2545,7 @@
     "CONTRIBUTING.md": "040f3f061a6901ee917481e3f2c98dadcfb03f9f2be2d1b9c28321f63c261361",
     "Dockerfile": "fd72c271b1a93e1bad0ec6bbf0bf62aede0699baa5e11b4614db9f4d7252665f",
     "Makefile": "5a618e9a8877c6322d60b89043b2ed1f47162e9183095f7b3f404a061548f923",
-    "README.md": "1ec4fca23509e39bdd9bbbcd310027465c0afadaaa07a81ca794d350e57c2817",
+    "README.md": "648b3510a343064cc2deb1cfcd9083bb791ae95b8f5d78de9861bc3b7e874b8c",
     "SECURITY.md": "4bdf197fc9d4a4dba855511940e785b2c872abc85b9c41e01c1e21b9d7feda35",
     "alembic.ini": "dee23eb0e303a763adf0a8a56b09ce2ecad0f3ade478f457d8339819b8a56f32",
     "apps/backend/README.md": "a5b9d21a9221b864132f1f47686c98ae35a036b59a975f80952d8840bcb21800",
@@ -2564,7 +2635,7 @@
     "docs/adr/0083-otp-persistence-taxonomy-and-rbac.md": "8b0d597a15462fdd28d0a8291f6d6cec3e0cb0ce7dbe43f37d9179340cfeea1e",
     "docs/adr/0084-telephony-foundation-architecture.md": "31bf4e18d52f3243e2d095319d4a7d2a4cb9e1578d19b3ccf1b9ebbefce9fec6",
     "docs/adr/0085-telephony-call-state-machine.md": "aa421a86ff8f169f6c24040a2d5205fcc010f66fcfb7817e3c96452c8ed6d850",
-    "docs/adr/0086-telephony-persistence-idempotency-and-media.md": "f96c13a671a1e9b78a2df20352689ad4bd3a8d6154cf2fca5144debd60b58e5c",
+    "docs/adr/0086-telephony-persistence-idempotency-and-media.md": "9e0204ac109d3d58c14a02cfefb4c9fca2551b1e518f1c4b1c47c36aab434421",
     "docs/adr/0087-voice-provider-abstraction-and-elevenlabs-boundary.md": "027e8627d798b3e02ac0ca890339f1fdd93feaeb8c12cc147be612ba3a672593",
     "docs/adr/0088-voice-media-bridge-and-real-time-transport.md": "51a53ccff634e1bd538c7f431e6b4ca42a7594243ccfb1444d70ea0fe0c6f872",
     "docs/adr/0089-voice-session-lifecycle-idempotency-and-failure-model.md": "4d9f8e1d22b98b02529bbc794e35cc5422f2ac57f63d39eff803f707a226e086",
@@ -2578,7 +2649,7 @@
     "docs/adr/0097-durable-campaign-send-authority.md": "85466900ec768924ced3c1e22bf34b49944967825ef9001f8fdb0e687e65d326",
     "docs/adr/0098-human-operations-authority-and-fencing.md": "e3aab36f136048671edfab220828ecece9351dd94cf2027d834ca96f6bbbbc03",
     "docs/adr/0099-cell-placement-authority.md": "8acdfb8beb12421797747c6f405c8860230f010bd2adeef2b0593b5df7a92f0c",
-    "docs/adr/0100-sip-edge-routing-authority.md": "8b0095bfe4e707e7343ae7ad45f8ae46b64210902eb532c0ccca3c991e385f8a",
+    "docs/adr/0100-sip-edge-routing-authority.md": "784f72eafcf3c53a5c73a2018a320188e65613edfcbdf1f4a255d9ac0864135d",
     "docs/adr/README.md": "718eddf3591d37f93ee13d58f7aa8816217c66824834cc89a586ecb0f14c8a4c",
     "docs/architecture/components.md": "674342cfa8aa73758d81cc29254c6b1fe1d5529964e6746631f8fa8bab84b0f9",
     "docs/engineering/authentication.md": "d432f53bbc7fbae6bd34e4b7ffe6bde52b171f74003dab156c5315f5f604f3ca",
@@ -2603,9 +2674,9 @@
     "docs/engineering/nxs-p18-cell-scaling-design.md": "dd258ce439d78dd1d320a29223456880a4902b2554521730c2a1a0034b663027",
     "docs/engineering/nxs-p18-implementation-progress.md": "f5d7ddb84875162231983d066b5217cf49717f4b60e2314b368c3252b9aee1b8",
     "docs/engineering/nxs-p18-runtime.md": "caebbd8b82294b7ebe75cbf34b28e1a5f10fb717e2b399277f4763dfe1989e35",
-    "docs/engineering/nxs-p19-implementation-progress.md": "59ea4897d5c9e372da790321934a420c2d0b70d532be0443741b2108351b2d8e",
-    "docs/engineering/nxs-p19-runtime.md": "ff3e3243ab142635fc2b08b0914e63e476275454b9c47827e3c0d3961c819dee",
-    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "8827d7eb976180c57816f0d8bc0f9a368fe725126164a5665d0414c060fec71f",
+    "docs/engineering/nxs-p19-implementation-progress.md": "7a9688ed2a889a90431882886a43d4ca7ba6819ebe5f9ba92b5323b364ffd8fb",
+    "docs/engineering/nxs-p19-runtime.md": "5bfda0039731451eab369970242236cdfad2f8c485e02b762b734d203a86b634",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "480b93ed09ab023d6db92454ec4cdaad1de82c61ff6ea163873fa7c13037624d",
     "docs/engineering/provisioning.md": "77d78bc9618b3dc5a39235ca3b1dc69717c1fcaa11a0505aa548eaf587c92ad0",
     "docs/engineering/standards.md": "b22b2b707aa4623cf1fbfc84af58517da66d02cc209cdb8436968874099b212d",
     "docs/engineering/tenancy.md": "b5232b48232aa804eb21fd948110af8ab87c164f84b241e73c08ae651fc306a7",
@@ -2671,6 +2742,7 @@
     "migrations/versions/20260920_0750-d19a1b1c2d3e_sip_peer_policy.py": "c9c7fba9250713666dfad735262e3b09b53f147eca64fd1acad32c7b62f63d38",
     "migrations/versions/20260920_0800-d19b1b1c2d3e_sip_account_upstream.py": "df1b58e51a184f90ea06f58bb375f82636b6854eb9795bd53bd04d235aa898f7",
     "migrations/versions/20260920_1500-d19c1b1c2d3e_sip_tls_identity.py": "0ef392637e91813f9e8dc740d6182c48a1e4fa21954b4cd16a5ce12876f492e3",
+    "migrations/versions/20260921_0600-d19d1b1c2d3e_sip_call_admission.py": "3f60a2eb30701bd65253028a4eae5322daa37cd80a71df86088601240ce2d2bd",
     "packages/README.md": "c7f0f08498c0307a533a7b492b50e12a2ac63d70489822a35c6dfd4547af7441",
     "pyproject.toml": "cbf094625f5d1a623e06f63fe3bc297570cebf2a610e2ef6a1ad2f07d705068f",
     "scripts/__init__.py": "2ac2b4315499160238cef1d2dff73e18a0c370b33eb78072055f2fab7940b646",
@@ -2699,9 +2771,9 @@
     "scripts/nxs_p10_evidence.py": "509b0a67e1a1ca3bacabe5e64ffce549ee32af0a8860aa35cba515be536ab364",
     "scripts/nxs_p11_evidence.py": "7e9e148261968bbcf899cc9b6cbfa3881e052eb8ae72154e2e4e1a55fb471cd6",
     "scripts/nxs_p12_evidence.py": "f9c186cc3e1bab3d1fa5058d9cfabd5dfbe5a8ea2f0c36a133d1d4752a50c198",
-    "scripts/nxs_p13_evidence.py": "048680cc3308d0a66f8806041ef9b20b2864535619ab4b1892e5a282b67b697a",
+    "scripts/nxs_p13_evidence.py": "aeebfe729b161eff8d378acfb11ce10a15d172a2ba65e1db6c75203ab92a27f3",
     "scripts/nxs_p18_evidence.py": "c75835ca68045fc425cb4b1479449ad040b8d33c417a34dd257b344bc41c5cc1",
-    "scripts/nxs_p19_evidence.py": "fdd9fbe35a06d23a13f64b10398ac33e33bec5d789ab85b24cdc7b5bfb264775",
+    "scripts/nxs_p19_evidence.py": "1ed672c5e97b2d91c819aed9672c414f815a4d5a944784075e15ae9cb6257b99",
     "scripts/nxs_schema_guard/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "scripts/nxs_schema_guard/__main__.py": "ba89aae235c8b1931f44aec2e838525f77348ff4ee5878e6c1558690bc8d4e53",
     "scripts/nxs_start/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -2847,7 +2919,7 @@
     "src/nexus_ai/domain/scheduler/models.py": "eabb2ae5cf579f537a11bf69446a2135b7313238e6edfc0120438fd89b99bf06",
     "src/nexus_ai/domain/scheduler/repository.py": "cd1799df46ee7e34b4835ef315905885e4011cb685db7c365e37da222b5cd7f5",
     "src/nexus_ai/domain/sip_edge/__init__.py": "4c2631809967a878d9c07a462ce6a53fcdc5e223f390d321879040495766ff09",
-    "src/nexus_ai/domain/sip_edge/models.py": "a72dce62f6b0688f8412725670a44e165406d5975b39bf7ec34442b042bf3e6b",
+    "src/nexus_ai/domain/sip_edge/models.py": "4e16953b87d13462e72b278c3d4440bfac829f0e07b1aec11508e1a8e8d80fef",
     "src/nexus_ai/domain/telephony/__init__.py": "92a129aa2287dd93465c58c9d6fb19464abedab9296a1cdc76edb79298d02bf4",
     "src/nexus_ai/domain/telephony/models.py": "60ce641f06625dd9f4b2f6032237a806b40487d1d51a951cd4042ffdfb0e160c",
     "src/nexus_ai/domain/telephony/repository.py": "97dbd6ab3c70843c414d1880d693d84e91b542fd8827dfa2d0b4794f4262d6ec",
@@ -2949,7 +3021,7 @@
     "src/nexus_ai/sip_edge/backfill.py": "84c573030756e7f15b99c605c0e139590fa856e39181ea2df30c48bbc287ea59",
     "src/nexus_ai/sip_edge/contracts.py": "74ea2a1356c61934531b75bec04a7690d8838e1bf557fb71a4ee1c0deda06934",
     "src/nexus_ai/sip_edge/dialogs.py": "80557c385a0792751403325ad5d36a1d384d068f14ffc2d135c5f39a643eca95",
-    "src/nexus_ai/sip_edge/egress.py": "ef48a4b982c1a1c560f41e07e549c9d64b05ef4496cb3698f42f9a1501830a62",
+    "src/nexus_ai/sip_edge/egress.py": "a972d66c7687246596020d070bdd8b74414399580774bcbcc9b4ec7fb2579d5b",
     "src/nexus_ai/sip_edge/errors.py": "57b3aa5f1ef3a3cd24ba5efcf10a7a11ab424f9d3c9f74f59db935130a70303e",
     "src/nexus_ai/sip_edge/inbound.py": "7ff0fd7764e2cceb578c31d3a8fefbd5e424c23defcb4a321fa2e3ba7692d83c",
     "src/nexus_ai/sip_edge/locator.py": "8579bc3bd54bc3db59107331f1425cb001588ec21765ef31e676d332185f08b1",
@@ -2961,6 +3033,7 @@
     "src/nexus_ai/sip_edge/upstreams.py": "fe9423c5dbfebeb9350723d9ba806c024d3dd2910ffda6995fc2138e882e4509",
     "src/nexus_ai/telephony/__init__.py": "f68c0113202b6dfcf8baaf004085b8b859b2b657138df1bc6f78a5dff4f943e8",
     "src/nexus_ai/telephony/account_config.py": "e8ee683c0d7c2314fe9528df3cbfa1127d59d8ba6525e505200f0b873b435142",
+    "src/nexus_ai/telephony/admission.py": "6bd4cdfc0d420d623157b5d3802d54939c91842ce555f3a29e09c38d31b1e8c6",
     "src/nexus_ai/telephony/destinations.py": "c4123b5447cb7d33ee69ab47058ef7e3f08918679d2fd1b34aad526726a5bf2e",
     "src/nexus_ai/telephony/entities.py": "d90ce9f5246520f422698ef87889c99e879e992fcee436224a213d9139d3348f",
     "src/nexus_ai/telephony/errors.py": "1f39a3289c1cad13337511133a52cf62a2b63c7e877de38623d35a5ce2932ae6",
@@ -2971,7 +3044,7 @@
     "src/nexus_ai/telephony/providers/base.py": "034f6dfb89e071d2823ce7429fb110eec5d87e3874bc00147cff231e8f85c2ef",
     "src/nexus_ai/telephony/providers/fake.py": "2e8309c1ff6354df40a2342078cac0f885ed905fe6f8b0fde054e3cc1eaa0c05",
     "src/nexus_ai/telephony/providers/registry.py": "bde261201482c46de93edec51d65d926858ba1d206893ea3118b97b6e85ba356",
-    "src/nexus_ai/telephony/service.py": "973127dc62963c3040b5a928a9e17259ede22619bc196a7b254427c3bd9ab351",
+    "src/nexus_ai/telephony/service.py": "e1eb98afd1cc18530b4c1c530ef2c76a6ef7291971afb25def212647d6d3e04d",
     "src/nexus_ai/telephony/state_machine.py": "371616790e6758cae9f3e2f3c7fa8d44485ffc1894e85f46ca86684fdcc5ed63",
     "src/nexus_ai/telephony/webhooks.py": "b065e13da822e6c6b758daf95fa7a7f8765cb00c9f2954dc41926fa881ef3bfa",
     "src/nexus_ai/tools/__init__.py": "d2954e52e7bde8617fac11b8d05763304f397b4b3e024a10b02fe220684ef613",
@@ -3111,6 +3184,7 @@
     "tests/integration/test_scheduler_misfire_accounting.py": "d261ceff888bfd8e22005bc212fec9012b46815f6c88d5d488a047df43c6b41a",
     "tests/integration/test_scheduler_service.py": "74f40f7e426e4404b75e40df87037177def928047d50e3b7e6bd5011f4c7cc59",
     "tests/integration/test_sip_admission_races.py": "61a34ac8481cd38988b9a19d33a9754b4a27f0540fc33dd2619488ec9021d3a8",
+    "tests/integration/test_sip_admission_recovery.py": "d1542d257f5c1eae5d218ea510c387acdcc789b9020810fd53120ed2277fde18",
     "tests/integration/test_sip_asterisk_wire.py": "aafaaed6cf87763feee0cd6a815a4633fb3dd7842b90ec9bc0f0efb9b56bb775",
     "tests/integration/test_sip_did_locator.py": "8f5675bf13eb28bf6825990f6409681b1f583b3895298867ab5f55f566ef2e19",
     "tests/integration/test_sip_edge_authentication.py": "50fa34ca9d9fbda2d81d3e2c183bc9966622f08b1779c25f1e55950b86fa4846",
@@ -3118,7 +3192,7 @@
     "tests/integration/test_sip_egress_wire.py": "df3063f02ad88a9be916626d0f4426eb6b917880fae31686f73be9fa06b9ded3",
     "tests/integration/test_sip_inbound_routes.py": "c7abb2c824edf57b3d3c9dcdf3dda7cb987d3e79fcea671545bac00ce2233963",
     "tests/integration/test_sip_locator_backfill.py": "46489d7f733bd6f98a3adb4e23c5e89e42f81ae1ba9f98e27c0d8c8d50868b11",
-    "tests/integration/test_sip_migration.py": "2e4b91ae1d24d63e912cb6a4e05ccb542703a3da78da4c3b09034fb29cf5c42c",
+    "tests/integration/test_sip_migration.py": "0a3af2d9f62a68a9eeb4b39183fb90c07a3cd1c845ceed3f294116eeea65ac9f",
     "tests/integration/test_sip_native_configuration.py": "4d11151536f3f39646e4ded15036704a69ceae24dd74870a2a69d85d57766f53",
     "tests/integration/test_sip_peer_registry.py": "5af264d0d2f34ae8cef4ff4bc57254193e4733ea4b9281f72d063ab0365d531f",
     "tests/integration/test_sip_permit_expiry.py": "07db9c89ac5974738f6690e2d389744797688103053a4270279186e6b9d74478",

@@ -16,6 +16,7 @@ from nexus_ai.cells.admission import PlacementAdmission, PlacementResolver
 from nexus_ai.domain.organizations.models import OrganizationRecord
 from nexus_ai.domain.sip_edge.models import (
     SipAccountUpstreamRecord,
+    SipCallAdmissionRecord,
     SipEgressDialogBindingRecord,
     SipEgressPermitRecord,
     SipUpstreamRecord,
@@ -297,6 +298,9 @@ class EgressPermits:
                 if initial is None:
                     raise SipRouteDeniedError()
                 call = await revalidate_call(tenant, initial.call_id, initial.account_id)
+                admission = await tenant.session.get(SipCallAdmissionRecord, initial.call_id)
+                if admission is not None and admission.state != "DISPATCHED":
+                    raise SipRouteDeniedError()
                 upstream = await tenant.session.get(
                     SipUpstreamRecord, (initial.upstream_id, initial.upstream_revision)
                 )

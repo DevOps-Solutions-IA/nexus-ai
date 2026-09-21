@@ -31,7 +31,11 @@ def now() -> str:
     return dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def run(*args: str, env_extra: dict[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+def run(
+    *args: str,
+    env_extra: dict[str, str] | None = None,
+    timeout_seconds: float = 1200,
+) -> subprocess.CompletedProcess[str]:
     import os
 
     env = dict(os.environ)
@@ -44,7 +48,7 @@ def run(*args: str, env_extra: dict[str, str] | None = None) -> subprocess.Compl
         check=False,
         capture_output=True,
         text=True,
-        timeout=1200,
+        timeout=timeout_seconds,
         env=env,
     )
 

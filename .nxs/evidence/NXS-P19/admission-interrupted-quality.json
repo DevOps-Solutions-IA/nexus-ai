@@ -1,0 +1,98 @@
+{
+  "decision_eligibility": "NO_GO",
+  "details": {
+    "dependency_security": {
+      "command": [
+        "uv",
+        "run",
+        "pip-audit"
+      ],
+      "exit_code": 0,
+      "output_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n"
+    },
+    "formatting": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "755 files already formatted\n"
+    },
+    "lint": {
+      "command": [
+        "uv",
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "exit_code": 0,
+      "output_tail": "All checks passed!\n"
+    },
+    "repository_integrity": {
+      "command": [
+        "uv",
+        "run",
+        "python",
+        "-m",
+        "scripts.nxs_validate"
+      ],
+      "exit_code": 0,
+      "output_tail": "{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\n"
+    },
+    "sast": {
+      "command": [
+        "uv",
+        "run",
+        "bandit",
+        "-q",
+        "-lll",
+        "-c",
+        "pyproject.toml",
+        "-r",
+        "src",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "output_tail": ""
+    },
+    "tests": {
+      "command": [
+        "uv",
+        "run",
+        "pytest",
+        "-q"
+      ],
+      "exit_code": 1,
+      "output_tail": ", laddr=('172.17.0.1', 33548)>: None\n    | \n    +---------------- 3 ----------------\n    | Traceback (most recent call last):\n    |   File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/_pytest/unraisableexception.py\", line 33, in gc_collect_harder\n    |     gc.collect()\n    |     ~~~~~~~~~~^^\n    | ResourceWarning: unclosed <socket.socket fd=18, family=2, type=2, proto=0, laddr=('172.17.0.1', 44634)>\n    | \n    | The above exception was the direct cause of the following exception:\n    | \n    | Traceback (most recent call last):\n    |   File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/_pytest/unraisableexception.py\", line 67, in collect_unraisable\n    |     warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))\n    |     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    | pytest.PytestUnraisableExceptionWarning: Exception ignored while finalizing socket <socket.socket fd=18, family=2, type=2, proto=0, laddr=('172.17.0.1', 44634)>: None\n    | \n    +---------------- 4 ----------------\n    | Traceback (most recent call last):\n    |   File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/_pytest/unraisableexception.py\", line 33, in gc_collect_harder\n    |     gc.collect()\n    |     ~~~~~~~~~~^^\n    | ResourceWarning: unclosed <socket.socket fd=17, family=2, type=2, proto=0, laddr=('172.17.0.1', 36422)>\n    | \n    | The above exception was the direct cause of the following exception:\n    | \n    | Traceback (most recent call last):\n    |   File \"/home/wundah/nexus-ai/.venv/lib/python3.14/site-packages/_pytest/unraisableexception.py\", line 67, in collect_unraisable\n    |     warnings.warn(pytest.PytestUnraisableExceptionWarning(msg))\n    |     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    | pytest.PytestUnraisableExceptionWarning: Exception ignored while finalizing socket <socket.socket fd=17, family=2, type=2, proto=0, laddr=('172.17.0.1', 36422)>: None\n    | \n    +------------------------------------\n"
+    },
+    "typing": {
+      "command": [
+        "uv",
+        "run",
+        "mypy"
+      ],
+      "exit_code": 0,
+      "output_tail": "Success: no issues found in 335 source files\n"
+    }
+  },
+  "executed_at": "2026-09-21T06:45:27Z",
+  "gates": {
+    "dependency_security": "PASS",
+    "formatting": "PASS",
+    "lint": "PASS",
+    "repository_integrity": "PASS",
+    "sast": "PASS",
+    "tests": "FAIL",
+    "typing": "PASS"
+  },
+  "phase": "NXS-P19",
+  "result": "HISTORICAL_INTERRUPTED",
+  "schema_version": "1.0.0",
+  "original_result": "FAIL",
+  "reason": "Agent interrupted pytest to correct pre-existing unconsumed permit revocation recovery. Interrupted socket finalization yielded exit 1; not counted as a successful gate. Subsequent fresh full gate required."
+}

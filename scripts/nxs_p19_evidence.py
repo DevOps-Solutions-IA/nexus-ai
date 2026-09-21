@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import time
 from pathlib import Path
 from typing import Any
@@ -102,6 +103,7 @@ ACCEPTANCE = {
         "tests/integration/test_telephony*.py::*",
         EGRESS_WIRE,
         "tests/integration/test_sip_permit_issuance_failure.py::*",
+        "tests/integration/test_sip_admission_recovery.py::*",
     ],
     "AC17": ["tests/integration/test_voice*.py::*"],
     "AC18": [SCOPE, case("test_suspended_placement_cannot_be_relocated")],
@@ -172,6 +174,20 @@ def pytest_runtest_logreport(report: Any) -> None:
         RESULTS[report.nodeid] = "PASS"
 
 
+ADMISSION = {
+    "A01": [case("test_total_database_unavailability_and_recovery")],
+    "A02": ["*::test_total_database_unavailability_and_recovery[[]True]"],
+    "A03": ["*::test_total_database_unavailability_and_recovery[[]False]"],
+    "A04": [
+        case("test_concurrent_replay_does_not_revoke_active_owner"),
+        case("test_recovery_wins_before_dispatch_and_old_owner_cannot_send"),
+    ],
+    "A05": ["*::test_owner_crash_recovery_fences_old_owner[[]*-False]"],
+    "A06": ["*::test_owner_crash_recovery_fences_old_owner[[]*-True]"],
+    "A07": [case("test_after_dispatch_never_reoriginates")],
+}
+
+
 def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
     RUNTIME.mkdir(parents=True, exist_ok=True)
     (RUNTIME / "p19-test-results.json").write_text(
@@ -194,7 +210,15 @@ def main() -> int:
     ]
     report.unlink(missing_ok=True)
     started = time.monotonic()
-    completed = run(*command)
+    try:
+        completed = run(*command, timeout_seconds=1800)
+    except subprocess.TimeoutExpired as exc:
+        completed = subprocess.CompletedProcess(
+            ["uv", "run", *command],
+            124,
+            (exc.stdout or b"").decode(errors="replace"),
+            (exc.stderr or b"").decode(errors="replace"),
+        )
     elapsed = time.monotonic() - started
     (RUNTIME / "p19-pytest-output.log").write_text(completed.stdout + completed.stderr)
     observed = json.loads(report.read_text()) if report.exists() else {"tests": {}, "exit_code": 1}
@@ -202,6 +226,7 @@ def main() -> int:
     concurrency = evaluate(CONCURRENCY, results)
     acceptance = evaluate(ACCEPTANCE, results)
     transport = evaluate(TRANSPORT, results)
+    admission = evaluate(ADMISSION, results)
     current_paths = git(ROOT, "ls-files", "--cached", "--others", "--exclude-standard").splitlines()
     after = source_snapshot(ROOT, current_paths)
     drift = sorted(
@@ -213,7 +238,12 @@ def main() -> int:
         and not drift
         and all(
             value["result"] == "PASS"
-            for value in (*concurrency.values(), *acceptance.values(), *transport.values())
+            for value in (
+                *concurrency.values(),
+                *acceptance.values(),
+                *transport.values(),
+                *admission.values(),
+            )
         )
     )
     acceptance["AC26"]["result"] = "PENDING_EXTERNAL_GATE"
@@ -241,6 +271,7 @@ def main() -> int:
         "concurrency": concurrency,
         "acceptance": acceptance,
         "transport": transport,
+        "admission": admission,
         "source_sha256": before,
         "source_drift": drift,
         "closure": "NOT_AUTHORIZED",

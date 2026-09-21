@@ -25,6 +25,26 @@ from sqlalchemy.orm import Mapped, mapped_column
 from nexus_ai.infrastructure.orm import TENANT_OWNED, TENANT_SCOPED_KEY, Base, TenantOwnedMixin
 
 
+class SipCallAdmissionRecord(TenantOwnedMixin, Base):
+    __tablename__ = "sip_call_admissions"
+    __table_args__: Any = (
+        ForeignKeyConstraint(
+            ["organization_id", "call_id"],
+            ["telephony_calls.organization_id", "telephony_calls.id"],
+            ondelete="RESTRICT",
+        ),
+        CheckConstraint("state IN ('PENDING','DISPATCHED','REVOKED')", name="state_known"),
+        CheckConstraint("expires_at > created_at", name="deadline_positive"),
+        Index("ix_sip_call_admissions_pending", "organization_id", "state", "expires_at"),
+        {"info": {TENANT_SCOPED_KEY: TENANT_OWNED}},
+    )
+    call_id: Mapped[UUID] = mapped_column(primary_key=True)
+    owner_id: Mapped[UUID] = mapped_column()
+    state: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class SipDidLocatorRecord(TenantOwnedMixin, Base):
     __tablename__ = "sip_did_locators"
     __table_args__: Any = (

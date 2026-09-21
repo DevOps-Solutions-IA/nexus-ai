@@ -4,7 +4,7 @@
     "passed": 84,
     "skipped": 0
   },
-  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
   "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "closure": "NOT_AUTHORIZED",
   "command": [
@@ -18,10 +18,11 @@
   ],
   "exact_node_source": "executed-test-nodes.json; full suite aggregate in tests.json",
   "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "19129c089e2fe258d310d3b7116b3ee3cf90d15c9ebb3a8d73a31141273f55bf",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
   "expected": "All selected executable proof nodes pass without skips",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-21T00:16:53.448565+00:00",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
   "result": "PASS",
   "schema_version": "1.0.0",
   "test_files": [
@@ -32,6 +33,7 @@
   "test_selection": [
     "*test_sip_wire.py::*",
     "*test_sip_egress_wire.py::*",
+    "*test_sip_stream_transports.py::*",
     "*test_sip_stream_transports.py::*",
     "*test_sip_stream_transports.py::*"
   ]

@@ -1,6 +1,22 @@
 # P19 implementation candidate and corrective status
 
-## Current state — transport corrective
+## Current state — pre-ARI admission corrective
+
+The externally audited transport candidate is
+`f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6`; its exact-head CI 35549728454 and
+Security 35549728452 passed. External review then required elimination of the total
+database-outage window between committed CREATED and permit issuance. The current
+corrective adds durable pre-provider owner fencing, bounded recovery and A01–A07
+evidence. P19 remains BUILDING/PENDING. Closure, merge, deployment and P20 are not
+authorized. Consult live lock status; no historical expiry is current authority.
+
+The selected internal strategy is a durable PENDING owner record atomically committed
+with the call/event, followed by a single irreversible DISPATCHED CAS before ARI.
+Recovery revokes expired PENDING owners and their unconsumed permit slots; it never
+reclaims DISPATCHED or retries an uncertain external effect. See the runtime contract
+for the bounded tenant-scoped recovery operation and non-idempotent call behavior.
+
+## HISTORICAL — transport corrective and certification
 
 P19 remains BUILDING/PENDING on `feat/nxs-p19-sip-scaling`; canonical main remains
 through P18. The complete original candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772`
