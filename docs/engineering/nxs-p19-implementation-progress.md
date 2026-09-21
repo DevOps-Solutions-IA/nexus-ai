@@ -1,6 +1,17 @@
 # P19 implementation candidate and corrective status
 
-## Current state — pre-ARI admission corrective
+## Current state — feature-branch closure
+
+P19 is READY/GO after externally authorized canonical closure against implementation
+`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. External implementation audit passed;
+exact implementation-head CI 35578134180 and Security 35578134184 succeeded.
+The fresh closure gate passed 2260 tests with 91.18% coverage. C01–C32, AC01–AC43,
+T01–T10 and A01–A07 remain evidenced. The execution lock is released and P20 is
+PLANNED/PENDING, not started. Main remains through P18; P19 is not merged or
+deployed. External closure audit and explicit merge authorization remain required.
+No capacity or automatic failover certification is claimed.
+
+## HISTORICAL — pre-ARI admission corrective before closure
 
 The externally audited transport candidate is
 `f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6`; its exact-head CI 35549728454 and
@@ -237,4 +248,6 @@ and quality-matrix artifacts, not the historical counts above. Exact candidate-h
 CI/Security remains a separate external gate; local checks cannot declare it PASS.
 
 No automatic failover, relocation, media migration, capacity certification or
-production deployment is implemented or claimed. Do not close, merge or start P20.
+production deployment is implemented or claimed. The historical implementation-stage
+instruction was not to close, merge or start P20; the later authorized closure is
+recorded in the current-state section above. Merge and P20 start remain unauthorized.

@@ -1,0 +1,392 @@
+{
+  "fresh_regression": "quality-gates.json",
+  "groups": {
+    "acceptance": {
+      "AC01": {
+        "executed_tests": "execution-criteria.json#acceptance/AC01",
+        "result": "PASS"
+      },
+      "AC02": {
+        "executed_tests": "execution-criteria.json#acceptance/AC02",
+        "result": "PASS"
+      },
+      "AC03": {
+        "executed_tests": "execution-criteria.json#acceptance/AC03",
+        "result": "PASS"
+      },
+      "AC04": {
+        "executed_tests": "execution-criteria.json#acceptance/AC04",
+        "result": "PASS"
+      },
+      "AC05": {
+        "executed_tests": "execution-criteria.json#acceptance/AC05",
+        "result": "PASS"
+      },
+      "AC06": {
+        "executed_tests": "execution-criteria.json#acceptance/AC06",
+        "result": "PASS"
+      },
+      "AC07": {
+        "executed_tests": "execution-criteria.json#acceptance/AC07",
+        "result": "PASS"
+      },
+      "AC08": {
+        "executed_tests": "execution-criteria.json#acceptance/AC08",
+        "result": "PASS"
+      },
+      "AC09": {
+        "executed_tests": "execution-criteria.json#acceptance/AC09",
+        "result": "PASS"
+      },
+      "AC10": {
+        "executed_tests": "execution-criteria.json#acceptance/AC10",
+        "result": "PASS"
+      },
+      "AC11": {
+        "executed_tests": "execution-criteria.json#acceptance/AC11",
+        "result": "PASS"
+      },
+      "AC12": {
+        "executed_tests": "execution-criteria.json#acceptance/AC12",
+        "result": "PASS"
+      },
+      "AC13": {
+        "executed_tests": "execution-criteria.json#acceptance/AC13",
+        "result": "PASS"
+      },
+      "AC14": {
+        "executed_tests": "execution-criteria.json#acceptance/AC14",
+        "result": "PASS"
+      },
+      "AC15": {
+        "executed_tests": "execution-criteria.json#acceptance/AC15",
+        "result": "PASS"
+      },
+      "AC16": {
+        "executed_tests": "execution-criteria.json#acceptance/AC16",
+        "result": "PASS"
+      },
+      "AC17": {
+        "executed_tests": "execution-criteria.json#acceptance/AC17",
+        "result": "PASS"
+      },
+      "AC18": {
+        "executed_tests": "execution-criteria.json#acceptance/AC18",
+        "result": "PASS"
+      },
+      "AC19": {
+        "executed_tests": "execution-criteria.json#acceptance/AC19",
+        "result": "PASS"
+      },
+      "AC20": {
+        "executed_tests": "execution-criteria.json#acceptance/AC20",
+        "result": "PASS"
+      },
+      "AC21": {
+        "executed_tests": "execution-criteria.json#acceptance/AC21",
+        "result": "PASS"
+      },
+      "AC22": {
+        "executed_tests": "execution-criteria.json#acceptance/AC22",
+        "result": "PASS"
+      },
+      "AC23": {
+        "executed_tests": "execution-criteria.json#acceptance/AC23",
+        "result": "PASS"
+      },
+      "AC24": {
+        "executed_tests": "execution-criteria.json#acceptance/AC24",
+        "result": "PASS"
+      },
+      "AC25": {
+        "executed_tests": "execution-criteria.json#acceptance/AC25",
+        "result": "PASS"
+      },
+      "AC26": {
+        "additional_evidence": [
+          "github-ci.json",
+          "clean-room.json",
+          "external-final-audit-authorization.json"
+        ],
+        "executed_tests": "execution-criteria.json#acceptance/AC26",
+        "result": "PASS"
+      },
+      "AC27": {
+        "executed_tests": "execution-criteria.json#acceptance/AC27",
+        "result": "PASS"
+      },
+      "AC28": {
+        "executed_tests": "execution-criteria.json#acceptance/AC28",
+        "result": "PASS"
+      },
+      "AC29": {
+        "executed_tests": "execution-criteria.json#acceptance/AC29",
+        "result": "PASS"
+      },
+      "AC30": {
+        "executed_tests": "execution-criteria.json#acceptance/AC30",
+        "result": "PASS"
+      },
+      "AC31": {
+        "executed_tests": "execution-criteria.json#acceptance/AC31",
+        "result": "PASS"
+      },
+      "AC32": {
+        "executed_tests": "execution-criteria.json#acceptance/AC32",
+        "result": "PASS"
+      },
+      "AC33": {
+        "executed_tests": "execution-criteria.json#acceptance/AC33",
+        "result": "PASS"
+      },
+      "AC34": {
+        "executed_tests": "execution-criteria.json#acceptance/AC34",
+        "result": "PASS"
+      },
+      "AC35": {
+        "executed_tests": "execution-criteria.json#acceptance/AC35",
+        "result": "PASS"
+      },
+      "AC36": {
+        "executed_tests": "execution-criteria.json#acceptance/AC36",
+        "result": "PASS"
+      },
+      "AC37": {
+        "executed_tests": "execution-criteria.json#acceptance/AC37",
+        "result": "PASS"
+      },
+      "AC38": {
+        "executed_tests": "execution-criteria.json#acceptance/AC38",
+        "result": "PASS"
+      },
+      "AC39": {
+        "executed_tests": "execution-criteria.json#acceptance/AC39",
+        "result": "PASS"
+      },
+      "AC40": {
+        "executed_tests": "execution-criteria.json#acceptance/AC40",
+        "result": "PASS"
+      },
+      "AC41": {
+        "executed_tests": "execution-criteria.json#acceptance/AC41",
+        "result": "PASS"
+      },
+      "AC42": {
+        "executed_tests": "execution-criteria.json#acceptance/AC42",
+        "result": "PASS"
+      },
+      "AC43": {
+        "executed_tests": "execution-criteria.json#acceptance/AC43",
+        "result": "PASS"
+      }
+    },
+    "admission": {
+      "A01": {
+        "executed_tests": "execution-criteria.json#admission/A01",
+        "result": "PASS"
+      },
+      "A02": {
+        "executed_tests": "execution-criteria.json#admission/A02",
+        "result": "PASS"
+      },
+      "A03": {
+        "executed_tests": "execution-criteria.json#admission/A03",
+        "result": "PASS"
+      },
+      "A04": {
+        "executed_tests": "execution-criteria.json#admission/A04",
+        "result": "PASS"
+      },
+      "A05": {
+        "executed_tests": "execution-criteria.json#admission/A05",
+        "result": "PASS"
+      },
+      "A06": {
+        "executed_tests": "execution-criteria.json#admission/A06",
+        "result": "PASS"
+      },
+      "A07": {
+        "executed_tests": "execution-criteria.json#admission/A07",
+        "result": "PASS"
+      }
+    },
+    "concurrency": {
+      "C01": {
+        "executed_tests": "execution-criteria.json#concurrency/C01",
+        "result": "PASS"
+      },
+      "C02": {
+        "executed_tests": "execution-criteria.json#concurrency/C02",
+        "result": "PASS"
+      },
+      "C03": {
+        "executed_tests": "execution-criteria.json#concurrency/C03",
+        "result": "PASS"
+      },
+      "C04": {
+        "executed_tests": "execution-criteria.json#concurrency/C04",
+        "result": "PASS"
+      },
+      "C05": {
+        "executed_tests": "execution-criteria.json#concurrency/C05",
+        "result": "PASS"
+      },
+      "C06": {
+        "executed_tests": "execution-criteria.json#concurrency/C06",
+        "result": "PASS"
+      },
+      "C07": {
+        "executed_tests": "execution-criteria.json#concurrency/C07",
+        "result": "PASS"
+      },
+      "C08": {
+        "executed_tests": "execution-criteria.json#concurrency/C08",
+        "result": "PASS"
+      },
+      "C09": {
+        "executed_tests": "execution-criteria.json#concurrency/C09",
+        "result": "PASS"
+      },
+      "C10": {
+        "executed_tests": "execution-criteria.json#concurrency/C10",
+        "result": "PASS"
+      },
+      "C11": {
+        "executed_tests": "execution-criteria.json#concurrency/C11",
+        "result": "PASS"
+      },
+      "C12": {
+        "executed_tests": "execution-criteria.json#concurrency/C12",
+        "result": "PASS"
+      },
+      "C13": {
+        "executed_tests": "execution-criteria.json#concurrency/C13",
+        "result": "PASS"
+      },
+      "C14": {
+        "executed_tests": "execution-criteria.json#concurrency/C14",
+        "result": "PASS"
+      },
+      "C15": {
+        "executed_tests": "execution-criteria.json#concurrency/C15",
+        "result": "PASS"
+      },
+      "C16": {
+        "executed_tests": "execution-criteria.json#concurrency/C16",
+        "result": "PASS"
+      },
+      "C17": {
+        "executed_tests": "execution-criteria.json#concurrency/C17",
+        "result": "PASS"
+      },
+      "C18": {
+        "executed_tests": "execution-criteria.json#concurrency/C18",
+        "result": "PASS"
+      },
+      "C19": {
+        "executed_tests": "execution-criteria.json#concurrency/C19",
+        "result": "PASS"
+      },
+      "C20": {
+        "executed_tests": "execution-criteria.json#concurrency/C20",
+        "result": "PASS"
+      },
+      "C21": {
+        "executed_tests": "execution-criteria.json#concurrency/C21",
+        "result": "PASS"
+      },
+      "C22": {
+        "executed_tests": "execution-criteria.json#concurrency/C22",
+        "result": "PASS"
+      },
+      "C23": {
+        "executed_tests": "execution-criteria.json#concurrency/C23",
+        "result": "PASS"
+      },
+      "C24": {
+        "executed_tests": "execution-criteria.json#concurrency/C24",
+        "result": "PASS"
+      },
+      "C25": {
+        "executed_tests": "execution-criteria.json#concurrency/C25",
+        "result": "PASS"
+      },
+      "C26": {
+        "executed_tests": "execution-criteria.json#concurrency/C26",
+        "result": "PASS"
+      },
+      "C27": {
+        "executed_tests": "execution-criteria.json#concurrency/C27",
+        "result": "PASS"
+      },
+      "C28": {
+        "executed_tests": "execution-criteria.json#concurrency/C28",
+        "result": "PASS"
+      },
+      "C29": {
+        "executed_tests": "execution-criteria.json#concurrency/C29",
+        "result": "PASS"
+      },
+      "C30": {
+        "executed_tests": "execution-criteria.json#concurrency/C30",
+        "result": "PASS"
+      },
+      "C31": {
+        "executed_tests": "execution-criteria.json#concurrency/C31",
+        "result": "PASS"
+      },
+      "C32": {
+        "executed_tests": "execution-criteria.json#concurrency/C32",
+        "result": "PASS"
+      }
+    },
+    "transport": {
+      "T01": {
+        "executed_tests": "execution-criteria.json#transport/T01",
+        "result": "PASS"
+      },
+      "T02": {
+        "executed_tests": "execution-criteria.json#transport/T02",
+        "result": "PASS"
+      },
+      "T03": {
+        "executed_tests": "execution-criteria.json#transport/T03",
+        "result": "PASS"
+      },
+      "T04": {
+        "executed_tests": "execution-criteria.json#transport/T04",
+        "result": "PASS"
+      },
+      "T05": {
+        "executed_tests": "execution-criteria.json#transport/T05",
+        "result": "PASS"
+      },
+      "T06": {
+        "executed_tests": "execution-criteria.json#transport/T06",
+        "result": "PASS"
+      },
+      "T07": {
+        "executed_tests": "execution-criteria.json#transport/T07",
+        "result": "PASS"
+      },
+      "T08": {
+        "executed_tests": "execution-criteria.json#transport/T08",
+        "result": "PASS"
+      },
+      "T09": {
+        "executed_tests": "execution-criteria.json#transport/T09",
+        "result": "PASS"
+      },
+      "T10": {
+        "executed_tests": "execution-criteria.json#transport/T10",
+        "result": "PASS"
+      }
+    }
+  },
+  "historical_implementation_mapping": "execution-criteria.json retained unmodified; AC26 pending-at-commit resolved by exact implementation-head workflows",
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

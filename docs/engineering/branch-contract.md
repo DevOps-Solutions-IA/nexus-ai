@@ -4,7 +4,7 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
-## NXS-P19 governance contract
+## NXS-P19 implemented and feature-branch-certified contract
 
 - Phase/branch: NXS-P19 SIP Edge Scaling; `feat/nxs-p19-sip-scaling`, existing branch from main `e2114cfe8f150e85b9ae432a9af557ceb52cf836`.
 - Dependencies: P11 and P18 READY/GO. Requirement: NXS-SCALE-002 (NXS-TEL-001 + NXS-SCALE-001).
@@ -16,7 +16,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Concurrency: P18 Cell/placement locks precede P11/locator/P19 authority; unique active target, expected revisions, durable route/owner receipts, one-time egress consumption and deterministic suspend/authorize ordering. C01–C32 have explicit executable mappings; current results, source binding and historical failures are recorded in P19 evidence.
 - Failure model: unknown DID, suspended placement, missing target, DB/resolver outage or ambiguity denies new routing; no default/fallback/fan-out; existing dialog stays pinned.
 - Evidence: ADR-0100 and `docs/engineering/nxs-p19-sip-edge-scaling-design.md` define AC01–AC43, real SIP/two-edge/two-Cell, ARI permit propagation and PostgreSQL tests, migration/rollback and observability limits. Current source-bound implementation proofs are distinct from historical development attempts and external exact-head gates.
-- Readiness: historical governance was PLANNED/PENDING with null commits/timestamps and no lock or start. Separate authorization started P19 as BUILDING/PENDING, actor `cdxm`, on 2026-09-19. The implementation candidate remains subject to all 31 canonical gates, exact-head CI/Security and independent audit; closure, merge and deployment are not authorized.
+- Readiness: historical governance was PLANNED/PENDING; separate authorization started P19 as BUILDING/PENDING, actor `cdxm`, on 2026-09-19. External implementation audit approved `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`; canonical closure now records READY/GO on the feature branch after the fresh gate and all 31 mandatory gates. Main remains through P18. External closure audit is pending; merge, deployment and P20 start are not authorized.
 
 ## NXS-P18 canonical implemented contract
 
@@ -27,8 +27,8 @@ as VALIDATING/PENDING, audited externally, and canonically reclosed READY/GO aga
 `cfa98bd76c0b0e00653356651d672b4e213ef630`. Reclosure commit
 `9c6949aca7b53c1d4c4c8839933ad8b2a7a66c71` subsequently merged to canonical main at
 `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P18 is canonical READY/GO; runtime and
-architecture are unchanged. P19 is now BUILDING/PENDING on its implementation branch;
-no P19 closure, merge or deployment has occurred.
+architecture are unchanged. P19 is closed READY/GO only on its feature branch;
+no P19 merge or deployment has occurred.
 
 - Registered branch: `feat/nxs-p18-cell-scaling`; dependencies: NXS-P13 and NXS-P17 READY/GO. Requirement: `NXS-SCALE-001`, retaining its NXS-PLATFORM-002 dependency.
 - Objective/scope: stateless Cell compute with durable inventory, one PostgreSQL-authoritative Organization placement, deterministic resolution, same-Cell suspend/reactivate, generation fencing, stable mutation identities, history and tenant P04 outbox intent.

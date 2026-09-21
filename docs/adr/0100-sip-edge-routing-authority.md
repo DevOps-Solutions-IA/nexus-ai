@@ -1,11 +1,12 @@
 # ADR-0100: SIP edge routing authority and pinned dialogs
 
-Status: externally approved P19 implementation contract. Its historical governance
-state was PLANNED/PENDING. P19 is now BUILDING/PENDING on its feature branch after
-separate implementation authorization. The runtime candidate and local executable
-proofs exist; exact-head validation and independent certification remain separate
-gates recorded under `.nxs/evidence/NXS-P19/`. No READY/GO or merge is declared here.
-This ADR refines historical ADR-0013; it does not itself implement Kamailio.
+Status: implemented and closed READY/GO on `feat/nxs-p19-sip-scaling`, binding
+externally audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`.
+Historical governance was PLANNED/PENDING, followed by authorized BUILDING/PENDING.
+Executed implementation, exact-head CI/Security and fresh closure gate evidence are
+recorded under `.nxs/evidence/NXS-P19/`. External closure audit remains pending;
+P19 is not merged or deployed, P20 has not started, and capacity/failover are not
+certified. This ADR refines historical ADR-0013 and records the implemented authority.
 Canonical baseline is `e2114cfe8f150e85b9ae432a9af557ceb52cf836`, through P18 READY/GO.
 
 ## Decision

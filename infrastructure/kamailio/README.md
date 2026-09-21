@@ -1,12 +1,13 @@
-# P19 SIP reference implementation — unclosed candidate
+# P19 SIP reference implementation — feature-branch certified
 
-This directory is development/test infrastructure, not a deployment. P19 remains
-BUILDING/PENDING. No capacity, availability, active-call failover, production or
-production protocol certification is claimed. Published candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772`
-completed the original C01–C32/AC01–AC43 local matrix, clean-room and exact-head CI.
-External review required this transport corrective; historical certificates cannot
-certify changed source. Current corrective evidence and source hashes live under
-`.nxs/evidence/NXS-P19/`. Closure and merge remain unauthorized.
+This directory is development/test infrastructure, not a deployment. P19 is closed
+READY/GO on `feat/nxs-p19-sip-scaling`, binding externally audited implementation
+`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. Fresh certification covers UDP/TCP/TLS,
+pre-ARI admission recovery, C01–C32/AC01–AC43/T01–T10/A01–A07, clean-room and exact
+implementation-head CI/Security. Evidence and historical failures remain under
+`.nxs/evidence/NXS-P19/`. Main remains through P18; P19 is not merged or production
+deployed. External closure audit is pending. Merge and P20 start are unauthorized;
+no capacity, availability, active-call failover or production certification is claimed.
 
 ## Artifact provenance
 
@@ -114,8 +115,9 @@ accept this value. Caller-ID, From and source IP do not substitute for the permi
 Kamailio removes internal headers before relay. The direct real Asterisk test proves
 ARI-to-PJSIP propagation and log non-disclosure. `test_sip_egress_wire.py` additionally
 executes P11 durable call creation, permit issuance, real ARI/PJSIP, Kamailio consumption
-and approved carrier-UAS reception with the internal permit removed. This is not
-production Asterisk certification or completion of the entire attack matrix.
+and approved carrier-UAS reception with the internal permit removed. This fixture
+alone is not the entire attack matrix; the complete matrix is separately recorded
+in closure-criteria.json. No production Asterisk certification is claimed.
 
 ## Executable certification surfaces
 

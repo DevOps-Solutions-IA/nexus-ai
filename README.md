@@ -29,7 +29,6 @@ Canonical backend progress on `main`:
 | NXS-P16 | Campaigns | READY / GO |
 | NXS-P17 | Human Agent Operations | READY / GO |
 | NXS-P18 | Horizontal Cell Scaling | READY / GO |
-| NXS-P19 | SIP Edge Scaling | BUILDING / PENDING on the implementation branch — not certified |
 
 P12 is contract-certified against the platform abstraction and test suite; live-provider certification remains a separate milestone.
 
@@ -39,11 +38,11 @@ Canonical main is completed through P18, merged at
 `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P18 is READY/GO and provides
 PostgreSQL-authoritative Cell placement and transactional admission into existing
 agent, human, workflow, scheduler, campaign and messaging boundaries.
-P19 is BUILDING/PENDING on `feat/nxs-p19-sip-scaling` after authorized lifecycle
-start. The complete SIP implementation candidate received external review; its
-UDP/TCP/TLS transport corrective passed exact-head CI/Security. The subsequent
-pre-ARI admission ownership/recovery corrective requires fresh certification and
-external re-audit. P19 remains unmerged; no READY/GO is claimed.
+Separately, P19 is closed READY/GO on `feat/nxs-p19-sip-scaling`, binding implementation
+`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. External implementation audit and exact-head
+CI/Security passed, including UDP/TCP/TLS and pre-ARI admission recovery. Canonical
+closure followed a fresh 2260-test gate. P19 is not merged to main; external closure
+audit and explicit merge authorization remain required. P20 has not started.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
@@ -257,7 +256,7 @@ CALL     → Telephony / P11
 VOICE    → Voice / P12
 ```
 
-P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement is canonical READY/GO on main; P19 SIP edge is BUILDING/PENDING only on its implementation branch. Placement does not replace these execution authorities.
+P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement is canonical READY/GO on main; P19 SIP edge is closed READY/GO only on its feature branch, pending external closure audit and merge authorization. Placement does not replace these execution authorities.
 
 ## Security model
 
@@ -318,7 +317,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P18 at `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 is BUILDING/PENDING on its implementation branch, with local executable proofs and separate exact-head/external audit gates; it is not READY/GO or merged. Historical implementation, closure and corrective evidence remains preserved. P18 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P18 at `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 is closed READY/GO on its feature branch after external implementation audit and canonical certification, but is not merged. External closure audit and explicit merge authorization remain required; P20 has not started. Historical implementation, closure and corrective evidence remains preserved. P18/P19 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

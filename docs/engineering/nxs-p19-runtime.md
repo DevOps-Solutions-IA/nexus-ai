@@ -1,9 +1,11 @@
 # P19 SIP edge runtime and laboratory boundaries
 
-P19 is BUILDING/PENDING on `feat/nxs-p19-sip-scaling`. This document describes the
-implementation candidate, not canonical-main deployment, closure or capacity
-certification. Main remains through P18. ADR-0100 and the P19 design remain the
-authority contract; `.nxs/` and executed evidence determine certification status.
+P19 is closed READY/GO on `feat/nxs-p19-sip-scaling`, binding externally audited
+implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. Main remains through P18:
+P19 is not merged or production deployed. External closure audit is pending; P20
+has not started. No capacity or automatic failover certification is claimed.
+ADR-0100 and the P19 design remain the authority contract; `.nxs/` and executed
+evidence determine certification status.
 
 ## Ownership and persistence
 

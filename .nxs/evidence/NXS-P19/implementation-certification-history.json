@@ -1,0 +1,304 @@
+{
+  "all_other_implementation_evidence": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be:.nxs/evidence/NXS-P19/",
+  "artifacts": {
+    "quality-gates.json": {
+      "decision_eligibility": "GO",
+      "details": {
+        "dependency_security": {
+          "command": [
+            "uv",
+            "run",
+            "pip-audit"
+          ],
+          "exit_code": 0,
+          "output_tail": "Name     Skip Reason\n-------- -----------------------------------------------------------------------\nnexus-ai Dependency not found on PyPI and could not be audited: nexus-ai (0.1.0)\nNo known vulnerabilities found\n"
+        },
+        "formatting": {
+          "command": [
+            "uv",
+            "run",
+            "ruff",
+            "format",
+            "--check",
+            "."
+          ],
+          "exit_code": 0,
+          "output_tail": "755 files already formatted\n"
+        },
+        "lint": {
+          "command": [
+            "uv",
+            "run",
+            "ruff",
+            "check",
+            "."
+          ],
+          "exit_code": 0,
+          "output_tail": "All checks passed!\n"
+        },
+        "repository_integrity": {
+          "command": [
+            "uv",
+            "run",
+            "python",
+            "-m",
+            "scripts.nxs_validate"
+          ],
+          "exit_code": 0,
+          "output_tail": "{\"validator\": \"NXS_REPOSITORY\", \"result\": \"PASS\"}\n"
+        },
+        "sast": {
+          "command": [
+            "uv",
+            "run",
+            "bandit",
+            "-q",
+            "-lll",
+            "-c",
+            "pyproject.toml",
+            "-r",
+            "src",
+            "scripts"
+          ],
+          "exit_code": 0,
+          "output_tail": ""
+        },
+        "tests": {
+          "command": [
+            "uv",
+            "run",
+            "pytest",
+            "-q"
+          ],
+          "exit_code": 0,
+          "output_tail": "istry.py              25      0      0      0   100%\nsrc/nexus_ai/voice/redaction.py                       27      0     10      2    95%   70->72, 72->74\nsrc/nexus_ai/voice/runtime.py                        166     12     46      9    89%   131, 164-165, 220, 236, 237->239, 243-246, 258->260, 267->exit, 285, 287, 298\nsrc/nexus_ai/voice/service.py                        406     37    130     29    86%   106-107, 159-160, 208->exit, 219, 220->exit, 253-254, 270->272, 273, 275, 277, 279, 307, 310, 312, 393->392, 413, 440, 538, 540, 547->exit, 636-639, 668, 746, 750, 763, 798-803, 837, 850-853, 867, 876, 897\nsrc/nexus_ai/voice/state_machine.py                   57      1     18      1    97%   129\nsrc/nexus_ai/voice/transport.py                      149     21     34      7    84%   59, 72-80, 83-86, 162, 177, 199, 242, 259, 265, 273\nsrc/nexus_ai/voice/webhooks.py                        76     15     16      6    73%   64, 67, 78, 100-111, 136-137, 152, 159\nsrc/nexus_ai/workflows/__init__.py                     0      0      0      0   100%\nsrc/nexus_ai/workflows/conditions.py                  41      8     26      8    76%   18, 20, 22, 31, 36, 43, 50, 52\nsrc/nexus_ai/workflows/entities.py                   224     10     46      9    92%   87-88, 90, 92, 119, 121, 123, 258, 260, 274\nsrc/nexus_ai/workflows/errors.py                      33      0      0      0   100%\nsrc/nexus_ai/workflows/events.py                      60      0      0      0   100%\nsrc/nexus_ai/workflows/service.py                    227     22     68     12    88%   119, 121, 123, 135, 147, 149, 221, 228, 232, 301, 385-418, 438, 493\nsrc/nexus_ai/workflows/state_machine.py               46      0     14      1    98%   98->exit\n----------------------------------------------------------------------------------------------\nTOTAL                                              25435   1627   4670    898    91%\nRequired test coverage of 90% reached. Total coverage: 91.15%\n2260 passed in 1055.44s (0:17:35)\n"
+        },
+        "typing": {
+          "command": [
+            "uv",
+            "run",
+            "mypy"
+          ],
+          "exit_code": 0,
+          "output_tail": "Success: no issues found in 335 source files\n"
+        }
+      },
+      "executed_at": "2026-09-21T08:23:34Z",
+      "gates": {
+        "dependency_security": "PASS",
+        "formatting": "PASS",
+        "lint": "PASS",
+        "repository_integrity": "PASS",
+        "sast": "PASS",
+        "tests": "PASS",
+        "typing": "PASS"
+      },
+      "phase": "NXS-P19",
+      "result": "PASS",
+      "schema_version": "1.0.0"
+    },
+    "quality-matrix.json": {
+      "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+      "candidate_binding": "Containing implementation commit; candidate-integrity.json reconstructs exact validated source",
+      "closure": "NOT_AUTHORIZED",
+      "evidence_sources": {
+        "agent_handoff": [
+          "clean-room.json",
+          "executed-test-nodes.json"
+        ],
+        "clean_room": [
+          "clean-room.json"
+        ],
+        "concurrency_tests": [
+          "concurrency.json",
+          "execution-criteria.json#concurrency"
+        ],
+        "container_scan": [
+          "admission-container-scans.json"
+        ],
+        "contract_tests": [
+          "contracts.json"
+        ],
+        "coverage": [
+          "coverage.json",
+          "quality-gates.json#details.tests",
+          "clean-room.json"
+        ],
+        "dependency_security": [
+          "security.json",
+          "quality-gates.json#details.dependency_security"
+        ],
+        "docker_build": [
+          "docker.json",
+          "clean-room.json"
+        ],
+        "documentation": [
+          "documentation-certification.json"
+        ],
+        "execution_guard": [
+          "repository-final-validation.json"
+        ],
+        "execution_lock": [
+          "admission-continuation-lock.json",
+          "repository-final-validation.json"
+        ],
+        "formatting": [
+          "quality-gates.json#details.formatting"
+        ],
+        "generic_closure": [
+          "executed-test-nodes.json"
+        ],
+        "generic_next_phase": [
+          "executed-test-nodes.json"
+        ],
+        "generic_phase_start": [
+          "lifecycle-start.json",
+          "executed-test-nodes.json"
+        ],
+        "github_ci": [
+          "Exact final implementation-head NXS CI and NXS Security required after push"
+        ],
+        "graceful_shutdown": [
+          "clean-room.json",
+          "executed-test-nodes.json"
+        ],
+        "integration_tests": [
+          "executed-test-nodes.json",
+          "clean-room.json"
+        ],
+        "lint": [
+          "quality-gates.json#details.lint"
+        ],
+        "migration_validation": [
+          "migration.json",
+          "schema-security.json"
+        ],
+        "non_root_runtime": [
+          "clean-room.json",
+          "container-provenance-current.json",
+          "kamailio-config.json"
+        ],
+        "phase_neutral_ci": [
+          "Exact final implementation-head GitHub NXS CI required after push"
+        ],
+        "regression": [
+          "regressions.json",
+          "quality-gates.json#details.tests",
+          "transport-quality-diagnostic.json"
+        ],
+        "repository_integrity": [
+          "repository-final-validation.json",
+          "quality-gates.json"
+        ],
+        "resilience_tests": [
+          "execution-criteria.json#concurrency",
+          "edge-budget-and-log-correction.json",
+          "sip-protocol.json",
+          "transport-certification.json",
+          "admission-certification.json"
+        ],
+        "sast": [
+          "security.json",
+          "quality-gates.json#details.sast"
+        ],
+        "secret_scan": [
+          "security.json"
+        ],
+        "security_tests": [
+          "schema-security.json",
+          "open-relay-security.json",
+          "resolver-authentication.json",
+          "transport-certification.json",
+          "admission-certification.json"
+        ],
+        "toolchain_consistency": [
+          "clean-room.json",
+          "quality-gates.json"
+        ],
+        "typing": [
+          "quality-gates.json#details.typing"
+        ],
+        "unit_tests": [
+          "executed-test-nodes.json",
+          "tests.json"
+        ]
+      },
+      "external_evidence_policy": "Live exact-head workflow results recorded after push in implementation report; no self-referential commit or older governance run substituted",
+      "gates": {
+        "agent_handoff": "PASS",
+        "clean_room": "PASS",
+        "concurrency_tests": "PASS",
+        "container_scan": "PASS",
+        "contract_tests": "PASS",
+        "coverage": "PASS",
+        "dependency_security": "PASS",
+        "docker_build": "PASS",
+        "documentation": "PASS",
+        "execution_guard": "PASS",
+        "execution_lock": "PASS",
+        "formatting": "PASS",
+        "generic_closure": "PASS",
+        "generic_next_phase": "PASS",
+        "generic_phase_start": "PASS",
+        "github_ci": "PENDING_EXTERNAL_GATE",
+        "graceful_shutdown": "PASS",
+        "integration_tests": "PASS",
+        "lint": "PASS",
+        "migration_validation": "PASS",
+        "non_root_runtime": "PASS",
+        "phase_neutral_ci": "PENDING_EXTERNAL_GATE",
+        "regression": "PASS",
+        "repository_integrity": "PASS",
+        "resilience_tests": "PASS",
+        "sast": "PASS",
+        "secret_scan": "PASS",
+        "security_tests": "PASS",
+        "toolchain_consistency": "PASS",
+        "typing": "PASS",
+        "unit_tests": "PASS"
+      },
+      "generic_closure_scope": "Generic closure-engine regression only; P19 closure not executed",
+      "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+      "historical_warning": "One earlier full gate failed a TLS negative ARM64 case; seven unchanged focused reruns and the latest full gate pass. Original limited diagnostic and unresolved cause are preserved in transport-quality-diagnostic.json.",
+      "local_result": "PASS",
+      "missing_mandatory_gates": [],
+      "phase": "NXS-P19",
+      "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+      "result": "PENDING_EXTERNAL_GATE",
+      "schema_version": "1.0.0"
+    },
+    "tests.json": {
+      "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+      "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+      "closure": "NOT_AUTHORIZED",
+      "command": [
+        "uv",
+        "run",
+        "pytest",
+        "-p",
+        "scripts.nxs_p19_evidence",
+        "--cov-report=json:/home/wundah/nexus-ai/.nxs/runtime/p19-coverage.json",
+        "--cov-report=term"
+      ],
+      "coverage_percent": 90.79554891214084,
+      "execution_evidence": "execution-criteria.json",
+      "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+      "exit_code": 0,
+      "failed": 0,
+      "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+      "passed": 2260,
+      "phase": "NXS-P19",
+      "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+      "result": "PASS",
+      "runtime_seconds": 1156.1940393820405,
+      "schema_version": "1.0.0",
+      "skipped": 0
+    }
+  },
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scope": "Immutable implementation-stage evidence preserved before canonical closure refresh"
+}

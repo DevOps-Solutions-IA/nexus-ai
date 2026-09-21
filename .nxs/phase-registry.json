@@ -197,13 +197,13 @@
     },
     {
       "branch": "feat/nxs-p19-sip-scaling",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P11",
         "NXS-P18"
       ],
       "id": "NXS-P19",
-      "status": "BUILDING",
+      "status": "READY",
       "title": "SIP Edge Scaling"
     },
     {

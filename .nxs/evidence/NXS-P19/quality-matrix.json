@@ -1,7 +1,7 @@
 {
-  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
-  "candidate_binding": "Containing implementation commit; candidate-integrity.json reconstructs exact validated source",
-  "closure": "NOT_AUTHORIZED",
+  "base_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "candidate_binding": "Externally approved immutable implementation; closure changes limited to governance/evidence/documentation",
+  "closure": "AUTHORIZED_CANONICAL_CLOSURE_COMPLETED",
   "evidence_sources": {
     "agent_handoff": [
       "clean-room.json",
@@ -34,14 +34,15 @@
       "clean-room.json"
     ],
     "documentation": [
-      "documentation-certification.json"
+      "external-final-audit-authorization.json",
+      "closure-documentation.json"
     ],
     "execution_guard": [
-      "repository-final-validation.json"
+      "closure-lock.json",
+      "quality-gates.json"
     ],
     "execution_lock": [
-      "admission-continuation-lock.json",
-      "repository-final-validation.json"
+      "closure-lock.json"
     ],
     "formatting": [
       "quality-gates.json#details.formatting"
@@ -57,7 +58,7 @@
       "executed-test-nodes.json"
     ],
     "github_ci": [
-      "Exact final implementation-head NXS CI and NXS Security required after push"
+      "github-ci.json"
     ],
     "graceful_shutdown": [
       "clean-room.json",
@@ -80,7 +81,7 @@
       "kamailio-config.json"
     ],
     "phase_neutral_ci": [
-      "Exact final implementation-head GitHub NXS CI required after push"
+      "github-ci.json"
     ],
     "regression": [
       "regressions.json",
@@ -88,8 +89,8 @@
       "transport-quality-diagnostic.json"
     ],
     "repository_integrity": [
-      "repository-final-validation.json",
-      "quality-gates.json"
+      "quality-gates.json",
+      "closure-lock.json"
     ],
     "resilience_tests": [
       "execution-criteria.json#concurrency",
@@ -124,7 +125,7 @@
       "tests.json"
     ]
   },
-  "external_evidence_policy": "Live exact-head workflow results recorded after push in implementation report; no self-referential commit or older governance run substituted",
+  "external_evidence_policy": "github-ci.json verifies exact implementation head; new closure-head runs required after push",
   "gates": {
     "agent_handoff": "PASS",
     "clean_room": "PASS",
@@ -141,13 +142,13 @@
     "generic_closure": "PASS",
     "generic_next_phase": "PASS",
     "generic_phase_start": "PASS",
-    "github_ci": "PENDING_EXTERNAL_GATE",
+    "github_ci": "PASS",
     "graceful_shutdown": "PASS",
     "integration_tests": "PASS",
     "lint": "PASS",
     "migration_validation": "PASS",
     "non_root_runtime": "PASS",
-    "phase_neutral_ci": "PENDING_EXTERNAL_GATE",
+    "phase_neutral_ci": "PASS",
     "regression": "PASS",
     "repository_integrity": "PASS",
     "resilience_tests": "PASS",
@@ -158,13 +159,14 @@
     "typing": "PASS",
     "unit_tests": "PASS"
   },
-  "generic_closure_scope": "Generic closure-engine regression only; P19 closure not executed",
+  "generic_closure_scope": "Generic closure-engine regressions passed; authorized P19 canonical closure succeeded separately, recorded in closure.json",
   "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
   "historical_warning": "One earlier full gate failed a TLS negative ARM64 case; seven unchanged focused reruns and the latest full gate pass. Original limited diagnostic and unresolved cause are preserved in transport-quality-diagnostic.json.",
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
   "local_result": "PASS",
   "missing_mandatory_gates": [],
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
-  "result": "PENDING_EXTERNAL_GATE",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "result": "PASS",
   "schema_version": "1.0.0"
 }

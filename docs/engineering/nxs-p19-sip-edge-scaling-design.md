@@ -2,6 +2,13 @@
 
 ## 1. Status, baseline and canonical inputs
 
+Current certification: P19 is closed READY/GO on `feat/nxs-p19-sip-scaling` against
+externally audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`.
+The fresh closure gate passed 2260 tests at 91.18% coverage. Implementation-head
+CI/Security and C01–C32, AC01–AC43, T01–T10, A01–A07 evidence passed. Main remains
+through P18; P19 is not merged or deployed. External closure audit is pending.
+P20 remains PLANNED/PENDING; capacity and automatic failover remain outside scope.
+
 Pre-ARI corrective: an immutable, tenant-owned admission owner is committed with the
 logical P11 call and CREATED event. PENDING has a DB-time 30-second deadline and
 can transition only to DISPATCHED or REVOKED. Only the matching owner with a live
@@ -12,7 +19,7 @@ by the same fence and bounded tenant recovery. DISPATCHED uncertainty is not rec
 See the [runtime contract](nxs-p19-runtime.md) for operations, lock order and legacy
 boundaries. Supplemental A01–A07 preserve the C01–C32, AC01–AC43 and T01–T10 identities.
 
-Current corrective: the implemented transport contract is UDP/TCP/TLS with no
+Implemented transport corrective: the transport contract is UDP/TCP/TLS with no
 fallback. TLS peer identity comes from the verified native TLS connection, never
 a header. Target/upstream revisions include an exact leaf-certificate SHA-256;
 plaintext revisions carry no TLS pin. Mounted secret material and CA verification
@@ -20,8 +27,8 @@ are mandatory. Dialog bindings retain transport and peer identity across rotatio
 The reference source patch, immutable artifact provenance and real positive/negative
 wire tests are documented in `infrastructure/kamailio/README.md` and the runtime guide.
 The original candidate `471b2a539bc5cb102ab5bbbe99d7d830ab83d772` completed its original
-C01–C32/AC01–AC43 evidence; changed corrective source requires fresh evidence, including
-supplemental T01–T10. P19 stays BUILDING/PENDING, unclosed and unmerged.
+C01–C32/AC01–AC43 evidence; subsequent corrective source received fresh evidence,
+including supplemental T01–T10 and A01–A07, before the authorized closure above.
 
 The following pre-implementation wording records the historical governance moment;
 it does not assert that current runtime or acceptance evidence is absent.
@@ -31,12 +38,12 @@ execution lock, implementation evidence or certification. All acceptance/race
 criteria below are REQUIRED / NOT EXECUTED. A separate implementation authorization
 and canonical lifecycle start are required. Branch: `feat/nxs-p19-sip-scaling`.
 
-Current feature-branch state: implementation was separately authorized and started
-on 2026-09-19 through `nxs-start`, actor `cdxm`. P19 is BUILDING/PENDING;
-the runtime candidate now has executed local C01–C32 and AC01–AC43 test mappings.
-The governance obligations below remain binding. Current outcomes and historical
-failures are recorded under `.nxs/evidence/NXS-P19/`; exact-head CI/Security and
-independent implementation audit remain distinct from local proof and phase closure.
+Historical implementation start: separately authorized on 2026-09-19 through
+`nxs-start`, actor `cdxm`, producing BUILDING/PENDING. The governance obligations
+below remain binding; their original REQUIRED / NOT EXECUTED labels describe that
+pre-implementation contract, not current results. Current executed outcomes and
+historical failures are recorded under `.nxs/evidence/NXS-P19/`; closure-criteria.json
+records certification of all four matrices without erasing earlier evidence.
 
 Canonical main `e2114cfe8f150e85b9ae432a9af557ceb52cf836` includes P18 READY/GO.
 Exact-main NXS CI 35403869973 and Security 35403870005 were independently verified
