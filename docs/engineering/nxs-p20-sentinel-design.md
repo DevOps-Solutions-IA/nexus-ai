@@ -157,11 +157,13 @@ Approval is unusable after proposal, runbook, target generation or policy change
 - sanitized result/error classification
 - external receipt/reference when safe
 
-## 4. Scope classification
+## 4. Scope classification and database role
 
 Sentinel is an internal platform capability. Tenant users do not obtain Sentinel control APIs in P20.
 
-Signals may describe GLOBAL, SERVICE, CELL or ORGANIZATION subjects. Organization-scoped facts must originate from trusted adapters and preserve existing RLS when tenant-owned source data is queried. Sentinel global tables are platform-control data and must not become a bypass path for tenant business data.
+Signals may describe GLOBAL, SERVICE, CELL or ORGANIZATION subjects. An Organization identifier is diagnostic subject metadata, not tenant authority. P20 does not introduce cross-tenant table reads to enrich an incident; adapters obtain only trusted platform facts or call an existing domain/service boundary that already enforces its own authorization.
+
+Sentinel durable state uses a dedicated PostgreSQL role `nexus_sentinel` with NOSUPERUSER/NOBYPASSRLS and explicit grants only on Sentinel-owned tables/sequences. It receives no blanket default privileges on tenant tables and no schema CREATE. A Sentinel-specific database configuration/connection is separate from the application's tenant `nexus_runtime` connection. Migrations remain under `nexus_migration`. CI must prove that `nexus_sentinel` cannot SELECT/INSERT/UPDATE/DELETE representative tenant-owned tables and cannot bypass RLS.
 
 ## 5. Signal adapters
 
@@ -176,9 +178,11 @@ Initial certification must include at least:
 
 No adapter accepts caller-provided arbitrary host, SQL or credential.
 
-## 6. Reasoning contract
+## 6. Reasoning and platform model credential contract
 
 P13 tenant sessions are NOT the Sentinel execution container. P20 implements a platform-scoped `SentinelReasoner` that may reuse P13 provider-neutral model adapter/request/response primitives but has separate platform-control configuration and receipts. It has no model tool loop and cannot dispatch actions.
+
+Sentinel model credentials are never resolved from tenant P07/P13 vault rows. A dedicated `SentinelModelCredentialProvider` returns opaque secret material only to the model transport call. In hardened environments its source is an operations-controlled external secret reference or read-only secret mount with validated ownership/permissions; the secret is never persisted in Sentinel PostgreSQL state, logged, emitted, included in evidence or passed to the model as content. Missing/malformed/insecure credentials fail startup/readiness closed for reasoning while incident persistence remains available if configured to degrade safely.
 
 The SentinelReasoner may receive only a bounded incident context object:
 
@@ -266,7 +270,11 @@ If side effect may have occurred and response is lost, mark AMBIGUOUS and do not
 Required:
 
 - dedicated platform service identity
-- least-privilege database grants
+- dedicated `nexus_sentinel` DB login: NOSUPERUSER/NOBYPASSRLS/no CREATE/no tenant-table grants
+- separate Sentinel database settings/connection from `nexus_runtime`
+- explicit per-table/sequence Sentinel grants; no broad default tenant privileges
+- dedicated platform `SentinelModelCredentialProvider`; no tenant-vault credential reuse
+- hardened secret source via external secret reference/read-only mount with permission validation
 - no BYPASSRLS runtime shortcut
 - no arbitrary shell/SQL/SSH
 - no arbitrary outbound URL/host
@@ -375,13 +383,13 @@ Each case requires deterministic barriers/transactions where concurrency matters
 - AC01 P20 manifest/requirement/schema lifecycle valid.
 - AC02 dedicated Sentinel package/domain boundaries.
 - AC03 additive migration and one Alembic head.
-- AC04 least-privilege DB grants and tenant isolation.
+- AC04 dedicated nexus_sentinel role, least-privilege Sentinel-table grants, no tenant-table access and no RLS bypass.
 - AC05 trusted adapter registry; arbitrary adapters denied.
 - AC06 source observation idempotency.
 - AC07 deterministic incident correlation.
 - AC08 explicit incident state machine.
 - AC09 evidence-bound findings with model metadata.
-- AC10 strict platform SentinelReasoner structured-output contract; no fake tenant P13 session.
+- AC10 strict platform SentinelReasoner structured-output contract; no fake tenant P13 session and no tenant-vault credential reuse.
 - AC11 prompt/log injection cannot create authority.
 - AC12 immutable runbook revisions.
 - AC13 no executable shell/SQL/arbitrary URL in runbook data.
@@ -400,7 +408,7 @@ Each case requires deterministic barriers/transactions where concurrency matters
 - AC26 ambiguous effect stops automatic retry.
 - AC27 global kill switch fences mutable execution.
 - AC28 finite resource budgets enforced.
-- AC29 no secret leakage in logs/events/prompts/evidence.
+- AC29 no secret leakage in logs/events/prompts/evidence; platform model credential source is external/read-only and permission-validated.
 - AC30 safe P04 event integration where emitted.
 - AC31 P04/P13/P18 regressions pass and P08 regression confirms Sentinel introduced no tenant Tool Engine bypass.
 - AC32 real PostgreSQL integration/concurrency tests.

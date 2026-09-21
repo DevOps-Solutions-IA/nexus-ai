@@ -25,9 +25,11 @@ Signals, caches, NATS deliveries, LLM output and process memory never become act
 
 ### Trust boundary
 
-Sentinel runs under a dedicated internal platform identity. It is not a tenant principal and does not inherit Organization-owner permissions. Organization IDs present in signals are subjects being diagnosed, not caller-supplied authority. Any tenant-scoped read needed by a diagnostic adapter must establish trusted server-side tenant context and remain subject to the existing RLS boundary.
+Sentinel runs under a dedicated internal platform identity. It is not a tenant principal and does not inherit Organization-owner permissions. Organization IDs present in signals are subjects being diagnosed, not caller-supplied authority. P20 does not create tenant-scoped diagnostic reads as a shortcut around RLS; an Organization may be named as an affected subject only from trusted platform facts or from an existing service API that already enforces its own authority.
 
-The model sees sanitized structured evidence only. It never receives provider credentials, database credentials, SSH keys, raw secret-bearing environment values or unrestricted logs.
+Sentinel-owned tables use a dedicated PostgreSQL login role `nexus_sentinel`: LOGIN, NOSUPERUSER, NOCREATEDB, NOCREATEROLE, NOBYPASSRLS, NOREPLICATION, no schema CREATE, and explicit grants only on Sentinel-owned tables/sequences. `nexus_sentinel` does not receive blanket default privileges on tenant tables. Migration remains owned by `nexus_migration`. The normal `nexus_runtime` role is not used as Sentinel's durable-state authority.
+
+The model sees sanitized structured evidence only. It never receives provider credentials, database credentials, SSH keys, raw secret-bearing environment values or unrestricted logs. Sentinel model credentials are platform-scoped and resolved through a dedicated `SentinelModelCredentialProvider`; they are not stored in tenant P07/P13 vault rows. Hardened environments load them from an operations-controlled external secret reference/read-only secret mount (or an equivalent platform secret provider) and fail closed if missing or insecure.
 
 ### Signal ingestion
 
