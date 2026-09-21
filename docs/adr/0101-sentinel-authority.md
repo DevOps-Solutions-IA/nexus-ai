@@ -15,7 +15,7 @@ P20 precedes the dedicated compliance, audit, cost, observability, resilience, d
 PostgreSQL is authoritative only for Sentinel-owned state: signal receipts, incident correlation, findings, runbook revisions, action proposals, approval decisions, execution leases/fences and execution receipts. Existing domains retain their authority:
 
 - P04 owns durable event/outbox semantics.
-- P08 owns tenant-scoped controlled Tool Engine execution; it is not a global SRE executor.
+- P08 owns tenant-scoped controlled Tool Engine execution; P20 does not execute tenant business mutations and never repurposes P08 as a global SRE executor.
 - P13 owns tenant-scoped agent/session reasoning. P20 may reuse its provider-neutral adapter contracts, never its tenant persistence as platform authority.
 - P18 owns Organization-to-Cell placement.
 - P11/P19 retain telephony/SIP authority.
@@ -82,9 +82,9 @@ P08 is also tenant-owned by design. Sentinel MUST NOT use the tenant Tool Engine
 
 Platform SRE actions execute through a P20 `SentinelActionExecutor` backed only by source-registered `SentinelActionAdapter` implementations. Each adapter has a stable key/revision, typed input/output, finite target allowlist, timeout, idempotency semantics, risk classification and least-privilege credential boundary. No database row or model output can create executable code or a new destination.
 
-If Sentinel ever proposes an Organization-scoped business action already represented by P08, it must delegate through the normal P08 Tool Engine using a real authenticated/authorized tenant principal and trusted Organization context. Sentinel cannot manufacture that principal. P20 certification does not require enabling such tenant mutations.
+P20 does not execute Organization-scoped business mutations. An incident may reference an Organization as an affected subject, but Sentinel can only diagnose and recommend tenant-level remediation for an authorized operator or later governed workflow. It cannot manufacture a tenant principal or route a platform proposal into P08.
 
-Sentinel cannot call shell, arbitrary SQL, SSH, generic cloud APIs, Kubernetes/Nomad, GitHub mutation APIs or arbitrary HTTP destinations directly. Read-only platform adapters and mutable platform adapters share the same source-registered contract and secret-redaction rules.
+Sentinel cannot call shell, arbitrary SQL, SSH, generic cloud APIs, Kubernetes/Nomad, GitHub mutation APIs or arbitrary HTTP destinations directly. Read-only platform adapters and mutable platform adapters share the same source-registered contract and secret-redaction rules. The P20 production/hardened adapter set contains no production deployment, failover, provisioning or destructive adapter.
 
 ### Budgets and kill switch
 

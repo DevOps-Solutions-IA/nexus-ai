@@ -211,7 +211,6 @@
       "decision": "PENDING",
       "dependencies": [
         "NXS-P04",
-        "NXS-P08",
         "NXS-P13",
         "NXS-P18"
       ],

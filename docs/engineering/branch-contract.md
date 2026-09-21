@@ -7,11 +7,11 @@ Every executable phase must map to at least one canonical mandatory requirement 
 ## NXS-P20 governance contract — PLANNED / PENDING
 
 - Phase/branch: NXS-P20 NXS Sentinel; `feat/nxs-p20-sentinel`.
-- Dependencies: P04, P08, P13 and P18 READY/GO. Mandatory requirement: `NXS-SRE-001`.
+- Dependencies: P04, P13 and P18 READY/GO. Mandatory requirement: `NXS-SRE-001`.
 - Objective: constrained platform SRE control plane for trusted bounded signals, incident correlation, evidence-bound diagnosis, versioned runbook proposals, durable approval/policy and fenced structured execution.
-- Authority: PostgreSQL owns Sentinel state only; P04/P08/P13/P18 and domain services retain their existing authority. P08 and P13 remain tenant-scoped and are never repurposed as global infrastructure stores. Signals, caches and model output are never action authority.
+- Authority: PostgreSQL owns Sentinel state only; P04/P13/P18 and domain services retain their existing authority. P13 remains tenant-scoped and is never repurposed as global infrastructure state. P08 remains the tenant Tool Engine and is not in P20's platform execution path. Signals, caches and model output are never action authority.
 - Reasoning boundary: platform-scoped `SentinelReasoner` may reuse provider-neutral model contracts but never creates a fake tenant P13 session and has no tool loop/action authority.
-- Action boundary: platform mutations use source-registered `SentinelActionAdapter` implementations. Organization-scoped business actions, if enabled, use the normal authenticated P08 path with real tenant context. No arbitrary shell, SQL, SSH, network destination, Git mutation, deployment, infrastructure provisioning or provider credential exposure.
+- Action boundary: platform mutations use source-registered `SentinelActionAdapter` implementations. Tenant business mutations are not executable in P20. No arbitrary shell, SQL, SSH, network destination, Git mutation, deployment, infrastructure provisioning or provider credential exposure.
 - Autonomy: OBSERVE/DIAGNOSTIC may execute autonomously under bounded policy; REVERSIBLE requires durable approval in the hardened P20 policy; HIGH_IMPACT/DESTRUCTIVE are denied.
 - Concurrency: semantic proposal fingerprints, one active execution slot, DB-time leases/generations and final pre-dispatch fencing prevent duplicate or stale-owner effects. Ambiguous external outcomes never receive a fresh automatic idempotency identity.
 - Non-scope: P21 compliance, P22 audit, P23 metering, P24 global observability, P25 automatic recovery/failover, P26 DR, P27 hardening, P28 capacity, P29 chaos, P31 release and P32 production deployment.

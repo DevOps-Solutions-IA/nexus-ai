@@ -4,7 +4,7 @@
 
 Governance status: PLANNED / PENDING. Implementation has not started.
 
-P20 builds NXS Sentinel as a constrained platform SRE control plane alongside certified P04 event semantics, tenant-scoped P08 Tool Engine, tenant-scoped P13 Agent Runtime and P18 placement. Sentinel observes trusted operational facts, correlates incidents, produces evidence-bound diagnosis and proposes or executes only runbook-bound operations that pass durable policy, approval and fencing. P08/P13 are dependencies whose security contracts are preserved, not global infrastructure execution stores.
+P20 builds NXS Sentinel as a constrained platform SRE control plane alongside certified P04 event semantics, tenant-scoped P13 Agent Runtime and P18 placement. Sentinel observes trusted operational facts, correlates incidents, produces evidence-bound diagnosis and proposes or executes only platform runbook-bound operations that pass durable policy, approval and fencing. P13 is a dependency whose provider-neutral safety contracts are reused, not a global infrastructure execution store. P08 remains unchanged and outside P20's execution path because P20 does not execute tenant business mutations.
 
 Requirement: `NXS-SRE-001`.
 
@@ -36,10 +36,7 @@ durable approval + execution fence
 SentinelActionExecutor
 (source-registered platform adapters)
         │
-        ├──────────────► existing platform subsystem authority
-        │
-        └──────────────► P08 only for an explicitly
-                         authenticated tenant-scoped action
+        └──────────────► existing platform subsystem authority
 ```
 
 Sentinel never replaces P04, P08, P13, P18, P11, P19, Git/NXS state or any provider's own state.
@@ -245,7 +242,7 @@ Only one execution owner may cross dispatch for a proposal. Lease recovery requi
 
 ## 10. Side-effect boundary
 
-Platform actions dispatch only through a source-registered `SentinelActionAdapter`. P08 is used only when an action is genuinely Organization-scoped and a real authenticated tenant principal/context is supplied through the normal P08 path; Sentinel never synthesizes one.
+Platform actions dispatch only through a source-registered `SentinelActionAdapter`. P20 does not execute Organization-scoped business mutations and never routes a platform proposal into P08.
 
 Before dispatch, in one local transaction Sentinel revalidates:
 
@@ -258,7 +255,7 @@ Before dispatch, in one local transaction Sentinel revalidates:
 - kill switch
 - risk class
 
-After commit, the executor calls only the registered Sentinel platform adapter (or, for a separately authorized Organization-scoped business action, the normal P08 Tool Engine) using the stable idempotency identity.
+After commit, the executor calls only the registered Sentinel platform adapter using the stable idempotency identity.
 
 If response is definitely rejected before any side effect, mark FAILED.
 
@@ -335,7 +332,6 @@ One Alembic head. Upgrade from current canonical P19 main, fresh upgrade, dispos
 - PostgreSQL unavailable: no proposal/approval/execution authority; fail closed.
 - P13 unavailable: incident remains; no fabricated diagnosis or action.
 - Sentinel platform adapter unavailable: execution remains durable; no alternate direct provider path.
-- P08 unavailable for an explicitly tenant-scoped delegated action: execution remains durable; no platform bypass.
 - adapter timeout: safe failure receipt; no incident resolution by absence.
 - stale approval: deny.
 - target generation changed: deny.
@@ -399,14 +395,14 @@ Each case requires deterministic barriers/transactions where concurrency matters
 - AC21 changed target generation fails closed.
 - AC22 execution CAS/lease fencing.
 - AC23 stale owner cannot dispatch.
-- AC24 platform mutations use only source-registered SentinelActionAdapter implementations; any tenant-scoped business mutation uses the normal authenticated P08 path, never a synthetic principal.
+- AC24 platform mutations use only source-registered SentinelActionAdapter implementations; tenant business mutations are not executable in P20.
 - AC25 stable idempotency identity for dispatch.
 - AC26 ambiguous effect stops automatic retry.
 - AC27 global kill switch fences mutable execution.
 - AC28 finite resource budgets enforced.
 - AC29 no secret leakage in logs/events/prompts/evidence.
 - AC30 safe P04 event integration where emitted.
-- AC31 P04/P08/P13/P18 regression suites pass.
+- AC31 P04/P13/P18 regressions pass and P08 regression confirms Sentinel introduced no tenant Tool Engine bypass.
 - AC32 real PostgreSQL integration/concurrency tests.
 - AC33 API/RBAC negative tests for operator permissions.
 - AC34 clean-room from current canonical main passes.

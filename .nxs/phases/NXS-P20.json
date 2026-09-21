@@ -3,11 +3,10 @@
   "schema_version": "1.0.0",
   "id": "NXS-P20",
   "title": "NXS Sentinel",
-  "objective": "Implement NXS Sentinel as a constrained platform SRE control plane: trusted bounded signal ingestion, incident correlation, evidence-bound platform reasoning, versioned runbook proposals, durable approval/policy decisions, and fenced execution through source-registered platform SRE adapters; Organization-scoped business actions remain behind the existing P08 Tool Engine. Sentinel must not synthesize tenant principals or reuse tenant P13/P08 persistence as global infrastructure authority. Architecture and acceptance contract: docs/engineering/nxs-p20-sentinel-design.md; ADR-0101.",
+  "objective": "Implement NXS Sentinel as a constrained platform SRE control plane: trusted bounded signal ingestion, incident correlation, evidence-bound platform reasoning, versioned runbook proposals, durable approval/policy decisions, and fenced execution through source-registered platform SRE adapters. P20 does not execute tenant business mutations and must not synthesize tenant principals or reuse tenant P13/P08 persistence as global infrastructure authority. Architecture and acceptance contract: docs/engineering/nxs-p20-sentinel-design.md; ADR-0101.",
   "branch": "feat/nxs-p20-sentinel",
   "dependencies": [
     "NXS-P04",
-    "NXS-P08",
     "NXS-P13",
     "NXS-P18"
   ],
