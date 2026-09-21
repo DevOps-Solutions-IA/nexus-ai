@@ -29,20 +29,20 @@ Canonical backend progress on `main`:
 | NXS-P16 | Campaigns | READY / GO |
 | NXS-P17 | Human Agent Operations | READY / GO |
 | NXS-P18 | Horizontal Cell Scaling | READY / GO |
+| NXS-P19 | SIP Edge Scaling | READY / GO |
 
 P12 is contract-certified against the platform abstraction and test suite; live-provider certification remains a separate milestone.
 
 The canonical source of truth for execution state is `.nxs/`, not this README. Always verify the current phase registry and project state before implementation.
 
-Canonical main is completed through P18, merged at
-`e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P18 is READY/GO and provides
-PostgreSQL-authoritative Cell placement and transactional admission into existing
-agent, human, workflow, scheduler, campaign and messaging boundaries.
-Separately, P19 is closed READY/GO on `feat/nxs-p19-sip-scaling`, binding implementation
-`860d9a129adad75d0e4d7f8470c8a9d9f224a5be`. External implementation audit and exact-head
-CI/Security passed, including UDP/TCP/TLS and pre-ARI admission recovery. Canonical
-closure followed a fresh 2260-test gate. P19 is not merged to main; external closure
-audit and explicit merge authorization remain required. P20 has not started.
+Canonical main is completed through P19 at merge commit
+`53051eca3eb1a79a59767c4f92676f4b7f275247` (PR #44). P18 remains READY/GO and provides PostgreSQL-authoritative
+Cell placement and transactional admission into existing agent, human, workflow,
+scheduler, campaign and messaging boundaries. P19 is now canonical READY/GO on
+`main`, binding implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be` and audited closure
+`c7e73f0887cde0beb7ee71439b185ed6b1fa44a8`. External implementation and closure audits passed, including
+UDP/TCP/TLS and pre-ARI admission recovery, before the authorized merge. P20 has
+not started.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
@@ -256,7 +256,7 @@ CALL     → Telephony / P11
 VOICE    → Voice / P12
 ```
 
-P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement is canonical READY/GO on main; P19 SIP edge is closed READY/GO only on its feature branch, pending external closure audit and merge authorization. Placement does not replace these execution authorities.
+P16 Campaigns extends this model by governing bulk audience execution while preserving P15 temporal authority, P14 workflow authority and P09 provider authority. P17 Human Agent Operations is canonical `READY / GO` with PostgreSQL-authoritative queue, ownership, transfer and AI↔human handoff fencing. P18 placement and P19 SIP edge are canonical READY/GO on main after the authorized P19 merge at `53051eca3eb1a79a59767c4f92676f4b7f275247`. Placement does not replace these execution authorities.
 
 ## Security model
 
@@ -317,7 +317,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P18 at `e2114cfe8f150e85b9ae432a9af557ceb52cf836`. P19 is closed READY/GO on its feature branch after external implementation audit and canonical certification, but is not merged. External closure audit and explicit merge authorization remain required; P20 has not started. Historical implementation, closure and corrective evidence remains preserved. P18/P19 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P19 at `53051eca3eb1a79a59767c4f92676f4b7f275247`. P19 is READY/GO after external implementation audit, canonical closure, external closure audit and the explicitly authorized merge through PR #44. P20 has not started. Historical implementation, closure and corrective evidence remains preserved. P18/P19 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 
