@@ -89,7 +89,7 @@ jobs:
           uv run alembic upgrade head
           uv run alembic check
           uv run python -m scripts.nxs_schema_guard
-      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
         with: {platforms: arm64}
       - name: Build pinned real SIP and ARI fixtures
         run: bash scripts/build-sip-fixtures.sh
@@ -171,7 +171,7 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with: {persist-credentials: false}
-      - uses: docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a  # v4.3.0
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1  # v4.4.0
         with: {platforms: arm64}
       - uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e  # v4.3.0
       - name: Build linux/amd64 and linux/arm64 (no push)
