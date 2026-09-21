@@ -15,8 +15,8 @@ P20 precedes the dedicated compliance, audit, cost, observability, resilience, d
 PostgreSQL is authoritative only for Sentinel-owned state: signal receipts, incident correlation, findings, runbook revisions, action proposals, approval decisions, execution leases/fences and execution receipts. Existing domains retain their authority:
 
 - P04 owns durable event/outbox semantics.
-- P08 owns controlled tool/action execution.
-- P13 owns model/session reasoning boundaries.
+- P08 owns tenant-scoped controlled Tool Engine execution; it is not a global SRE executor.
+- P13 owns tenant-scoped agent/session reasoning. P20 may reuse its provider-neutral adapter contracts, never its tenant persistence as platform authority.
 - P18 owns Organization-to-Cell placement.
 - P11/P19 retain telephony/SIP authority.
 - Git/NXS lifecycle remains the engineering-control authority.
@@ -70,11 +70,21 @@ Before dispatch, Sentinel revalidates policy, approval (when required), target i
 
 External actions use stable idempotency identities where supported. If an external effect may have occurred but the response is lost, execution becomes AMBIGUOUS and automatic retry stops. P20 never invents a new idempotency identity to "try again". Generic automated reconciliation/failover belongs to P25.
 
-### P08-only action boundary
+### Platform reasoning boundary
 
-All mutable Sentinel actions execute through a Sentinel-specific allowlist of P08 Tool Engine definitions/adapters. Sentinel cannot call shell, SQL, SSH, cloud APIs, Kubernetes/Nomad, GitHub mutation APIs or arbitrary HTTP destinations directly. Provider credentials remain inside existing credential/provider boundaries.
+P13 is tenant-owned by design: its provider accounts, model profiles, agents, sessions and tool bridge require an Organization context and forced RLS. Sentinel MUST NOT create a fake "system Organization", synthesize a tenant Principal, disable RLS or reuse tenant agent rows as platform SRE authority.
 
-Read-only adapters that cannot be represented as a P08 tool must be explicit compiled adapters with equivalent typed schemas, timeouts, target allowlists and secret-redaction rules.
+P20 introduces a narrow `SentinelReasoner` boundary for platform incidents. It may reuse P13's provider-neutral model adapter/request/response contracts and hardened transport patterns, but Sentinel reasoning configuration and execution receipts are platform-control state owned by P20. The reasoner has no tool loop and cannot directly execute an action. It receives bounded sanitized evidence and returns only a schema-validated finding/proposal object.
+
+### Action execution boundary
+
+P08 is also tenant-owned by design. Sentinel MUST NOT use the tenant Tool Engine as a global infrastructure executor.
+
+Platform SRE actions execute through a P20 `SentinelActionExecutor` backed only by source-registered `SentinelActionAdapter` implementations. Each adapter has a stable key/revision, typed input/output, finite target allowlist, timeout, idempotency semantics, risk classification and least-privilege credential boundary. No database row or model output can create executable code or a new destination.
+
+If Sentinel ever proposes an Organization-scoped business action already represented by P08, it must delegate through the normal P08 Tool Engine using a real authenticated/authorized tenant principal and trusted Organization context. Sentinel cannot manufacture that principal. P20 certification does not require enabling such tenant mutations.
+
+Sentinel cannot call shell, arbitrary SQL, SSH, generic cloud APIs, Kubernetes/Nomad, GitHub mutation APIs or arbitrary HTTP destinations directly. Read-only platform adapters and mutable platform adapters share the same source-registered contract and secret-redaction rules.
 
 ### Budgets and kill switch
 

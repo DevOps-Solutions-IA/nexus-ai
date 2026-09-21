@@ -4,7 +4,7 @@
 
 Governance status: PLANNED / PENDING. Implementation has not started.
 
-P20 builds NXS Sentinel as a constrained platform SRE control plane on top of certified P04 event semantics, P08 Tool Engine, P13 Agent Runtime and P18 placement. Sentinel observes trusted operational facts, correlates incidents, produces evidence-bound diagnosis and proposes or executes only runbook-bound operations that pass durable policy, approval and fencing.
+P20 builds NXS Sentinel as a constrained platform SRE control plane alongside certified P04 event semantics, tenant-scoped P08 Tool Engine, tenant-scoped P13 Agent Runtime and P18 placement. Sentinel observes trusted operational facts, correlates incidents, produces evidence-bound diagnosis and proposes or executes only runbook-bound operations that pass durable policy, approval and fencing. P08/P13 are dependencies whose security contracts are preserved, not global infrastructure execution stores.
 
 Requirement: `NXS-SRE-001`.
 
@@ -22,9 +22,9 @@ bounded Sentinel adapters
 PostgreSQL Sentinel state
 (signal receipts / incidents / findings / proposals / approvals / executions)
         │
-        ├──────────────► P13 Agent Runtime
-        │                  reasoning only
-        │                  structured findings/proposals
+        ├──────────────► SentinelReasoner
+        │                  provider-neutral model contract
+        │                  NO tool loop / NO action authority
         │
         ▼
 Sentinel Policy + Runbook Registry
@@ -33,10 +33,13 @@ Sentinel Policy + Runbook Registry
 durable approval + execution fence
         │
         ▼
-P08 Tool Engine / certified read-only adapter
+SentinelActionExecutor
+(source-registered platform adapters)
         │
-        ▼
-existing subsystem authority
+        ├──────────────► existing platform subsystem authority
+        │
+        └──────────────► P08 only for an explicitly
+                         authenticated tenant-scoped action
 ```
 
 Sentinel never replaces P04, P08, P13, P18, P11, P19, Git/NXS state or any provider's own state.
@@ -178,7 +181,9 @@ No adapter accepts caller-provided arbitrary host, SQL or credential.
 
 ## 6. Reasoning contract
 
-P13 may receive only a bounded incident context object:
+P13 tenant sessions are NOT the Sentinel execution container. P20 implements a platform-scoped `SentinelReasoner` that may reuse P13 provider-neutral model adapter/request/response primitives but has separate platform-control configuration and receipts. It has no model tool loop and cannot dispatch actions.
+
+The SentinelReasoner may receive only a bounded incident context object:
 
 - sanitized signal facts
 - safe evidence references/snippets
@@ -240,6 +245,8 @@ Only one execution owner may cross dispatch for a proposal. Lease recovery requi
 
 ## 10. Side-effect boundary
 
+Platform actions dispatch only through a source-registered `SentinelActionAdapter`. P08 is used only when an action is genuinely Organization-scoped and a real authenticated tenant principal/context is supplied through the normal P08 path; Sentinel never synthesizes one.
+
 Before dispatch, in one local transaction Sentinel revalidates:
 
 - proposal state/fingerprint
@@ -251,7 +258,7 @@ Before dispatch, in one local transaction Sentinel revalidates:
 - kill switch
 - risk class
 
-After commit, the executor calls only the registered P08 tool/adapter using the stable idempotency identity.
+After commit, the executor calls only the registered Sentinel platform adapter (or, for a separately authorized Organization-scoped business action, the normal P08 Tool Engine) using the stable idempotency identity.
 
 If response is definitely rejected before any side effect, mark FAILED.
 
@@ -327,7 +334,8 @@ One Alembic head. Upgrade from current canonical P19 main, fresh upgrade, dispos
 
 - PostgreSQL unavailable: no proposal/approval/execution authority; fail closed.
 - P13 unavailable: incident remains; no fabricated diagnosis or action.
-- P08 unavailable: execution remains durable; no alternate direct provider path.
+- Sentinel platform adapter unavailable: execution remains durable; no alternate direct provider path.
+- P08 unavailable for an explicitly tenant-scoped delegated action: execution remains durable; no platform bypass.
 - adapter timeout: safe failure receipt; no incident resolution by absence.
 - stale approval: deny.
 - target generation changed: deny.
@@ -377,7 +385,7 @@ Each case requires deterministic barriers/transactions where concurrency matters
 - AC07 deterministic incident correlation.
 - AC08 explicit incident state machine.
 - AC09 evidence-bound findings with model metadata.
-- AC10 strict P13 structured-output contract.
+- AC10 strict platform SentinelReasoner structured-output contract; no fake tenant P13 session.
 - AC11 prompt/log injection cannot create authority.
 - AC12 immutable runbook revisions.
 - AC13 no executable shell/SQL/arbitrary URL in runbook data.
@@ -391,7 +399,7 @@ Each case requires deterministic barriers/transactions where concurrency matters
 - AC21 changed target generation fails closed.
 - AC22 execution CAS/lease fencing.
 - AC23 stale owner cannot dispatch.
-- AC24 P08 is the only mutable action path.
+- AC24 platform mutations use only source-registered SentinelActionAdapter implementations; any tenant-scoped business mutation uses the normal authenticated P08 path, never a synthetic principal.
 - AC25 stable idempotency identity for dispatch.
 - AC26 ambiguous effect stops automatic retry.
 - AC27 global kill switch fences mutable execution.
