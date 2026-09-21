@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T23:58:13.358799+00:00",
+  "result": "PENDING_EXTERNAL_GATE",
+  "reason": "Observed native fixture build plus complete protocol suite exceeded the 90-minute hosted CI job budget; no gate is removed",
+  "previous_candidate": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "failed_run": 35541036432,
+  "failed_job": 106158611313,
+  "workflow_conclusion": "cancelled",
+  "job_annotation": [
+    "The job has exceeded the maximum execution time of 1h30m0s",
+    "The operation was canceled."
+  ],
+  "fixture_build_started_at": "2026-09-20T22:14:47Z",
+  "fixture_build_completed_at": "2026-09-20T23:27:22Z",
+  "fixture_build_seconds": 4355,
+  "full_suite_started_at": "2026-09-20T23:27:22Z",
+  "full_suite_result": "CANCELLED; no complete CI test result or coverage claim",
+  "other_ci_jobs": {
+    "multiarch": "success",
+    "quality": "success",
+    "state": "success",
+    "integration": "cancelled",
+    "docker": "success"
+  },
+  "previous_security": {
+    "run": 35541036368,
+    "head_sha": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "correction": {
+    "file": ".github/workflows/ci.yml",
+    "old_timeout_minutes": 90,
+    "new_timeout_minutes": 120,
+    "removed_jobs": [],
+    "removed_tests": [],
+    "coverage_threshold_changed": false
+  },
+  "runtime_equivalence": {
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+      "--",
+      "src",
+      "migrations",
+      "tests",
+      "scripts",
+      "infrastructure",
+      "compose.yaml",
+      "uv.lock",
+      "pyproject.toml"
+    ],
+    "exit_code": 0,
+    "runtime_changed": false,
+    "migration_changed": false,
+    "tests_changed": false,
+    "kamailio_or_asterisk_changed": false
+  },
+  "canonical_continuation": {
+    "clean_tree_before_recovery": true,
+    "commands": [
+      "make nxs-lock-recover",
+      "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm"
+    ],
+    "exit_codes": [
+      0,
+      0
+    ],
+    "new_lock": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p19-sip-scaling",
+      "expires_at": "2026-09-21T03:57:04Z",
+      "phase": "NXS-P19",
+      "repository_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-20T23:57:04Z",
+      "state": "ACTIVE"
+    },
+    "nxs_start_rerun": false
+  },
+  "historical_evidence": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e:.nxs/evidence/NXS-P19/",
+  "log_sha256": "c92774d3e636ed971b0fe5e6ebf00c8d8ede27292b616f670ec793df2666e5b1",
+  "closure": "NOT_AUTHORIZED"
+}

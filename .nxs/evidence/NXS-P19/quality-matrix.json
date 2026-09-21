@@ -1,5 +1,5 @@
 {
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "candidate_binding": "Containing implementation commit; candidate-integrity.json reconstructs exact validated source",
   "closure": "NOT_AUTHORIZED",
   "evidence_sources": {
@@ -84,7 +84,8 @@
     ],
     "regression": [
       "regressions.json",
-      "quality-gates.json#details.tests"
+      "quality-gates.json#details.tests",
+      "transport-quality-diagnostic.json"
     ],
     "repository_integrity": [
       "repository-final-validation.json",
@@ -94,6 +95,7 @@
       "execution-criteria.json#concurrency",
       "edge-budget-and-log-correction.json",
       "sip-protocol.json",
+      "transport-certification.json",
       "transport-certification.json"
     ],
     "sast": [
@@ -107,6 +109,7 @@
       "schema-security.json",
       "open-relay-security.json",
       "resolver-authentication.json",
+      "transport-certification.json",
       "transport-certification.json"
     ],
     "toolchain_consistency": [
@@ -156,10 +159,11 @@
     "unit_tests": "PASS"
   },
   "generic_closure_scope": "Generic closure-engine regression only; P19 closure not executed",
+  "historical_warning": "One earlier full gate failed a TLS negative ARM64 case; seven unchanged focused reruns and the latest full gate pass. Original limited diagnostic and unresolved cause are preserved in transport-quality-diagnostic.json.",
   "local_result": "PASS",
   "missing_mandatory_gates": [],
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T22:10:14.284942+00:00",
+  "recorded_at": "2026-09-21T01:02:42.476772+00:00",
   "result": "PENDING_EXTERNAL_GATE",
   "schema_version": "1.0.0"
 }

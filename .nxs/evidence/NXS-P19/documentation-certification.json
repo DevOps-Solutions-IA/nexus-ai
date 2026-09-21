@@ -1,6 +1,6 @@
 {
   "authority": "PostgreSQL; P11 ownership/calls, P18 placement, P19 SIP target/route/permit",
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "canonical_main": "P00-P18",
   "closure": "NOT_AUTHORIZED",
   "current_phase": "BUILDING / PENDING; complete implementation and transport corrective candidate require external re-audit, not canonical main",
@@ -22,9 +22,10 @@
     "contracts.json",
     "quality-gates.json",
     "clean-room.json",
-    "transport-certification.json"
+    "transport-certification.json",
+    "transport-ci-budget-correction.json"
   ],
-  "recorded_at": "2026-09-20T21:54:20.622610+00:00",
+  "recorded_at": "2026-09-21T01:03:23.534261+00:00",
   "result": "PASS",
   "reviewed": [
     "README.md",
@@ -41,7 +42,7 @@
     "README.md": "1ec4fca23509e39bdd9bbbcd310027465c0afadaaa07a81ca794d350e57c2817",
     "docs/adr/0100-sip-edge-routing-authority.md": "8b0095bfe4e707e7343ae7ad45f8ae46b64210902eb532c0ccca3c991e385f8a",
     "docs/engineering/branch-contract.md": "dd2758060c3cc2f2a6432dc6011534f558fb0f95d49d4c1f03765dc10c0dac6b",
-    "docs/engineering/nxs-p19-implementation-progress.md": "0c0dfa70d15e5e626dd06925f392798e4ed046a25692238b1c3a8e559c1de570",
+    "docs/engineering/nxs-p19-implementation-progress.md": "59ea4897d5c9e372da790321934a420c2d0b70d532be0443741b2108351b2d8e",
     "docs/engineering/nxs-p19-runtime.md": "ff3e3243ab142635fc2b08b0914e63e476275454b9c47827e3c0d3961c819dee",
     "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "8827d7eb976180c57816f0d8bc0f9a368fe725126164a5665d0414c060fec71f",
     "infrastructure/README.md": "231e68d7501acb8de92dd7f48817dabd4befe551dfe25102331a783b074ecb8f",

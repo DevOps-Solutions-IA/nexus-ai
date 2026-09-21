@@ -1,5 +1,5 @@
 {
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "checks": [
     {
       "command": "make security",
@@ -7,6 +7,7 @@
         "Bandit configured HIGH src/scripts",
         "pip-audit"
       ],
+      "evidence": "quality-gates.json current sast/dependency_security PASS",
       "exit_code": 0,
       "result": "PASS"
     },
@@ -22,7 +23,7 @@
     },
     {
       "command": "pinned Gitleaks git --config .gitleaks.toml --redact --exit-code 1",
-      "commits_scanned": 267,
+      "commits_scanned": 271,
       "exit_code": 0,
       "result": "PASS"
     }
@@ -39,13 +40,13 @@
     "Exact corrective-head GitHub Security is separate after commit/push."
   ],
   "log_sha256": {
-    "nxs-p19-final-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "nxs-p19-final-history-secrets.log": "455387d39e0564d08948e553b5adaf2b9e236c126a6925fec89d44511b99949c",
-    "nxs-p19-final-security.log": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8",
-    "nxs-p19-transport-precommit-secrets.log": "c3198d0c2bc1d84a9cb5e72d78466ae04d4225ee42e11eff164f435ed5df1521"
+    "nxs-p19-ci-budget-dir-secrets.log": "c80334cd6023170115e1975c342e26f127f7c025341a6f2c0cbdf2d571bd1505",
+    "nxs-p19-ci-budget-edge-sast.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "nxs-p19-ci-budget-git-secrets.log": "f03d9ee335632dbcb602a34521f2511dd9f5faac2b72920911a2b3d3dc56ad7b"
   },
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T22:11:20.600965+00:00",
+  "recorded_at": "2026-09-21T01:03:23.534261+00:00",
   "result": "PASS",
+  "runtime_image_equivalence": "transport-ci-budget-correction.json#runtime_equivalence",
   "schema_version": "1.0.0"
 }

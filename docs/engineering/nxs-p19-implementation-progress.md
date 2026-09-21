@@ -31,6 +31,17 @@ in 1048.02 seconds. Its real ARM64-emulated transport workload exceeded the old
 every command, test, security check and coverage threshold remains mandatory.
 Fresh clean-room and canonical gate runs certify the final source independently.
 
+The first transport corrective, `1a1c0f8b9194cadbea2fac00816f96d155b52d5e`,
+passed local gates and exact-head Security. Its CI integration job was cancelled at
+the 90-minute job limit: native fixture compilation took 72 minutes 35 seconds,
+leaving insufficient time for the unchanged full protocol/regression suite.
+The follow-up raises only that job ceiling to 120 minutes. No test, coverage,
+transport, architecture or security gate is removed. The cancelled run remains
+auditable as `35541036432`; it is not represented as a successful certification.
+Runtime, migrations, tests and native configuration remain identical to that commit.
+After the execution lock expired on a clean tree, canonical recovery/reacquisition
+continued the same BUILDING phase; no phase restart or closure occurred.
+
 ## HISTORICAL — pre-candidate development and continuation
 
 All subsequent checkpoint descriptions, outstanding-work statements, lock times

@@ -4,7 +4,7 @@
     "passed": 8,
     "skipped": 0
   },
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
   "closure": "NOT_AUTHORIZED",
   "command": [
@@ -18,10 +18,10 @@
   ],
   "exact_node_source": "executed-test-nodes.json; full suite aggregate in tests.json",
   "execution_evidence": "execution-criteria.json",
-  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
+  "execution_evidence_sha256": "19129c089e2fe258d310d3b7116b3ee3cf90d15c9ebb3a8d73a31141273f55bf",
   "expected": "All selected executable proof nodes pass without skips",
   "phase": "NXS-P19",
-  "recorded_at": "2026-09-20T22:09:59.225636+00:00",
+  "recorded_at": "2026-09-21T00:16:51.884379+00:00",
   "result": "PASS",
   "schema_version": "1.0.0",
   "test_files": [

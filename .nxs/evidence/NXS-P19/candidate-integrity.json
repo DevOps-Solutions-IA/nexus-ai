@@ -1,21 +1,14 @@
 {
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "binding": "Containing transport corrective implementation candidate; exact final execution source map",
   "closure": "NOT_AUTHORIZED",
-  "current_source_map_sha256": "78e880c93a5cbc6d8928ca3e714e38a36d94a692971cf148fb7cb43abd8f6078",
-  "execution_evidence_sha256": "991fe392cf20d5598a5f50faa61f3f1c67c9e46d196c3db7b6a097e301d1cf4f",
+  "current_source_map_sha256": "c62fd17450af534e576f240fb93cf85019532a5fd9c471633dd1fc9c744b5578",
+  "execution_evidence_sha256": "19129c089e2fe258d310d3b7116b3ee3cf90d15c9ebb3a8d73a31141273f55bf",
   "execution_source_map": "execution-criteria.json#source_sha256",
-  "parent_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "parent_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "phase": "NXS-P19",
-  "post_execution_changes": {
-    ".gitattributes": {
-      "classification": "Git patch-format metadata only; no runtime/test/migration/config behavior change",
-      "reason": "Unified-diff context lines necessarily contain a leading context space before upstream C tabs and blank lines. Scope the two Git text-whitespace interpretations to this exact native patch only; retain all native patch application, compile, protocol and security gates.",
-      "sha256": "6839cf458cd3017fc6bf74aa26438f68c38c113d420ca6e93ef8c791bb20bd6b",
-      "validation": "git check-attr whitespace and git diff --cached --check both executed successfully"
-    }
-  },
-  "recorded_at": "2026-09-20T22:13:33.799100+00:00",
+  "post_execution_changes": {},
+  "recorded_at": "2026-09-21T01:03:23.534261+00:00",
   "result": "PASS",
   "runtime_test_migration_script_workflow_config_drift": [],
   "schema_version": "1.0.0",

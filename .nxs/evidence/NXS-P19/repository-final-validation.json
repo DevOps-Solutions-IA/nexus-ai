@@ -2,7 +2,7 @@
   "P20": "PLANNED / PENDING",
   "active_phase": "NXS-P19",
   "alembic_head": "d19c1b1c2d3e",
-  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
   "checks": [
     {
       "command": "make nxs-validate-repo",
@@ -37,20 +37,20 @@
   ],
   "closure": "NOT_AUTHORIZED",
   "closure_commit": null,
-  "post_evidence_control_tests": {
-    "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_sip_edge_scope.py -q --no-cov",
-    "exit_code": 0,
-    "passed": 54,
-    "failed": 0,
-    "runtime_seconds": 6.75
-  },
   "implementation_commit": null,
   "nxs_close_executed": false,
   "nxs_start_rerun": false,
   "phase": "NXS-P19",
   "phase_decision": "PENDING",
   "phase_status": "BUILDING",
-  "recorded_at": "2026-09-20T22:11:20.600965+00:00",
+  "post_evidence_control_tests": {
+    "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_sip_edge_scope.py -q --no-cov",
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 54,
+    "runtime_seconds": 7.18
+  },
+  "recorded_at": "2026-09-21T01:03:55.071147+00:00",
   "result": "PASS",
   "schema_version": "1.0.0",
   "source_drift": []
