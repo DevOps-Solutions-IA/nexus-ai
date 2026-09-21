@@ -1,13 +1,13 @@
 # ADR-0100: SIP edge routing authority and pinned dialogs
 
-Status: implemented and closed READY/GO on `feat/nxs-p19-sip-scaling`, binding
-externally audited implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`.
-Historical governance was PLANNED/PENDING, followed by authorized BUILDING/PENDING.
-Executed implementation, exact-head CI/Security and fresh closure gate evidence are
-recorded under `.nxs/evidence/NXS-P19/`. External closure audit remains pending;
-P19 is not merged or deployed, P20 has not started, and capacity/failover are not
-certified. This ADR refines historical ADR-0013 and records the implemented authority.
-Canonical baseline is `e2114cfe8f150e85b9ae432a9af557ceb52cf836`, through P18 READY/GO.
+Status: implemented, externally audited, closed READY/GO and merged into canonical
+`main`. The audited implementation is `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`, closure head is
+`c7e73f0887cde0beb7ee71439b185ed6b1fa44a8`, and PR #44 produced merge commit `53051eca3eb1a79a59767c4f92676f4b7f275247`. Historical
+governance was PLANNED/PENDING, followed by authorized BUILDING/PENDING. Executed
+implementation, CI/Security and fresh closure-gate evidence are recorded under
+`.nxs/evidence/NXS-P19/`. P19 is not production deployed, P20 has not started,
+and capacity/failover are not certified. This ADR refines historical ADR-0013 and
+records the implemented authority.
 
 ## Decision
 
