@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "platforms": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "application": "BuildKit both platforms; clean-room.json",
+  "kamailio": "Native config and actual wire tests on both architectures; executed-test-nodes.json and container-provenance-current.json",
+  "arm64_execution": "QEMU emulation",
+  "asterisk": "amd64 integration fixture; no Asterisk arm64 claim",
+  "capacity_claim": false,
+  "closure": "NOT_AUTHORIZED"
+}

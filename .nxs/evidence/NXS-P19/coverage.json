@@ -1,0 +1,30 @@
+{
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "exclusions_changed": false,
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "minimum_percent": 90,
+  "observed": {
+    "covered_branches": 3630,
+    "covered_lines": 23704,
+    "excluded_lines": 399,
+    "missing_branches": 1040,
+    "missing_lines": 1731,
+    "num_branches": 4670,
+    "num_partial_branches": 898,
+    "num_statements": 25435,
+    "percent_branches_covered": 77.73019271948608,
+    "percent_branches_covered_display": "78",
+    "percent_covered": 90.79554891214084,
+    "percent_covered_display": "91",
+    "percent_statements_covered": 93.19441714173384,
+    "percent_statements_covered_display": "93"
+  },
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

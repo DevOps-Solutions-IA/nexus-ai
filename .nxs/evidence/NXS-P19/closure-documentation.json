@@ -1,0 +1,51 @@
+{
+  "automatic_failover_claim": false,
+  "capacity_claim": false,
+  "control_validation": {
+    "command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py tests/unit/test_lifecycle.py tests/integration/test_agent_handoff.py tests/contracts/test_sip_edge_scope.py -q --no-cov",
+    "exit_code": 0,
+    "failed": 0,
+    "passed": 54,
+    "runtime_seconds": 7.23
+  },
+  "current_feature_branch_state": "READY / GO; implementation externally approved; canonical closure completed",
+  "files_reviewed": [
+    "README.md",
+    "docs/engineering/branch-contract.md",
+    "docs/engineering/nxs-p19-implementation-progress.md",
+    "docs/engineering/nxs-p19-runtime.md",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md",
+    "docs/adr/0100-sip-edge-routing-authority.md",
+    "infrastructure/kamailio/README.md"
+  ],
+  "historical_sections_preserved": true,
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "infrastructure_changes": [
+    "infrastructure/kamailio/README.md only"
+  ],
+  "main_state": "P00-P18; P19 not merged",
+  "p20_started": false,
+  "phase": "NXS-P19",
+  "production_deployed": false,
+  "recorded_at": "2026-09-21T17:05:56.978938+00:00",
+  "repository_validation": {
+    "command": "make nxs-validate-repo; git diff --check",
+    "exit_codes": [
+      0,
+      0
+    ]
+  },
+  "result": "PASS",
+  "runtime_migration_dependency_workflow_changes": [],
+  "schema_version": "1.0.0",
+  "source_binding_policy": "Implementation runtime proof remains bound to immutable 860d9a1. Only canonical lifecycle/evidence and documented closure prose differ; no rewriting of implementation source hashes.",
+  "source_sha256": {
+    "README.md": "c5c5b62a33cad7e53508fbbbb0380f3a6734f11368c38d08db180a3f6c53f861",
+    "docs/adr/0100-sip-edge-routing-authority.md": "4d7e433fef4220821eb6abe35f0411b9d9b3ea0e6b0104317c7f1d69d1d0930d",
+    "docs/engineering/branch-contract.md": "b0089285ad8a6be10ab520974e8f28c41737a45d6a396cea308080ab4af9f77b",
+    "docs/engineering/nxs-p19-implementation-progress.md": "cbce435d422048b30c667b47e7419c5280f1fa4ac0603dcd83b71333ced43f84",
+    "docs/engineering/nxs-p19-runtime.md": "35cb9c237d448a69003a12205fccdb2f07bf0ebfaa07cb046028c6edd8ed2c66",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "07b79f376e61de24f7c1556543ce269ebcc62221aae156e63b530702a85ad784",
+    "infrastructure/kamailio/README.md": "599dd8d4582a5d867de1961681c95a6dd56cae394031fbcee53fc6c43312d4c1"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "commands": [
+    "make nxs-lock-recover",
+    "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm"
+  ],
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "exit_codes": [
+    0,
+    0
+  ],
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "initial_state": "ACTIVE / STALE on clean f4f6df3 candidate",
+  "lock": {
+    "actor": "cdxm",
+    "branch": "feat/nxs-p19-sip-scaling",
+    "expires_at": "2026-09-21T09:29:39Z",
+    "phase": "NXS-P19",
+    "repository_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-21T05:29:39Z",
+    "state": "ACTIVE"
+  },
+  "nxs_start_rerun": false,
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

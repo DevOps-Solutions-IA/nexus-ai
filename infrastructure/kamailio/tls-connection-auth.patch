@@ -1,0 +1,38 @@
+--- a/src/modules/tls/tls_server.c
++++ b/src/modules/tls/tls_server.c
+@@ -613,7 +613,11 @@ int tls_connect(struct tcp_connection *c, int *error)
+ 			LOG(tls_log, "tls_connect: server did not "
+ 						 "present a certificate\n");
+ 		}
+-		tls_run_event_routes(c);
++		if(tls_run_event_routes(c) < 0 || (c->flags & F_CONN_NOSEND)) {
++			c->flags |= F_CONN_NOSEND;
++			*error = SSL_ERROR_SSL;
++			return -1;
++		}
+ 	} else { /* 0 or < 0 */
+ 		*error = SSL_get_error(ssl, ret);
+ 	}
+@@ -1924,12 +1928,10 @@ int tls_run_event_routes(struct tcp_connection *c)
+ 	if(_tls_evrt_connection_out < 0 && sr_tls_event_callback.len <= 0)
+ 		return 0;
+ 
+-	if(p_onsend == 0 || p_onsend->msg == 0)
+-		return 0;
+-
+ 	if(faked_msg_init() < 0)
+ 		return -1;
+ 	fmsg = faked_msg_next();
++	fmsg->rcv = c->rcv;
+ 
+ 	backup_rt = get_route_type();
+ 	set_route_type(LOCAL_ROUTE);
+@@ -1944,7 +1946,7 @@ int tls_run_event_routes(struct tcp_connection *c)
+ 					   &sr_tls_event_callback, &evname)
+ 					< 0) {
+ 				LM_ERR("error running event route kemi callback\n");
+-				return -1;
++				ctx.run_flags |= DROP_R_F;
+ 			}
+ 		}
+ 	}

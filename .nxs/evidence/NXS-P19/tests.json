@@ -1,0 +1,16 @@
+{
+  "command": "make nxs-gate PHASE=NXS-P19",
+  "coverage_percent": 91.18,
+  "exit_code": 0,
+  "failed": 0,
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "passed": 2260,
+  "phase": "NXS-P19",
+  "previous_evidence": "implementation-certification-history.json#artifacts/tests.json",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "result": "PASS",
+  "runtime_seconds": 1179.65,
+  "schema_version": "1.0.0",
+  "skipped": 0,
+  "validation_source": "Fresh make nxs-gate PHASE=NXS-P19; quality-gates.json#details.tests"
+}

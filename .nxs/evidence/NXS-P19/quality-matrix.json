@@ -1,0 +1,172 @@
+{
+  "base_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "candidate_binding": "Externally approved immutable implementation; closure changes limited to governance/evidence/documentation",
+  "closure": "AUTHORIZED_CANONICAL_CLOSURE_COMPLETED",
+  "evidence_sources": {
+    "agent_handoff": [
+      "clean-room.json",
+      "executed-test-nodes.json"
+    ],
+    "clean_room": [
+      "clean-room.json"
+    ],
+    "concurrency_tests": [
+      "concurrency.json",
+      "execution-criteria.json#concurrency"
+    ],
+    "container_scan": [
+      "admission-container-scans.json"
+    ],
+    "contract_tests": [
+      "contracts.json"
+    ],
+    "coverage": [
+      "coverage.json",
+      "quality-gates.json#details.tests",
+      "clean-room.json"
+    ],
+    "dependency_security": [
+      "security.json",
+      "quality-gates.json#details.dependency_security"
+    ],
+    "docker_build": [
+      "docker.json",
+      "clean-room.json"
+    ],
+    "documentation": [
+      "external-final-audit-authorization.json",
+      "closure-documentation.json"
+    ],
+    "execution_guard": [
+      "closure-lock.json",
+      "quality-gates.json"
+    ],
+    "execution_lock": [
+      "closure-lock.json"
+    ],
+    "formatting": [
+      "quality-gates.json#details.formatting"
+    ],
+    "generic_closure": [
+      "executed-test-nodes.json"
+    ],
+    "generic_next_phase": [
+      "executed-test-nodes.json"
+    ],
+    "generic_phase_start": [
+      "lifecycle-start.json",
+      "executed-test-nodes.json"
+    ],
+    "github_ci": [
+      "github-ci.json"
+    ],
+    "graceful_shutdown": [
+      "clean-room.json",
+      "executed-test-nodes.json"
+    ],
+    "integration_tests": [
+      "executed-test-nodes.json",
+      "clean-room.json"
+    ],
+    "lint": [
+      "quality-gates.json#details.lint"
+    ],
+    "migration_validation": [
+      "migration.json",
+      "schema-security.json"
+    ],
+    "non_root_runtime": [
+      "clean-room.json",
+      "container-provenance-current.json",
+      "kamailio-config.json"
+    ],
+    "phase_neutral_ci": [
+      "github-ci.json"
+    ],
+    "regression": [
+      "regressions.json",
+      "quality-gates.json#details.tests",
+      "transport-quality-diagnostic.json"
+    ],
+    "repository_integrity": [
+      "quality-gates.json",
+      "closure-lock.json"
+    ],
+    "resilience_tests": [
+      "execution-criteria.json#concurrency",
+      "edge-budget-and-log-correction.json",
+      "sip-protocol.json",
+      "transport-certification.json",
+      "admission-certification.json"
+    ],
+    "sast": [
+      "security.json",
+      "quality-gates.json#details.sast"
+    ],
+    "secret_scan": [
+      "security.json"
+    ],
+    "security_tests": [
+      "schema-security.json",
+      "open-relay-security.json",
+      "resolver-authentication.json",
+      "transport-certification.json",
+      "admission-certification.json"
+    ],
+    "toolchain_consistency": [
+      "clean-room.json",
+      "quality-gates.json"
+    ],
+    "typing": [
+      "quality-gates.json#details.typing"
+    ],
+    "unit_tests": [
+      "executed-test-nodes.json",
+      "tests.json"
+    ]
+  },
+  "external_evidence_policy": "github-ci.json verifies exact implementation head; new closure-head runs required after push",
+  "gates": {
+    "agent_handoff": "PASS",
+    "clean_room": "PASS",
+    "concurrency_tests": "PASS",
+    "container_scan": "PASS",
+    "contract_tests": "PASS",
+    "coverage": "PASS",
+    "dependency_security": "PASS",
+    "docker_build": "PASS",
+    "documentation": "PASS",
+    "execution_guard": "PASS",
+    "execution_lock": "PASS",
+    "formatting": "PASS",
+    "generic_closure": "PASS",
+    "generic_next_phase": "PASS",
+    "generic_phase_start": "PASS",
+    "github_ci": "PASS",
+    "graceful_shutdown": "PASS",
+    "integration_tests": "PASS",
+    "lint": "PASS",
+    "migration_validation": "PASS",
+    "non_root_runtime": "PASS",
+    "phase_neutral_ci": "PASS",
+    "regression": "PASS",
+    "repository_integrity": "PASS",
+    "resilience_tests": "PASS",
+    "sast": "PASS",
+    "secret_scan": "PASS",
+    "security_tests": "PASS",
+    "toolchain_consistency": "PASS",
+    "typing": "PASS",
+    "unit_tests": "PASS"
+  },
+  "generic_closure_scope": "Generic closure-engine regressions passed; authorized P19 canonical closure succeeded separately, recorded in closure.json",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "historical_warning": "One earlier full gate failed a TLS negative ARM64 case; seven unchanged focused reruns and the latest full gate pass. Original limited diagnostic and unresolved cause are preserved in transport-quality-diagnostic.json.",
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "local_result": "PASS",
+  "missing_mandatory_gates": [],
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0"
+}

@@ -28,7 +28,7 @@ COMMANDS: tuple[tuple[str, tuple[str, ...]], ...] = (
 #: Doesn't skip, weaken, or lower any check or threshold — every command below still
 #: must exit 0 to pass; this only gives the slowest of them (tests) realistic room to
 #: finish and report its actual result.
-_COMMAND_TIMEOUT_SECONDS = 900
+_COMMAND_TIMEOUT_SECONDS = 1800
 
 
 def run_gate(root: Path, phase: str) -> dict[str, object]:

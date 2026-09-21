@@ -1,0 +1,217 @@
+{
+  "architectures": [
+    "linux/amd64",
+    "linux/arm64"
+  ],
+  "asterisk_scope": "Actual TLS ARI and internal UDP PJSIP; Kamailio-to-carrier UDP/TCP/TLS proved separately, no Asterisk SIP TLS claim",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "capacity_claim": false,
+  "closure": "NOT_AUTHORIZED",
+  "deployment_claim": false,
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "no_fallback": true,
+  "peer_authentication": {
+    "TCP": "operations-controlled isolated network plus bounded source policy; not cryptographic",
+    "TLS": "verified CA chain plus actual native leaf SHA-256; exact downstream pin before SIP write",
+    "UDP": "operations-controlled isolated network plus bounded source policy"
+  },
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "tls_source_patch": "infrastructure/kamailio/tls-connection-auth.patch",
+  "transport_subcases": {
+    "T01": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-bounded_delay-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-bounded_delay-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-database-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-database-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-issue_response_loss-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-issue_response_loss-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-missing_target-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-missing_target-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-none-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-none-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-suspended-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-suspended-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-tls-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-tls-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-bounded_delay-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-bounded_delay-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-database-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-database-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-issue_response_loss-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-issue_response_loss-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-missing_target-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-missing_target-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-none-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-none-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-suspended-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-suspended-True]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-tls-False]": "PASS",
+        "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[arm64-tls-True]": "PASS"
+      }
+    },
+    "T02": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-none-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-none-arm64]": "PASS"
+      }
+    },
+    "T03": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-none-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-none-arm64]": "PASS"
+      }
+    },
+    "T04": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-expired_client-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-expired_client-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-expired_target-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-expired_target-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-missing_client_certificate-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-missing_client_certificate-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_client_ca-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_client_ca-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_peer-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_peer-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_target_ca-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_target_ca-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_client_pin-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_client_pin-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_peer_policy-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_peer_policy-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_target_pin-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-wrong_target_pin-arm64]": "PASS"
+      }
+    },
+    "T05": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-downgrade_udp-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-downgrade_udp-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-downgrade_tcp-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-downgrade_tcp-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-downgrade_udp-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-downgrade_udp-arm64]": "PASS"
+      }
+    },
+    "T06": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TCP-False]": "PASS",
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TCP-True]": "PASS",
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-False]": "PASS",
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-True]": "PASS",
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[UDP-False]": "PASS",
+        "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[UDP-True]": "PASS"
+      }
+    },
+    "T07": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[database_disconnect]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[missing_upstream]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[stale_generation]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[suspended]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[timeout]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_permit_denial_is_terminal_and_replay_never_originates[unavailable]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_real_permit_authority_denial_records_failed_call[missing_upstream]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_real_permit_authority_denial_records_failed_call[stale_generation]": "PASS",
+        "tests/integration/test_sip_permit_issuance_failure.py::test_real_permit_authority_denial_records_failed_call[suspended]": "PASS"
+      }
+    },
+    "T08": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_native_configuration.py::test_native_pinned_configuration_on_both_architectures[nexus-p19-kamailio:6.1.4-arm64-wolfi-development]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_native_pinned_configuration_on_both_architectures[nexus-p19-kamailio:6.1.4-development]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[expired_identity]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[invalid_ca]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[missing_key]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[missing_limits]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[missing_trust]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[readable_key]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[unbounded_limit]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[wildcard_peer]": "PASS",
+        "tests/integration/test_sip_native_configuration.py::test_reference_startup_fails_closed[writable_key]": "PASS"
+      }
+    },
+    "T09": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_target_constraints.py::test_database_rejects_transport_identity_mismatch[TCP-abababababababababababababababababababababababababababababababab]": "PASS",
+        "tests/integration/test_sip_target_constraints.py::test_database_rejects_transport_identity_mismatch[TLS-None]": "PASS",
+        "tests/integration/test_sip_target_constraints.py::test_database_rejects_transport_identity_mismatch[TLS-invalid]": "PASS",
+        "tests/integration/test_sip_target_constraints.py::test_database_rejects_transport_identity_mismatch[UDP-abababababababababababababababababababababababababababababababab]": "PASS",
+        "tests/integration/test_sip_target_constraints.py::test_tls_target_pin_and_transport_are_immutable": "PASS",
+        "tests/integration/test_sip_upstream_authority.py::test_upstream_rotation_fences_old_permit_and_preserves_append_only_history[TCP]": "PASS",
+        "tests/integration/test_sip_upstream_authority.py::test_upstream_rotation_fences_old_permit_and_preserves_append_only_history[TLS]": "PASS",
+        "tests/integration/test_sip_upstream_authority.py::test_upstream_rotation_fences_old_permit_and_preserves_append_only_history[UDP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[ABC-TCP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[ABC-TLS]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[ABC-UDP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[None-TCP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[None-TLS]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[None-UDP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[a\\r\\nRoute:bad-TCP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[a\\r\\nRoute:bad-TLS]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[a\\r\\nRoute:bad-UDP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-TCP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-TLS]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-UDP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[abababababababababababababababababababababababababababababababab-TCP]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[abababababababababababababababababababababababababababababababab-TLS]": "PASS",
+        "tests/unit/test_sip_edge_contracts.py::test_transport_requires_exact_tls_identity_only[abababababababababababababababababababababababababababababababab-UDP]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[10.2.3.4-TCP]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[10.2.3.4-TLS]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[10.2.3.4-UDP]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[fd01::1-TCP]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[fd01::1-TLS]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_exact_transport_and_bracketed_ipv6[fd01::1-UDP]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_transport_port_and_user_are_bounded[TCP-65536-None]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_transport_port_and_user_are_bounded[TLS-True-None]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_transport_port_and_user_are_bounded[UDP-5060-+123;transport=tls]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_transport_port_and_user_are_bounded[WS-5060-None]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_uri_components_cannot_be_injected[10.2.3.4;transport=udp]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_uri_components_cannot_be_injected[10.2.3.4?header=x]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_uri_components_cannot_be_injected[10.2.3.4\\r\\nRoute:x]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_uri_components_cannot_be_injected[sip:10.2.3.4]": "PASS",
+        "tests/unit/test_sip_transport_uri.py::test_uri_components_cannot_be_injected[user@10.2.3.4]": "PASS"
+      }
+    },
+    "T10": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-cancel-amd64]": "PASS",
+        "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-cancel-arm64]": "PASS"
+      }
+    }
+  },
+  "transports": [
+    "UDP",
+    "TCP",
+    "TLS"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "admission": {
+    "A01": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[True]": "PASS"
+      }
+    },
+    "A02": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[True]": "PASS"
+      }
+    },
+    "A03": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_total_database_unavailability_and_recovery[False]": "PASS"
+      }
+    },
+    "A04": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_concurrent_replay_does_not_revoke_active_owner": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_recovery_wins_before_dispatch_and_old_owner_cannot_send": "PASS"
+      }
+    },
+    "A05": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-False]": "PASS"
+      }
+    },
+    "A06": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[False-True]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_owner_crash_recovery_fences_old_owner[True-True]": "PASS"
+      }
+    },
+    "A07": {
+      "missing": [],
+      "result": "PASS",
+      "tests": {
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[False]": "PASS",
+        "tests/integration/test_sip_admission_recovery.py::test_after_dispatch_never_reoriginates[True]": "PASS"
+      }
+    }
+  },
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "crash_injection": "BaseException at exact durable boundaries, leaving persisted state for recovery; no false claim of OS process-kill testing",
+  "creation_transaction": "P11 call + PENDING admission owner + CREATED outbox intent",
+  "deadline_fixture": "After outage, privileged isolated test fixture advances only admission timestamps with triggers disabled transaction-locally. Production runtime cannot mutate deadline/owner; separate negative SQL tests prove it. Races use asyncio barriers and PostgreSQL row locks, not sleeps.",
+  "dispatch_transaction": "call/admission/permit locks; exact owner and live permit; PENDING->DISPATCHED; conservative dispatch-unconfirmed marker; commit before ARI",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "limitations": [
+    "DISPATCHED commit is conservatively ambiguous even if physical ARI had not begun; never automatically retried.",
+    "Operations must invoke bounded tenant recovery after outages for untouched calls; no fleet-wide background failover is introduced.",
+    "Legacy calls without an admission fence are not retrospectively classified safe to fail."
+  ],
+  "migration": "d19d1b1c2d3e",
+  "no_clock_only_recovery": true,
+  "no_reorigination": true,
+  "phase": "NXS-P19",
+  "public_api_unchanged": true,
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "recovery_operation": "TelephonyService.recover_pending_admissions(organization_id, limit=1..100); call reads/lists and same-key replay also reconcile expired PENDING",
+  "recovery_transaction": "call/admission/permit locks; expired PENDING->REVOKED; AUTHORIZED permit->REVOKED; FAILED call + one outbox event",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "strategy": "B: durable pre-provider owner, immutable database deadline, irreversible state CAS",
+  "table": "sip_call_admissions",
+  "total_outage_proof": "Fresh disposable PostgreSQL database: ALLOW_CONNECTIONS false plus terminate ALL sessions; new connections rejected; failure persistence remains unavailable; restore database and recover the durable fence"
+}

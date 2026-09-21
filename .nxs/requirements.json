@@ -1716,14 +1716,16 @@
         "NXS-SCALE-001",
         "NXS-TEL-001"
       ],
-      "description": "Kamailio provides the planned horizontally scalable SIP edge ahead of Asterisk cells.",
+      "description": "A horizontally scalable Kamailio SIP signaling edge deterministically routes new inbound dialogs to the correct Asterisk Cell and trusted outbound dialogs to approved carrier trunks using PostgreSQL-authoritative P11 DID/account ownership, P18 Organization-to-Cell placement and P19 Cell-to-SIP-target state, while preventing open relay, untrusted route authority, cross-tenant routing and silent Cell relocation; existing-dialog routing remains pinned, and automatic failover, capacity certification, media migration and production deployment remain outside NXS-P19.",
       "id": "NXS-SCALE-002",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "VALIDATED",
       "target_phase": "NXS-P19",
       "title": "Kamailio SIP edge",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P19/quality-gates.json"
+      ]
     },
     {
       "category": "CAPACITY",

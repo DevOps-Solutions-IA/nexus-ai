@@ -1,0 +1,62 @@
+{
+  "authority": "PostgreSQL; P11 ownership/calls, P18 placement, P19 SIP target/route/permit",
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "canonical_main": "P00-P18",
+  "closure": "NOT_AUTHORIZED",
+  "current_phase": "BUILDING / PENDING; pre-ARI admission corrective pending external re-audit",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "historical_contracts_explicitly_qualified": true,
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "historical_results_preserved": "Original 2140-test candidate is explicitly historical; transport-corrective-baseline.json pins all original evidence blobs.",
+  "lifecycle_test_change": "test_otp_contracts.py permits authorized P19 lifecycle and retains all P20-P32 PLANNED/PENDING assertions; no skip/xfail",
+  "migration_test_change": "test_cell_migration.py verifies one head and P18 in history rather than obsolete P18-is-head; roundtrip/RLS retained; dedicated P19 roundtrips added",
+  "no_claims": [
+    "READY/GO",
+    "automatic failover",
+    "cross-Cell relocation",
+    "physical exactly-once",
+    "capacity certification",
+    "production deployment"
+  ],
+  "phase": "NXS-P19",
+  "pre_ari_failure": "Durable PENDING owner fencing survives total database outage; bounded recovery atomically revokes pre-provider ownership and fails call/event. DISPATCHED ambiguity is never retried.",
+  "proof": [
+    "contracts.json",
+    "quality-gates.json",
+    "clean-room.json",
+    "transport-certification.json",
+    "admission-certification.json"
+  ],
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "reviewed": [
+    "README.md",
+    "docs/adr/0100-sip-edge-routing-authority.md",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md",
+    "docs/engineering/nxs-p19-runtime.md",
+    "docs/engineering/nxs-p19-implementation-progress.md",
+    "docs/engineering/branch-contract.md",
+    "infrastructure/README.md",
+    "infrastructure/kamailio/README.md"
+  ],
+  "schema_version": "1.0.0",
+  "source_sha256": {
+    "README.md": "648b3510a343064cc2deb1cfcd9083bb791ae95b8f5d78de9861bc3b7e874b8c",
+    "docs/adr/0086-telephony-persistence-idempotency-and-media.md": "9e0204ac109d3d58c14a02cfefb4c9fca2551b1e518f1c4b1c47c36aab434421",
+    "docs/adr/0100-sip-edge-routing-authority.md": "784f72eafcf3c53a5c73a2018a320188e65613edfcbdf1f4a255d9ac0864135d",
+    "docs/engineering/branch-contract.md": "dd2758060c3cc2f2a6432dc6011534f558fb0f95d49d4c1f03765dc10c0dac6b",
+    "docs/engineering/nxs-p19-implementation-progress.md": "7a9688ed2a889a90431882886a43d4ca7ba6819ebe5f9ba92b5323b364ffd8fb",
+    "docs/engineering/nxs-p19-runtime.md": "5bfda0039731451eab369970242236cdfad2f8c485e02b762b734d203a86b634",
+    "docs/engineering/nxs-p19-sip-edge-scaling-design.md": "480b93ed09ab023d6db92454ec4cdaad1de82c61ff6ea163873fa7c13037624d",
+    "infrastructure/README.md": "231e68d7501acb8de92dd7f48817dabd4befe551dfe25102331a783b074ecb8f",
+    "infrastructure/kamailio/README.md": "06b800107220000ddaeaa9187b9bb31141ab6457dcc66db240aeae3361605d37"
+  },
+  "tenant": "Organization / organization_id",
+  "transport_contract": {
+    "TCP": "implemented; isolated-network source policy",
+    "TLS": "implemented; verified certificate chain and observed exact pins; versioned native callback patch",
+    "UDP": "implemented; isolated-network source policy"
+  }
+}

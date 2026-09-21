@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "result": "PASS",
+  "recorded_at": "2026-09-20T20:57:49.466524+00:00",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "closure": "NOT_AUTHORIZED",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "command": "docker run --rm --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges [archive read-only; no Docker socket] <pinned scanner> image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --input <archive>",
+  "exit_code": 0,
+  "artifacts": [
+    {
+      "name": "kamailio-amd64",
+      "config_digest": "sha256:b96cb77a32628a3ed5493e6d2699e108fedaaa6b6119109a91041d7ff0ec656f",
+      "architecture": "amd64",
+      "user": "10001:10001",
+      "high_critical_findings": 0,
+      "result": "PASS",
+      "scan_sha256": "dde4791dc470c881fd71b4816d63159eeede1c221ca237b657f6e0a26bc74acc",
+      "scanner_created_at": "2026-09-20T20:55:23.799768811Z",
+      "os": {
+        "Family": "wolfi",
+        "Name": "20230201"
+      },
+      "targets": [
+        {
+          "target": "/scan/kamailio-amd64.tar (wolfi 20230201)",
+          "type": "wolfi",
+          "vulnerabilities": []
+        }
+      ]
+    },
+    {
+      "name": "kamailio-arm64",
+      "config_digest": "sha256:3951e7524c4d8d0333bb1daf5fc48b7abb3612a0d7f07bce2d04d7a859ab5f23",
+      "architecture": "arm64",
+      "user": "10001:10001",
+      "high_critical_findings": 0,
+      "result": "PASS",
+      "scan_sha256": "270828a02abfdf98e88783792299cdc51fada76c0374090f2a6963abe85b1d5c",
+      "scanner_created_at": "2026-09-20T20:55:25.222701277Z",
+      "os": {
+        "Family": "wolfi",
+        "Name": "20230201"
+      },
+      "targets": [
+        {
+          "target": "/scan/kamailio-arm64.tar (wolfi 20230201)",
+          "type": "wolfi",
+          "vulnerabilities": []
+        }
+      ]
+    },
+    {
+      "name": "asterisk-amd64",
+      "config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "architecture": "amd64",
+      "user": "10001:10001",
+      "high_critical_findings": 0,
+      "result": "PASS",
+      "scan_sha256": "6b919c8ba33647482d865c5a0ee9eddae677d40f490f3e4f30b579f3f5c81795",
+      "scanner_created_at": "2026-09-20T20:55:26.79962429Z",
+      "os": {
+        "Family": "wolfi",
+        "Name": "20230201"
+      },
+      "targets": [
+        {
+          "target": "/scan/asterisk-amd64.tar (wolfi 20230201)",
+          "type": "wolfi",
+          "vulnerabilities": []
+        }
+      ]
+    },
+    {
+      "name": "application",
+      "config_digest": "sha256:f265f43083a93f25fe66d7d5431ce287ec0ec0b07c2ac072ffe3f01b5754d691",
+      "architecture": "amd64",
+      "user": "65532:65532",
+      "high_critical_findings": 0,
+      "result": "PASS",
+      "scan_sha256": "64efa1df614a5f3f619b921a33afa4a3b78e65d68f36141057ad7f99d36f1054",
+      "scanner_created_at": "2026-09-20T20:55:28.968073363Z",
+      "os": {
+        "Family": "wolfi",
+        "Name": "20230201"
+      },
+      "targets": [
+        {
+          "target": "/scan/application.tar (wolfi 20230201)",
+          "type": "wolfi",
+          "vulnerabilities": []
+        },
+        {
+          "target": "Python",
+          "type": "python-pkg",
+          "vulnerabilities": []
+        }
+      ]
+    }
+  ],
+  "source_sha256": {
+    "infrastructure/kamailio/Dockerfile": "bcdf57a5d5c89084e7043c4a9971bbc23b86ca895f45c4fbfcb5d3fd15b74e44",
+    "infrastructure/kamailio/tls-connection-auth.patch": "ba2dbcd14284421babd34f7110c2a315ae47e8aa618686b0b61441a506e3764e",
+    "infrastructure/kamailio/tls.cfg": "9681a1fce6063e0e4f1a097ec80c165f285ae178fc1bbe6c29ce5d79ea50c8d4",
+    "infrastructure/kamailio/edge.py": "620c95409a09c9b44f1d51dfb1df6269691816b3f590e7bf2af99323554ebff6",
+    "infrastructure/kamailio/kamailio.cfg": "19bbd97e3edf0f19a0729eed1f65d88cdd20ae0dfa9d870bfbeef47cd8313e76"
+  },
+  "limitations": [
+    "Package scanners do not certify every source-built C code path; native TLS derivative patch requires explicit review.",
+    "ARM64 compatibility uses emulation; no capacity or deployment certification."
+  ],
+  "historical_setup_failure": "A mistyped scanner digest returned manifest unknown before scanning; canonical pinned digest was then used for all four successful scans."
+}

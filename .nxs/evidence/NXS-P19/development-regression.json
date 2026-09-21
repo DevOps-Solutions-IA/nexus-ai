@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "worktree_base": "da0f28f6999e199f5348d63985292c8b93aa8f23",
+  "implementation_commit": null,
+  "result": "PASS",
+  "scope": "Existing repository suite plus implemented foundation tests; not complete P19 acceptance",
+  "command": "make test-all",
+  "environment": "Fresh uniquely named disposable PostgreSQL database via NXS_IT_RUNTIME_DSN, NXS_IT_MIGRATION_DSN and NXS_IT_SUPERUSER_DSN; no concurrent test process sharing NATS",
+  "exit_code": 0,
+  "passed": 2045,
+  "failed": 0,
+  "skipped": 0,
+  "coverage_percent": 91.15,
+  "runtime_seconds": 437.44,
+  "previous_development_runs": [
+    {
+      "passed": 2033,
+      "failed": 1,
+      "coverage_percent": 90.79,
+      "runtime_seconds": 469.76,
+      "exit_code": 2,
+      "failures": ["tests/contracts/test_otp_contracts.py::test_later_phases_remain_planned"],
+      "correction": "Updated stale P19 PLANNED assertion to permit its authorized lifecycle; P20-P32 remain required PLANNED/PENDING"
+    },
+    {
+      "passed": 2040,
+      "failed": 5,
+      "runtime_seconds": 447.48,
+      "exit_code": 2,
+      "failures": [
+        "tests/integration/test_event_consumer.py::test_ack_loss_then_redelivery_is_safe",
+        "tests/integration/test_event_consumer.py::test_terminal_failure_is_dead_lettered_and_not_reprocessed",
+        "tests/integration/test_migration_roles.py::test_downgrade_then_upgrade_is_clean",
+        "tests/integration/test_organization_lifecycle.py::test_create_core_record_is_provisioning",
+        "tests/integration/test_rls_isolation.py::test_context_is_transaction_local"
+      ],
+      "observed_errors": [
+        "NATS service unavailable during overlapping test fixtures using shared JetStream streams",
+        "Local development schema lacked the subsequently added uncommitted sip_target_head_fence trigger",
+        "Duplicate lifecycle-a Organization fixture",
+        "Unclosed PostgreSQL connection/socket warnings"
+      ],
+      "correction": "Reran sequentially against a newly created disposable database; did not suppress warnings or weaken assertions"
+    }
+  ],
+  "implementation_complete": false,
+  "closure": "NOT_AUTHORIZED"
+}

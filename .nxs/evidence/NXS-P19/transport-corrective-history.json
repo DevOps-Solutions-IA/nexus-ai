@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T22:00:59.409564+00:00",
+  "result": "PASS",
+  "scope": "Corrective history and canonical continuation, not independent final certification",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "external_finding_source": "USER_DECISION: external architecture audit in task authorization",
+  "external_finding": "Approved UDP/TCP/TLS control model versus UDP-only executable edge; fail-closed mismatch required correction, not narrowing scope",
+  "lock_recovery": {
+    "initial_state": "ACTIVE but stale",
+    "commands": [
+      "make nxs-lock-recover",
+      "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm"
+    ],
+    "exit_codes": [
+      0,
+      0
+    ],
+    "current_lock": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p19-sip-scaling",
+      "expires_at": "2026-09-20T23:56:26Z",
+      "phase": "NXS-P19",
+      "repository_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-20T19:56:26Z",
+      "state": "ACTIVE"
+    },
+    "phase_start_preserved": "2026-09-19T19:31:44Z",
+    "nxs_start_rerun": false,
+    "checkpoint_commits": []
+  },
+  "historical_failures": [
+    {
+      "finding": "Multiple SQL commands rejected by asyncpg prepared execution",
+      "correction": "Separate additive migration op.execute calls; upgrade/check and disposable roundtrip pass"
+    },
+    {
+      "finding": "Unsupported native tcp_max_msg_size directive",
+      "correction": "Pinned native tcp_rd_buf_size; actual native configuration passes"
+    },
+    {
+      "finding": "OpenSSL build/runtime ABI version mismatch",
+      "correction": "Checksummed OpenSSL 3.6.4 build SDK matches pinned runtime; no compatibility bypass"
+    },
+    {
+      "finding": "Strict TLS test PKI rejected missing CA/key identifier extensions",
+      "correction": "Generate proper disposable CA/leaf extensions; no verification relaxation"
+    },
+    {
+      "finding": "Upstream TLS connection-out callback skipped TM/asynchronous sends; wrong leaf pin reached target",
+      "correction": "Explicit versioned native source patch invokes callback with actual connection context and denies queued writes before sending; wrong-pin real-wire tests require zero target SIP"
+    },
+    {
+      "finding": "Double Record-Route exposed invalid test-UAC route order",
+      "correction": "Use SIP-required reversed response Record-Route in UAC; UDP security tests retained"
+    },
+    {
+      "finding": "New real transport suite took 1048.02 seconds beyond previous 900-second gate wrapper ceiling",
+      "correction": "Raise only subprocess ceiling to 1800 seconds and CI integration ceiling to 90 minutes; no check or coverage threshold removed"
+    }
+  ],
+  "log_sha256": {
+    "nxs-p19-transport-migration.log": "6343e8abc8e34d2a0236241a0c0d04e8ca054a373be834ac972be3325ad4cbea",
+    "nxs-p19-tls-native.log": "3e8c9672030cad94a5939fc9dfea932e59d8f2c10d7a24d3456c2f1a0aab2414",
+    "nxs-p19-tls-native-2.log": "9370317acbb8b4c0186a8cd02de9c98371f8c5a8bbf352fad67e8445050721ac",
+    "nxs-p19-stream-first.log": "b1ac7ade953bd0b8229546adb32a2d0e6dbb0ba90f8dbf25a3025bff5d07454c",
+    "nxs-p19-stream-second.log": "2e95b95446ce7647ff98faa76c37d827d8c74fcd8605872ce4ea23c711d1d73c",
+    "nxs-p19-stream-third.log": "a0726a703a1e9e0349850ddcf49359c2746186ccbf0de8d7bbbd19bb9731069e",
+    "nxs-p19-stream-negative.log": "2d9754faf0709622744bce6453ec808768efba94b35d0373afb587c59c3d8d8a",
+    "nxs-p19-tls-pin-test.log": "d5f892bddd5f89611cfbeea4c68c3831b8258c7353dda946476f52b11efa117c",
+    "nxs-p19-udp-after-tls.log": "ec94a424a398d7727cc3865b6172a94adc4db404fe4221584f6b6a4780fa9eb1",
+    "nxs-p19-udp-final.log": "9f11f1d568e2ec75dfec1562842fdaca1c785a2f93544c77f3327974ce4b0a14",
+    "nxs-p19-final-callback-build.log": "319dbbd832bf77ed85bbc152524becf30b5778a57a0693e4c9eb3b1a1c21eed8",
+    "nxs-p19-arm64-transport.log": "9b2eadb177dbb11ac9bf2e6488ae2f3327e90a4560fc40ee9c6cf32a6b9e43c0",
+    "nxs-p19-admission-disconnect.log": "c30e9a9631a7d34fc5bb28913dcf5f827523e2bc9f8cf189003df3622d69b77b"
+  },
+  "current_execution_evidence": "execution-criteria.json",
+  "closure": "NOT_AUTHORIZED"
+}

@@ -1,0 +1,270 @@
+{
+  "artifacts": [
+    {
+      "architecture": "amd64",
+      "config_digest": "sha256:b96cb77a32628a3ed5493e6d2699e108fedaaa6b6119109a91041d7ff0ec656f",
+      "high_critical_findings": 0,
+      "manifest_digest": "sha256:a785b31ac45f388c97c7bd6812baa9d8420a79edc9561d4df625e8cf043e658c",
+      "name": "kamailio-amd64",
+      "scan_report_sha256": "dde4791dc470c881fd71b4816d63159eeede1c221ca237b657f6e0a26bc74acc",
+      "scan_result": "PASS",
+      "user": "10001:10001"
+    },
+    {
+      "architecture": "arm64",
+      "config_digest": "sha256:3951e7524c4d8d0333bb1daf5fc48b7abb3612a0d7f07bce2d04d7a859ab5f23",
+      "high_critical_findings": 0,
+      "manifest_digest": "sha256:0cc0b92a9c816ee4d4b6e9346f5110882507e32ffca4bf5f272f95d439f50cc3",
+      "name": "kamailio-arm64",
+      "scan_report_sha256": "270828a02abfdf98e88783792299cdc51fada76c0374090f2a6963abe85b1d5c",
+      "scan_result": "PASS",
+      "user": "10001:10001"
+    },
+    {
+      "architecture": "amd64",
+      "config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "high_critical_findings": 0,
+      "manifest_digest": "sha256:89a9a23b7e4ea3d521af0072dee24e32b050891b9722a3ad1e5a03563553c626",
+      "name": "asterisk-amd64",
+      "scan_report_sha256": "6b919c8ba33647482d865c5a0ee9eddae677d40f490f3e4f30b579f3f5c81795",
+      "scan_result": "PASS",
+      "user": "10001:10001"
+    }
+  ],
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "closure": "NOT_AUTHORIZED",
+  "derivative_version": "6.1.4-nxs-tls-auth1",
+  "historical_upstream_inspection": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/artifact-provenance.json",
+  "kamailio_version": "6.1.4",
+  "limitations": [
+    "Upstream runtime index had no arm64 runtime; official source derivative is built reproducibly for both architectures.",
+    "ARM64 uses QEMU; not capacity certification.",
+    "Native TLS callback patch is security-sensitive and explicitly submitted for external review."
+  ],
+  "openssl_source_sha256": "9bffaa1ad1e07b354c21bd3324ec02fa15579f45a7d0494b3e74bc449b7333ef",
+  "openssl_version": "3.6.4",
+  "patch": "infrastructure/kamailio/tls-connection-auth.patch",
+  "patch_sha256": "ba2dbcd14284421babd34f7110c2a315ae47e8aa618686b0b61441a506e3764e",
+  "phase": "NXS-P19",
+  "protocol_certification": "PASS",
+  "provenance_records": {
+    "asterisk-amd64": {
+      "buildx.build.provenance": {
+        "buildType": "https://mobyproject.org/buildkit@v1",
+        "builder": {
+          "id": ""
+        },
+        "invocation": {
+          "configSource": {
+            "entryPoint": "asterisk.Dockerfile"
+          },
+          "environment": {
+            "dockerfileVersion": "1.26.0",
+            "platform": "linux/amd64"
+          },
+          "parameters": {
+            "compatibilityVersion": 30,
+            "frontend": "dockerfile.v0",
+            "locals": [
+              {
+                "name": "context"
+              },
+              {
+                "name": "dockerfile"
+              }
+            ],
+            "root": {
+              "configSource": {
+                "path": "asterisk.Dockerfile"
+              },
+              "request": {
+                "args": {
+                  "vcs:localdir:context": ".",
+                  "vcs:localdir:dockerfile": "infrastructure/kamailio",
+                  "vcs:revision": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+                  "vcs:source": "git@github.com:DevOps-Solutions-IA/nexus-ai.git"
+                }
+              }
+            }
+          }
+        },
+        "materials": [
+          {
+            "digest": {
+              "sha256": "1d95114038f76513a9ace6fca107d5582b08c65981f81f61cb56bf7fd2ef216d"
+            },
+            "uri": "pkg:docker/cgr.dev/chainguard/wolfi-base?digest=sha256:1d95114038f76513a9ace6fca107d5582b08c65981f81f61cb56bf7fd2ef216d&platform=linux%2Famd64"
+          }
+        ]
+      },
+      "buildx.build.ref": "nxs-corrective/nxs-corrective0/pi595agdvl5vnxm4ojf5iwaec",
+      "containerimage.config.digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "containerimage.descriptor": {
+        "annotations": {
+          "org.opencontainers.image.created": "2026-09-20T21:14:47Z"
+        },
+        "digest": "sha256:89a9a23b7e4ea3d521af0072dee24e32b050891b9722a3ad1e5a03563553c626",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        },
+        "size": 3157
+      },
+      "containerimage.digest": "sha256:89a9a23b7e4ea3d521af0072dee24e32b050891b9722a3ad1e5a03563553c626",
+      "image.name": "docker.io/library/nexus-p19-asterisk:22.11.0-development"
+    },
+    "kamailio-amd64": {
+      "buildx.build.provenance": {
+        "buildType": "https://mobyproject.org/buildkit@v1",
+        "builder": {
+          "id": ""
+        },
+        "invocation": {
+          "configSource": {
+            "entryPoint": "Dockerfile"
+          },
+          "environment": {
+            "dockerfileVersion": "1.26.0",
+            "platform": "linux/amd64"
+          },
+          "parameters": {
+            "compatibilityVersion": 30,
+            "frontend": "dockerfile.v0",
+            "locals": [
+              {
+                "name": "context"
+              },
+              {
+                "name": "dockerfile"
+              }
+            ],
+            "root": {
+              "configSource": {
+                "path": "Dockerfile"
+              },
+              "request": {
+                "args": {
+                  "vcs:localdir:context": ".",
+                  "vcs:localdir:dockerfile": "infrastructure/kamailio",
+                  "vcs:revision": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+                  "vcs:source": "git@github.com:DevOps-Solutions-IA/nexus-ai.git"
+                }
+              }
+            }
+          }
+        },
+        "materials": [
+          {
+            "digest": {
+              "sha256": "1f37785e5cdb70151f36aaa15e1e3cef4571424dbefbf4b0d8a9222535cb13ff"
+            },
+            "uri": "pkg:docker/cgr.dev/chainguard/python?digest=sha256:1f37785e5cdb70151f36aaa15e1e3cef4571424dbefbf4b0d8a9222535cb13ff&platform=linux%2Famd64"
+          },
+          {
+            "digest": {
+              "sha256": "cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6"
+            },
+            "uri": "pkg:docker/python@3.14.7-slim-trixie?digest=sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6&platform=linux%2Famd64"
+          }
+        ]
+      },
+      "buildx.build.ref": "nxs-corrective/nxs-corrective0/0qatmuaz5rj2graqln09p9u47",
+      "containerimage.config.digest": "sha256:b96cb77a32628a3ed5493e6d2699e108fedaaa6b6119109a91041d7ff0ec656f",
+      "containerimage.descriptor": {
+        "annotations": {
+          "org.opencontainers.image.created": "2026-09-20T21:14:46Z"
+        },
+        "digest": "sha256:a785b31ac45f388c97c7bd6812baa9d8420a79edc9561d4df625e8cf043e658c",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "platform": {
+          "architecture": "amd64",
+          "os": "linux"
+        },
+        "size": 2780
+      },
+      "containerimage.digest": "sha256:a785b31ac45f388c97c7bd6812baa9d8420a79edc9561d4df625e8cf043e658c",
+      "image.name": "docker.io/library/nexus-p19-kamailio:6.1.4-development"
+    },
+    "kamailio-arm64": {
+      "buildx.build.provenance": {
+        "buildType": "https://mobyproject.org/buildkit@v1",
+        "builder": {
+          "id": ""
+        },
+        "invocation": {
+          "configSource": {
+            "entryPoint": "Dockerfile"
+          },
+          "environment": {
+            "dockerfileVersion": "1.26.0",
+            "platform": "linux/amd64"
+          },
+          "parameters": {
+            "compatibilityVersion": 30,
+            "frontend": "dockerfile.v0",
+            "locals": [
+              {
+                "name": "context"
+              },
+              {
+                "name": "dockerfile"
+              }
+            ],
+            "root": {
+              "configSource": {
+                "path": "Dockerfile"
+              },
+              "request": {
+                "args": {
+                  "vcs:localdir:context": ".",
+                  "vcs:localdir:dockerfile": "infrastructure/kamailio",
+                  "vcs:revision": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+                  "vcs:source": "git@github.com:DevOps-Solutions-IA/nexus-ai.git"
+                }
+              }
+            }
+          }
+        },
+        "materials": [
+          {
+            "digest": {
+              "sha256": "1f37785e5cdb70151f36aaa15e1e3cef4571424dbefbf4b0d8a9222535cb13ff"
+            },
+            "uri": "pkg:docker/cgr.dev/chainguard/python?digest=sha256:1f37785e5cdb70151f36aaa15e1e3cef4571424dbefbf4b0d8a9222535cb13ff&platform=linux%2Farm64"
+          },
+          {
+            "digest": {
+              "sha256": "cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6"
+            },
+            "uri": "pkg:docker/python@3.14.7-slim-trixie?digest=sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6&platform=linux%2Farm64"
+          }
+        ]
+      },
+      "buildx.build.ref": "nxs-corrective/nxs-corrective0/wm94fyo25im08cd9nyu8qsdsr",
+      "containerimage.config.digest": "sha256:3951e7524c4d8d0333bb1daf5fc48b7abb3612a0d7f07bce2d04d7a859ab5f23",
+      "containerimage.descriptor": {
+        "annotations": {
+          "org.opencontainers.image.created": "2026-09-20T21:14:48Z"
+        },
+        "digest": "sha256:0cc0b92a9c816ee4d4b6e9346f5110882507e32ffca4bf5f272f95d439f50cc3",
+        "mediaType": "application/vnd.oci.image.manifest.v1+json",
+        "platform": {
+          "architecture": "arm64",
+          "os": "linux"
+        },
+        "size": 2780
+      },
+      "containerimage.digest": "sha256:0cc0b92a9c816ee4d4b6e9346f5110882507e32ffca4bf5f272f95d439f50cc3",
+      "image.name": "docker.io/library/nexus-p19-kamailio:6.1.4-arm64-wolfi-development"
+    }
+  },
+  "recorded_at": "2026-09-20T21:53:10.316920+00:00",
+  "reference_configuration_validation": "PASS",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scope": "Repository-owned native Kamailio derivative and actual amd64/arm64 protocol certification; no production deployment",
+  "source_sha256": "290624b6624edc230af0fc458fb7e481e64b893be7cb5084398e587942992e0a",
+  "source_url": "https://www.kamailio.org/pub/kamailio/6.1.4/src/kamailio-6.1.4_src.tar.gz",
+  "test_source": "execution-criteria.json#transport"
+}

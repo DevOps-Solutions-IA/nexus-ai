@@ -722,6 +722,20 @@ class AuthSettings(BaseModel):
         return [item.strip() for item in self.verification_key_seeds.split(",") if item.strip()]
 
 
+class SipEdgeSettings(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    enabled: bool = False
+    secret_file: str | None = Field(default=None, max_length=1024)
+    locator_dsn: SecretStr | None = None
+
+    @model_validator(mode="after")
+    def complete_configuration(self) -> Self:
+        if self.enabled and (not self.secret_file or self.locator_dsn is None):
+            raise ValueError("SIP edge requires an operations secret file and locator DSN")
+        return self
+
+
 class CellSettings(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
@@ -762,6 +776,7 @@ class Settings(BaseSettings):
     voice: VoiceSettings = Field(default_factory=VoiceSettings)
     agents: AgentRuntimeSettings = Field(default_factory=AgentRuntimeSettings)
     cells: CellSettings = Field(default_factory=CellSettings)
+    sip_edge: SipEdgeSettings = Field(default_factory=SipEdgeSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

@@ -85,6 +85,9 @@ class TelephonyPhoneNumberRecord(TenantOwnedMixin, Base):
     __table_args__ = (  # type: ignore[assignment]
         UniqueConstraint("organization_id", "id", name="uq_telephony_phone_numbers_org_id"),
         UniqueConstraint("e164", name="uq_telephony_phone_numbers_e164"),
+        UniqueConstraint(
+            "organization_id", "id", "account_id", "e164", name="uq_telephony_number_locator_source"
+        ),
         CheckConstraint(
             r"e164 ~ '^\+[1-9][0-9]{6,14}$'", name="ck_telephony_phone_numbers_e164_form"
         ),

@@ -1,0 +1,46 @@
+{
+  "base_commit": "1a1c0f8b9194cadbea2fac00816f96d155b52d5e",
+  "closure": "NOT_AUTHORIZED",
+  "historical_failure": {
+    "diagnosis": "NOT_REPRODUCED; original gate retained only output tail, so the original assertion/trace is unavailable. No unproven root cause is claimed.",
+    "evidence": "transport-quality-attempt-ca.json",
+    "failed": 1,
+    "node": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_target_ca-arm64]",
+    "passed": 2244
+  },
+  "latest_complete_gate": {
+    "command": "PYTEST_ADDOPTS='--junitxml=/tmp/nxs-p19-quality-diagnostic.xml' make nxs-gate PHASE=NXS-P19",
+    "coverage_percent": 91.1,
+    "exit_code": 0,
+    "failed": 0,
+    "junit_sha256": "ed320e6d6bfad580fddaf88432f21d66f15522726c1c4860b74f29de62b7814d",
+    "passed": 2245,
+    "runtime_seconds": 1217.1,
+    "skipped": 0,
+    "specific_case": {
+      "name": "test_real_stream_dialog_and_two_edge_authority[TLS-untrusted_target_ca-arm64]",
+      "result": "PASS",
+      "runtime_seconds": "15.316"
+    }
+  },
+  "limitation": "Earlier isolated failure remains an external-audit reliability warning despite seven unchanged targeted replays and subsequent full-gate success.",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T01:03:23.534261+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "scope": "Latest complete diagnostic quality gate; historical failure is retained, not asserted fixed",
+  "targeted_repeats": {
+    "failed": 0,
+    "log_sha256": {
+      "nxs-p19-ca-arm-diagnostic.log": "ed7cf7de819f783669fedcb33e8d5223bc9e19cd99e06b80ebc5cae5a503bb11",
+      "nxs-p19-ca-repeat-1.log": "e98ad19f24debdc021f7db2da13ff053f83646cb94b410685d5e5005047ac91c",
+      "nxs-p19-ca-repeat-2.log": "6232596c873b7ecbd11a0217f099e80ef5ea1a869da70cf291f548586a492c8c",
+      "nxs-p19-ca-repeat-3.log": "dbe381c60b6d0e533cfb108aa148cfb82793c9181281edb663e383f78e1922c3",
+      "nxs-p19-ca-repeat-4.log": "753e22165b58c757ba50472667e168125b51dadf9cb7b69fdb22f1ef4b9045d8",
+      "nxs-p19-ca-repeat-5.log": "259f874bd22bb6461f1cfd9d526bda9d9d4ecaa289e9d32d7e9e2464761cc3b1",
+      "nxs-p19-ca-repeat-6.log": "550c7ea46749cb0865b67b828ca4ba1b613a0e38adad961fa17f57d69c8739b1"
+    },
+    "passed": 7,
+    "source_or_assertion_changes": false
+  }
+}

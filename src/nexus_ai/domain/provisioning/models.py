@@ -93,7 +93,8 @@ class PlatformGrantRecord(Base):
     __tablename__ = "platform_grants"
     __table_args__ = (
         CheckConstraint(
-            "capability IN ('organization:create','cell:control')", name="capability_known"
+            "capability IN ('organization:create','cell:control','sip_edge:control')",
+            name="capability_known",
         ),
     )
 

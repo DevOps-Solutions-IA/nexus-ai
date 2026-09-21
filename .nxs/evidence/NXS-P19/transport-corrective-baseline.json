@@ -1,0 +1,235 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-20T20:42:16.357943+00:00",
+  "result": "PASS",
+  "scope": "Verified immutable baseline only; not certification of corrective source",
+  "base_commit": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+  "canonical_main": "e2114cfe8f150e85b9ae432a9af557ceb52cf836",
+  "historical_evidence": {
+    ".nxs/evidence/NXS-P19/application-container-scan.json": {
+      "git_blob": "baa245711a969f748dc72cf3838c5cb1ee0b8780",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/application-container-scan.json"
+    },
+    ".nxs/evidence/NXS-P19/ari-permit-propagation.json": {
+      "git_blob": "c6bbd1cdcd4ec45c89aa65c192adf1daf4b70d8b",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/ari-permit-propagation.json"
+    },
+    ".nxs/evidence/NXS-P19/artifact-provenance.json": {
+      "git_blob": "6e71e3f5feab8351b2479e600937c65be17e14b0",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/artifact-provenance.json"
+    },
+    ".nxs/evidence/NXS-P19/candidate-integrity.json": {
+      "git_blob": "d7593857309a8948e16525891ede5a93b6b51430",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/candidate-integrity.json"
+    },
+    ".nxs/evidence/NXS-P19/ci-network-correction.json": {
+      "git_blob": "679f3f3dd66b5c5e8ab57fd651ffbbfca570f90e",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/ci-network-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/clean-room-before-observer-correction.json": {
+      "git_blob": "8cbf75ddebf480a72cf4e3e0e1acbaf9857786ff",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/clean-room-before-observer-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/clean-room.json": {
+      "git_blob": "c933ace2a5a9c7d9c31be37eacd6d1d06a08e616",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/clean-room.json"
+    },
+    ".nxs/evidence/NXS-P19/concurrency.json": {
+      "git_blob": "51bfb3a237aa4deda4f41029875f5bbeb27c73ae",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/concurrency.json"
+    },
+    ".nxs/evidence/NXS-P19/container-provenance-before-log-confidentiality.json": {
+      "git_blob": "e4a9fc0f62a16074d43766005a0623c027311fea",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/container-provenance-before-log-confidentiality.json"
+    },
+    ".nxs/evidence/NXS-P19/container-provenance-current.json": {
+      "git_blob": "6070c9c06b77027bfc38e19d1216ec87b30ad10c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/container-provenance-current.json"
+    },
+    ".nxs/evidence/NXS-P19/continuation-lock.json": {
+      "git_blob": "403f57bdc353d8d6dc69c901fd25c8e4153b5510",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/continuation-lock.json"
+    },
+    ".nxs/evidence/NXS-P19/contracts.json": {
+      "git_blob": "2798d7a3edd350cc434a0634a4384ce43df0496a",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/contracts.json"
+    },
+    ".nxs/evidence/NXS-P19/coverage.json": {
+      "git_blob": "c5cf648c48dc4f913fdfa797ab6ac59a6dabbae9",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/coverage.json"
+    },
+    ".nxs/evidence/NXS-P19/criteria-contract-map.json": {
+      "git_blob": "d666a43a1b848f75ab1c69eee1c8ea4436c41610",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/criteria-contract-map.json"
+    },
+    ".nxs/evidence/NXS-P19/development-checks.json": {
+      "git_blob": "a16ce44fac54717c44ca808dde1f7affad9d7437",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/development-checks.json"
+    },
+    ".nxs/evidence/NXS-P19/development-protocol.json": {
+      "git_blob": "2afebd778196b2ab04311cdfeaead33e78c450ab",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/development-protocol.json"
+    },
+    ".nxs/evidence/NXS-P19/development-regression.json": {
+      "git_blob": "84201aa835e64305fd328e863ccb7e7aeb95f0b8",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/development-regression.json"
+    },
+    ".nxs/evidence/NXS-P19/development-wire-continuation.json": {
+      "git_blob": "460a69de49fd3c2755c16d28c6ac92f0d4f110f4",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/development-wire-continuation.json"
+    },
+    ".nxs/evidence/NXS-P19/dialog-pinning.json": {
+      "git_blob": "2e8f3b46b6c83d62ebb11e9a199f52bedf8d461f",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/dialog-pinning.json"
+    },
+    ".nxs/evidence/NXS-P19/docker.json": {
+      "git_blob": "a50bf6e5c4e1b8f71d54c7d3b02bbe0d0037af1c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/docker.json"
+    },
+    ".nxs/evidence/NXS-P19/documentation-certification.json": {
+      "git_blob": "029fcb61c19341916cf8cf118c322701e153c2b9",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/documentation-certification.json"
+    },
+    ".nxs/evidence/NXS-P19/edge-budget-and-log-correction.json": {
+      "git_blob": "338e43dd7b56cd761d08908b4807c4bad6275978",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/edge-budget-and-log-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/egress-permit.json": {
+      "git_blob": "016c45ed57f1c5d0dd6300c580f4f7e89bff1992",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/egress-permit.json"
+    },
+    ".nxs/evidence/NXS-P19/executed-test-nodes.json": {
+      "git_blob": "1603ff69bf9b3306e042d16be6237d5aadebc1b5",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/executed-test-nodes.json"
+    },
+    ".nxs/evidence/NXS-P19/execution-criteria-attempt-1.json": {
+      "git_blob": "53b84bbb5010004db840e74387f8961dcb89cbf7",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/execution-criteria-attempt-1.json"
+    },
+    ".nxs/evidence/NXS-P19/execution-criteria-before-edge-budget-correction.json": {
+      "git_blob": "5b7f3d4c9baff326eaeb333d54788710954d3aba",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/execution-criteria-before-edge-budget-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/execution-criteria-before-observer-correction.json": {
+      "git_blob": "29e44a2807e7055ec49bb502ec693480054e84c9",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/execution-criteria-before-observer-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/execution-criteria.json": {
+      "git_blob": "6c7eac81d510a77adf0516a1990292892a942d80",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/execution-criteria.json"
+    },
+    ".nxs/evidence/NXS-P19/git.json": {
+      "git_blob": "c9e6e83183e40065a54529d1ebb910c1e6d2b493",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/git.json"
+    },
+    ".nxs/evidence/NXS-P19/kamailio-config.json": {
+      "git_blob": "bbababd182892000063e3ff6f94e13d933b30137",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/kamailio-config.json"
+    },
+    ".nxs/evidence/NXS-P19/lifecycle-start.json": {
+      "git_blob": "6f0749ff6b0a2579506a43f5d80a95f86135bbb5",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/lifecycle-start.json"
+    },
+    ".nxs/evidence/NXS-P19/locator-concurrency.json": {
+      "git_blob": "6b86afea9adc2323a1195dbe83d4a1f4bee1bc1c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/locator-concurrency.json"
+    },
+    ".nxs/evidence/NXS-P19/locator.json": {
+      "git_blob": "83442a24924543a9663b19a012faf2dff5675ea2",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/locator.json"
+    },
+    ".nxs/evidence/NXS-P19/lock-observer-correction.json": {
+      "git_blob": "78900331ea1610679da781c31fa1a28f49644ea2",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/lock-observer-correction.json"
+    },
+    ".nxs/evidence/NXS-P19/migration.json": {
+      "git_blob": "13fcfebd230c3f63ab1e1245d9278c1f8e8c3aa9",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/migration.json"
+    },
+    ".nxs/evidence/NXS-P19/multiarch.json": {
+      "git_blob": "fbe2c6b286d957f4c4c7303d39a7534cac16ab9e",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/multiarch.json"
+    },
+    ".nxs/evidence/NXS-P19/open-relay-security.json": {
+      "git_blob": "abb3acf941c4c0b351391eec0e81697780aee9bb",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/open-relay-security.json"
+    },
+    ".nxs/evidence/NXS-P19/preflight.json": {
+      "git_blob": "01bfd03aab1b77ab81012ef356887ece1d37ff3b",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/preflight.json"
+    },
+    ".nxs/evidence/NXS-P19/quality-gates-attempt-1.json": {
+      "git_blob": "53ca1691f81ab110ecb52f132f9def90b2a8b725",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/quality-gates-attempt-1.json"
+    },
+    ".nxs/evidence/NXS-P19/quality-gates.json": {
+      "git_blob": "e7a11f1154da8cec117412ca54f1ade98ba7f74c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/quality-gates.json"
+    },
+    ".nxs/evidence/NXS-P19/quality-matrix.json": {
+      "git_blob": "37e9a252dff5638855683970564eb23880fb95a4",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/quality-matrix.json"
+    },
+    ".nxs/evidence/NXS-P19/regressions.json": {
+      "git_blob": "90a0ece60bb633e9f7bb0e4887dc098165269946",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/regressions.json"
+    },
+    ".nxs/evidence/NXS-P19/repository-final-validation.json": {
+      "git_blob": "efe3c28d5daf81fbb2596a34bf499f3caa579ef1",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/repository-final-validation.json"
+    },
+    ".nxs/evidence/NXS-P19/resolver-authentication.json": {
+      "git_blob": "3a2403611d6c94e619279b4f1688aee200b0fa3c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/resolver-authentication.json"
+    },
+    ".nxs/evidence/NXS-P19/route-authorization.json": {
+      "git_blob": "3fb105b37df33d9ceb3f0d3b4d0248d0dfb9570c",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/route-authorization.json"
+    },
+    ".nxs/evidence/NXS-P19/schema-security.json": {
+      "git_blob": "7b210dd00a4b2e7db18824ae997e442d71d18812",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/schema-security.json"
+    },
+    ".nxs/evidence/NXS-P19/security.json": {
+      "git_blob": "11631d45ae0825227d1e779655ecc1c141b85cea",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/security.json"
+    },
+    ".nxs/evidence/NXS-P19/sip-protocol.json": {
+      "git_blob": "abb3acf941c4c0b351391eec0e81697780aee9bb",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/sip-protocol.json"
+    },
+    ".nxs/evidence/NXS-P19/targets.json": {
+      "git_blob": "5ab867f132b70af7b513c9cb903ae8763d56e580",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/targets.json"
+    },
+    ".nxs/evidence/NXS-P19/tests.json": {
+      "git_blob": "84acb2f8291d7a55108deafa7d8506fa78e4cd8a",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/tests.json"
+    },
+    ".nxs/evidence/NXS-P19/validation-history.json": {
+      "git_blob": "283f83482e27aab25a2253513dc53f90ee66a751",
+      "immutable_source": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772:.nxs/evidence/NXS-P19/validation-history.json"
+    }
+  },
+  "baseline_workflows": [
+    {
+      "databaseId": 35511407933,
+      "headSha": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "databaseId": 35511407821,
+      "headSha": "471b2a539bc5cb102ab5bbbe99d7d830ab83d772",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "external_finding": {
+    "classification": "USER_DECISION",
+    "finding": "Control plane accepts UDP/TCP/TLS while audited reference data plane executed UDP only",
+    "authorization": "Implement all three transports and audit pre-ARI permit failures; no closure/merge"
+  },
+  "closure": "NOT_AUTHORIZED"
+}

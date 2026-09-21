@@ -16,15 +16,19 @@ import asyncio
 import datetime as dt
 import uuid
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 from uuid import UUID
 
-from sqlalchemy.exc import IntegrityError
+from asyncpg import PostgresError
+from pydantic import SecretStr
+from sqlalchemy import func, select
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import NxsError
 from nexus_ai.core.logging import get_logger
+from nexus_ai.domain.sip_edge.models import SipCallAdmissionRecord
 from nexus_ai.domain.telephony.repository import (
     TelephonyAccountRepository,
     TelephonyCallRepository,
@@ -36,6 +40,7 @@ from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.integrations.credentials import CredentialType, SecretMaterial, VaultClient
 from nexus_ai.integrations.webhooks import build_webhook_token
+from nexus_ai.telephony import admission
 from nexus_ai.telephony.account_config import validate_account_configuration
 from nexus_ai.telephony.destinations import (
     DestinationKind,
@@ -90,10 +95,24 @@ class AmbiguousProviderTimeoutError(NxsError):
     retryable = False
 
 
+class TelephonyAdmissionUnavailableError(NxsError):
+    code = "NXS_TELEPHONY_ADMISSION_UNAVAILABLE"
+    status = 503
+    title = "Telephony admission unavailable"
+    retryable = False
+
+
 @dataclass(frozen=True, slots=True)
 class _CallClaim:
     call: Call
     is_owner: bool
+    admission_owner: UUID | None = None
+
+
+class SipPermitIssuer(Protocol):
+    async def issue_for_call(
+        self, organization_id: UUID, call_id: UUID, account_id: UUID
+    ) -> SecretStr: ...
 
 
 class TelephonyService:
@@ -104,12 +123,17 @@ class TelephonyService:
         publisher: EventPublisher,
         vault: VaultClient,
         transport: TelephonyTransport,
+        *,
+        sip_permits: SipPermitIssuer | None = None,
     ) -> None:
+        if settings.sip_edge.enabled and sip_permits is None:
+            raise TelephonyConfigInvalidError("SIP edge requires its trusted permit issuer")
         self._settings = settings
         self._db = database
         self._publisher = publisher
         self._vault = vault
         self._transport = transport
+        self._sip_permits = sip_permits
         self._log = get_logger("nexus_ai.telephony")
 
     # -- accounts --------------------------------------------------------------
@@ -281,7 +305,29 @@ class TelephonyService:
         if not claim.is_owner:
             return claim.call
 
-        secret = await self._resolve_secret(organization_id, account)
+        sip_permit = None
+        if account.provider == "asterisk" and self._sip_permits is not None:
+            try:
+                async with asyncio.timeout(config.provider_timeout_seconds):
+                    sip_permit = await self._sip_permits.issue_for_call(
+                        organization_id, call_id, account.id
+                    )
+            except (NxsError, TimeoutError, DBAPIError, PostgresError) as exc:
+                await self._abort_admission(organization_id, call_id, claim.admission_owner)
+                if isinstance(exc, NxsError):
+                    raise
+                raise TelephonyAdmissionUnavailableError() from None
+        try:
+            secret = await self._resolve_secret(organization_id, account)
+            if claim.admission_owner is not None:
+                async with self._db.tenant_transaction(organization_id) as tenant:
+                    await admission.fence(
+                        tenant, call_id, owner_id=claim.admission_owner, dispatch=True
+                    )
+        except NxsError, TimeoutError, DBAPIError, PostgresError:
+            if claim.admission_owner is not None:
+                await self._abort_admission(organization_id, call_id, claim.admission_owner)
+            raise
         adapter = resolve_provider(account.provider)
         spec = OutboundCallSpec(
             account=account,
@@ -291,6 +337,7 @@ class TelephonyService:
             destination_value=to_address,
             correlation_id=request.correlation_id,
             metadata=dict(request.metadata),
+            sip_egress_permit=sip_permit,
         )
         try:
             async with asyncio.timeout(config.provider_timeout_seconds):
@@ -368,11 +415,13 @@ class TelephonyService:
         return DtmfResult(call_id=call_id, digits=request.digits, accepted=True)
 
     async def get_call(self, organization_id: UUID, call_id: UUID) -> Call:
+        await self._reconcile_admission(organization_id, call_id)
         return await self._require_call(organization_id, call_id)
 
     async def list_calls(
         self, organization_id: UUID, *, account_id: UUID | None, limit: int
     ) -> list[Call]:
+        await self.recover_pending_admissions(organization_id, limit=min(max(limit, 1), 100))
         async with self._db.tenant_transaction(organization_id) as tenant:
             return await TelephonyCallRepository(tenant).list_all(
                 account_id=account_id, limit=limit
@@ -428,7 +477,48 @@ class TelephonyService:
             raise TelephonyIdempotencyConflictError(
                 "this idempotency key was already used for a semantically different call"
             )
-        return existing
+        recovered = await self._reconcile_admission(organization_id, existing.id)
+        return recovered or existing
+
+    async def _reconcile_admission(
+        self, organization_id: UUID, call_id: UUID, owner_id: UUID | None = None
+    ) -> Call | None:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            failed = await admission.fence(tenant, call_id, owner_id=owner_id)
+            if failed is not None:
+                await self._enqueue_state_event(tenant.session, organization_id, failed)
+            return failed
+
+    async def _abort_admission(
+        self, organization_id: UUID, call_id: UUID, owner_id: UUID | None
+    ) -> None:
+        try:
+            await self._reconcile_admission(organization_id, call_id, owner_id)
+        except DBAPIError, PostgresError, ConnectionError, TimeoutError:
+            raise TelephonyAdmissionUnavailableError() from None
+
+    async def recover_pending_admissions(self, organization_id: UUID, *, limit: int = 100) -> int:
+        if not 1 <= limit <= 100:
+            raise ValueError("admission recovery limit must be between 1 and 100")
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            pending = (
+                (
+                    await tenant.session.execute(
+                        select(SipCallAdmissionRecord.call_id)
+                        .where(
+                            SipCallAdmissionRecord.state == "PENDING",
+                            SipCallAdmissionRecord.expires_at <= func.clock_timestamp(),
+                        )
+                        .order_by(SipCallAdmissionRecord.expires_at, SipCallAdmissionRecord.call_id)
+                        .limit(limit)
+                    )
+                )
+                .scalars()
+                .all()
+            )
+        for call_id in pending:
+            await self._reconcile_admission(organization_id, call_id)
+        return len(pending)
 
     async def _persist_created(
         self,
@@ -459,6 +549,11 @@ class TelephonyService:
         )
         # Only persisted (and compared) when the call is idempotent.
         stored_fingerprint = fingerprint if request.idempotency_key is not None else None
+        admission_owner = (
+            uuid.uuid7()
+            if account.provider == "asterisk" and self._sip_permits is not None
+            else None
+        )
         try:
             async with self._db.tenant_transaction(organization_id) as tenant:
                 repo = TelephonyCallRepository(tenant)
@@ -490,6 +585,8 @@ class TelephonyService:
                     provider_timestamp=None,
                     provider_sequence=None,
                 )
+                if admission_owner is not None:
+                    await admission.establish(tenant, call_id, admission_owner)
                 await self._enqueue_state_event(tenant.session, organization_id, call)
         except IntegrityError as exc:
             if request.idempotency_key is not None:
@@ -501,7 +598,7 @@ class TelephonyService:
             raise TelephonyIdempotencyConflictError(
                 "a concurrent call creation conflicted"
             ) from exc
-        return _CallClaim(call=call, is_owner=True)
+        return _CallClaim(call=call, is_owner=True, admission_owner=admission_owner)
 
     async def _await_idempotency_winner(
         self, organization_id: UUID, idempotency_key: str, fingerprint: str
@@ -520,9 +617,15 @@ class TelephonyService:
         self, organization_id: UUID, call_id: UUID, provider_call_id: str
     ) -> Call:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            updated = await TelephonyCallRepository(tenant).apply(
-                call_id, {"provider_call_id": provider_call_id[:200]}
-            )
+            repo = TelephonyCallRepository(tenant)
+            current = await repo.by_id(call_id, for_update=True)
+            values: dict[str, Any] = {"provider_call_id": provider_call_id[:200]}
+            if (
+                current is not None
+                and current.error_code == "NXS_TELEPHONY_PROVIDER_DISPATCH_UNCONFIRMED"
+            ):
+                values["error_code"] = None
+            updated = await repo.apply(call_id, values)
         assert updated is not None  # noqa: S101
         return updated
 
@@ -533,7 +636,13 @@ class TelephonyService:
             if current is not None and not is_terminal(current.state):
                 await repo.apply(call_id, {"error_code": "NXS_TELEPHONY_PROVIDER_TIMEOUT"})
 
-    async def _mark_failed(self, organization_id: UUID, call_id: UUID) -> Call:
+    async def _mark_failed(
+        self,
+        organization_id: UUID,
+        call_id: UUID,
+        *,
+        error_code: str = "NXS_TELEPHONY_PROVIDER_ERROR",
+    ) -> Call:
         now = dt.datetime.now(dt.UTC)
         async with self._db.tenant_transaction(organization_id) as tenant:
             repo = TelephonyCallRepository(tenant)
@@ -546,7 +655,7 @@ class TelephonyService:
                     "state": CallState.FAILED.value,
                     "state_rank": state_rank(CallState.FAILED),
                     "disposition": "FAILED",
-                    "error_code": "NXS_TELEPHONY_PROVIDER_ERROR",
+                    "error_code": error_code,
                     "ended_at": now,
                 },
             )

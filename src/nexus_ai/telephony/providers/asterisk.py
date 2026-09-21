@@ -113,6 +113,12 @@ class AsteriskAdapter:
             endpoint = f"{prefix}/{spec.destination_value.lstrip('+')}"
         else:
             endpoint = f"{prefix}/{spec.destination_value}"
+        if spec.sip_egress_permit is not None:
+            if spec.destination_kind != "PHONE":
+                raise TelephonyConfigInvalidError(
+                    "SIP egress requires a canonical phone destination"
+                )
+            endpoint = f"Local/{spec.destination_value.lstrip('+')}@nxs-sip-egress/n"
         params = {
             "endpoint": endpoint,
             "app": stasis_app,
@@ -125,7 +131,17 @@ class AsteriskAdapter:
             method="POST",
             url=f"{base}/channels?{query}",
             headers=headers,
-            body=b"{}",
+            body=(
+                b"{}"
+                if spec.sip_egress_permit is None
+                else json.dumps(
+                    {
+                        "variables": {
+                            "__NXS_SIP_EGRESS_PERMIT": spec.sip_egress_permit.get_secret_value()
+                        }
+                    }
+                ).encode()
+            ),
         )
         channel_id = str(payload.get("id") or "")
         if not channel_id:

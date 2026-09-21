@@ -1,0 +1,210 @@
+{
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "criteria": {
+    "C01": {
+      "evidence": "execution-criteria.json#concurrency/C01",
+      "executed_nodes": 79,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C02": {
+      "evidence": "execution-criteria.json#concurrency/C02",
+      "executed_nodes": 6,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C03": {
+      "evidence": "execution-criteria.json#concurrency/C03",
+      "executed_nodes": 1,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C04": {
+      "evidence": "execution-criteria.json#concurrency/C04",
+      "executed_nodes": 31,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C05": {
+      "evidence": "execution-criteria.json#concurrency/C05",
+      "executed_nodes": 3,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C06": {
+      "evidence": "execution-criteria.json#concurrency/C06",
+      "executed_nodes": 1,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C07": {
+      "evidence": "execution-criteria.json#concurrency/C07",
+      "executed_nodes": 1,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C08": {
+      "evidence": "execution-criteria.json#concurrency/C08",
+      "executed_nodes": 78,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C09": {
+      "evidence": "execution-criteria.json#concurrency/C09",
+      "executed_nodes": 34,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C10": {
+      "evidence": "execution-criteria.json#concurrency/C10",
+      "executed_nodes": 9,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C11": {
+      "evidence": "execution-criteria.json#concurrency/C11",
+      "executed_nodes": 31,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C12": {
+      "evidence": "execution-criteria.json#concurrency/C12",
+      "executed_nodes": 28,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C13": {
+      "evidence": "execution-criteria.json#concurrency/C13",
+      "executed_nodes": 29,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C14": {
+      "evidence": "execution-criteria.json#concurrency/C14",
+      "executed_nodes": 78,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C15": {
+      "evidence": "execution-criteria.json#concurrency/C15",
+      "executed_nodes": 78,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C16": {
+      "evidence": "execution-criteria.json#concurrency/C16",
+      "executed_nodes": 78,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C17": {
+      "evidence": "execution-criteria.json#concurrency/C17",
+      "executed_nodes": 28,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C18": {
+      "evidence": "execution-criteria.json#concurrency/C18",
+      "executed_nodes": 23,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C19": {
+      "evidence": "execution-criteria.json#concurrency/C19",
+      "executed_nodes": 94,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C20": {
+      "evidence": "execution-criteria.json#concurrency/C20",
+      "executed_nodes": 29,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C21": {
+      "evidence": "execution-criteria.json#concurrency/C21",
+      "executed_nodes": 13,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C22": {
+      "evidence": "execution-criteria.json#concurrency/C22",
+      "executed_nodes": 15,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C23": {
+      "evidence": "execution-criteria.json#concurrency/C23",
+      "executed_nodes": 30,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C24": {
+      "evidence": "execution-criteria.json#concurrency/C24",
+      "executed_nodes": 1,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C25": {
+      "evidence": "execution-criteria.json#concurrency/C25",
+      "executed_nodes": 7,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C26": {
+      "evidence": "execution-criteria.json#concurrency/C26",
+      "executed_nodes": 1,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C27": {
+      "evidence": "execution-criteria.json#concurrency/C27",
+      "executed_nodes": 7,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C28": {
+      "evidence": "execution-criteria.json#concurrency/C28",
+      "executed_nodes": 13,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C29": {
+      "evidence": "execution-criteria.json#concurrency/C29",
+      "executed_nodes": 10,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C30": {
+      "evidence": "execution-criteria.json#concurrency/C30",
+      "executed_nodes": 10,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C31": {
+      "evidence": "execution-criteria.json#concurrency/C31",
+      "executed_nodes": 14,
+      "missing": [],
+      "result": "PASS"
+    },
+    "C32": {
+      "evidence": "execution-criteria.json#concurrency/C32",
+      "executed_nodes": 10,
+      "missing": [],
+      "result": "PASS"
+    }
+  },
+  "deterministic_database_barriers": true,
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "independent_sessions": true,
+  "phase": "NXS-P19",
+  "real_postgresql": true,
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "sleep_as_race_proof": false
+}

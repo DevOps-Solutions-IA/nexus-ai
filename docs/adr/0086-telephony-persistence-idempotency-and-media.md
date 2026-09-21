@@ -68,6 +68,18 @@ never a partial subset.
 the P07 executor timeout winning. No timeout field is decorative. Retries are never
 applied to a non-idempotent outbound create.
 
+**P19 internal pre-provider corrective.** P19-governed Asterisk calls additionally
+commit an immutable owner/deadline PENDING admission record with CREATED and its
+outbox intent. A live permit plus owner CAS commits DISPATCHED before ARI; that
+commit is conservatively treated as potentially dispatched until the provider result
+is linked. Bounded recovery may terminate only expired PENDING records after
+irreversibly fencing the owner and revoking any unconsumed permit in the same
+transaction as FAILED/outbox. This also covers calls without an idempotency key.
+Recovery never re-originates DISPATCHED work. A total database outage cannot persist
+failure while unavailable, but the existing durable owner fence enables deterministic
+pre-provider recovery afterwards. Public request/response shapes, caller-ID,
+idempotency identity, provider ambiguity and media authority remain unchanged.
+
 **Webhook security.** `verify_signed_webhook`: `X-Telephony-Signature` (HMAC-SHA256 over
 `"<unix_ts>." + body`) and `X-Telephony-Timestamp` are both MANDATORY; a missing /
 malformed signature or timestamp → `NXS_TELEPHONY_WEBHOOK_INVALID`; a tampered body →

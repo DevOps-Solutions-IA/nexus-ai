@@ -49,7 +49,8 @@ async def test_disposable_upgrade_downgrade_reupgrade(
             await run("alembic", "upgrade", "f17a0b1c2d3e")
         await run("alembic", "upgrade", "head")
         await run("alembic", "check")
-        assert "c18a0b1c2d3e (head)" in await run("alembic", "heads")
+        assert (await run("alembic", "heads")).count("(head)") == 1
+        assert "c18a0b1c2d3e" in await run("alembic", "history")
         await run("python", "-m", "scripts.nxs_schema_guard")
         database: Any = await asyncpg.connect(
             make_url(env["NXS_DATABASE__DSN"])

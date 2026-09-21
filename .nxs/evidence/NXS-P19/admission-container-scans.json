@@ -1,0 +1,65 @@
+{
+  "artifacts": [
+    {
+      "architecture": "amd64",
+      "archive_sha256": "228f5ee848ad29ddfd15e501429b338612183eb58de421310a8a1a97cf16538a",
+      "config_digest": "sha256:b96cb77a32628a3ed5493e6d2699e108fedaaa6b6119109a91041d7ff0ec656f",
+      "high_critical_findings": 0,
+      "name": "kamailio-amd64",
+      "result": "PASS",
+      "scan_sha256": "81b9f158a007898f4c5f6be7cecea65bb1479244c8004690e31feec155802e01",
+      "scanner_created_at": "2026-09-21T08:11:23.612474257Z",
+      "user": "10001:10001"
+    },
+    {
+      "architecture": "arm64",
+      "archive_sha256": "dd833446327e2af603461089a0171a5e4704f1c1a734dca7c338a1c022978f40",
+      "config_digest": "sha256:3951e7524c4d8d0333bb1daf5fc48b7abb3612a0d7f07bce2d04d7a859ab5f23",
+      "high_critical_findings": 0,
+      "name": "kamailio-arm64",
+      "result": "PASS",
+      "scan_sha256": "be313e400bdae27804296e1ef15e2ff11c563c87604f5c2e077b5e1d45e7ec5e",
+      "scanner_created_at": "2026-09-21T08:11:26.397225605Z",
+      "user": "10001:10001"
+    },
+    {
+      "architecture": "amd64",
+      "archive_sha256": "e924c979d20e7110da9d96bef1e0d73a923fbfd83ee76177407ca8724a5060ba",
+      "config_digest": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "high_critical_findings": 0,
+      "name": "asterisk-amd64",
+      "result": "PASS",
+      "scan_sha256": "319661cba4f14a3559e574c1cbc43fa7a430b55cd0b3ae711d2697e7ac40699f",
+      "scanner_created_at": "2026-09-21T08:11:29.445695694Z",
+      "user": "10001:10001"
+    },
+    {
+      "architecture": "amd64",
+      "archive_sha256": "77bb823701ddf9aeab68895fa5af98d22e0f442439599a1b8b94da9313c4e660",
+      "config_digest": "sha256:c31c8cd1154bbf6ec348350621d53c8bf90ea48d6d4a0aba6cc7f59078e940cd",
+      "high_critical_findings": 0,
+      "name": "application",
+      "result": "PASS",
+      "scan_sha256": "53c3e88e52a4d9322f902e8394366a1443897ca6f4a8cb5c401719b2e3e56f18",
+      "scanner_created_at": "2026-09-21T08:11:51.793689936Z",
+      "user": "65532:65532"
+    }
+  ],
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "command": "docker run --rm --user <local uid:gid> --read-only --tmpfs /tmp --cap-drop ALL --security-opt no-new-privileges -v <archives>:/scan:ro -v <cache>:/cache <pinned scanner> image --quiet --timeout 30m --cache-dir /cache --scanners vuln --severity HIGH,CRITICAL --exit-code 1 --format json --input /scan/<image>.tar",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "exit_code": 0,
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "historical_setup_failure": "Initial scan could not read mode-0600 Docker archive with capabilities dropped; made non-secret image archive readable. Final refresh first hit vulnerability-database download timeout, then cache directory permission denial; reran as the cache-owning non-root uid with a 30-minute timeout and unchanged zero-HIGH/CRITICAL policy. No vulnerability result inferred from failed invocations.",
+  "limitations": [
+    "OS/package scanning does not comprehensively audit source-built native C."
+  ],
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "scanner": "aquasec/trivy@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "schema_version": "1.0.0"
+}

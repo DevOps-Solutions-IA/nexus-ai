@@ -1,0 +1,24 @@
+{
+  "base_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "candidate_binding": "execution-criteria.json source_sha256; containing corrective commit, no self-reference",
+  "closure": "NOT_AUTHORIZED",
+  "current_source_map_sha256": "7f0188d8f9f575dfa70a42d475e21e88de49330c438b08154e1e0a25014dc455",
+  "execution_evidence": "execution-criteria.json",
+  "execution_evidence_sha256": "f1b9c071004bc4e5ca11acdca76f89aca740a8a6591b4cd3c23b7e73bcde9beb",
+  "execution_source_map": "execution-criteria.json#source_sha256",
+  "historical_evidence": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6:.nxs/evidence/NXS-P19/",
+  "parent_commit": "f4f6df35896e9a9f9e2bd89198fbfec5d0e894b6",
+  "phase": "NXS-P19",
+  "post_execution_changes": {},
+  "recorded_at": "2026-09-21T08:27:13.955685+00:00",
+  "result": "PASS",
+  "runtime_test_migration_script_workflow_config_drift": [],
+  "schema_version": "1.0.0",
+  "source_entries": 819,
+  "subsequent_current_tree_validation": [
+    "clean-room.json",
+    "quality-gates.json",
+    "repository-final-validation.json"
+  ],
+  "unexpected_source_drift": []
+}

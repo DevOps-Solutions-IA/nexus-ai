@@ -1,0 +1,44 @@
+{
+  "acquisition": {
+    "command": "make nxs-lock-acquire PHASE=NXS-P19 ACTOR=cdxm",
+    "exit_code": 0,
+    "state": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p19-sip-scaling",
+      "expires_at": "2026-09-21T20:40:43Z",
+      "phase": "NXS-P19",
+      "repository_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-21T16:40:43Z",
+      "state": "ACTIVE"
+    }
+  },
+  "implementation_commit": "860d9a129adad75d0e4d7f8470c8a9d9f224a5be",
+  "initial": "ACTIVE / STALE; clean implementation tree",
+  "nxs_start_executed": false,
+  "phase": "NXS-P19",
+  "recorded_at": "2026-09-21T17:03:02.987576+00:00",
+  "recovery": {
+    "command": "make nxs-lock-recover",
+    "exit_code": 0,
+    "state": "RELEASED"
+  },
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "transition": {
+    "after": "VALIDATING / PENDING",
+    "before": "BUILDING / PENDING",
+    "command": "uv run python -m scripts.nxs_state NXS-P19 VALIDATING",
+    "exit_code": 0
+  },
+  "validation": [
+    "make nxs-validate-repo",
+    "make nxs-preflight PHASE=NXS-P19",
+    "git diff --check"
+  ],
+  "validation_exit_codes": [
+    0,
+    0,
+    0
+  ]
+}

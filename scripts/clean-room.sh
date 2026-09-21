@@ -27,6 +27,8 @@ uv run alembic upgrade head
 uv run alembic check
 uv run python -m scripts.nxs_schema_guard
 
+bash scripts/build-sip-fixtures.sh
+
 # Full suite (unit + tenancy security/RLS/pool/concurrency) as the runtime role.
 uv run pytest
 
