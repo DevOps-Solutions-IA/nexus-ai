@@ -4,6 +4,19 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
+## NXS-P20 governance contract — PLANNED / PENDING
+
+- Phase/branch: NXS-P20 NXS Sentinel; `feat/nxs-p20-sentinel`.
+- Dependencies: P04, P08, P13 and P18 READY/GO. Mandatory requirement: `NXS-SRE-001`.
+- Objective: constrained platform SRE control plane for trusted bounded signals, incident correlation, evidence-bound diagnosis, versioned runbook proposals, durable approval/policy and fenced structured execution.
+- Authority: PostgreSQL owns Sentinel state only; P04/P08/P13/P18 and domain services retain their existing authority. Signals, caches and model output are never action authority.
+- Action boundary: mutable actions use source-registered Sentinel-safe P08 handlers only. No arbitrary shell, SQL, SSH, network destination, Git mutation, deployment, infrastructure provisioning or provider credential exposure.
+- Autonomy: OBSERVE/DIAGNOSTIC may execute autonomously under bounded policy; REVERSIBLE requires durable approval in the hardened P20 policy; HIGH_IMPACT/DESTRUCTIVE are denied.
+- Concurrency: semantic proposal fingerprints, one active execution slot, DB-time leases/generations and final pre-dispatch fencing prevent duplicate or stale-owner effects. Ambiguous external outcomes never receive a fresh automatic idempotency identity.
+- Non-scope: P21 compliance, P22 audit, P23 metering, P24 global observability, P25 automatic recovery/failover, P26 DR, P27 hardening, P28 capacity, P29 chaos, P31 release and P32 production deployment.
+- Design authority: `docs/adr/0101-sentinel-authority.md` and `docs/engineering/nxs-p20-sentinel-design.md`.
+- Status: governance only. P20 remains PLANNED/PENDING, no lock/start/evidence/implementation commit. Do not run `nxs-start` until governance is independently audited and exact governance-head checks are green.
+
 ## NXS-P19 canonical implemented contract
 
 - Phase/branch: NXS-P19 SIP Edge Scaling; implementation and closure were developed on `feat/nxs-p19-sip-scaling` from P18 main `e2114cfe8f150e85b9ae432a9af557ceb52cf836`, then merged through PR #44 at `53051eca3eb1a79a59767c4f92676f4b7f275247`.
