@@ -80,6 +80,8 @@ class Runbook(StrictModel):
     key: Key
     revision: int = Field(ge=1, le=2_147_483_647)
     handler_key: Key
+    handler_revision: int = Field(default=1, ge=1, le=2_147_483_647)
+    handler_binding_digest: Digest = "0" * 64
     risk: Risk
     target_kinds: tuple[Subject, ...] = Field(min_length=1, max_length=4)
     parameter_schema_digest: Digest

@@ -11,10 +11,12 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
+    Index,
     Integer,
     String,
     UniqueConstraint,
     func,
+    text,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
@@ -25,7 +27,12 @@ from nexus_ai.infrastructure.orm import Base
 class SentinelIncident(Base):
     __tablename__ = "sentinel_incidents"
     __table_args__ = (
-        UniqueConstraint("correlation_key"),
+        Index(
+            "uq_sentinel_incidents_active_correlation",
+            "correlation_key",
+            unique=True,
+            postgresql_where=text("state NOT IN ('RESOLVED','CLOSED')"),
+        ),
         CheckConstraint("revision > 0", name="revision_positive"),
         CheckConstraint(
             "state IN ('OPEN','TRIAGED','MITIGATION_PROPOSED','MITIGATING',"

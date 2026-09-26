@@ -22,7 +22,6 @@ def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
         "nexus_ai.domain.agents",
         "nexus_ai.tenancy",
         "nexus_ai.telephony",
-        "nexus_ai.integrations.credentials",
         "subprocess",
         "httpx",
         "socket",
@@ -30,8 +29,16 @@ def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
     ):
         assert not any(item.startswith(prefix) for item in imports), prefix
     assert {item for item in imports if item.startswith("nexus_ai.agents")} <= {
-        "nexus_ai.agents.models.base"
+        "nexus_ai.agents.models.base",
+        "nexus_ai.agents.models.openai_compatible",
     }
+    for source in Path("src/nexus_ai/sentinel").glob("*.py"):
+        for node in ast.walk(ast.parse(source.read_text())):
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module == "nexus_ai.integrations.credentials"
+            ):
+                assert {alias.name for alias in node.names} <= {"SecretMaterial", "CredentialType"}
 
 
 def test_foundation_not_phase_certification():

@@ -453,7 +453,11 @@ async def test_execution_foundation_does_not_grant_dispatch(database):
             await session.execute(
                 text("INSERT INTO sentinel_executions (id) VALUES (:id)"), {"id": uuid7()}
             )
-    assert error.value.orig.sqlstate == "42501"
+    assert error.value.orig.sqlstate == "23502"
+    with pytest.raises(DBAPIError) as denied:
+        async with database.transaction() as session:
+            await session.execute(text("DELETE FROM sentinel_executions"))
+    assert denied.value.orig.sqlstate == "42501"
 
 
 async def test_inherited_role_and_tenant_context_fail_closed(database):

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "recorded_at": "2026-09-26T15:43:00Z",
+  "result": "BLOCKED",
+  "scope": "Progress checkpoint only; neither source completion nor implementation certification",
+  "workspace": "/tmp/nxs-p20-local.aW3DKc/nexus-ai",
+  "parent_checkpoint": "938d01742106abee34071b1c683e510767ef5777",
+  "capability_recheck": {
+    "local_git_fetch": "PASS; origin is /home/wundah/nexus-ai, not GitHub",
+    "github_https": "FAIL: Could not resolve host: github.com",
+    "python_socket_creation": "FAIL: PermissionError: [Errno 1] Operation not permitted",
+    "docker_version_server": "FAIL: connect: operation not permitted",
+    "docker_info_server": "FAIL: connect: operation not permitted",
+    "docker_compose_up": "FAIL: Docker socket connect: operation not permitted",
+    "diagnosis": "Socket creation itself is denied. Docker socket group is nogroup and the process belongs to nogroup; ordinary socket file group access is not the cause. Active execution sandbox remains restricted and escalation is unavailable. No host permissions or security controls changed."
+  },
+  "executed_checks": {
+    "make lint": "PASS",
+    "make type": "PASS: 351 source files",
+    "git diff --check": "PASS",
+    "make nxs-validate-repo": "PASS",
+    "uv run bandit -q -lll -c pyproject.toml -r src scripts": "PASS at repository-configured severity threshold",
+    "uv run pytest tests/unit/test_sentinel* tests/contracts/test_sentinel_scope.py --no-cov -q --junitxml=/tmp/p20-current-unit.xml": {
+      "passed": 204,
+      "failed": 0,
+      "skipped": 0,
+      "coverage": "NOT MEASURED",
+      "artifact_sha256": "495e0f602bdaff863b2f4d8aef29bd627408912c5337751cf0c1cef3ee34f50a"
+    },
+    "uv run pytest --collect-only -q --no-cov": {
+      "collected": 2512,
+      "result": "PASS_COLLECTION_ONLY",
+      "artifact": "/tmp/p20-current-collection.log",
+      "artifact_sha256": "335e9312c6d7a9308258a9dc1c70789137b8a12e9967a6bf4be2c81d3dbb8263"
+    }
+  },
+  "not_certified": [
+    "New execution, control, runbook and provider transport implementations require additional focused tests and review",
+    "Complete C01-C24 harness and canonical AC01-AC36 evidence mapping",
+    "Real PostgreSQL migration, role isolation and concurrency",
+    "Docker, clean-room and container scans",
+    "Full current-source regression and coverage",
+    "Secret scanning and dependency audit",
+    "Exact candidate-head GitHub workflows"
+  ],
+  "historical_results_not_reused_for_new_source": true,
+  "implementation_candidate": null,
+  "push": false,
+  "closure": false
+}

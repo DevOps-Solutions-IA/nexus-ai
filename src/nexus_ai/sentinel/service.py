@@ -156,12 +156,18 @@ class SentinelStore:
                 incident = (
                     await session.scalars(
                         select(SentinelIncident)
-                        .where(SentinelIncident.correlation_key == correlation)
+                        .where(
+                            SentinelIncident.correlation_key == correlation,
+                            SentinelIncident.state.not_in(("RESOLVED", "CLOSED")),
+                        )
                         .with_for_update()
                     )
                 ).one()
                 incident_id = incident.id
                 incident.revision += 1
+                levels = ("INFO", "WARNING", "ERROR", "CRITICAL")
+                incident.severity = max((incident.severity, signal.severity), key=levels.index)
+                incident.summary = signal.facts.condition
                 incident.last_seen_at = (
                     await session.execute(select(func.clock_timestamp()))
                 ).scalar_one()
@@ -171,6 +177,34 @@ class SentinelStore:
                 .values(status="CORRELATED", incident_id=incident_id)
             )
             return receipt_id, incident_id
+
+    async def resolve_from_receipt(
+        self, incident_id: UUID, expected_revision: int, receipt_id: UUID
+    ) -> int:
+        async with self.database.transaction() as session:
+            incident = await self._incident(session, incident_id)
+            receipt = await session.get(SentinelSignalReceipt, receipt_id)
+            if (
+                receipt is None
+                or receipt.incident_id != incident_id
+                or receipt.payload.get("facts", {}).get("condition") != "HEALTHY"
+                or incident.summary != "HEALTHY"
+                or incident.revision != expected_revision
+                or incident.state != "MONITORING"
+            ):
+                raise SentinelDenied("untrusted_or_stale_recovery")
+            latest = await session.scalar(
+                select(SentinelSignalReceipt.id)
+                .where(SentinelSignalReceipt.incident_id == incident_id)
+                .order_by(SentinelSignalReceipt.received_at.desc(), SentinelSignalReceipt.id.desc())
+                .limit(1)
+            )
+            if latest != receipt_id:
+                raise SentinelDenied("stale_recovery_receipt")
+            incident.state = "RESOLVED"
+            incident.resolution_source = "TRUSTED_RECOVERY"
+            incident.revision += 1
+            return incident.revision
 
     async def transition(
         self,
@@ -234,6 +268,7 @@ class SentinelStore:
         payload = book.model_dump(mode="json")
         semantic_digest = digest(payload)
         async with self.database.transaction() as session:
+            await session.get(SentinelControlState, 1, with_for_update=True)
             identity = await session.scalar(
                 insert(SentinelRunbook)
                 .values(
@@ -426,7 +461,7 @@ class SentinelStore:
     ) -> tuple[Runbook, SentinelControlState]:
         book = self.runbooks.get(proposal.runbook_id)
         stored = await session.get(SentinelRunbook, proposal.runbook_id)
-        control = await session.get(SentinelControlState, 1, with_for_update={"read": True})
+        control = await session.get(SentinelControlState, 1, with_for_update=True)
         now = (await session.execute(select(func.clock_timestamp()))).scalar_one()
         if (
             book is None
