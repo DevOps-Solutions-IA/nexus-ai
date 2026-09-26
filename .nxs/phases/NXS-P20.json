@@ -1,26 +1,16 @@
 {
   "$schema": "../phase-manifest.schema.json",
-  "schema_version": "1.0.0",
-  "id": "NXS-P20",
-  "title": "NXS Sentinel",
-  "objective": "Implement NXS Sentinel as a constrained platform SRE control plane: trusted bounded signal ingestion, incident correlation, evidence-bound platform reasoning, versioned runbook proposals, durable approval/policy decisions, and fenced execution through source-registered platform SRE adapters. P20 does not execute tenant business mutations and must not synthesize tenant principals or reuse tenant P13/P08 persistence as global infrastructure authority. Architecture and acceptance contract: docs/engineering/nxs-p20-sentinel-design.md; ADR-0101.",
   "branch": "feat/nxs-p20-sentinel",
+  "closure_commit": null,
+  "decision": "PENDING",
   "dependencies": [
     "NXS-P04",
     "NXS-P13",
     "NXS-P18"
   ],
-  "requirements_implemented": [
-    "NXS-SRE-001"
-  ],
-  "non_scope": [
-    "Production deployment, release promotion, arbitrary Git writes/merges, infrastructure provisioning or configuration drift remediation; P32 owns production deployment",
-    "Automatic Cell/carrier/service failover, active-session relocation, generic reconciliation or self-healing; P25 owns resilience/recovery and P29 chaos/failover certification",
-    "Full metrics/logs/traces observability platform, fleet-wide telemetry retention or SLO certification; P24 owns global observability",
-    "Compliance policy certification, immutable enterprise audit platform, metering/cost accounting, backup/DR, final security hardening and capacity certification; P21-P28 remain separate",
-    "Arbitrary shell, SQL, HTTP destinations, SSH, credential exposure, tenant-authored executable runbooks, destructive actions, privilege escalation or bypass of P04/P08/P13/P18 authority",
-    "Frontend/operator console certification and unsupported claims of autonomous production remediation, SLA, RTO/RPO, capacity or zero-touch operations"
-  ],
+  "evidence": [],
+  "id": "NXS-P20",
+  "implementation_commit": null,
   "mandatory_gates": [
     "repository_integrity",
     "formatting",
@@ -54,13 +44,23 @@
     "regression",
     "github_ci"
   ],
-  "status": "PLANNED",
-  "decision": "PENDING",
-  "evidence": [],
-  "implementation_commit": null,
-  "closure_commit": null,
+  "non_scope": [
+    "Production deployment, release promotion, arbitrary Git writes/merges, infrastructure provisioning or configuration drift remediation; P32 owns production deployment",
+    "Automatic Cell/carrier/service failover, active-session relocation, generic reconciliation or self-healing; P25 owns resilience/recovery and P29 chaos/failover certification",
+    "Full metrics/logs/traces observability platform, fleet-wide telemetry retention or SLO certification; P24 owns global observability",
+    "Compliance policy certification, immutable enterprise audit platform, metering/cost accounting, backup/DR, final security hardening and capacity certification; P21-P28 remain separate",
+    "Arbitrary shell, SQL, HTTP destinations, SSH, credential exposure, tenant-authored executable runbooks, destructive actions, privilege escalation or bypass of P04/P08/P13/P18 authority",
+    "Frontend/operator console certification and unsupported claims of autonomous production remediation, SLA, RTO/RPO, capacity or zero-touch operations"
+  ],
+  "objective": "Implement NXS Sentinel as a constrained platform SRE control plane: trusted bounded signal ingestion, incident correlation, evidence-bound platform reasoning, versioned runbook proposals, durable approval/policy decisions, and fenced execution through source-registered platform SRE adapters. P20 does not execute tenant business mutations and must not synthesize tenant principals or reuse tenant P13/P08 persistence as global infrastructure authority. Architecture and acceptance contract: docs/engineering/nxs-p20-sentinel-design.md; ADR-0101.",
+  "requirements_implemented": [
+    "NXS-SRE-001"
+  ],
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
   "timestamps": {
-    "started_at": null,
-    "closed_at": null
-  }
+    "closed_at": null,
+    "started_at": "2026-09-25T23:45:09Z"
+  },
+  "title": "NXS Sentinel"
 }

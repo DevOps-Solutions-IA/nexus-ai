@@ -1,6 +1,8 @@
 # ADR-0101: NXS Sentinel authority, approvals and bounded SRE execution
 
-Status: governance contract for NXS-P20. Implementation has not started.
+Status: approved architecture contract for NXS-P20. The feature branch is
+BUILDING / PENDING after the canonical start on 2026-09-25. P20-B implements only
+the persistence foundation; full phase certification remains incomplete.
 
 ## Context
 

@@ -4,7 +4,7 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
-## NXS-P20 governance contract — PLANNED / PENDING
+## NXS-P20 contract — BUILDING / PENDING on feature branch
 
 - Phase/branch: NXS-P20 NXS Sentinel; `feat/nxs-p20-sentinel`.
 - Dependencies: P04, P13 and P18 READY/GO. Mandatory requirement: `NXS-SRE-001`.
@@ -16,7 +16,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Concurrency: semantic proposal fingerprints, one active execution slot, DB-time leases/generations and final pre-dispatch fencing prevent duplicate or stale-owner effects. Ambiguous external outcomes never receive a fresh automatic idempotency identity.
 - Non-scope: P21 compliance, P22 audit, P23 metering, P24 global observability, P25 automatic recovery/failover, P26 DR, P27 hardening, P28 capacity, P29 chaos, P31 release and P32 production deployment.
 - Design authority: `docs/adr/0101-sentinel-authority.md` and `docs/engineering/nxs-p20-sentinel-design.md`.
-- Status: governance only. P20 remains PLANNED/PENDING, no lock/start/evidence/implementation commit. Do not run `nxs-start` until governance is independently audited and exact governance-head checks are green.
+- Status: historical governance was PLANNED/PENDING. The externally authorized canonical start occurred once on 2026-09-25. P20 is BUILDING/PENDING on this feature branch; P20-B permits local persistence foundation work only. No implementation publication, VALIDATING transition, closure, merge or deployment is authorized. Canonical main remains through P19.
 
 ## NXS-P19 canonical implemented contract
 
@@ -30,7 +30,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Concurrency: P18 Cell/placement locks precede P11/locator/P19 authority; unique active target, expected revisions, durable route/owner receipts, one-time egress consumption and deterministic suspend/authorize ordering. C01–C32 have explicit executable mappings; current results, source binding and historical failures are recorded in P19 evidence.
 - Failure model: unknown DID, suspended placement, missing target, DB/resolver outage or ambiguity denies new routing; no default/fallback/fan-out; existing dialog stays pinned.
 - Evidence: ADR-0100 and `docs/engineering/nxs-p19-sip-edge-scaling-design.md` define AC01–AC43, real SIP/two-edge/two-Cell, ARI permit propagation and PostgreSQL tests, migration/rollback and observability limits. Current source-bound implementation proofs are distinct from historical development attempts and external exact-head gates.
-- Readiness: historical governance was PLANNED/PENDING; separate authorization started P19 as BUILDING/PENDING, actor `cdxm`, on 2026-09-19. External implementation audit approved `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`; canonical closure recorded READY/GO after the fresh gate and all 31 mandatory gates; external closure audit passed; explicit human authorization then merged closure head `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8` through PR #44 into canonical main at `53051eca3eb1a79a59767c4f92676f4b7f275247`. Deployment and P20 start remain separate and have not occurred.
+- Readiness: historical governance was PLANNED/PENDING; separate authorization started P19 as BUILDING/PENDING, actor `cdxm`, on 2026-09-19. External implementation audit approved `860d9a129adad75d0e4d7f8470c8a9d9f224a5be`; canonical closure recorded READY/GO after the fresh gate and all 31 mandatory gates; external closure audit passed; explicit human authorization then merged closure head `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8` through PR #44 into canonical main at `53051eca3eb1a79a59767c4f92676f4b7f275247`. At that P19 merge, deployment and P20 start had not occurred. Deployment remains unperformed; the later authorized P20 start is recorded in the P20 section above.
 
 ## NXS-P18 canonical implemented contract
 

@@ -177,7 +177,12 @@ def test_later_phases_remain_planned() -> None:
     assert phases["NXS-P17"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P18"]["status"] in {"BUILDING", "VALIDATING", "READY"}
     assert phases["NXS-P19"]["status"] in {"BUILDING", "VALIDATING", "READY"}
-    for phase_number in range(20, 33):
+    assert phases["NXS-P20"]["status"] == "BUILDING"
+    assert phases["NXS-P20"]["decision"] == "PENDING"
+    requirements = json.loads(Path(".nxs/requirements.json").read_text())["requirements"]
+    sentinel = next(item for item in requirements if item["id"] == "NXS-SRE-001")
+    assert sentinel["status"] == "IN_PROGRESS"
+    for phase_number in range(21, 33):
         phase = phases[f"NXS-P{phase_number:02d}"]
         assert phase["status"] == "PLANNED"
         assert phase["decision"] == "PENDING"

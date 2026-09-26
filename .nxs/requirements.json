@@ -670,7 +670,7 @@
       "dependencies": [
         "NXS-PLATFORM-002"
       ],
-      "description": "No Organization can read, write, mutate, cache, execute against or inherit another Organization's context — enforced in PostgreSQL by forced Row-Level Security and a non-bypass runtime role, not by application WHERE clauses — across data and compute, under raw SQL, connection-pool reuse, concurrency, rollback and spoofed identifiers.",
+      "description": "No Organization can read, write, mutate, cache, execute against or inherit another Organization's context \u2014 enforced in PostgreSQL by forced Row-Level Security and a non-bypass runtime role, not by application WHERE clauses \u2014 across data and compute, under raw SQL, connection-pool reuse, concurrency, rollback and spoofed identifiers.",
       "id": "NXS-TENANT-001",
       "implementation_evidence": [
         "migrations/versions/20260907_0612-ea956f004f7a_organizations_core.py",
@@ -770,7 +770,7 @@
         "NXS-TENANT-003",
         "NXS-MIGRATE-001"
       ],
-      "description": "The Organization aggregate — server-generated immutable UUIDv7 identity, normalized reserved-safe organization_key, validated profile fields, timezone-aware timestamps and optimistic-concurrency version — is persisted through the first real domain migration.",
+      "description": "The Organization aggregate \u2014 server-generated immutable UUIDv7 identity, normalized reserved-safe organization_key, validated profile fields, timezone-aware timestamps and optimistic-concurrency version \u2014 is persisted through the first real domain migration.",
       "id": "NXS-ORG-002",
       "implementation_evidence": [
         "src/nexus_ai/domain/organizations/entities.py",
@@ -1752,7 +1752,7 @@
       "id": "NXS-SRE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P20",
       "title": "NXS Sentinel",
       "validation_evidence": []
