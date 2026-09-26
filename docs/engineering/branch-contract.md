@@ -16,7 +16,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Concurrency: semantic proposal fingerprints, one active execution slot, DB-time leases/generations and final pre-dispatch fencing prevent duplicate or stale-owner effects. Ambiguous external outcomes never receive a fresh automatic idempotency identity.
 - Non-scope: P21 compliance, P22 audit, P23 metering, P24 global observability, P25 automatic recovery/failover, P26 DR, P27 hardening, P28 capacity, P29 chaos, P31 release and P32 production deployment.
 - Design authority: `docs/adr/0101-sentinel-authority.md` and `docs/engineering/nxs-p20-sentinel-design.md`.
-- Status: historical governance was PLANNED/PENDING. The externally authorized canonical start occurred once on 2026-09-25. P20 is BUILDING/PENDING on this feature branch; P20-B permits local persistence foundation work only. No implementation publication, VALIDATING transition, closure, merge or deployment is authorized. Canonical main remains through P19.
+- Status: historical governance was PLANNED/PENDING. The externally authorized canonical start occurred once on 2026-09-25. P20 remains BUILDING/PENDING on this feature branch. The full-access continuation authorizes P20 implementation and certification, candidate publication and PR only after local gates pass. VALIDATING, closure, merge and deployment remain unauthorized. Canonical main remains through P19. See `nxs-p20-runtime.md` for the implementation boundary.
 
 ## NXS-P19 canonical implemented contract
 

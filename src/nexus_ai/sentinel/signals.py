@@ -59,6 +59,8 @@ class SignalCollector:
     def __init__(
         self, store: SentinelStore, settings: SentinelSettings, adapters: tuple[SignalAdapter, ...]
     ) -> None:
+        if len(adapters) > settings.signal_batch_size:
+            raise SentinelDenied("adapter_registry_bound")
         registry = {
             (item.binding.adapter_id, item.binding.source_identity): item for item in adapters
         }

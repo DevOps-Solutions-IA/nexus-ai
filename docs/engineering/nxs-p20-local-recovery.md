@@ -1,7 +1,11 @@
-# P20 offline recovery and partial continuation
+# P20 recovery history
 
 P20 remains BUILDING/PENDING. This is development work, not local phase
-certification, not a published implementation candidate, and not READY/GO.
+certification, not READY/GO. Current runtime behavior is documented in
+`nxs-p20-runtime.md`. The sections below preserve historical checkpoints and failures;
+their environment limitations and partial implementation descriptions are not current
+capability claims. Full-access restoration started from checkpoint `7f2132a` with
+verified handoff integrity, real PostgreSQL, Docker and GitHub connectivity.
 
 ## Recovery
 
@@ -21,7 +25,7 @@ The virtual environment was copied locally without changing the original.
 Editable import paths and console-script interpreter paths were relocated to the
 recovery workspace. Validation uses this workspace's modules, not the original.
 
-## Current partial continuation
+## Historical partial continuation
 
 The signal collector has a finite source-registered registry and converts bounded
 health results into typed facts. Error text and external names are discarded.

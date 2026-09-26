@@ -3,9 +3,10 @@
 ## 1. Status and objective
 
 Historical governance status was PLANNED / PENDING. The feature branch is now
-BUILDING / PENDING following the canonical start on 2026-09-25. P20-B is the
-local persistence foundation work package, not full P20 certification. See
-`nxs-p20-foundation.md`; canonical main remains through P19.
+BUILDING / PENDING following the canonical start on 2026-09-25. The persistence
+foundation is extended by the authorized full-access implementation and certification
+work; see `nxs-p20-runtime.md`. Historical foundation scope is retained in
+`nxs-p20-foundation.md`. Canonical main remains through P19; closure is not authorized.
 
 P20 builds NXS Sentinel as a constrained platform SRE control plane alongside certified P04 event semantics, tenant-scoped P13 Agent Runtime and P18 placement. Sentinel observes trusted operational facts, correlates incidents, produces evidence-bound diagnosis and proposes or executes only platform runbook-bound operations that pass durable policy, approval and fencing. P13 is a dependency whose provider-neutral safety contracts are reused, not a global infrastructure execution store. P08 remains unchanged and outside P20's execution path because P20 does not execute tenant business mutations.
 

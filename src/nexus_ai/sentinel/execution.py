@@ -205,12 +205,18 @@ class SentinelActionExecutor:
             proposal.state = outcome
 
     async def dispatch(self, claim: ExecutionClaim) -> str:
-        adapter, request, timeout = await self.prepare_dispatch(claim)
+        try:
+            adapter, request, timeout = await self.prepare_dispatch(claim)
+        except SentinelDenied:
+            await self.reject_claim(claim)
+            raise
         result = None
         outcome = "AMBIGUOUS"
         try:
             async with asyncio.timeout(timeout):
                 result = await adapter.execute(request)
+                if not isinstance(result, ActionResult):
+                    raise SentinelDenied("invalid_adapter_result")
             outcome = "FAILED" if result.classification == "REJECTED" else "SUCCEEDED"
         except ProvenPreEffectRejection:
             result = None
@@ -221,17 +227,31 @@ class SentinelActionExecutor:
         await self.finish(claim, outcome, result)
         return outcome
 
+    async def reject_claim(self, claim: ExecutionClaim) -> None:
+        async with self.store.database.transaction() as session:
+            proposal = await self._lock_proposal(session, claim.proposal_id)
+            execution = await self._owned(session, claim)
+            if execution.dispatch_state != "CLAIMED" or proposal.state != "EXECUTING":
+                raise SentinelDenied("claim_not_rejectable")
+            execution.dispatch_state = "COMPLETED"
+            execution.completed_at = (
+                await session.execute(select(func.clock_timestamp()))
+            ).scalar_one()
+            execution.result_classification = "PRE_DISPATCH_DENIED"
+            proposal.state = "FAILED"
+
     async def cleanup(self) -> int:
         async with self.store.database.transaction() as session:
+            cutoff = (await session.execute(select(func.clock_timestamp()))).scalar_one()
             identities = list(
                 (
                     await session.scalars(
                         select(SentinelExecution.proposal_id)
                         .where(
                             SentinelExecution.dispatch_state.in_(("CLAIMED", "DISPATCHED")),
-                            SentinelExecution.lease_expires_at <= func.clock_timestamp(),
+                            SentinelExecution.lease_expires_at <= cutoff,
                         )
-                        .order_by(SentinelExecution.proposal_id)
+                        .order_by(SentinelExecution.lease_expires_at, SentinelExecution.proposal_id)
                         .limit(self.store.settings.cleanup_batch_size)
                     )
                 ).all()

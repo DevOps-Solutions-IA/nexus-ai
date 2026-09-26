@@ -2,7 +2,8 @@
 
 Status: approved architecture contract for NXS-P20. The feature branch is
 BUILDING / PENDING after the canonical start on 2026-09-25. P20-B implements only
-the persistence foundation; full phase certification remains incomplete.
+the persistence foundation; subsequent authorized work extends the runtime as described
+in `../engineering/nxs-p20-runtime.md`. Full phase closure remains unauthorized.
 
 ## Context
 

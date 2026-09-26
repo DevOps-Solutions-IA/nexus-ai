@@ -20,6 +20,7 @@ def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
         "nexus_ai.agents.service",
         "nexus_ai.agents.toolbridge",
         "nexus_ai.domain.agents",
+        "nexus_ai.events",
         "nexus_ai.tenancy",
         "nexus_ai.telephony",
         "subprocess",

@@ -3,6 +3,7 @@
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import timedelta
+from itertools import islice
 from types import MappingProxyType
 from uuid import UUID, uuid7
 
@@ -60,8 +61,8 @@ class SentinelStore:
     ) -> None:
         self.database = database
         self.settings = database.settings
-        source_list = tuple(sources)
-        runbook_list = tuple(runbooks)
+        source_list = tuple(islice(sources, 257))
+        runbook_list = tuple(islice(runbooks, 257))
         if len(source_list) > 256 or len(runbook_list) > 256:
             raise SentinelDenied("registry_bound_exceeded")
         self.sources = MappingProxyType(
@@ -162,7 +163,9 @@ class SentinelStore:
                         )
                         .with_for_update()
                     )
-                ).one()
+                ).one_or_none()
+                if incident is None:
+                    raise SentinelConflict("incident_resolution_race")
                 incident_id = incident.id
                 incident.revision += 1
                 levels = ("INFO", "WARNING", "ERROR", "CRITICAL")

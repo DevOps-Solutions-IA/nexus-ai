@@ -119,6 +119,15 @@ class SentinelReasoner:
         self._model = model
         self._catalog = {(book.key, book.revision): book for book in runbooks}
 
+    def is_ready(self) -> bool:
+        if not self._settings.reasoning_enabled:
+            return False
+        try:
+            self._credentials.load()
+        except SentinelDenied:
+            return False
+        return True
+
     async def reason(self, context: ReasoningContext) -> tuple[Finding, RunbookSuggestion | None]:
         if not self._settings.reasoning_enabled:
             raise SentinelDenied("reasoning_disabled")

@@ -1,6 +1,6 @@
 """Platform model transport: fixed destination, bounded P07 HTTP, no tenant vault."""
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from urllib.parse import urlsplit
 
 from pydantic import SecretStr
@@ -10,6 +10,12 @@ from nexus_ai.agents.models.openai_compatible import OpenAiCompatibleModelProvid
 from nexus_ai.integrations.credentials import CredentialType, SecretMaterial
 from nexus_ai.integrations.executor import GovernedHttpExecutor, OutboundRequest
 from nexus_ai.sentinel.errors import SentinelDenied
+
+
+@dataclass(frozen=True, slots=True, repr=False)
+class PlatformModelRequest(OutboundRequest):
+    def __repr__(self) -> str:
+        return "PlatformModelRequest([REDACTED])"
 
 
 class SentinelModelTransport:
@@ -55,7 +61,7 @@ class SentinelModelTransport:
         ):
             raise SentinelDenied("model_transport_request_denied")
         response = await self._executor.send(
-            OutboundRequest(
+            PlatformModelRequest(
                 method=method,
                 url=url,
                 headers=headers,
@@ -80,6 +86,15 @@ class SentinelProviderClient:
         material = SecretMaterial(
             CredentialType.API_KEY, {"api_key": credential.get_secret_value()}
         )
-        return await self._provider.generate(
-            replace(request, provider_api_base=self._transport.origin), material, self._transport
-        )
+        response = None
+        try:
+            response = await self._provider.generate(
+                replace(request, provider_api_base=self._transport.origin),
+                material,
+                self._transport,
+            )
+        except Exception:
+            response = None
+        if response is None:
+            raise SentinelDenied("platform_model_unavailable")
+        return response

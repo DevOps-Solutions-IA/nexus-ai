@@ -74,6 +74,7 @@ class SentinelIncident(Base):
 class SentinelSignalReceipt(Base):
     __tablename__ = "sentinel_signal_receipts"
     __table_args__ = (
+        Index("ix_sentinel_receipts_latest", "incident_id", "received_at", "id"),
         UniqueConstraint("adapter_id", "source_identity", "source_observation_id"),
         CheckConstraint("adapter_revision > 0", name="revision_positive"),
         CheckConstraint("schema_version = 1", name="schema_known"),
@@ -206,6 +207,12 @@ class SentinelApproval(Base):
 class SentinelExecution(Base):
     __tablename__ = "sentinel_executions"
     __table_args__ = (
+        Index(
+            "ix_sentinel_execution_expiry",
+            "lease_expires_at",
+            "proposal_id",
+            postgresql_where=text("dispatch_state IN ('CLAIMED','DISPATCHED')"),
+        ),
         UniqueConstraint("proposal_id"),
         UniqueConstraint("idempotency_key"),
         CheckConstraint("execution_generation > 0", name="generation_positive"),
