@@ -1,0 +1,183 @@
+{
+  "closure_commit": null,
+  "criteria": [
+    {
+      "evidence": null,
+      "id": "C01",
+      "requirement": "duplicate signal same source observation.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C02",
+      "requirement": "concurrent duplicate signal insert.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C03",
+      "requirement": "two signals correlate same incident.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C04",
+      "requirement": "same fingerprint across different subjects must not collide.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C05",
+      "requirement": "concurrent finding generation cannot overwrite revisions.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C06",
+      "requirement": "concurrent equivalent proposal converges.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C07",
+      "requirement": "proposal changes invalidate old approval.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C08",
+      "requirement": "runbook revision changes invalidate old approval.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C09",
+      "requirement": "policy revision changes invalidate old approval.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C10",
+      "requirement": "target generation changes before execution.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C11",
+      "requirement": "two executors claim same proposal.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C12",
+      "requirement": "lease expires while stale owner still running.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C13",
+      "requirement": "recovered owner fences stale owner pre-dispatch.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C14",
+      "requirement": "crash after claim before dispatch.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C15",
+      "requirement": "crash after dispatch before response.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C16",
+      "requirement": "external timeout with possible side effect.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C17",
+      "requirement": "proven pre-dispatch rejection.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C18",
+      "requirement": "P08 unavailable.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C19",
+      "requirement": "P13 unavailable.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C20",
+      "requirement": "PostgreSQL unavailable.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C21",
+      "requirement": "kill switch races execution.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C22",
+      "requirement": "approval expiry races dispatch.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C23",
+      "requirement": "incident resolution races new signal.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "C24",
+      "requirement": "bounded cleanup races live execution.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    }
+  ],
+  "current_source_set_sha256": "4c88306f897946302e8e11b521c5d8c86f43ddbaa086f2c084c787d4b528ffac",
+  "declared_ids_missing": 0,
+  "executed_certification_mappings_missing": 24,
+  "implementation_commit": null,
+  "local_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "note": "Explicit pending inventory, not an executed C/AC map. Foundation historical F-C/F-AC evidence remains separate.",
+  "passed": 0,
+  "phase": "NXS-P20",
+  "result": "INCOMPLETE",
+  "schema_version": "1.0.0"
+}

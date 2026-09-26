@@ -1,0 +1,299 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "result": "PASS_ZERO_HIGH_CRITICAL",
+  "scanner": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+  "mandatory_command": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock <pinned-trivy> image --exit-code 1 --severity HIGH,CRITICAL nexus-ai:clean-room",
+  "mandatory_scan_sha256": "6946d1dd47cddaf665995622f4da9eda70e3375354d571cf8f1f26b8d78643f8",
+  "supplemental_command": "pinned Trivy image --scanners vuln --format json <each application/Kamailio amd64/Kamailio arm64/Asterisk image>; all severities reviewed",
+  "reports": [
+    {
+      "artifact": "/tmp/p20-all-severity-nexus-ai-clean-room.json",
+      "sha256": "c14933e62f08687d1fed3985a9c96fa2651d96619954946bb5db2ee23f3dd369",
+      "image": "nexus-ai:clean-room",
+      "image_id": "sha256:62221c5b9ff7e7eb5aa2d674dcceeefe94cc3a5492f8094280ecf4c8a6c1335b",
+      "severity_counts": {
+        "MEDIUM": 6,
+        "LOW": 2
+      },
+      "findings": [
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44-locale-posix",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "ld-linux-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-85091",
+          "PkgName": "zlib",
+          "InstalledVersion": "1.3.2-r5",
+          "FixedVersion": "1.3.2.1_rc20260601-r0",
+          "Severity": "MEDIUM",
+          "Title": "zlib versions 1.3.1.2 through 1.3.2 contain a heap buffer overflow vul ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-85091"
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/p20-all-severity-nexus-p19-asterisk-22.11.0-development.json",
+      "sha256": "e9376ae4eff6ab3bb142c48274b7598c1fca67c31cea7358fa7164f8f7d59cee",
+      "image": "nexus-p19-asterisk:22.11.0-development",
+      "image_id": "sha256:f9db345dcffd6ac2bab14bdddd89970b691a9f646bafe224e1103e95f7281336",
+      "severity_counts": {},
+      "findings": []
+    },
+    {
+      "artifact": "/tmp/p20-all-severity-nexus-p19-kamailio-6.1.4-arm64-wolfi-development.json",
+      "sha256": "e6662bc276becc7bae36c9409f91c619b0cb1012969630046aabf9e4554be8cc",
+      "image": "nexus-p19-kamailio:6.1.4-arm64-wolfi-development",
+      "image_id": "sha256:3951e7524c4d8d0333bb1daf5fc48b7abb3612a0d7f07bce2d04d7a859ab5f23",
+      "severity_counts": {
+        "MEDIUM": 6,
+        "LOW": 2
+      },
+      "findings": [
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44-locale-posix",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "ld-linux-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-85091",
+          "PkgName": "zlib",
+          "InstalledVersion": "1.3.2-r5",
+          "FixedVersion": "1.3.2.1_rc20260601-r0",
+          "Severity": "MEDIUM",
+          "Title": "zlib versions 1.3.1.2 through 1.3.2 contain a heap buffer overflow vul ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-85091"
+        }
+      ]
+    },
+    {
+      "artifact": "/tmp/p20-all-severity-nexus-p19-kamailio-6.1.4-development.json",
+      "sha256": "e3156ac7fb331099648afb0060b4e0888e1497843177f7421e27a2096f9099a8",
+      "image": "nexus-p19-kamailio:6.1.4-development",
+      "image_id": "sha256:b96cb77a32628a3ed5493e6d2699e108fedaaa6b6119109a91041d7ff0ec656f",
+      "severity_counts": {
+        "MEDIUM": 6,
+        "LOW": 2
+      },
+      "findings": [
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "glibc-2.44-locale-posix",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-18374",
+          "PkgName": "ld-linux-2.44",
+          "InstalledVersion": "2.44-r5",
+          "FixedVersion": "2.44-r6",
+          "Severity": "MEDIUM",
+          "Title": "glibc: glibc: Heap buffer overflow via attacker-controlled fopen mode string",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-18374"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-19672",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "MEDIUM",
+          "Title": "python: Python tarfile module: Directory traversal allows creation of empty directories outside extraction destination",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-19672"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-15310",
+          "PkgName": "python-3.14-base",
+          "InstalledVersion": "3.14.7-r7",
+          "FixedVersion": "3.14.7_git20260912-r0",
+          "Severity": "LOW",
+          "Title": "When decompressing crafted zip files using the bzip/LZMA/Zstandard   c ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-15310"
+        },
+        {
+          "VulnerabilityID": "CVE-2026-85091",
+          "PkgName": "zlib",
+          "InstalledVersion": "1.3.2-r5",
+          "FixedVersion": "1.3.2.1_rc20260601-r0",
+          "Severity": "MEDIUM",
+          "Title": "zlib versions 1.3.1.2 through 1.3.2 contain a heap buffer overflow vul ...",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-85091"
+        }
+      ]
+    }
+  ],
+  "review": {
+    "reviewer": "implementation coding agent; independent Master Orchestrator audit remains required",
+    "medium_vulnerability_ids": [
+      "CVE-2026-18374",
+      "CVE-2026-19672",
+      "CVE-2026-85091"
+    ],
+    "assessment": [
+      "Scanner reports patched versions for all three MEDIUM IDs in the pinned base packages; findings are not suppressed or called remediated.",
+      "CVE-2026-18374 concerns caller-controlled fopen mode/ccs; repository src and Kamailio reference configuration contain no fopen/ccs inputs.",
+      "CVE-2026-19672 concerns tar extraction traversal; application source and Kamailio reference do not import tarfile or expose archive extraction.",
+      "CVE-2026-85091 concerns nonblocking gzwrite followed by gzprintf/gzvprintf; these calls are absent from repository application/reference source.",
+      "LOW archive-decompression finding is also retained. Static absence in this repository is not proof of absence in third-party libraries or native dependencies."
+    ],
+    "disposition": "Mandatory zero-HIGH/CRITICAL gate passes unchanged. Medium/low base-image findings remain disclosed for external review and coordinated pinned-image maintenance; no production deployment or risk waiver is authorized.",
+    "historical_artifacts_changed": false
+  },
+  "runtime": {
+    "application_user": "65532:65532",
+    "fixture_users": "10001:10001",
+    "application_image_id": "sha256:62221c5b9ff7e7eb5aa2d674dcceeefe94cc3a5492f8094280ecf4c8a6c1335b",
+    "amd64_arm64_build": "PASS in fresh clean-room",
+    "health_and_shutdown": "PASS in fresh clean-room",
+    "capacity_certification": false
+  }
+}

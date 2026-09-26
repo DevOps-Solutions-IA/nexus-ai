@@ -1,0 +1,12 @@
+{
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "manifest_sha256": "49cb047611bd452f5a10b54a0588dcec8f87138168a30fcb8b8a52c7fc50711f",
+  "phase": "NXS-P20",
+  "reconstruction": "byte-identical paths/types/modes/content",
+  "recorded_at": "2026-09-26T06:03:53.146721+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "work_package": "P20-B"
+}

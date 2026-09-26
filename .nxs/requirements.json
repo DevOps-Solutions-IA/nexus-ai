@@ -1744,13 +1744,15 @@
     {
       "category": "SENTINEL",
       "dependencies": [
+        "NXS-EVENT-003",
+        "NXS-AGENT-001",
         "NXS-SCALE-001"
       ],
-      "description": "NXS Sentinel autonomously monitors and assists governed SRE and engineering operations.",
+      "description": "NXS Sentinel provides a platform-scoped, PostgreSQL-authoritative SRE control plane that consumes bounded trusted operational signals, correlates incidents, produces evidence-bound findings and runbook-bound action proposals, and executes only policy-authorized structured platform operations through source-registered Sentinel adapters with durable approvals, idempotency, leases/fencing and explicit ambiguous-effect handling. P13 remains a tenant-scoped authority; Sentinel may reuse provider-neutral model contracts but never synthesizes a tenant principal or treats tenant Agent/Tool state as platform authority. P20 does not execute Organization business mutations through P08. Language models never receive infrastructure credentials or arbitrary shell, SQL, network-destination or deployment authority. Production deployment, automatic failover/recovery, capacity/chaos certification, full observability, compliance/audit, disaster recovery and destructive actions remain later phases.",
       "id": "NXS-SRE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P20",
       "title": "NXS Sentinel",
       "validation_evidence": []

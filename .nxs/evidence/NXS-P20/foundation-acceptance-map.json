@@ -1,0 +1,787 @@
+{
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "criteria": [
+    {
+      "criterion": "Dedicated package",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC01",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ]
+    },
+    {
+      "criterion": "Bounded configuration",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC02",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-cleanup_batch_size]"
+      ]
+    },
+    {
+      "criterion": "Unsafe configuration denied",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC03",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values0]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values1]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values2]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values3]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values4]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values5]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values6]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values7]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values8]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values9]",
+        "tests/unit/test_sentinel_foundation.py::test_unsafe_config_rejected[values10]"
+      ]
+    },
+    {
+      "criterion": "Canonical role provisioning",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC04",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls"
+      ]
+    },
+    {
+      "criterion": "Least privilege",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC05",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls"
+      ]
+    },
+    {
+      "criterion": "Separate connection",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC06",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls"
+      ]
+    },
+    {
+      "criterion": "No runtime fallback",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC07",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_wrong_actual_database_role_fails_closed"
+      ]
+    },
+    {
+      "criterion": "One additive head",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC08",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ]
+    },
+    {
+      "criterion": "Explicit grants",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC09",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_runtime_cannot_access_sentinel"
+      ]
+    },
+    {
+      "criterion": "No tenant SELECT",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC10",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organization_placements]"
+      ]
+    },
+    {
+      "criterion": "No tenant writes",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC11",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organization_placements]"
+      ]
+    },
+    {
+      "criterion": "DB signal uniqueness",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC12",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+      ]
+    },
+    {
+      "criterion": "Concurrent duplicates",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC13",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+      ]
+    },
+    {
+      "criterion": "Deterministic correlation",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC14",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_concurrent_correlation"
+      ]
+    },
+    {
+      "criterion": "Incident transitions",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC15",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_incident_transition_race_and_database_guard"
+      ]
+    },
+    {
+      "criterion": "Immutable runbooks",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC16",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_runbook_immutable_new_revision"
+      ]
+    },
+    {
+      "criterion": "No executable runbook data",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC17",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values0]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values1]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values2]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values3]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values4]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values5]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values6]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values7]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values8]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values9]"
+      ]
+    },
+    {
+      "criterion": "Bounded risks",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC18",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DESTRUCTIVE]"
+      ]
+    },
+    {
+      "criterion": "HIGH_IMPACT denied",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC19",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DESTRUCTIVE]"
+      ]
+    },
+    {
+      "criterion": "DESTRUCTIVE denied",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC20",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DESTRUCTIVE]"
+      ]
+    },
+    {
+      "criterion": "Durable approval",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC21",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_durable_approval_policy_and_kill_switch"
+      ]
+    },
+    {
+      "criterion": "Deterministic fingerprint",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC22",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_canonical_fingerprint_stable"
+      ]
+    },
+    {
+      "criterion": "Semantic delta fingerprint",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC23",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[incident_id-value0]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[incident_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[runbook_id-value2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[runbook_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_kind-CELL]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_id-value5]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_generation-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[parameters-value7]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[risk-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[policy_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[operation_identity-value10]"
+      ]
+    },
+    {
+      "criterion": "Authoritative kill switch",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC24",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_durable_approval_policy_and_kill_switch"
+      ]
+    },
+    {
+      "criterion": "Organization metadata only",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC25",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_subjects_do_not_collide_and_metadata_is_not_authority"
+      ]
+    },
+    {
+      "criterion": "No P08 bypass",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC26",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ]
+    },
+    {
+      "criterion": "No fake P13 session",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC27",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ]
+    },
+    {
+      "criterion": "No cross-tenant shortcut",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC28",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organization_placements]"
+      ]
+    },
+    {
+      "criterion": "Secret redaction",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC29",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_settings_secret_redaction_and_no_fallback"
+      ]
+    },
+    {
+      "criterion": "Real PostgreSQL",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC30",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls"
+      ]
+    },
+    {
+      "criterion": "Upgrade",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC31",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ]
+    },
+    {
+      "criterion": "Alembic check",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC32",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ]
+    },
+    {
+      "criterion": "Downgrade/re-upgrade",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC33",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ]
+    },
+    {
+      "criterion": "Schema guard",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC34",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ]
+    },
+    {
+      "criterion": "Lint/type/regression",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC35",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Fresh lint/type required; no unrecorded command asserted PASS.",
+      "result": "PENDING_REVALIDATION",
+      "test_nodes": []
+    },
+    {
+      "criterion": "BUILDING/PENDING",
+      "evidence": "/tmp/p20-full-final.xml",
+      "id": "F-AC36",
+      "implementation_surface": [
+        "src/nexus_ai/sentinel/",
+        "src/nexus_ai/domain/sentinel/",
+        "migrations/versions/20260926_0100-d20a0b1c2d3e_sentinel_foundation.py"
+      ],
+      "notes": "Historical unchanged-source proof; recovery DB revalidation blocked by sandbox socket permission.",
+      "result": "PASS",
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_not_phase_certification"
+      ]
+    }
+  ],
+  "missing": 0,
+  "phase": "NXS-P20",
+  "recorded_at": "2026-09-26T06:03:53.146882+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "required": 36,
+  "result": "INCOMPLETE",
+  "schema_version": "1.0.0",
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "work_package": "P20-B"
+}

@@ -1,0 +1,267 @@
+{
+  "closure_commit": null,
+  "criteria": [
+    {
+      "evidence": null,
+      "id": "AC01",
+      "requirement": "P20 manifest/requirement/schema lifecycle valid.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC02",
+      "requirement": "dedicated Sentinel package/domain boundaries.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC03",
+      "requirement": "additive migration and one Alembic head.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC04",
+      "requirement": "dedicated nexus_sentinel role, least-privilege Sentinel-table grants, no tenant-table access and no RLS bypass.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC05",
+      "requirement": "trusted adapter registry; arbitrary adapters denied.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC06",
+      "requirement": "source observation idempotency.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC07",
+      "requirement": "deterministic incident correlation.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC08",
+      "requirement": "explicit incident state machine.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC09",
+      "requirement": "evidence-bound findings with model metadata.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC10",
+      "requirement": "strict platform SentinelReasoner structured-output contract; no fake tenant P13 session and no tenant-vault credential reuse.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC11",
+      "requirement": "prompt/log injection cannot create authority.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC12",
+      "requirement": "immutable runbook revisions.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC13",
+      "requirement": "no executable shell/SQL/arbitrary URL in runbook data.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC14",
+      "requirement": "source-registered handler allowlist.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC15",
+      "requirement": "risk classification enforced server-side.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC16",
+      "requirement": "default hardened policy allows autonomous OBSERVE/DIAGNOSTIC only.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC17",
+      "requirement": "REVERSIBLE action requires durable approval.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC18",
+      "requirement": "HIGH_IMPACT/DESTRUCTIVE denied.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC19",
+      "requirement": "proposal semantic fingerprint canonical/deterministic.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC20",
+      "requirement": "approval bound to exact fingerprint and expiry.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC21",
+      "requirement": "changed target generation fails closed.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC22",
+      "requirement": "execution CAS/lease fencing.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC23",
+      "requirement": "stale owner cannot dispatch.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC24",
+      "requirement": "platform mutations use only source-registered SentinelActionAdapter implementations; tenant business mutations are not executable in P20.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC25",
+      "requirement": "stable idempotency identity for dispatch.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC26",
+      "requirement": "ambiguous effect stops automatic retry.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC27",
+      "requirement": "global kill switch fences mutable execution.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC28",
+      "requirement": "finite resource budgets enforced.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC29",
+      "requirement": "no secret leakage in logs/events/prompts/evidence; platform model credential source is external/read-only and permission-validated.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC30",
+      "requirement": "safe P04 event integration where emitted.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC31",
+      "requirement": "P04/P13/P18 regressions pass and P08 regression confirms Sentinel introduced no tenant Tool Engine bypass.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC32",
+      "requirement": "real PostgreSQL integration/concurrency tests.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC33",
+      "requirement": "API/RBAC negative tests for operator permissions.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC34",
+      "requirement": "clean-room from current canonical main passes.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC35",
+      "requirement": "full suite coverage remains >= repository threshold.",
+      "result": "NOT_CERTIFIED",
+      "test_nodes": []
+    },
+    {
+      "evidence": null,
+      "id": "AC36",
+      "requirement": "exact implementation-head NXS CI and Security succeed.",
+      "result": "PENDING_EXTERNAL_GITHUB_GATE",
+      "test_nodes": []
+    }
+  ],
+  "current_source_set_sha256": "4c88306f897946302e8e11b521c5d8c86f43ddbaa086f2c084c787d4b528ffac",
+  "declared_ids_missing": 0,
+  "executed_certification_mappings_missing": 36,
+  "implementation_commit": null,
+  "local_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "note": "Explicit pending inventory, not an executed C/AC map. Foundation historical F-C/F-AC evidence remains separate.",
+  "passed": 0,
+  "phase": "NXS-P20",
+  "result": "INCOMPLETE",
+  "schema_version": "1.0.0"
+}

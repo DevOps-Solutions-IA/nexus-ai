@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "result": "PASS",
+  "sast": {
+    "command": "make security; uv run bandit -q -c pyproject.toml -r src/nexus_ai/sentinel -f json -o /tmp/p20-bandit-final.json",
+    "sentinel_findings_all_severities": 0,
+    "artifact_sha256": "0bcf602877addb20fee044c88bb1931168e39119b33f61d165e2a06a6cc82f2a"
+  },
+  "dependency_audit": {
+    "command": "make security (uv run pip-audit)",
+    "result": "No known vulnerabilities found",
+    "note": "Local unpublished nexus-ai 0.1.0 package is not on PyPI; dependency packages audited",
+    "artifact": "/tmp/p20-security-final-fullaccess.log",
+    "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+  },
+  "secrets": {
+    "staged_diff": "PASS gitleaks stdin --redact",
+    "history": "PASS gitleaks git --redact --exit-code 1",
+    "history_artifact": "/tmp/p20-secrets-final-fullaccess.log",
+    "sha256": "38b36a49aeb2bb2019e3096ce6c611dff3d87df09603bc0a31e19db04d45b3bd"
+  },
+  "adversarial_evidence": "fullaccess-targeted-tests.json",
+  "authority": {
+    "tenant_context_created": false,
+    "system_organization_created": false,
+    "tenant_vault_reused": false,
+    "model_execution_authority": false,
+    "arbitrary_executable_handlers": false,
+    "production_mutable_adapter": false,
+    "events_emitted": false
+  },
+  "limitations": [
+    "No live external model-provider account invoked; real request serialization is tested with deterministic transport responses.",
+    "Container certification is recorded separately in fullaccess-local-certification.json."
+  ]
+}

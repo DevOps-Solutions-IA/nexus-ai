@@ -41,8 +41,9 @@ Cell placement and transactional admission into existing agent, human, workflow,
 scheduler, campaign and messaging boundaries. P19 is now canonical READY/GO on
 `main`, binding implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be` and audited closure
 `c7e73f0887cde0beb7ee71439b185ed6b1fa44a8`. External implementation and closure audits passed, including
-UDP/TCP/TLS and pre-ARI admission recovery, before the authorized merge. P20 has
-not started.
+UDP/TCP/TLS and pre-ARI admission recovery, before the authorized merge. P20 is
+not a canonical main capability. On `feat/nxs-p20-sentinel`, P20 is BUILDING / PENDING;
+Sentinel implementation and certification are in progress, not phase-certified or merged.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
@@ -317,7 +318,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P19 at `53051eca3eb1a79a59767c4f92676f4b7f275247`. P19 is READY/GO after external implementation audit, canonical closure, external closure audit and the explicitly authorized merge through PR #44. P20 has not started. Historical implementation, closure and corrective evidence remains preserved. P18/P19 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not yet declared production-deployed. Canonical `main` is completed through NXS-P19 at `53051eca3eb1a79a59767c4f92676f4b7f275247`. P19 is READY/GO after external implementation audit, canonical closure, external closure audit and the explicitly authorized merge through PR #44. P20 is BUILDING/PENDING only on its feature branch, with Sentinel implementation and certification in progress; it is not implemented on canonical main or certified as a complete phase. Historical implementation, closure and corrective evidence remains preserved. P18/P19 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 
