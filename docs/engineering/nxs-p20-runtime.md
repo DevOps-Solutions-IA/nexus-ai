@@ -4,6 +4,22 @@ P20 remains BUILDING/PENDING. This implementation is not merged, closed or
 production deployed. Publication requires current-source local certification and
 exact-head CI/Security; external implementation audit remains a separate gate.
 
+## Current local certification
+
+The full-access clean-room at source checkpoint
+`533cd76a9176af9a84ee77cf92bfd8b8f75d7bea` passed 2,574 tests, zero failures or
+skips, with 91.25% coverage. The 314-test Sentinel subset includes real PostgreSQL
+role isolation, concurrency, outage recovery and migration round trips. Application
+amd64/arm64 builds, real SIP fixtures, health and graceful shutdown passed.
+
+Current machine-readable results are indexed by
+`.nxs/evidence/NXS-P20/fullaccess-evidence-index.json`; earlier foundation and
+sandbox failures remain historical evidence. C01-C24 and AC01-AC35 have local
+proof. AC36 is resolved only by a post-commit exact-head workflow receipt, not by
+these local results. Container HIGH/CRITICAL counts are zero; the disclosed
+MEDIUM/LOW pinned-base findings and their review remain in
+`fullaccess-containers.json`. No production risk waiver is implied.
+
 ## Authority and composition
 
 `SentinelDatabase` connects exclusively as `nexus_sentinel`, verifies both database

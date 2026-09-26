@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "result": "PASS",
+  "evidence": "fullaccess-targeted-tests.json",
+  "role": "nexus_sentinel",
+  "identity_checks": [
+    "current_user",
+    "session_user"
+  ],
+  "privileges_denied": [
+    "SUPERUSER",
+    "BYPASSRLS",
+    "CREATEROLE",
+    "CREATEDB",
+    "REPLICATION",
+    "schema CREATE",
+    "tenant SELECT",
+    "tenant INSERT",
+    "tenant UPDATE",
+    "tenant DELETE",
+    "nexus_runtime access to Sentinel"
+  ],
+  "authority": "Independent SentinelDatabase transactions verify role, role memberships and absence of tenant context. Platform control tables have forced RLS and explicit grants; optional organization_id is diagnostic metadata only.",
+  "migration": {
+    "head": "d20c0b1c2d3e",
+    "head_count": 1,
+    "additive_revisions": [
+      "d20a0b1c2d3e",
+      "d20b0b1c2d3e",
+      "d20c0b1c2d3e"
+    ],
+    "historical_migrations_modified": false,
+    "fresh_upgrade": "PASS",
+    "canonical_p19_upgrade": "PASS d19d1b1c2d3e -> head",
+    "disposable_downgrade": "PASS head -> d19d1b1c2d3e",
+    "reupgrade": "PASS",
+    "alembic_check": "PASS",
+    "schema_guard": "PASS"
+  },
+  "total_database_outage": "A disposable database rejects all connections and existing sessions are terminated; an independent connection is also denied; no adapter effect occurs without authority. Database restored then original proposal dispatches once.",
+  "linearization_evidence": "fullaccess-concurrency.json"
+}

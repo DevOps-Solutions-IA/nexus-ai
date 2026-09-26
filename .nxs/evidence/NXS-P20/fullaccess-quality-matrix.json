@@ -1,0 +1,202 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "result": "LOCAL_GATES_PASS_GITHUB_PENDING",
+  "mandatory_gate_count": 31,
+  "local_pass": 30,
+  "pending": 1,
+  "failed": 0,
+  "missing": 0,
+  "canonical_nxs_gate_executed": false,
+  "gates": [
+    {
+      "id": "repository_integrity",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "formatting",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "lint",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "typing",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "unit_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "integration_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "contract_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "security_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "concurrency_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "resilience_tests",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "coverage",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "sast",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-security.json",
+      "notes": null
+    },
+    {
+      "id": "secret_scan",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-security.json",
+      "notes": null
+    },
+    {
+      "id": "dependency_security",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-security.json",
+      "notes": null
+    },
+    {
+      "id": "container_scan",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-containers.json",
+      "notes": null
+    },
+    {
+      "id": "docker_build",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "non_root_runtime",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "graceful_shutdown",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "migration_validation",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "execution_guard",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "generic_phase_start",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": "Control-system tests exercise disposable fixtures; real P20 nxs-start/nxs-close were NOT executed."
+    },
+    {
+      "id": "generic_closure",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": "Control-system tests exercise disposable fixtures; real P20 nxs-start/nxs-close were NOT executed."
+    },
+    {
+      "id": "generic_next_phase",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "execution_lock",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "phase_neutral_ci",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "toolchain_consistency",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "agent_handoff",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "clean_room",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "documentation",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": "ADR-0101, design, branch contract, runtime and README identify feature-branch BUILDING/PENDING, not canonical-main completion."
+    },
+    {
+      "id": "regression",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json + fullaccess-test-inventory.json",
+      "notes": null
+    },
+    {
+      "id": "github_ci",
+      "result": "PENDING_EXACT_HEAD_CI",
+      "evidence": "Post-commit fullaccess-exact-head.json receipt",
+      "notes": null
+    }
+  ]
+}

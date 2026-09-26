@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "status": "LOCAL_CERTIFICATION_COMPLETE_AWAITING_EXACT_HEAD_CI",
+  "current_evidence": [
+    "fullaccess-baseline.json",
+    "fullaccess-source-integrity.json",
+    "fullaccess-targeted-tests.json",
+    "fullaccess-concurrency.json",
+    "fullaccess-acceptance-map.json",
+    "fullaccess-database.json",
+    "fullaccess-security.json",
+    "fullaccess-containers.json",
+    "fullaccess-local-certification.json",
+    "fullaccess-test-inventory.json",
+    "fullaccess-quality-matrix.json",
+    "fullaccess-history.json"
+  ],
+  "post_commit_receipt": "fullaccess-exact-head.json is generated only after actual exact candidate-head workflows succeed; it cannot be embedded in the commit whose SHA it records.",
+  "historical_only": [
+    "foundation-*.json",
+    "local-acceptance-status.json",
+    "local-concurrency-status.json",
+    "local-development-status.json",
+    "access-recheck-20260926.json"
+  ],
+  "history_policy": "Historical failures/deferred observations retain original content. Current executed evidence supersedes their current-status interpretation, never their historical facts.",
+  "authority_limits": {
+    "phase_status": "BUILDING",
+    "phase_decision": "PENDING",
+    "requirement": "IN_PROGRESS",
+    "implementation_commit": null,
+    "closure_commit": null,
+    "nxs_gate_authorized": false,
+    "nxs_close_authorized": false,
+    "merge_authorized": false,
+    "deployment_authorized": false,
+    "p21_authorized": false
+  }
+}
