@@ -1,0 +1,82 @@
+{
+  "artifacts": [
+    {
+      "exists": true,
+      "path": "/tmp/p20-full-final.xml",
+      "sha256": "0a85b61fcdef0cd83354f0b72f073205155bd7af546506b70e7004fe96bc5960"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-full-final.log",
+      "sha256": "8ece45084a6e756e40d65abf9f443ae44ca2df70bc85c3272cdec1b650b607cb"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-coverage-final.json",
+      "sha256": "6fdc51af8f2ecc0a539e8cfd230376ec39ae0c89a30712a4fb2bca4131aaca81"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-foundation-final.xml",
+      "sha256": "bf4cf560769b4e05090ca1e4d0ba34ff9ba941aec6f5a6764287fb289e4ccc45"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-security-final.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-secrets.log",
+      "sha256": "ea2f3e2445f3de6cee04c7342e0e5ad0a29cd64e46c71f7169f25e92ffafa39b"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-full-attempt-1.xml",
+      "sha256": "9b686d8f5446da567d623cc4b90ea5574e81058e43c169e93549c70ab76285d1"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/p20-full-attempt-1.log",
+      "sha256": "4a9a539c705fc9d6e11cf32194f28537651543c82494efc1597e1f22458e1705"
+    },
+    {
+      "exists": true,
+      "path": "/tmp/nxs-p20-local.aW3DKc/foundation-revalidation.xml",
+      "sha256": "299da9792087009ecfc2e165b6fd1d3dbf36bc8a719420377b343128b2a0e8c5"
+    }
+  ],
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "command": "make test-all",
+  "coverage_percent": 91.23179413493567,
+  "current_revalidation": {
+    "errors": 48,
+    "passed": 171,
+    "reason": "AF_INET socket creation denied by sandbox: PermissionError errno 1",
+    "result": "BLOCKED"
+  },
+  "execution_scope": "historical exact-source full run",
+  "failed": 0,
+  "historical_first_run": {
+    "correction": "Prior execution restored canonical environment prerequisite; subsequent full run passed",
+    "diagnosis": "ARM64 exec format error; missing binfmt/QEMU",
+    "failed_nodes": [
+      "tests.integration.test_sip_native_configuration::test_native_pinned_configuration_on_both_architectures[nexus-p19-kamailio:6.1.4-arm64-wolfi-development]",
+      "tests.integration.test_sip_stream_transports::test_real_stream_dialog_and_two_edge_authority[TCP-none-arm64]",
+      "tests.integration.test_sip_stream_transports::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+      "tests.integration.test_sip_stream_transports::test_real_stream_dialog_and_two_edge_authority[TCP-redirect-arm64]",
+      "tests.integration.test_sip_stream_transports::test_real_stream_dialog_and_two_edge_authority[TCP-untrusted_peer-arm64]",
+      "tests.integration.test_sip_stream_transports::test_real_stream_dialog_and_two_edge_authority[TCP-unsupported_method-arm64]"
+    ],
+    "result": "FAIL"
+  },
+  "passed": 2479,
+  "phase": "NXS-P20",
+  "recorded_at": "2026-09-26T06:03:53.146744+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "skipped": 0,
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "work_package": "P20-B"
+}

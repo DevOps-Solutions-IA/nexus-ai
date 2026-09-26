@@ -1,0 +1,32 @@
+{
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "checkpoint_kind": "LOCAL PRESERVATION ONLY",
+  "clone": "git clone --no-hardlinks (local only)",
+  "commands": [
+    "make nxs-lock-recover",
+    "make nxs-lock-acquire PHASE=NXS-P20 ACTOR=cdxm",
+    "make nxs-validate-repo",
+    "make nxs-preflight PHASE=NXS-P20"
+  ],
+  "lock": {
+    "actor": "cdxm",
+    "branch": "feat/nxs-p20-sentinel",
+    "expires_at": "2026-09-26T10:01:41Z",
+    "phase": "NXS-P20",
+    "repository_commit": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-26T06:01:41Z",
+    "state": "ACTIVE"
+  },
+  "nxs_start_rerun": false,
+  "original": "/home/wundah/nexus-ai",
+  "phase": "NXS-P20",
+  "phase_transition": false,
+  "recorded_at": "2026-09-26T06:03:53.147099+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "work_package": "P20-B",
+  "workspace": "/tmp/nxs-p20-local.aW3DKc/nexus-ai"
+}

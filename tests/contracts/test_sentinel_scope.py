@@ -16,7 +16,10 @@ def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
                 imports.update(alias.name for alias in node.names)
     for prefix in (
         "nexus_ai.tools",
-        "nexus_ai.agents",
+        "nexus_ai.agents.runtime",
+        "nexus_ai.agents.service",
+        "nexus_ai.agents.toolbridge",
+        "nexus_ai.domain.agents",
         "nexus_ai.tenancy",
         "nexus_ai.telephony",
         "nexus_ai.integrations.credentials",
@@ -26,6 +29,9 @@ def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
         "paramiko",
     ):
         assert not any(item.startswith(prefix) for item in imports), prefix
+    assert {item for item in imports if item.startswith("nexus_ai.agents")} <= {
+        "nexus_ai.agents.models.base"
+    }
 
 
 def test_foundation_not_phase_certification():

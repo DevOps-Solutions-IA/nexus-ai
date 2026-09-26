@@ -101,7 +101,7 @@ def test_resource_bounds(field, value):
     [
         {"enabled": True},
         {"expected_role": "nexus_runtime"},
-        {"reasoning_enabled": True},
+        {"reasoning_enabled": "yes"},
         {"safe_read_only_retries": -1},
         {"safe_read_only_retries": 4},
         {"max_signal_bytes": 1024, "max_facts_bytes": 2048},

@@ -29,7 +29,7 @@ class SentinelSettings(BaseModel):
     lease_duration_seconds: int = Field(default=60, ge=5, le=300)
     safe_read_only_retries: int = Field(default=1, ge=0, le=3)
     cleanup_batch_size: int = Field(default=100, ge=1, le=500)
-    reasoning_enabled: Literal[False] = False
+    reasoning_enabled: bool = Field(default=False, strict=True)
     mutable_actions_enabled: bool = False
 
     @model_validator(mode="after")
