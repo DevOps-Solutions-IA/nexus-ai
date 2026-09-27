@@ -1,0 +1,796 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "required": 36,
+  "mapped": 36,
+  "pass_local": 35,
+  "pending_exact_head_ci": 1,
+  "missing": 0,
+  "criteria": [
+    {
+      "id": "AC01",
+      "requirement": "P20 manifest/requirement/schema lifecycle valid.",
+      "implementation": [
+        ".nxs/phases/NXS-P20.json"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_not_phase_certification"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC02",
+      "requirement": "dedicated Sentinel package/domain boundaries.",
+      "implementation": [
+        "src/nexus_ai/sentinel/"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC03",
+      "requirement": "additive migration and one Alembic head.",
+      "implementation": [
+        "migrations/versions/20260926_0300-d20c0b1c2d3e_sentinel_bounded_lookup_indexes.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+        "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC04",
+      "requirement": "dedicated nexus_sentinel role, least-privilege Sentinel-table grants, no tenant-table access and no RLS bypass.",
+      "implementation": [
+        "infrastructure/postgres/roles.sql",
+        "scripts/nxs_dbadmin/__main__.py",
+        "src/nexus_ai/sentinel/database.py:SentinelDatabase"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls",
+        "tests/integration/test_sentinel_persistence.py::test_wrong_actual_database_role_fails_closed",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[SELECT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[INSERT-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[UPDATE-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organizations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-memberships]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-conversations]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-tool_execution_records]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_sessions]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-ai_agent_turns]",
+        "tests/integration/test_sentinel_persistence.py::test_tenant_table_denial[DELETE-organization_placements]",
+        "tests/integration/test_sentinel_persistence.py::test_runtime_cannot_access_sentinel",
+        "tests/integration/test_sentinel_persistence.py::test_inherited_role_and_tenant_context_fail_closed"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC05",
+      "requirement": "trusted adapter registry; arbitrary adapters denied.",
+      "implementation": [
+        "src/nexus_ai/sentinel/signals.py:SignalCollector",
+        "src/nexus_ai/sentinel/adapters.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_adapters.py::test_health_http_fixed_url_and_redirect_policy",
+        "tests/unit/test_sentinel_signals.py::test_collector_registry_and_batch_bound",
+        "tests/integration/test_sentinel_authority.py::test_native_cell_probes_preserve_p18_authority",
+        "tests/integration/test_sentinel_authority.py::test_native_sip_probe_uses_p19_target_authority",
+        "tests/integration/test_sentinel_execution.py::test_native_postgres_nats_and_nxs_probes"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC06",
+      "requirement": "source observation idempotency.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.ingest"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC07",
+      "requirement": "deterministic incident correlation.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.ingest"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_concurrent_correlation",
+        "tests/integration/test_sentinel_persistence.py::test_subjects_do_not_collide_and_metadata_is_not_authority"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC08",
+      "requirement": "explicit incident state machine.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.transition"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[OPEN-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[TRIAGED-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATION_PROPOSED-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MITIGATING-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[MONITORING-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[RESOLVED-CLOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-OPEN]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-TRIAGED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-MITIGATION_PROPOSED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-MITIGATING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-MONITORING]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-RESOLVED]",
+        "tests/unit/test_sentinel_foundation.py::test_incident_transition_matrix[CLOSED-CLOSED]",
+        "tests/integration/test_sentinel_execution.py::test_c23_resolution_and_new_observation",
+        "tests/integration/test_sentinel_execution.py::test_trusted_recovery_requires_latest_healthy_receipt",
+        "tests/integration/test_sentinel_persistence.py::test_incident_transition_race_and_database_guard"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC09",
+      "requirement": "evidence-bound findings with model metadata.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.add_finding"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_reasoning.py::test_reasoner_only_advisory_bound_evidence",
+        "tests/integration/test_sentinel_execution.py::test_c05_concurrent_findings_are_append_only",
+        "tests/integration/test_sentinel_persistence.py::test_findings_bounded_and_append_only"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC10",
+      "requirement": "strict platform SentinelReasoner structured-output contract; no fake tenant P13 session and no tenant-vault credential reuse.",
+      "implementation": [
+        "src/nexus_ai/sentinel/reasoning.py:SentinelReasoner",
+        "src/nexus_ai/sentinel/model_transport.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_platform_provider_transport_serializes_without_tenant_vault",
+        "tests/unit/test_sentinel_reasoning.py::test_reasoner_only_advisory_bound_evidence",
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC11",
+      "requirement": "prompt/log injection cannot create authority.",
+      "implementation": [
+        "src/nexus_ai/sentinel/reasoning.py",
+        "src/nexus_ai/sentinel/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_reasoning.py::test_prompt_like_context_and_evidence_never_add_authority[attack0]",
+        "tests/unit/test_sentinel_reasoning.py::test_prompt_like_context_and_evidence_never_add_authority[attack1]",
+        "tests/unit/test_sentinel_reasoning.py::test_prompt_like_context_and_evidence_never_add_authority[attack2]",
+        "tests/unit/test_sentinel_reasoning.py::test_prompt_like_context_and_evidence_never_add_authority[attack3]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[shell]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[sql]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[url]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[host]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[credential]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[target_id]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[handler]",
+        "tests/unit/test_sentinel_reasoning.py::test_model_payload_cannot_add_authority[organization_id]",
+        "tests/unit/test_sentinel_reasoning.py::test_wrong_evidence_and_unknown_runbook_denied"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC12",
+      "requirement": "immutable runbook revisions.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.register_runbook"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_runbook_immutable_new_revision"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC13",
+      "requirement": "no executable shell/SQL/arbitrary URL in runbook data.",
+      "implementation": [
+        "src/nexus_ai/sentinel/contracts.py:Runbook"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values0]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values1]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values2]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values3]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values4]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values5]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values6]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values7]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values8]",
+        "tests/unit/test_sentinel_foundation.py::test_runbook_rejects_executable_or_unbounded_data[values9]"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC14",
+      "requirement": "source-registered handler allowlist.",
+      "implementation": [
+        "src/nexus_ai/sentinel/runbooks.py:SentinelRunbookRegistry"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registered_readonly_adapter_exact_target",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[HIGH_IMPACT-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DESTRUCTIVE-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DIAGNOSTIC-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[REVERSIBLE-False-ORGANIZATION]"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC15",
+      "requirement": "risk classification enforced server-side.",
+      "implementation": [
+        "src/nexus_ai/sentinel/policy.py:risk_allowed"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[HIGH_IMPACT-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DESTRUCTIVE-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DIAGNOSTIC-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[REVERSIBLE-False-ORGANIZATION]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DESTRUCTIVE]"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC16",
+      "requirement": "default hardened policy allows autonomous OBSERVE/DIAGNOSTIC only.",
+      "implementation": [
+        "src/nexus_ai/sentinel/policy.py:risk_allowed",
+        "src/nexus_ai/sentinel/runbooks.py:DiagnosticActionAdapter"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registered_readonly_adapter_exact_target",
+        "tests/unit/test_sentinel_foundation.py::test_read_only_claim_cannot_hide_mutation",
+        "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC17",
+      "requirement": "REVERSIBLE action requires durable approval.",
+      "implementation": [
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor._authorize"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c22_expired_durable_approval_denies_dispatch",
+        "tests/integration/test_sentinel_persistence.py::test_durable_approval_policy_and_kill_switch"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC18",
+      "requirement": "HIGH_IMPACT/DESTRUCTIVE denied.",
+      "implementation": [
+        "src/nexus_ai/sentinel/policy.py:risk_allowed"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[HIGH_IMPACT-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DESTRUCTIVE-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DIAGNOSTIC-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[REVERSIBLE-False-ORGANIZATION]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[False-True-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-False-DESTRUCTIVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-OBSERVE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DIAGNOSTIC]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-HIGH_IMPACT]",
+        "tests/unit/test_sentinel_foundation.py::test_hardened_risk_matrix[True-True-DESTRUCTIVE]"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC19",
+      "requirement": "proposal semantic fingerprint canonical/deterministic.",
+      "implementation": [
+        "src/nexus_ai/sentinel/contracts.py:proposal_fingerprint"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_foundation.py::test_canonical_fingerprint_stable",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[incident_id-value0]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[incident_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[runbook_id-value2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[runbook_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_kind-CELL]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_id-value5]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[target_generation-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[parameters-value7]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[risk-REVERSIBLE]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[policy_revision-2]",
+        "tests/unit/test_sentinel_foundation.py::test_semantic_delta_changes_fingerprint[operation_identity-value10]",
+        "tests/integration/test_sentinel_persistence.py::test_equivalent_proposals_converge"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC20",
+      "requirement": "approval bound to exact fingerprint and expiry.",
+      "implementation": [
+        "src/nexus_ai/sentinel/contracts.py:approval_current"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c22_approval_expires_between_claim_and_dispatch",
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[proposal]",
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[runbook]",
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[policy]",
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[target]",
+        "tests/integration/test_sentinel_persistence.py::test_evidence_and_approval_tampering_denied"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC21",
+      "requirement": "changed target generation fails closed.",
+      "implementation": [
+        "src/nexus_ai/sentinel/runbooks.py:SentinelRunbookRegistry.resolve"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[target]"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC22",
+      "requirement": "execution CAS/lease fencing.",
+      "implementation": [
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.claim"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner",
+        "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation",
+        "tests/integration/test_sentinel_execution.py::test_c24_cleanup_races_lease_recovery"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC23",
+      "requirement": "stale owner cannot dispatch.",
+      "implementation": [
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.prepare_dispatch"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC24",
+      "requirement": "platform mutations use only source-registered SentinelActionAdapter implementations; tenant business mutations are not executable in P20.",
+      "implementation": [
+        "src/nexus_ai/sentinel/runbooks.py:SentinelActionAdapter",
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.dispatch"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registered_readonly_adapter_exact_target",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[HIGH_IMPACT-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DESTRUCTIVE-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[DIAGNOSTIC-False-SERVICE]",
+        "tests/unit/test_sentinel_controls.py::test_registered_handler_cannot_downgrade_risk[REVERSIBLE-False-ORGANIZATION]",
+        "tests/integration/test_sentinel_execution.py::test_external_dispatch_holds_no_sentinel_transaction"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC25",
+      "requirement": "stable idempotency identity for dispatch.",
+      "implementation": [
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.claim"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner",
+        "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC26",
+      "requirement": "ambiguous effect stops automatic retry.",
+      "implementation": [
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.cleanup"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c15_crash_after_dispatch_never_reclaims",
+        "tests/integration/test_sentinel_execution.py::test_c15_cleanup_after_dispatch_crash_persists_ambiguity",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure0-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure1-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure2-FAILED]"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC27",
+      "requirement": "global kill switch fences mutable execution.",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py:SentinelStore.set_mutable_actions"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c21_kill_switch_serializes_with_dispatch",
+        "tests/integration/test_sentinel_persistence.py::test_policy_cas_race_has_one_winner"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC28",
+      "requirement": "finite resource budgets enforced.",
+      "implementation": [
+        "src/nexus_ai/sentinel/config.py",
+        "src/nexus_ai/sentinel/execution.py:SentinelActionExecutor.cleanup"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_registry_consumption_is_bounded_even_for_infinite_source",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[-1-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[0-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[inf-cleanup_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-pool_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-database_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-adapter_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-model_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-execution_timeout_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-signal_batch_size]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_signal_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_facts_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_evidence_refs]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_evidence_snippet_bytes]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_incidents_scanned]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_findings_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_proposals_per_incident]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-max_active_executions]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-lease_duration_seconds]",
+        "tests/unit/test_sentinel_foundation.py::test_resource_bounds[10000000000-cleanup_batch_size]",
+        "tests/unit/test_sentinel_signals.py::test_collector_registry_and_batch_bound",
+        "tests/integration/test_sentinel_execution.py::test_global_execution_budget_serializes_different_incidents",
+        "tests/integration/test_sentinel_execution.py::test_c24_cleanup_cannot_remove_live_owner",
+        "tests/integration/test_sentinel_persistence.py::test_findings_bounded_and_append_only"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC29",
+      "requirement": "no secret leakage in logs/events/prompts/evidence; platform model credential source is external/read-only and permission-validated.",
+      "implementation": [
+        "src/nexus_ai/sentinel/reasoning.py:SentinelModelCredentialProvider",
+        "src/nexus_ai/sentinel/model_transport.py:PlatformModelRequest"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_platform_transport_failure_redacts_exception_context",
+        "tests/unit/test_sentinel_foundation.py::test_settings_secret_redaction_and_no_fallback",
+        "tests/unit/test_sentinel_reasoning.py::test_secret_redaction_and_permissions",
+        "tests/unit/test_sentinel_reasoning.py::test_secret_symlink_and_missing_denied",
+        "tests/unit/test_sentinel_reasoning.py::test_secret_directory_and_hardlinks_denied",
+        "tests/unit/test_sentinel_reasoning.py::test_reasoning_readiness_requires_platform_secret"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC30",
+      "requirement": "safe P04 event integration where emitted.",
+      "implementation": [
+        "docs/engineering/nxs-p20-runtime.md"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_sentinel_scope.py::test_foundation_does_not_import_tenant_execution_or_network_dispatch"
+      ],
+      "dependency": "UNIT_CONTRACT",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": "No P04 events emitted; AST contract forbids Sentinel importing event publication; no fake Organization."
+    },
+    {
+      "id": "AC31",
+      "requirement": "P04/P13/P18 regressions pass and P08 regression confirms Sentinel introduced no tenant Tool Engine bypass.",
+      "implementation": [
+        "tests/"
+      ],
+      "test_nodes": [],
+      "dependency": "FULL_REGRESSION",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "AC32",
+      "requirement": "real PostgreSQL integration/concurrency tests.",
+      "implementation": [
+        "tests/integration/test_sentinel_execution.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c20_total_database_outage_never_dispatches",
+        "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner",
+        "tests/integration/test_sentinel_persistence.py::test_role_properties_and_platform_rls"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC33",
+      "requirement": "API/RBAC negative tests for operator permissions.",
+      "implementation": [
+        "src/nexus_ai/sentinel/control.py:SentinelOperatorAuthority"
+      ],
+      "test_nodes": [
+        "tests/unit/test_sentinel_controls.py::test_organization_principal_without_platform_grant_denied[sentinel:read]",
+        "tests/unit/test_sentinel_controls.py::test_organization_principal_without_platform_grant_denied[sentinel:triage]",
+        "tests/unit/test_sentinel_controls.py::test_organization_principal_without_platform_grant_denied[sentinel:approve]",
+        "tests/unit/test_sentinel_controls.py::test_organization_principal_without_platform_grant_denied[sentinel:control]",
+        "tests/unit/test_sentinel_controls.py::test_operator_facade_cannot_spoof_approver_or_bypass_grant",
+        "tests/integration/test_sentinel_authority.py::test_live_tenant_token_cannot_authorize_sentinel"
+      ],
+      "dependency": "REAL_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-targeted-tests.json",
+      "notes": null
+    },
+    {
+      "id": "AC34",
+      "requirement": "clean-room from current canonical main passes.",
+      "implementation": [
+        "scripts/clean-room.sh"
+      ],
+      "test_nodes": [],
+      "dependency": "DOCKER_POSTGRESQL",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "AC35",
+      "requirement": "full suite coverage remains >= repository threshold.",
+      "implementation": [
+        "pyproject.toml"
+      ],
+      "test_nodes": [],
+      "dependency": "FULL_REGRESSION",
+      "result": "PASS_LOCAL",
+      "evidence": "fullaccess-local-certification.json",
+      "notes": null
+    },
+    {
+      "id": "AC36",
+      "requirement": "exact implementation-head NXS CI and Security succeed.",
+      "implementation": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/security.yml"
+      ],
+      "test_nodes": [],
+      "dependency": "GITHUB",
+      "result": "PENDING_EXACT_HEAD_CI",
+      "evidence": "Post-commit fullaccess-exact-head.json receipt and GitHub run URLs",
+      "notes": "Cannot self-reference the containing commit. Exact candidate-head workflows must be verified after normal push; no prior SHA certification is reused."
+    }
+  ]
+}

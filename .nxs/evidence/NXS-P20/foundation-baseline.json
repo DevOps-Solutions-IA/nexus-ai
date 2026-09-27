@@ -1,0 +1,14 @@
+{
+  "base": "b8a9c5c4d3dceb740eaec6c756d9a1c842253384",
+  "canonical_main": "f84163b732907799cef7b00c94ee174b9465565b",
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "original_preserved": true,
+  "phase": "NXS-P20",
+  "recorded_at": "2026-09-26T06:03:53.146646+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "remote_source": "user externally verified; no network verification",
+  "result": "PASS",
+  "schema_version": "1.0.0",
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "work_package": "P20-B"
+}

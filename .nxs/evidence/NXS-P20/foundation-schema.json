@@ -1,0 +1,17 @@
+{
+  "certification_scope": "FOUNDATION ONLY; NOT PHASE CERTIFICATION",
+  "evidence": "/tmp/p20-full-final.xml",
+  "fresh_revalidation": "Blocked by sandbox AF_INET permission for PostgreSQL; not counted as PASS",
+  "historical_result": "PASS",
+  "phase": "NXS-P20",
+  "recorded_at": "2026-09-26T06:03:53.148273+00:00",
+  "recovery_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "result": "BLOCKED",
+  "schema_version": "1.0.0",
+  "source_set_sha256": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8",
+  "test_nodes": [
+    "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[False]",
+    "tests/integration/test_sentinel_migration.py::test_sentinel_upgrade_downgrade_reupgrade[True]"
+  ],
+  "work_package": "P20-B"
+}

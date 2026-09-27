@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "implementation_commit": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+  "original_implementation": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+  "stage_b_attempt_1": {
+    "result": "FAIL",
+    "passed": 2572,
+    "failed": 2,
+    "skipped": 0,
+    "coverage_percent": 91.31,
+    "evidence": ["quality-gates-stage-b-attempt-1.json", "tests-stage-b-attempt-1.json", "closure-blocker-stage-b-attempt-1.json"],
+    "cause": "Two contract assertions incorrectly required P20 to remain BUILDING during canonical VALIDATING"
+  },
+  "lifecycle_corrective": {
+    "sha": "d0c7594f48e7826d753ff23fb72b96f540017625",
+    "parent": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+    "files": ["tests/contracts/test_otp_contracts.py", "tests/contracts/test_sentinel_scope.py"],
+    "local_full_suite": {"passed": 2597, "failed": 0, "skipped": 0, "coverage_percent": 91.28},
+    "external_audit": "PASS per Master Orchestrator continuation authorization",
+    "published_ci": "state FAIL due stale committed lock; quality/integration/docker/multiarch passed",
+    "evidence": ["lifecycle-corrective-stale-lock-ci-push.json", "lifecycle-corrective-stale-lock-ci-pr.json"]
+  },
+  "lock_corrective": {
+    "sha": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+    "parent": "d0c7594f48e7826d753ff23fb72b96f540017625",
+    "files": [".nxs/execution-lock.json"],
+    "canonical_commands": ["make nxs-lock-recover", "make nxs-lock-acquire PHASE=NXS-P20 ACTOR=cdxm"],
+    "manual_edit": false,
+    "nxs_start_rerun": false
+  },
+  "candidate_push_attempt_1": {
+    "run": 36305950271,
+    "attempt": 1,
+    "result": "FAIL",
+    "passed": 2596,
+    "failed": 1,
+    "coverage_percent": 91.29,
+    "node": "tests/concurrency/test_agent_model_dispatch_fencing.py::test_authorize_model_before_cancel_commit_may_complete",
+    "observed": "Expected one provider call; observed zero",
+    "diagnosis": "The existing P13 test waits 0.1 seconds before cancellation rather than synchronizing on permit commit. An alternate ordering is consistent with the failure; the original runner scheduling cause is not established.",
+    "unchanged_local_repetitions": {"passed": 7, "failed": 0},
+    "repetition_artifacts": "/tmp/p20-model-order-repeat-{1..7}.xml",
+    "failure_log_sha256": "a5d819a0872dfb6e0fa0eaff1dbcd1cbc25fe1167fc96b423b5b93f6b6fc0c2d",
+    "source_test_timeout_changes": false,
+    "warning_suppression": false,
+    "disposition": "Reliability warning retained; unchanged failed-job workflow retry completed SUCCESS (attempt 2, candidate-ci-push.json). No invented root cause or production reliability claim."
+  },
+  "same_candidate_pr": {
+    "run": 36305952880,
+    "result": "PASS",
+    "passed": 2597,
+    "failed": 0,
+    "skipped": 0,
+    "coverage_percent": 91.31,
+    "runtime_seconds": 1389.29,
+    "evidence": "candidate-ci-pr.json"
+  },
+  "fresh_stage_b": {"result": "PASS", "evidence": ["quality-gates.json", "tests.json"]},
+  "earlier_sip_warning": "fullaccess-exact-head.json#historical_pr_attempt_1 preserved byte-for-byte",
+  "medium_low_container_review": "fullaccess-containers.json preserved unmodified; no production risk waiver"
+}

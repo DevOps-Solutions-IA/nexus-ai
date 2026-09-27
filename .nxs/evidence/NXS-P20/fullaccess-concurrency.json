@@ -1,0 +1,310 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "required": 24,
+  "mapped": 24,
+  "passed": 24,
+  "failed": 0,
+  "missing": 0,
+  "cases": [
+    {
+      "id": "C01",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+      ],
+      "result": "PASS",
+      "linearization_point": "Source observation UNIQUE constraint; committed receipt",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C02",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+      ],
+      "result": "PASS",
+      "linearization_point": "Concurrent transactions meet at receipt UNIQUE conflict; one committed receipt",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C03",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_concurrent_correlation"
+      ],
+      "result": "PASS",
+      "linearization_point": "Partial active-correlation UNIQUE index plus incident row lock",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C04",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_subjects_do_not_collide_and_metadata_is_not_authority"
+      ],
+      "result": "PASS",
+      "linearization_point": "Subject kind/identity in correlation key; independent committed rows",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C05",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c05_concurrent_findings_are_append_only"
+      ],
+      "result": "PASS",
+      "linearization_point": "Incident FOR UPDATE serializes bounded immutable finding revisions",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C06",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_persistence.py::test_equivalent_proposals_converge"
+      ],
+      "result": "PASS",
+      "linearization_point": "Incident row lock and UNIQUE semantic fingerprint",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C07",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[proposal]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Final transaction rejects mismatched proposal fingerprint",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C08",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[runbook]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Current immutable runbook revision checked under control lock",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C09",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[policy]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Current policy revision CAS serialized by control row",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C10",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[target]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Source-registered exact target generation binding at dispatch",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C11",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner"
+      ],
+      "result": "PASS",
+      "linearization_point": "Incident/proposal/control/execution locks and UNIQUE proposal slot",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C12",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+      ],
+      "result": "PASS",
+      "linearization_point": "DB-time lease compared under execution lock",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C13",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+      ],
+      "result": "PASS",
+      "linearization_point": "New owner generation committed; old owner CAS denied",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C14",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c14_crash_before_dispatch_cleanup_is_terminal"
+      ],
+      "result": "PASS",
+      "linearization_point": "Cleanup locks and terminalizes expired CLAIMED slot without dispatch",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C15",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c15_crash_after_dispatch_never_reclaims",
+        "tests/integration/test_sentinel_execution.py::test_c15_cleanup_after_dispatch_crash_persists_ambiguity"
+      ],
+      "result": "PASS",
+      "linearization_point": "Committed DISPATCHED slot retained; expiry cleanup marks AMBIGUOUS, never retries",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C16",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure0-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure1-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure2-FAILED]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Possible external effect produces AMBIGUOUS; permanent dispatch fence",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C17",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure0-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure1-AMBIGUOUS]",
+        "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure2-FAILED]"
+      ],
+      "result": "PASS",
+      "linearization_point": "Explicit ProvenPreEffectRejection produces FAILED; no second effect",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C18",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c18_c19_tenant_engines_unavailable_do_not_become_platform_authority"
+      ],
+      "result": "PASS",
+      "linearization_point": "P08 never becomes platform authority; unavailable tenant engine not invoked",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C19",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/unit/test_sentinel_reasoning.py::test_provider_exception_cannot_leak_secret",
+        "tests/integration/test_sentinel_execution.py::test_c18_c19_tenant_engines_unavailable_do_not_become_platform_authority"
+      ],
+      "result": "PASS",
+      "linearization_point": "No P13 tenant persistence dependency; provider failure remains advisory and redacted",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C20",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c20_total_database_outage_never_dispatches"
+      ],
+      "result": "PASS",
+      "linearization_point": "Disposable real PostgreSQL DB rejects ALL connections, terminates existing sessions; no dispatch until authority restored",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C21",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c21_kill_switch_serializes_with_dispatch"
+      ],
+      "result": "PASS",
+      "linearization_point": "Control row serialization with DISPATCHED commit; no new grant after kill switch wins",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C22",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c22_expired_durable_approval_denies_dispatch",
+        "tests/integration/test_sentinel_execution.py::test_c22_approval_expires_between_claim_and_dispatch"
+      ],
+      "result": "PASS",
+      "linearization_point": "DB clock and immutable approval expiry checked in final dispatch transaction",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C23",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c23_resolution_and_new_observation"
+      ],
+      "result": "PASS",
+      "linearization_point": "Incident lock plus partial active correlation uniqueness; conflict rolls receipt back for bounded retry",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    },
+    {
+      "id": "C24",
+      "dependency": "REAL_POSTGRESQL",
+      "test_nodes": [
+        "tests/integration/test_sentinel_execution.py::test_c24_cleanup_cannot_remove_live_owner",
+        "tests/integration/test_sentinel_execution.py::test_c24_cleanup_races_lease_recovery"
+      ],
+      "result": "PASS",
+      "linearization_point": "Bounded indexed cleanup locks and rechecks live state; either recovery or cleanup wins",
+      "evidence": "fullaccess-targeted-tests.json",
+      "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+      "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f"
+    }
+  ]
+}

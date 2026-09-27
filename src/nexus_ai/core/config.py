@@ -25,6 +25,8 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from nexus_ai.sentinel.config import SentinelSettings
+
 
 class Environment(enum.StrEnum):
     LOCAL = "local"
@@ -777,6 +779,7 @@ class Settings(BaseSettings):
     agents: AgentRuntimeSettings = Field(default_factory=AgentRuntimeSettings)
     cells: CellSettings = Field(default_factory=CellSettings)
     sip_edge: SipEdgeSettings = Field(default_factory=SipEdgeSettings)
+    sentinel: SentinelSettings = Field(default_factory=SentinelSettings)
     build: BuildMetadata = Field(default_factory=BuildMetadata)
 
     @property

@@ -1,0 +1,621 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "implementation_commit": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+  "recorded_at": "2026-09-27T10:19:07Z",
+  "result": "PASS",
+  "C01_C24": {
+    "required": 24,
+    "passed": 24,
+    "missing": 0,
+    "cases": [
+      {
+        "id": "C01",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C02",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_persistence.py::test_duplicate_signal_converges"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C03",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_persistence.py::test_concurrent_correlation"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C04",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_persistence.py::test_subjects_do_not_collide_and_metadata_is_not_authority"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C05",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c05_concurrent_findings_are_append_only"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C06",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_persistence.py::test_equivalent_proposals_converge"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C07",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[proposal]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C08",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[runbook]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C09",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[policy]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C10",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c07_c08_c09_c10_final_semantic_fence[target]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C11",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c11_concurrent_claim_has_one_owner"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C12",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C13",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c12_c13_expired_owner_fenced_by_generation"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C14",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c14_crash_before_dispatch_cleanup_is_terminal"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C15",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c15_crash_after_dispatch_never_reclaims",
+          "tests/integration/test_sentinel_execution.py::test_c15_cleanup_after_dispatch_crash_persists_ambiguity"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C16",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure0-AMBIGUOUS]",
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure1-AMBIGUOUS]",
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure2-FAILED]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C17",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure0-AMBIGUOUS]",
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure1-AMBIGUOUS]",
+          "tests/integration/test_sentinel_execution.py::test_c16_c17_effect_failure_classification[failure2-FAILED]"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C18",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c18_c19_tenant_engines_unavailable_do_not_become_platform_authority"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C19",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/unit/test_sentinel_reasoning.py::test_provider_exception_cannot_leak_secret",
+          "tests/integration/test_sentinel_execution.py::test_c18_c19_tenant_engines_unavailable_do_not_become_platform_authority"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C20",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c20_total_database_outage_never_dispatches"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C21",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c21_kill_switch_serializes_with_dispatch"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C22",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c22_expired_durable_approval_denies_dispatch",
+          "tests/integration/test_sentinel_execution.py::test_c22_approval_expires_between_claim_and_dispatch"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C23",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c23_resolution_and_new_observation"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      },
+      {
+        "id": "C24",
+        "result": "PASS",
+        "test_nodes": [
+          "tests/integration/test_sentinel_execution.py::test_c24_cleanup_cannot_remove_live_owner",
+          "tests/integration/test_sentinel_execution.py::test_c24_cleanup_races_lease_recovery"
+        ],
+        "evidence": [
+          "fullaccess-concurrency.json",
+          "tests.json"
+        ]
+      }
+    ]
+  },
+  "AC01_AC36": {
+    "required": 36,
+    "passed": 36,
+    "missing": 0,
+    "criteria": [
+      {
+        "id": "AC01",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC02",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC03",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC04",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC05",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC06",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC07",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC08",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC09",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC10",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC11",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC12",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC13",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC14",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC15",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC16",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC17",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC18",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC19",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC20",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC21",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC22",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC23",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC24",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC25",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC26",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC27",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC28",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC29",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC30",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC31",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC32",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC33",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC34",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC35",
+        "result": "PASS",
+        "evidence": [
+          "fullaccess-acceptance-map.json",
+          "tests.json"
+        ],
+        "notes": "Historical implementation mapping retained; fresh full regression re-executed"
+      },
+      {
+        "id": "AC36",
+        "result": "PASS",
+        "evidence": [
+          "candidate-ci-pr.json",
+          "candidate-security-pr.json"
+        ],
+        "notes": "Exact new implementation head verified"
+      }
+    ]
+  },
+  "candidate_immutable": true,
+  "post_candidate_runtime_test_migration_delta": [],
+  "stage_b_gate": "quality-gates.json",
+  "mandatory_matrix": "quality-matrix.json"
+}

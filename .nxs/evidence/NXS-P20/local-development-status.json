@@ -1,0 +1,90 @@
+{
+  "artifacts": [
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/foundation-revalidation.xml",
+      "sha256": "299da9792087009ecfc2e165b6fd1d3dbf36bc8a719420377b343128b2a0e8c5"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/local-unit-final.xml",
+      "sha256": "175be5efde7445ea61f5b4587d1008a1691a66d3aac11b428cd1daad07343e18"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/full-local.log",
+      "sha256": "fcdc670a03c97cb475fc247ee762d0ee0002b6447e6faac0dc891ef6fae89fff"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/migrate-check.log",
+      "sha256": "d427e13f52987885c5e53aba67a6337767f8357e67d6d295e07130cf13844d12"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/schema-guard.log",
+      "sha256": "230471e729157ef953684faf1036252e637f50615753dd90a762f885501def34"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/sast-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/nxs-p20-local.aW3DKc/secrets-final.log",
+      "sha256": "dff80d3f8876358d156d1074c0b1dbac06e7dbb77fa895a5e3737ec3f6d19d54"
+    }
+  ],
+  "closure_commit": null,
+  "current_source_set_sha256": "4c88306f897946302e8e11b521c5d8c86f43ddbaa086f2c084c787d4b528ffac",
+  "final_implementation_head_created": false,
+  "foundation_revalidation": {
+    "cause": "Sandbox denies AF_INET socket creation (EPERM)",
+    "passed": 171,
+    "setup_errors": 48
+  },
+  "historical_full_run": {
+    "applies_to": "preservation checkpoint only, not current changed source",
+    "coverage_percent": 91.23179413493567,
+    "passed": 2479,
+    "source_hash": "4e513a337824151235dae839a231ab484930ad2065f4a8446f6e66d07c5a79f8"
+  },
+  "implementation_bundle_created": false,
+  "implementation_commit": null,
+  "implemented_partial": [
+    "source-bound bounded signal collector",
+    "NXS read-only state probe",
+    "advisory reasoner strict output",
+    "permission-validated platform secret reader"
+  ],
+  "local_checkpoint": "b47c0fcabbd40f1b93edfca5a30dcad3e0bf4172",
+  "phase": "NXS-P20",
+  "quality": {
+    "alembic_heads": [
+      "d20a0b1c2d3e"
+    ],
+    "clean_room": "NOT EXECUTED: Docker socket denied",
+    "containers": "NOT EXECUTED: Docker socket denied",
+    "dependency_audit": "NOT EXECUTED OFFLINE",
+    "diff_check": "PASS",
+    "full_regression": "INTERRUPTED; setup errors and no progress at legacy ASGI concurrency; exit 130; no result or current coverage certified",
+    "lint": "PASS",
+    "migration_check": "BLOCKED",
+    "repository_validation": "PASS",
+    "sast": "PASS",
+    "schema_guard": "BLOCKED",
+    "sentinel_secret_scan": "PASS",
+    "typing": "PASS (346 source files)"
+  },
+  "remaining_implementation": [
+    "concrete PostgreSQL/NATS/P18/P11-P19/static HTTP signal integrations",
+    "incident lifecycle completion",
+    "platform model transport wiring",
+    "execution claim/lease/dispatch fencing",
+    "source-registered action adapters",
+    "operator authorization integration",
+    "C01-C24 and AC01-AC35 execution"
+  ],
+  "result": "INCOMPLETE",
+  "schema_version": "1.0.0",
+  "unit_contract_tests": {
+    "coverage": "NOT MEASURED BY TARGETED --no-cov RUN",
+    "failed": 0,
+    "passed": 197,
+    "skipped": 0
+  }
+}

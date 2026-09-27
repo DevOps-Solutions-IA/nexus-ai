@@ -1,7 +1,8 @@
 """Idempotent database role bootstrap for local and CI (NXS-SEC-003).
 
-Creates the ``nexus_migration``, ``nexus_runtime`` and narrow ``nexus_sip_locator`` roles by running
-``infrastructure/postgres/roles.sql`` as a superuser. Safe to re-run. Never used at
+Creates ``nexus_migration``, ``nexus_runtime``, narrow ``nexus_sip_locator`` and
+platform ``nexus_sentinel`` roles through ``infrastructure/postgres/roles.sql`` as
+a bootstrap administrator. Safe to re-run. Never used at
 application request runtime.
 
     uv run python -m scripts.nxs_dbadmin bootstrap
@@ -36,7 +37,8 @@ async def _bootstrap(dsn: str) -> None:
         roles = await connection.fetch(
             "SELECT rolname, rolsuper, rolbypassrls, rolcreaterole, rolcreatedb, rolreplication "
             "FROM pg_roles WHERE rolname IN "
-            "('nexus_migration', 'nexus_runtime', 'nexus_sip_locator') ORDER BY rolname"
+            "('nexus_migration', 'nexus_runtime', 'nexus_sip_locator', 'nexus_sentinel') "
+            "ORDER BY rolname"
         )
     finally:
         await connection.close()
@@ -44,7 +46,7 @@ async def _bootstrap(dsn: str) -> None:
         print(
             f"role {role['rolname']}: superuser={role['rolsuper']} bypassrls={role['rolbypassrls']}"
         )
-    if len(roles) != 3:
+    if len(roles) != 4:
         raise SystemExit("bootstrap did not create the required roles")
     if any(
         role["rolsuper"]

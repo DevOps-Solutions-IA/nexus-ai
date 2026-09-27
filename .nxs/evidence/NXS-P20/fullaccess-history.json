@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "scope": "implementation development certification; not closure authorization",
+  "source_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "source_set_sha256": "32be70ec5c49d663f8eac8c40affac039174980bd639e135f4e1871a4cf5da3f",
+  "historical_evidence_preserved": [
+    "foundation-tests.json",
+    "local-development-status.json",
+    "local-concurrency-status.json",
+    "local-acceptance-status.json",
+    "access-recheck-20260926.json"
+  ],
+  "history": [
+    {
+      "result": "FAIL",
+      "scope": "Historical foundation first full run",
+      "failures": 6,
+      "cause": "Missing local binfmt/QEMU prerequisite; preserved in foundation-tests.json",
+      "resolution": "Historical unchanged-source full rerun 2479 passed / 91.23%; not current-source certification"
+    },
+    {
+      "result": "BLOCKED",
+      "scope": "Historical sandbox revalidation",
+      "cause": "PostgreSQL/Docker EPERM; exact original files retained",
+      "superseded_by": "Real full-access tests and clean-room, not by relabeling old failures"
+    },
+    {
+      "result": "PASS",
+      "scope": "Development full regression during source refinement, NOT frozen-source certification",
+      "passed": 2558,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 90.72,
+      "artifact": "/tmp/p20-fullaccess-full.xml"
+    },
+    {
+      "result": "FAIL",
+      "scope": "Final targeted attempt before test-fixture correction",
+      "passed": 313,
+      "failed": 1,
+      "cause": "Test used nexus_runtime to DELETE platform_grants; database correctly denied privileged revocation",
+      "correction": "Test-only administrative connection revokes platform grant; no runtime grant broadened",
+      "artifact": "/tmp/p20-targeted-fixture-failure.xml",
+      "sha256": "f3d4336192ec4cb253dfe243c30760e98dd6473041472e630980ffdd975177c1"
+    },
+    {
+      "result": "PASS",
+      "scope": "Corrected final targeted run",
+      "passed": 314,
+      "failed": 0,
+      "skipped": 0,
+      "artifact": "/tmp/p20-targeted-final.xml",
+      "sha256": "6cae5e882a837929b46ee49af0392bbfcd53447317c1f1598c251692d1e1871d"
+    }
+  ]
+}

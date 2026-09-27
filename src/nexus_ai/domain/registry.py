@@ -97,6 +97,16 @@ from nexus_ai.domain.scheduler.models import (
     SchedulerScheduleRecord,
     SchedulerTransitionHistoryRecord,
 )
+from nexus_ai.domain.sentinel.models import (
+    SentinelActionProposal,
+    SentinelApproval,
+    SentinelControlState,
+    SentinelExecution,
+    SentinelFinding,
+    SentinelIncident,
+    SentinelRunbook,
+    SentinelSignalReceipt,
+)
 from nexus_ai.domain.sip_edge.models import (
     CellSipTargetHeadRecord,
     CellSipTargetRecord,
@@ -216,6 +226,14 @@ __all__ = [
     "SchedulerOccurrenceRecord",
     "SchedulerScheduleRecord",
     "SchedulerTransitionHistoryRecord",
+    "SentinelActionProposal",
+    "SentinelApproval",
+    "SentinelControlState",
+    "SentinelExecution",
+    "SentinelFinding",
+    "SentinelIncident",
+    "SentinelRunbook",
+    "SentinelSignalReceipt",
     "SipAccountUpstreamHistoryRecord",
     "SipAccountUpstreamRecord",
     "SipDialogBindingRecord",

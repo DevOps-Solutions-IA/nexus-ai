@@ -208,12 +208,14 @@
     },
     {
       "branch": "feat/nxs-p20-sentinel",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
+        "NXS-P04",
+        "NXS-P13",
         "NXS-P18"
       ],
       "id": "NXS-P20",
-      "status": "PLANNED",
+      "status": "READY",
       "title": "NXS Sentinel"
     },
     {
