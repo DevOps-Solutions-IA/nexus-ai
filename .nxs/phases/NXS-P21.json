@@ -1,12 +1,47 @@
 {
   "$schema": "../phase-manifest.schema.json",
-  "schema_version": "1.0.0",
-  "id": "NXS-P21",
-  "title": "Compliance Controls",
-  "objective": "Implement tenant-isolated, policy-driven compliance controls including versioned compliance policy, data classification, retention decisions, legal holds and governed data-subject request execution with PostgreSQL authority, RBAC, RLS, deterministic policy binding and fail-closed destructive-action fencing. ADR-0102 and docs/engineering/nxs-p21-compliance-design.md define authority, inventory, concurrency and acceptance obligations.",
   "branch": "feat/nxs-p21-compliance",
-  "dependencies": ["NXS-P03"],
-  "requirements_implemented": ["NXS-COMP-001"],
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P03"
+  ],
+  "evidence": [],
+  "id": "NXS-P21",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
   "non_scope": [
     "P22 enterprise audit ledger, P23 billing/metering, P24 global observability, P25 autonomous recovery/failover, P26 backup/DR, P27 final hardening, P28 capacity, P29 chaos/failover, P30 backend certification, P31 release, P32 deployment",
     "Frontend, legal advice, automatic interpretation of legislation, statutory or regulatory certification and claims of jurisdictional legal compliance",
@@ -14,19 +49,15 @@
     "Cross-tenant compliance administration, system Organizations, privileged runtime database roles and Sentinel compliance authority",
     "Replacement of P16 campaign send eligibility, consent or suppression authority; unsupported resource erasure/export remains explicitly deferred"
   ],
-  "mandatory_gates": [
-    "repository_integrity", "formatting", "lint", "typing", "unit_tests",
-    "integration_tests", "contract_tests", "security_tests", "concurrency_tests",
-    "resilience_tests", "coverage", "sast", "secret_scan", "dependency_security",
-    "container_scan", "docker_build", "non_root_runtime", "graceful_shutdown",
-    "migration_validation", "execution_guard", "generic_phase_start", "generic_closure",
-    "generic_next_phase", "execution_lock", "phase_neutral_ci", "toolchain_consistency",
-    "agent_handoff", "clean_room", "documentation", "regression", "github_ci"
+  "objective": "Implement tenant-isolated, policy-driven compliance controls including versioned compliance policy, data classification, retention decisions, legal holds and governed data-subject request execution with PostgreSQL authority, RBAC, RLS, deterministic policy binding and fail-closed destructive-action fencing. ADR-0102 and docs/engineering/nxs-p21-compliance-design.md define authority, inventory, concurrency and acceptance obligations.",
+  "requirements_implemented": [
+    "NXS-COMP-001"
   ],
-  "status": "PLANNED",
-  "decision": "PENDING",
-  "evidence": [],
-  "implementation_commit": null,
-  "closure_commit": null,
-  "timestamps": {"started_at": null, "closed_at": null}
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-27T22:26:51Z"
+  },
+  "title": "Compliance Controls"
 }
