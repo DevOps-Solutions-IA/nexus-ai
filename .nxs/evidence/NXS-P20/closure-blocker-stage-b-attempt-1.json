@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "result": "BLOCKED",
+  "implementation_commit": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+  "stage_b_transition": "Canonical BUILDING to VALIDATING accepted; repository validation and preflight passed",
+  "gate_evidence": "quality-gates.json",
+  "test_evidence": "tests.json",
+  "diagnosis": "Both failed contract tests hardcode P20 BUILDING and reject the authorized canonical VALIDATING state. Candidate runtime, migrations and tests remain unchanged.",
+  "locations": [
+    "tests/contracts/test_otp_contracts.py:180",
+    "tests/contracts/test_sentinel_scope.py:49"
+  ],
+  "focused_reproduction": {
+    "command": "uv run pytest --no-cov -q tests/contracts/test_otp_contracts.py::test_later_phases_remain_planned tests/contracts/test_sentinel_scope.py::test_foundation_not_phase_certification",
+    "exit_code": 1,
+    "failed": 2,
+    "runtime_seconds": 0.04,
+    "log": "/tmp/p20-stage-b-contract-diagnosis.log",
+    "purpose": "Diagnosis only; does not replace or weaken the full canonical coverage gate"
+  },
+  "closure_executed": false,
+  "closure_commit_created": false,
+  "push_executed": false,
+  "quality_matrix_certified": false,
+  "required_next_owner": "MASTER ORCHESTRATOR",
+  "required_decision": "Authorize a lifecycle-contract test corrective and renewed implementation audit; no test edits are authorized in this closure task",
+  "preserved_state": "VALIDATING / PENDING; requirement IN_PROGRESS; active phase NXS-P20; implementation_commit and closure_commit null",
+  "historical_evidence_modified": false
+}

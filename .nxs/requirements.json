@@ -1752,10 +1752,12 @@
       "id": "NXS-SRE-001",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "IN_PROGRESS",
+      "status": "VALIDATED",
       "target_phase": "NXS-P20",
       "title": "NXS Sentinel",
-      "validation_evidence": []
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P20/quality-gates.json"
+      ]
     },
     {
       "category": "SECURITY",

@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "implementation_commit": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+  "recorded_at": "2026-09-27T10:19:07Z",
+  "result": "PASS",
+  "command": "make nxs-gate PHASE=NXS-P20",
+  "exit_code": 0,
+  "passed": 2597,
+  "failed": 0,
+  "skipped": 0,
+  "coverage_percent": 91.23,
+  "runtime_seconds": 1081.86,
+  "validation_source": "Fresh canonical Stage B gate; quality-gates.json#details.tests",
+  "historical_failure": "tests-stage-b-attempt-1.json"
+}

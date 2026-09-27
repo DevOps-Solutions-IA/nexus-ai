@@ -4,7 +4,7 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
-## NXS-P20 contract — BUILDING / PENDING on feature branch
+## NXS-P20 contract — READY / GO on feature branch, pending merge
 
 - Phase/branch: NXS-P20 NXS Sentinel; `feat/nxs-p20-sentinel`.
 - Dependencies: P04, P13 and P18 READY/GO. Mandatory requirement: `NXS-SRE-001`.
@@ -16,7 +16,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 - Concurrency: semantic proposal fingerprints, one active execution slot, DB-time leases/generations and final pre-dispatch fencing prevent duplicate or stale-owner effects. Ambiguous external outcomes never receive a fresh automatic idempotency identity.
 - Non-scope: P21 compliance, P22 audit, P23 metering, P24 global observability, P25 automatic recovery/failover, P26 DR, P27 hardening, P28 capacity, P29 chaos, P31 release and P32 production deployment.
 - Design authority: `docs/adr/0101-sentinel-authority.md` and `docs/engineering/nxs-p20-sentinel-design.md`.
-- Status: historical governance was PLANNED/PENDING. The externally authorized canonical start occurred once on 2026-09-25. P20 remains BUILDING/PENDING on this feature branch. The full-access continuation authorizes P20 implementation and certification, candidate publication and PR only after local gates pass. VALIDATING, closure, merge and deployment remain unauthorized. Canonical main remains through P19. See `nxs-p20-runtime.md` for the implementation boundary.
+- Status: historical governance was PLANNED/PENDING. The canonical start occurred once on 2026-09-25. Canonical closure is READY / GO after the fresh Stage B gate; implementation `53657b176e47b7bb34ff039fa2dc6047556b77d2` has exact-head CI/Security and conditional external implementation audit PASS. External closure audit remains pending. P20 is not merged into canonical main, which remains through P19; production deployment and P21 start have not occurred and remain unauthorized. See `nxs-p20-runtime.md` for the implementation boundary.
 
 ## NXS-P19 canonical implemented contract
 

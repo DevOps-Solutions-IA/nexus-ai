@@ -1,7 +1,7 @@
 # P20 recovery history
 
-P20 remains BUILDING/PENDING. This is development work, not local phase
-certification, not READY/GO. Current runtime behavior is documented in
+Canonical closure is READY / GO on the feature branch, with implementation audit
+passed. P20 is not merged or deployed; P21 is not started. Current behavior is documented in
 `nxs-p20-runtime.md`. The sections below preserve historical checkpoints and failures;
 their environment limitations and partial implementation descriptions are not current
 capability claims. Full-access restoration started from checkpoint `7f2132a` with

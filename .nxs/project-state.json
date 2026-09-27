@@ -1,6 +1,6 @@
 {
   "$schema": "./project-state.schema.json",
-  "active_phase": "NXS-P20",
+  "active_phase": null,
   "blocked_phases": [],
   "completed_phases": [
     "NXS-P00",
@@ -22,24 +22,25 @@
     "NXS-P16",
     "NXS-P17",
     "NXS-P18",
-    "NXS-P19"
+    "NXS-P19",
+    "NXS-P20"
   ],
   "current_phase": {
     "branch": "feat/nxs-p20-sentinel",
     "closure_commit": null,
-    "decision": "PENDING",
+    "decision": "GO",
     "id": "NXS-P20",
-    "implementation_commit": null,
-    "status": "BUILDING"
+    "implementation_commit": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+    "status": "READY"
   },
   "execution": {
     "mode": "CONTROLLED",
     "protocol_version": "1.0.0"
   },
-  "last_updated_at": "2026-09-25T23:45:09Z",
+  "last_updated_at": "2026-09-27T11:09:08Z",
   "next_allowed_execution": {
-    "condition": "ACTIVE_PHASE_ONLY",
-    "phase": "NXS-P20"
+    "condition": "DEPENDENCIES_READY",
+    "phase": "NXS-P21"
   },
   "product": {
     "name": "Nexus AI",

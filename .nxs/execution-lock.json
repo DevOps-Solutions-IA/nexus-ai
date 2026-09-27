@@ -1,10 +1,10 @@
 {
-  "actor": "cdxm",
-  "branch": "feat/nxs-p20-sentinel",
-  "expires_at": "2026-09-27T12:21:23Z",
-  "phase": "NXS-P20",
-  "repository_commit": "d0c7594f48e7826d753ff23fb72b96f540017625",
+  "actor": null,
+  "branch": null,
+  "expires_at": null,
+  "phase": null,
+  "repository_commit": null,
   "schema_version": "1.0.0",
-  "started_at": "2026-09-27T08:21:23Z",
-  "state": "ACTIVE"
+  "started_at": null,
+  "state": "RELEASED"
 }

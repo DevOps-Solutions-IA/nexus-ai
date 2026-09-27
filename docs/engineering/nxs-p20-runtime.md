@@ -1,10 +1,19 @@
 # Sentinel runtime — feature-branch implementation
 
-P20 remains BUILDING/PENDING. This implementation is not merged, closed or
-production deployed. Publication requires current-source local certification and
-exact-head CI/Security; external implementation audit remains a separate gate.
+Canonical closure is READY / GO on the P20 feature branch. Implementation
+`53657b176e47b7bb34ff039fa2dc6047556b77d2` has passed exact-head CI/Security
+and the Master Orchestrator's conditional implementation audit. Closure is complete;
+external closure audit remains pending. Merge, production deployment and P21 start
+are not authorized or performed.
 
-## Current local certification
+## Fresh Stage B certification
+
+The fresh canonical gate passed 2,597 tests, zero failures/skips and 91.23% coverage.
+Current evidence is `quality-gates.json`, `tests.json` and `quality-matrix.json` under
+`.nxs/evidence/NXS-P20/`. The first Stage B failure, lifecycle-test corrective,
+stale published lock and subsequent canonical metadata corrective remain auditable.
+
+## Historical implementation certification
 
 The full-access clean-room at source checkpoint
 `533cd76a9176af9a84ee77cf92bfd8b8f75d7bea` passed 2,574 tests, zero failures or

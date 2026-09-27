@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "implementation_commit": "53657b176e47b7bb34ff039fa2dc6047556b77d2",
+  "recorded_at": "2026-09-27T10:19:07Z",
+  "result": "PASS",
+  "recovery": {
+    "command": "make nxs-lock-recover",
+    "exit_code": 0,
+    "working_tree_clean": true,
+    "old_expires_at": "2026-09-26T19:29:30Z",
+    "after": "RELEASED"
+  },
+  "acquisition": {
+    "command": "make nxs-lock-acquire PHASE=NXS-P20 ACTOR=cdxm",
+    "exit_code": 0,
+    "state": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p20-sentinel",
+      "expires_at": "2026-09-27T12:21:23Z",
+      "phase": "NXS-P20",
+      "repository_commit": "d0c7594f48e7826d753ff23fb72b96f540017625",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-27T08:21:23Z",
+      "state": "ACTIVE"
+    }
+  },
+  "preclosure": {
+    "state": "ACTIVE",
+    "stale": false,
+    "actor": "cdxm"
+  },
+  "nxs_start_rerun": false,
+  "manual_edit": false,
+  "post_close": {"state": "RELEASED", "phase": null, "actor": null, "stale": false},
+  "release_mechanism": "Canonical nxs-close release_if_held; no manual release or lock edit"
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "result": "FAIL",
+  "command": "make nxs-gate PHASE=NXS-P20",
+  "exit_code": 2,
+  "test_subprocess_exit_code": 1,
+  "passed": 2572,
+  "failed": 2,
+  "skipped": 0,
+  "coverage_percent": 91.31,
+  "runtime_seconds": 1116.48,
+  "implementation_commit": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+  "recorded_at": "2026-09-26T20:33:30Z",
+  "validation_source": "Fresh Stage B gate; quality-gates.json#details.tests. Runtime is the pytest duration; exit_code is the make command exit status.",
+  "failed_nodes": [
+    "tests/contracts/test_otp_contracts.py::test_later_phases_remain_planned",
+    "tests/contracts/test_sentinel_scope.py::test_foundation_not_phase_certification"
+  ]
+}

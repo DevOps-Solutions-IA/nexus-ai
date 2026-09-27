@@ -1,7 +1,8 @@
 # P20-B foundation work package
 
-P20 is BUILDING / PENDING on `feat/nxs-p20-sentinel`; this is not phase
-certification. Governance was PLANNED before the canonical start on
+Historical P20-B scope: P20 was BUILDING / PENDING on `feat/nxs-p20-sentinel`;
+this foundation slice was not phase certification. Current status is recorded in
+`nxs-p20-runtime.md` and `.nxs/`. Governance was PLANNED before the canonical start on
 2026-09-25. No dispatch, model execution, operator API, closure, merge or
 deployment is part of this slice.
 

@@ -1,9 +1,10 @@
 # ADR-0101: NXS Sentinel authority, approvals and bounded SRE execution
 
-Status: approved architecture contract for NXS-P20. The feature branch is
-BUILDING / PENDING after the canonical start on 2026-09-25. P20-B implements only
-the persistence foundation; subsequent authorized work extends the runtime as described
-in `../engineering/nxs-p20-runtime.md`. Full phase closure remains unauthorized.
+Status: approved architecture contract for NXS-P20. Canonical closure is READY / GO
+on the feature branch. Implementation `53657b176e47b7bb34ff039fa2dc6047556b77d2`
+has exact-head CI/Security proof and passed the conditional external implementation audit.
+Runtime boundaries are described in `../engineering/nxs-p20-runtime.md`.
+P20 is not merged into main or production deployed; P21 is not started.
 
 ## Context
 

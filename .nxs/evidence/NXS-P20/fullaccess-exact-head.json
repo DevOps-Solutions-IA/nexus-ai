@@ -1,0 +1,1277 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P20",
+  "result": "PASS",
+  "classification": "VERIFIED",
+  "candidate_sha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+  "parent_sha": "533cd76a9176af9a84ee77cf92bfd8b8f75d7bea",
+  "remote_sha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+  "branch": "feat/nxs-p20-sentinel",
+  "pull_request": "https://github.com/DevOps-Solutions-IA/nexus-ai/pull/46",
+  "criteria_resolution": {
+    "AC01_AC35": "PASS_LOCAL; fullaccess-acceptance-map.json",
+    "AC36": "PASS_EXACT_HEAD_GITHUB",
+    "total_pass": 36,
+    "missing": 0,
+    "C01_C24": "24 PASS",
+    "github_ci_mandatory_gate": "PASS"
+  },
+  "runs": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-26T16:51:06Z",
+      "databaseId": 36256934623,
+      "event": "push",
+      "headSha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+      "jobs": [
+        {
+          "completedAt": "2026-09-26T16:52:39Z",
+          "conclusion": "success",
+          "databaseId": 108445377603,
+          "name": "quality",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Format, lint, and type check",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Unit, contract, security, concurrency, and resilience tests",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Control-system security scan",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 16,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623/job/108445377603"
+        },
+        {
+          "completedAt": "2026-09-26T16:51:54Z",
+          "conclusion": "success",
+          "databaseId": 108445377668,
+          "name": "docker",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build production image",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Verify non-root runtime",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Liveness stays up and readiness reports 503 when dependencies are unavailable",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Readiness reports 200 with dependencies, using the non-bypass runtime role",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker rm --force nxs-deps nxs-nodeps 2>/dev/null || true",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623/job/108445377668"
+        },
+        {
+          "completedAt": "2026-09-26T16:53:11Z",
+          "conclusion": "success",
+          "databaseId": 108445377672,
+          "name": "multiarch",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build linux/amd64 and linux/arm64 (no push)",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Load and health-smoke the linux/arm64 image under emulation",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "ARM64 non-root + liveness/readiness smoke",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Load and health-smoke the linux/arm64 image under emulation",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Build linux/amd64 and linux/arm64 (no push)",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623/job/108445377672"
+        },
+        {
+          "completedAt": "2026-09-26T16:51:22Z",
+          "conclusion": "success",
+          "databaseId": 108445377679,
+          "name": "state",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Lock and repository state",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Phase-neutral execution guard",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623/job/108445377679"
+        },
+        {
+          "completedAt": "2026-09-26T18:28:20Z",
+          "conclusion": "success",
+          "databaseId": 108445377711,
+          "name": "integration",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start real PostgreSQL, Valkey, and NATS/JetStream",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Bootstrap non-bypass database roles",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Migrations (migration role) and tenant schema guard",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 9,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build pinned real SIP and ARI fixtures",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Full suite with coverage gate (runtime role, RLS enforced)",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose logs --no-color | tail -n 200",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose down --volumes",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 24,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 25,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 26,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 27,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623/job/108445377711"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "updatedAt": "2026-09-26T18:28:21Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934623"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-26T16:51:06Z",
+      "databaseId": 36256934609,
+      "event": "push",
+      "headSha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+      "jobs": [
+        {
+          "completedAt": "2026-09-26T16:51:54Z",
+          "conclusion": "success",
+          "databaseId": 108445377561,
+          "name": "source-and-dependencies",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install tools",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Secret scan",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "SAST and dependency audit",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934609/job/108445377561"
+        },
+        {
+          "completedAt": "2026-09-26T16:51:51Z",
+          "conclusion": "success",
+          "databaseId": 108445377766,
+          "name": "image",
+          "startedAt": "2026-09-26T16:51:09Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build image",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Scan image",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 9,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934609/job/108445377766"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "updatedAt": "2026-09-26T16:51:55Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256934609"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-26T16:51:08Z",
+      "databaseId": 36256937065,
+      "event": "pull_request",
+      "headSha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+      "jobs": [
+        {
+          "completedAt": "2026-09-26T19:34:19Z",
+          "conclusion": "success",
+          "databaseId": 108461991352,
+          "name": "integration",
+          "startedAt": "2026-09-26T18:32:33Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Start real PostgreSQL, Valkey, and NATS/JetStream",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Bootstrap non-bypass database roles",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Migrations (migration role) and tenant schema guard",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 9,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build pinned real SIP and ARI fixtures",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Full suite with coverage gate (runtime role, RLS enforced)",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose logs --no-color | tail -n 200",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker compose down --volumes",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 24,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 25,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 26,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 27,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065/job/108461991352"
+        },
+        {
+          "completedAt": "2026-09-26T16:52:04Z",
+          "conclusion": "success",
+          "databaseId": 108461992370,
+          "name": "docker",
+          "startedAt": "2026-09-26T16:51:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build production image",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Verify non-root runtime",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Liveness stays up and readiness reports 503 when dependencies are unavailable",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Readiness reports 200 with dependencies, using the non-bypass runtime role",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker rm --force nxs-deps nxs-nodeps 2>/dev/null || true",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065/job/108461992370"
+        },
+        {
+          "completedAt": "2026-09-26T16:53:10Z",
+          "conclusion": "success",
+          "databaseId": 108461992669,
+          "name": "quality",
+          "startedAt": "2026-09-26T16:51:12Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Format, lint, and type check",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Unit, contract, security, concurrency, and resilience tests",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Control-system security scan",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 15,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 16,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 17,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065/job/108461992669"
+        },
+        {
+          "completedAt": "2026-09-26T16:53:13Z",
+          "conclusion": "success",
+          "databaseId": 108462014343,
+          "name": "multiarch",
+          "startedAt": "2026-09-26T16:51:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build linux/amd64 and linux/arm64 (no push)",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Load and health-smoke the linux/arm64 image under emulation",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "ARM64 non-root + liveness/readiness smoke",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Load and health-smoke the linux/arm64 image under emulation",
+              "number": 10,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Build linux/amd64 and linux/arm64 (no push)",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run docker/setup-qemu-action@1f40c72289eff860ee54a304f1438e3cff362e0a",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065/job/108462014343"
+        },
+        {
+          "completedAt": "2026-09-26T16:51:24Z",
+          "conclusion": "success",
+          "databaseId": 108462016698,
+          "name": "state",
+          "startedAt": "2026-09-26T16:51:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run python -m pip install --disable-pip-version-check \"uv==${UV_VERSION}\"",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run uv sync --frozen --all-groups",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Lock and repository state",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Phase-neutral execution guard",
+              "number": 7,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 13,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 14,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 15,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065/job/108462016698"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "updatedAt": "2026-09-26T19:34:20Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937065"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-26T16:51:08Z",
+      "databaseId": 36256937062,
+      "event": "pull_request",
+      "headSha": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+      "jobs": [
+        {
+          "completedAt": "2026-09-26T16:52:11Z",
+          "conclusion": "success",
+          "databaseId": 108445383981,
+          "name": "image",
+          "startedAt": "2026-09-26T16:51:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Build image",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Scan image",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 8,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 9,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937062/job/108445383981"
+        },
+        {
+          "completedAt": "2026-09-26T16:52:04Z",
+          "conclusion": "success",
+          "databaseId": 108445384080,
+          "name": "source-and-dependencies",
+          "startedAt": "2026-09-26T16:51:11Z",
+          "status": "completed",
+          "steps": [
+            {
+              "conclusion": "success",
+              "name": "Set up job",
+              "number": 1,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 2,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 3,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Install tools",
+              "number": 4,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Secret scan",
+              "number": 5,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "SAST and dependency audit",
+              "number": 6,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065",
+              "number": 11,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Post Run actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683",
+              "number": 12,
+              "status": "completed"
+            },
+            {
+              "conclusion": "success",
+              "name": "Complete job",
+              "number": 13,
+              "status": "completed"
+            }
+          ],
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937062/job/108445384080"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "updatedAt": "2026-09-26T16:52:12Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36256937062"
+    }
+  ],
+  "tests": {
+    "push": {
+      "passed": 2574,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 91.31,
+      "duration_seconds": 1365.45
+    },
+    "pull_request_attempt_2": {
+      "passed": 2574,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 91.28,
+      "duration_seconds": 982.2
+    },
+    "clean_room": {
+      "passed": 2574,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 91.2495211339548
+    }
+  },
+  "historical_pr_attempt_1": {
+    "run": 36256937065,
+    "attempt": 1,
+    "result": "FAIL",
+    "passed": 2572,
+    "failed": 2,
+    "coverage_percent": 91.31,
+    "failed_nodes": [
+      "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-none-True]",
+      "tests/integration/test_tool_api.py::test_tool_lifecycle_and_invocation_through_http"
+    ],
+    "observed": "Second Kamailio container exit 137 during the five-second shutdown assertion; subsequent test reported five unclosed-socket warnings.",
+    "root_cause": "NOT_ESTABLISHED for shutdown exit 137. No OOM claim is made.",
+    "inference": "The assertion precedes fixture socket cleanup; the later unclosed-socket warnings are consistent with that cleanup interruption. This is an inference, not proof of the original shutdown cause.",
+    "unchanged_local_repetitions": [
+      {
+        "attempt": 1,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-1.xml",
+        "sha256": "b1a7439f7e15aebd3216b4f10f0df13a42093e013dd659a263bc152dcd4e67e3"
+      },
+      {
+        "attempt": 2,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-2.xml",
+        "sha256": "0d7061f0a31dacaf5da29e97ceb977e4483c5694310a95445840490cdaf03f81"
+      },
+      {
+        "attempt": 3,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-3.xml",
+        "sha256": "01a283d62c09762c930ead52944a8154ade1bdf07e417a920cf7c0003b6c69ad"
+      },
+      {
+        "attempt": 4,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-4.xml",
+        "sha256": "3aea808b2220b636b421a6a9aa412f7c8b3ca581113a10e723630751bbcba26d"
+      },
+      {
+        "attempt": 5,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-5.xml",
+        "sha256": "6e77ae499e9b52fe8ba9292f5d9a33c128004f7d2987c2bc028084a37bec6c9b"
+      },
+      {
+        "attempt": 6,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-6.xml",
+        "sha256": "8cc7c8f5a68b157863e11dd6c0de32a534f7a56744b00b247d0c34c4ad40203b"
+      },
+      {
+        "attempt": 7,
+        "passed": 2,
+        "failed": 0,
+        "artifact": "/tmp/p20-pr-shutdown-repro-7.xml",
+        "sha256": "5ccd4d52a4c549d641a614ca2ea600609994cad3a7b64397166fe8430fd3dfc0"
+      }
+    ],
+    "unchanged_full_workflow_retry": "PR attempt 2 SUCCESS, 2574 passed; original failure retained in this receipt and GitHub attempt history.",
+    "source_or_assertion_changes_for_retry": false,
+    "timeout_increased": false,
+    "warning_suppression": false,
+    "tests_skipped": false,
+    "disposition": "Reliability warning retained for independent implementation audit; no invented root cause or production reliability claim."
+  },
+  "lock_continuation": {
+    "reason": "Lock expired while waiting for unchanged PR workflow retry",
+    "working_tree_clean_before_recovery": true,
+    "commands": [
+      "make nxs-lock-recover",
+      "make nxs-lock-acquire PHASE=NXS-P20 ACTOR=cdxm"
+    ],
+    "previous": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p20-sentinel",
+      "expires_at": "2026-09-26T19:29:30Z",
+      "phase": "NXS-P20",
+      "repository_commit": "938d01742106abee34071b1c683e510767ef5777",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-26T15:29:30Z",
+      "state": "ACTIVE"
+    },
+    "current": {
+      "actor": "cdxm",
+      "branch": "feat/nxs-p20-sentinel",
+      "expires_at": "2026-09-26T23:30:19Z",
+      "phase": "NXS-P20",
+      "repository_commit": "f30ae6efe120472a43a8c6c379bf7ebf4e5075b2",
+      "schema_version": "1.0.0",
+      "started_at": "2026-09-26T19:30:19Z",
+      "state": "ACTIVE"
+    },
+    "phase_requirement_registry_project_files_changed": false,
+    "source_changed": false,
+    "nxs_start_rerun": false
+  },
+  "artifact_hashes": {
+    "/tmp/p20-exact-head-ci.json": "dc215b8f67acfe16c2c8e26050f0c4b312017877e6728ef6a0a784a6c656d7cf",
+    "/tmp/p20-exact-head-security.json": "e96df2ae70fda62cd3d54726058d7747cae929a6759fca5c1c6c024bdf379a3d",
+    "/tmp/p20-pr-ci-attempt-2.json": "ef6e2c2278302bbc8843fbb2c831372d11e8bc4afd2e4364cf9b066dc4b4cbf6",
+    "/tmp/p20-pr-security.json": "316cfd9205472f17a6a316e7314d9347623f1269236c94b930f1aab40eed0727",
+    "/tmp/p20-exact-head-ci.log": "180de4f04bcf3b93a19376c8801c7b25095ba828a7f82dfbaf10a1fb88b2da4c",
+    "/tmp/p20-pr-ci-attempt-2.log": "6f88d6ae405321ab778562da66688db6752358504f325e7873d097eec55e8a01",
+    "/tmp/p20-pr-ci-attempt-1.json": "80e4459f3d49733692e91b5fc3659f2ddcf2aa83dc0be0e7df1ddf1c90effb22",
+    "/tmp/p20-pr-ci-failure.log": "cfce2654e65ff153cf4601edfccd12ba8f7513d06adf9c2a492d3526a89b5846"
+  },
+  "publication_semantics": "This is a post-commit receipt kept locally and published in PR #46 commentary, not committed into the immutable SHA it certifies. The only post-head tracked delta is the canonical execution-lock renewal. No source changes or new candidate were introduced.",
+  "lifecycle": {
+    "status": "BUILDING",
+    "decision": "PENDING",
+    "requirement": "NXS-SRE-001",
+    "requirement_status": "IN_PROGRESS",
+    "active_phase": "NXS-P20",
+    "implementation_commit": null,
+    "closure_commit": null
+  },
+  "next_gate_owner": "MASTER ORCHESTRATOR",
+  "nxs_gate_authorized": false,
+  "nxs_close_authorized": false,
+  "merge_authorized": false,
+  "deployment_authorized": false
+}
