@@ -4,15 +4,15 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
-## NXS-P21 contract — READY / GO on feature branch, pending merge
+## NXS-P21 canonical contract — READY / GO on main
 
 - Branch: `feat/nxs-p21-compliance`; dependencies: P03/P06 READY/GO; requirement: NXS-COMP-001, binding validated auth/tenant/customer/outbox requirements.
 - Objective: tenant-scoped versioned compliance policy, retention decisions, legal holds and governed data-subject requests under PostgreSQL/RLS/RBAC authority.
 - Scope and inventory: ADR-0102 and `nxs-p21-compliance-design.md`; registered bounded domain adapters only. Unsupported resources remain incomplete, never falsely erased/exported/compliant.
 - Non-scope: P22+ authority, legal/regulatory certification, deployment, cross-tenant administration, arbitrary SQL/shell/URL actions and model authority. P16 retains campaign consent/send authority; P20 retains SRE authority.
 - Criteria: AC01–AC40 and real-PostgreSQL C01–C20; full regression/coverage/security/migration/container/clean-room and exact-head CI/Security. Evidence: `.nxs/evidence/NXS-P21/`.
-- Lifecycle: governance admission `0b98977d96a51ca33e5d0673796af6329857e491` preceded the single canonical start on 2026-09-27T22:26:51Z, recorded separately in `ea199b2`. External implementation re-audit approved `856bd14efe9f5394cd59fe882e89719d4bd428cf`. Fresh Stage B gate and canonical closure produced READY/GO on 2026-09-28; NXS-COMP-001 is VALIDATED. P21 remains unmerged on its feature branch pending external closure audit. Main still contains P20; P22 start and deployment are not authorized.
-- Rollback/observability: unmerged changes can be abandoned without changing main; migration reversal tested only on disposable databases; bounded safe reason codes and transactional P04 events, not P22 audit certification.
+- Lifecycle: governance admission `0b98977d96a51ca33e5d0673796af6329857e491` preceded the single canonical start on 2026-09-27T22:26:51Z, recorded separately in `ea199b2`. External implementation re-audit approved `856bd14efe9f5394cd59fe882e89719d4bd428cf`; closure head `4cf786bcbaedfad7c4e3b6f72624e2e434f2bc02` passed exact-head CI/Security and PR #48 merged to canonical `main` at `53149934906d0d243cb3f593efc8a5bbf74bd793`. Post-merge NXS CI `36425699593` attempt 2 and NXS Security `36425699366` passed on that exact merge SHA. NXS-COMP-001 is VALIDATED; P22 has not started and production deployment has not occurred.
+- Rollback/observability: P21 is now canonical on `main`; any regression requires the governed corrective/reopen lifecycle rather than branch abandonment. Migration reversal was tested only on disposable databases; bounded safe reason codes and transactional P04 events do not constitute P22 audit certification.
 
 ## NXS-P20 canonical contract — READY / GO on main
 
