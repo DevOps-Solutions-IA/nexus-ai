@@ -61,12 +61,19 @@ def test_p20_lifecycle_state_is_consistent():
     else:
         assert manifest["implementation_commit"] is None
         assert manifest["closure_commit"] is None
-    assert state["active_phase"] == (None if closed else "NXS-P20")
+    if closed:
+        assert state["active_phase"] in {None, "NXS-P21"}
+    else:
+        assert state["active_phase"] == "NXS-P20"
     requirement = next(item for item in requirements if item["id"] == "NXS-SRE-001")
     assert requirement["status"] == ("VALIDATED" if closed else "IN_PROGRESS")
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())["phases"]
     for phase in registry:
-        if int(phase["id"].split("P")[-1]) >= 21:
+        if phase["id"] == "NXS-P21" and state["active_phase"] == "NXS-P21":
+            assert closed
+            assert phase["status"] in {"BUILDING", "VALIDATING"}
+            assert phase["decision"] == "PENDING"
+        if int(phase["id"].split("P")[-1]) >= 22:
             assert phase["status"] == "PLANNED" and phase["decision"] == "PENDING"
 
 
@@ -110,7 +117,7 @@ def test_p20_lifecycle_contract_accepts_only_consistent_states(
     }
     state = {"active_phase": None if closed else "NXS-P20"}
     requirement = {"id": "NXS-SRE-001", "status": "VALIDATED" if closed else "IN_PROGRESS"}
-    future = {"id": "NXS-P21", "status": "PLANNED", "decision": "PENDING"}
+    future = {"id": "NXS-P22", "status": "PLANNED", "decision": "PENDING"}
     if field in manifest:
         manifest[field] = value
     elif field == "requirement":

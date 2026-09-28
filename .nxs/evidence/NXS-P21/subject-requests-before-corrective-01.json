@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "kinds": [
+    "ACCESS",
+    "ERASURE",
+    "RESTRICTION"
+  ],
+  "supported_resource": "CUSTOMER_PROFILE only",
+  "whole_subject_result": "PARTIAL because material domains remain unsupported",
+  "credentials_exportable": false,
+  "profile_restriction_changes_campaign_authority": false,
+  "verification": "Live privileged principal, DB time, bounded method code and opaque evidence reference; no uploaded identity proof",
+  "unsupported_resources": [
+    "CUSTOMER_IDENTITIES",
+    "CONVERSATIONS",
+    "MESSAGING",
+    "TELEPHONY",
+    "AGENT_RUNTIME",
+    "WORKFLOWS",
+    "CAMPAIGNS",
+    "HUMAN_OPERATIONS",
+    "EVENTS",
+    "CREDENTIALS"
+  ],
+  "note": "CREDENTIALS is intentionally non-exportable, conservatively retained in incomplete coverage; NOT_APPLICABLE in design inventory does not imply exported/erased.",
+  "tests": [
+    "tests/integration/test_compliance_controls.py::test_terminal_request_cannot_plan_or_verify",
+    "tests/integration/test_compliance_controls.py::test_unverified_and_missing_policy_fail_closed",
+    "tests/concurrency/test_compliance_races.py::test_c18_new_unsupported_coverage_cannot_disappear",
+    "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial"
+  ],
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}

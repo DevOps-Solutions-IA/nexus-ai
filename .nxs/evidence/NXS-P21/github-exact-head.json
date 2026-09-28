@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS",
+  "candidate_sha": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+  "verified_at": "2026-09-28 05:01:42 UTC",
+  "pr": 48,
+  "workflows": [
+    {
+      "conclusion": "success",
+      "databaseId": 36372962619,
+      "event": "push",
+      "headSha": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+      "jobs": [
+        {
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619/job/108772897365"
+        },
+        {
+          "name": "integration",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619/job/108772897511"
+        },
+        {
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619/job/108772897536"
+        },
+        {
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619/job/108772897563"
+        },
+        {
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619/job/108772897568"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962619"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 36372962632,
+      "event": "push",
+      "headSha": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+      "jobs": [
+        {
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962632/job/108772897575"
+        },
+        {
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962632/job/108772897719"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372962632"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 36372965553,
+      "event": "pull_request",
+      "headSha": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+      "jobs": [
+        {
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553/job/108772905758"
+        },
+        {
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553/job/108772905908"
+        },
+        {
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553/job/108772905959"
+        },
+        {
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553/job/108772906007"
+        },
+        {
+          "name": "integration",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553/job/108772906019"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965553"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 36372965569,
+      "event": "pull_request",
+      "headSha": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+      "jobs": [
+        {
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965569/job/108772905776"
+        },
+        {
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965569/job/108772905894"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36372965569"
+    }
+  ],
+  "historical_receipt": "github-exact-head-d10c5e2.json",
+  "note": "Post-candidate receipt preserved locally and published via PR comment; no candidate mutation."
+}

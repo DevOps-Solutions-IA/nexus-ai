@@ -8,6 +8,7 @@ from nexus_ai.api.agents import agents_router
 from nexus_ai.api.auth import auth_router
 from nexus_ai.api.campaigns import campaigns_router
 from nexus_ai.api.cells import cells_router
+from nexus_ai.api.compliance import compliance_router
 from nexus_ai.api.conversations import conversations_router
 from nexus_ai.api.customers import customers_router
 from nexus_ai.api.humans import humans_router
@@ -43,3 +44,4 @@ api_v1_router.include_router(schedules_router)
 api_v1_router.include_router(campaigns_router)
 api_v1_router.include_router(humans_router)
 api_v1_router.include_router(cells_router)
+api_v1_router.include_router(compliance_router)

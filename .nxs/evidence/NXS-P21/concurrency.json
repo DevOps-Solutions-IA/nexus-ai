@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "required": 20,
+  "executed": 20,
+  "passed": 20,
+  "failed": 0,
+  "missing": 0,
+  "dependency": "Real PostgreSQL nexus_runtime sessions, asyncio barriers and database locks; no mocked database authority",
+  "lease_expiry_coordination": "DB pg_sleep based on actual remaining DB-time lease, not arbitrary race scheduling",
+  "cases": [
+    {
+      "case": "C01",
+      "test": "tests/concurrency/test_compliance_races.py::test_c01_concurrent_policy_activation",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C02",
+      "test": "tests/concurrency/test_compliance_races.py::test_c02_retirement_vs_planning",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C03",
+      "test": "tests/concurrency/test_compliance_races.py::test_c03_policy_revision_vs_approval",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C04",
+      "test": "tests/concurrency/test_compliance_races.py::test_c04_hold_vs_erasure_planning",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C05",
+      "test": "tests/concurrency/test_compliance_races.py::test_c05_hold_vs_final_destructive_effect",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C06",
+      "test": "tests/concurrency/test_compliance_races.py::test_c06_release_does_not_revive_stale_authorization",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C07",
+      "test": "tests/concurrency/test_compliance_races.py::test_c07_duplicate_subject_request",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C08",
+      "test": "tests/concurrency/test_compliance_races.py::test_c08_approve_vs_deny",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C09",
+      "test": "tests/concurrency/test_compliance_races.py::test_c09_cancel_vs_approve",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C10",
+      "test": "tests/concurrency/test_compliance_races.py::test_c10_cancel_vs_claim",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C11",
+      "test": "tests/concurrency/test_compliance_races.py::test_c11_two_claimants",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C12",
+      "test": "tests/concurrency/test_compliance_races.py::test_c12_expired_lease_takeover",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C13",
+      "test": "tests/concurrency/test_compliance_races.py::test_c13_stale_worker_cannot_finalize_takeover",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C14",
+      "test": "tests/concurrency/test_compliance_races.py::test_c14_duplicate_execution_retry",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C15",
+      "test": "tests/concurrency/test_compliance_races.py::test_c15_target_drift_after_approval",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C16",
+      "test": "tests/concurrency/test_compliance_races.py::test_c16_same_subject_two_organizations",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C17",
+      "test": "tests/concurrency/test_compliance_races.py::test_c17_cross_tenant_forged_resource",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C18",
+      "test": "tests/concurrency/test_compliance_races.py::test_c18_new_unsupported_coverage_cannot_disappear",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C19",
+      "test": "tests/concurrency/test_compliance_races.py::test_c19_retention_evaluation_vs_hold",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    },
+    {
+      "case": "C20",
+      "test": "tests/concurrency/test_compliance_races.py::test_c20_outbox_failure_rolls_back_effect",
+      "result": "PASS",
+      "linearization": "Organization compliance control row lock + PostgreSQL commit; unique constraints/forced RLS/immutable triggers as applicable",
+      "evidence": "targeted-tests.json"
+    }
+  ],
+  "supplemental": [
+    {
+      "test": "tests/concurrency/test_compliance_races.py::test_lease_expiry_during_target_lock_wait_blocks_effect",
+      "result": "PASS",
+      "purpose": "Lease expiration during target lock wait cannot cross effect boundary"
+    }
+  ],
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}

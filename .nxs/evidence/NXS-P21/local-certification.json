@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "source_set_sha256": "45cb79ffa8287d63e50857df613661ac64b12a5c2d0f5a9461571e905613943e",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "command": "make clean-room in fresh local clone with exact implementation source hash",
+  "clean_room": "PASS",
+  "fresh_dependencies": true,
+  "fresh_postgresql_volume": true,
+  "db_bootstrap": "PASS",
+  "migration": "PASS",
+  "lint": "PASS",
+  "typing": "PASS",
+  "full_regression": {
+    "passed": 2701,
+    "failed": 0,
+    "skipped": 0,
+    "runtime_seconds": 1171.58,
+    "coverage_percent": 91.41458242375101,
+    "branch_only_percent": 78.41453674121406,
+    "coverage_threshold": 90,
+    "threshold_applies_to": "Canonical pytest-cov combined statement+branch coverage"
+  },
+  "targeted": {
+    "passed": 104,
+    "failed": 0,
+    "skipped": 0
+  },
+  "coverage_totals": {
+    "covered_lines": 25386,
+    "num_statements": 27058,
+    "percent_covered": 91.41458242375101,
+    "percent_covered_display": "91",
+    "missing_lines": 1672,
+    "excluded_lines": 406,
+    "percent_statements_covered": 93.82068149900215,
+    "percent_statements_covered_display": "94",
+    "num_branches": 5008,
+    "num_partial_branches": 945,
+    "covered_branches": 3927,
+    "missing_branches": 1081,
+    "percent_branches_covered": 78.41453674121406,
+    "percent_branches_covered_display": "78"
+  },
+  "artifacts": [
+    {
+      "path": "/tmp/p21-clean-room-final.log",
+      "sha256": "398de19c149b5d13fdf9b76793f189323512fc0da0e1e2dede2a5a5e0d265527"
+    },
+    {
+      "path": "/tmp/p21-cleanroom-coverage.json",
+      "sha256": "ef4c39d597fb0b405b79d87b6b8547c0d133ee98f8973eca76c90fe470e76d9a"
+    }
+  ],
+  "additional_make_test_all": {
+    "command": "make test-all",
+    "passed": 2702,
+    "failed": 0,
+    "skipped": 0,
+    "coverage_percent": 91.42,
+    "seconds": 1185.13
+  },
+  "limitations": [
+    "Only CUSTOMER_PROFILE adapter enabled; whole-subject requests remain PARTIAL.",
+    "Exact-head GitHub gates cannot be certified before candidate publication."
+  ],
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  },
+  "final_candidate_cleanroom": {
+    "command": "make clean-room",
+    "result": "PASS",
+    "passed": 2702,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1201.53,
+    "coverage": {
+      "covered_lines": 25390,
+      "num_statements": 27068,
+      "percent_covered": 91.38092269326684,
+      "percent_covered_display": "91",
+      "missing_lines": 1678,
+      "excluded_lines": 406,
+      "percent_statements_covered": 93.80079799024679,
+      "percent_statements_covered_display": "94",
+      "num_branches": 5012,
+      "num_partial_branches": 949,
+      "covered_branches": 3925,
+      "missing_branches": 1087,
+      "percent_branches_covered": 78.31205107741421,
+      "percent_branches_covered_display": "78"
+    }
+  },
+  "corrective_evidence": "corrective-01.json",
+  "note": "Earlier run fields retained as history; corrective-01.json is current source certification."
+}

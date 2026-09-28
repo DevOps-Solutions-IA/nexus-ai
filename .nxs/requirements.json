@@ -2,6 +2,26 @@
   "$schema": "./requirements.schema.json",
   "requirements": [
     {
+      "category": "COMPLIANCE",
+      "dependencies": [
+        "NXS-AUTH-006",
+        "NXS-AUTH-007",
+        "NXS-TENANT-003",
+        "NXS-CUSTOMER-001",
+        "NXS-EVENT-003"
+      ],
+      "description": "Tenant-scoped, PostgreSQL-authoritative compliance and data-governance controls for versioned Organization policy, allow-listed data classification, retention decisions, legal holds and governed data-subject requests. Decisions are deterministic, exact-policy-version-bound, authenticated, RBAC-controlled, tenant-isolated and fail closed. Legal hold overrides destructive retention and erasure. Destructive operations are explicit, bounded, idempotent, re-authorized against current policy/hold state immediately before execution and use registered domain adapters, never arbitrary SQL, shell, URLs or provider operations. Unsupported resources remain unsupported/incomplete, never falsely erased, exported or compliant. P04 events are observational; P21 does not implement P22 audit authority or claim statutory, jurisdictional or regulatory certification.",
+      "id": "NXS-COMP-001",
+      "implementation_evidence": [],
+      "mandatory": true,
+      "status": "VALIDATED",
+      "target_phase": "NXS-P21",
+      "title": "Tenant compliance and data-governance controls",
+      "validation_evidence": [
+        ".nxs/evidence/NXS-P21/quality-gates.json"
+      ]
+    },
+    {
       "category": "MEMORY",
       "dependencies": [],
       "description": "Machine-readable repository state preserves execution continuity without conversational memory.",

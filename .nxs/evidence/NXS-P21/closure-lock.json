@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "implementation_commit": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+  "recorded_at": "2026-09-28T05:54:59Z",
+  "result": "PASS",
+  "pre_close_lock": {
+    "actor": "cdxm",
+    "branch": "feat/nxs-p21-compliance",
+    "expires_at": "2026-09-28T07:13:11Z",
+    "phase": "NXS-P21",
+    "repository_commit": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-28T03:13:11Z",
+    "state": "ACTIVE"
+  },
+  "stale": false,
+  "preflight": "PASS",
+  "manual_lock_edit": false,
+  "post_close_lock": {
+    "actor": null,
+    "branch": null,
+    "expires_at": null,
+    "phase": null,
+    "repository_commit": null,
+    "schema_version": "1.0.0",
+    "started_at": null,
+    "state": "RELEASED"
+  }
+}

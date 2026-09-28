@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "implementation": [
+    "src/nexus_ai/compliance/contracts.py::RetentionRule",
+    "src/nexus_ai/compliance/service.py::evaluate_retention"
+  ],
+  "supported_actions": [
+    "RETAIN",
+    "ANONYMIZE customer profile only"
+  ],
+  "duration_days": [
+    1,
+    36500
+  ],
+  "policy_rules_max": 16,
+  "evaluation_separate_from_effect": true,
+  "delete_unsupported": true,
+  "tests": [
+    "tests/unit/test_compliance_contracts.py::test_retention_bounds",
+    "tests/unit/test_compliance_contracts.py::test_retention_uses_aware_effective_time",
+    "tests/integration/test_compliance_controls.py::test_retention_evaluation_never_mutates_new_target",
+    "tests/integration/test_compliance_controls.py::test_retention_due_requires_approval_and_replays_stable_plan"
+  ],
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}

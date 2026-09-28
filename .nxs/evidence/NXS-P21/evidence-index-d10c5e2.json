@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS",
+  "note": "Post-candidate inventory includes exact-head receipt and finalized acceptance map; these three receipt files remain uncommitted to preserve the certified candidate SHA. Facts published in PR #48 comment. No closure authorization.",
+  "files": [
+    {
+      "path": ".nxs/evidence/NXS-P21/acceptance-map.json",
+      "sha256": "ddb02d664c46cdd10982324421093073e4648e81082a71b690b9e825665e96ad"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/admission-baseline.json",
+      "sha256": "3090613c798743894bf69c160d45ca749d7e9171db2b2ff12c14c4b990aa1d2e"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/concurrency.json",
+      "sha256": "9188b0c358d95b78541e6b71003e9a03ba05af18bd139a33fda45f46058b3047"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/containers.json",
+      "sha256": "f23a1683f8ef0fc0b92cb350c853f3d4a90fa4fd08e15a3be40f2162e9e579f0"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/database.json",
+      "sha256": "b1148a10c0dc95717f4ecdf6f4598e6b2024d6de15ebfc27dc03d55b0491032f"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/development-history.json",
+      "sha256": "3678e420105374dd0973b6943aed220ee19ca9d03723938e02fc69ed157910f5"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/execution.json",
+      "sha256": "4541cac2401237ff33a232698e1189ca46a574a267978a20f9a049cfc5900296"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/github-exact-head.json",
+      "sha256": "7416e575c71b3092e4c40843a69af53b9b94f05bb45730a1c7a14fee39fb2fda"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/legal-hold.json",
+      "sha256": "1ef5bf15c7969f6c0223542514e7706f688007acd3b54c967b0150d5c138873b"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/local-certification.json",
+      "sha256": "2e9b60a675e31daa948a07600b703aada3b0f3fc0e5ff70fe2d9ec0731d1f9d0"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/migration.json",
+      "sha256": "bdc604a670ca5120db8d4b9ca4729d77b30b9a995ba69f45b6cab69417d59312"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/policy.json",
+      "sha256": "1475e7e3fddd7071ed76619759a8f0c5d2a6f349f87b1da5604e5c206cb416c9"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/retention.json",
+      "sha256": "98b9cdafe8cd359fde41f24a4cd9d4075751ddc0f89e53f117e3e10dffc5df5b"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/security.json",
+      "sha256": "22ecfb7012e2a7a19e130df65429a046ca4fa26f3ce2165e5775078364cab72a"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/source-integrity.json",
+      "sha256": "31730a2627a1705f0141dfd996bb0a344318f18898b94711e74f891831aa826c"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/subject-requests.json",
+      "sha256": "aa9815f927fe3fdbc139973d0c8cffc1f7fd92ae3d45009d101c3863037c5aa2"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/targeted-tests.json",
+      "sha256": "c34e2c4b3855a5a1d1d117623ff8ec20005e2f1f5d334cb2117ec616f722c113"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/tenant-isolation.json",
+      "sha256": "4d24956feb36fba62abd74d34c2f2f93a004ff36c255705469c79d2b55cf5daf"
+    }
+  ]
+}

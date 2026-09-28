@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS",
+  "recorded_at": "2026-09-28T03:13:35.133729+00:00",
+  "source_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "source_state": "Uncommitted implementation snapshot over source_sha; not a claim that source_sha contains the implementation",
+  "source_set_sha256": "45cb79ffa8287d63e50857df613661ac64b12a5c2d0f5a9461571e905613943e",
+  "file_count": 676,
+  "algorithm": "SHA256 of Python json.dumps(manifest,sort_keys=True,separators=(comma,colon)); manifest sorted by repository path, entries path/sha256(file bytes)/mode oct(stat & 0777). Includes git cached and legitimate untracked files in src, tests, migrations, scripts, infrastructure, .github plus pyproject.toml, uv.lock, Dockerfile, compose.yaml, Makefile, .python-version. Excludes evidence/docs/lifecycle.",
+  "clean_room_source_match": true,
+  "corrective_evidence": "corrective-01.json",
+  "clean_room_workspace": "/tmp/nxs-p20-stageb-final"
+}
