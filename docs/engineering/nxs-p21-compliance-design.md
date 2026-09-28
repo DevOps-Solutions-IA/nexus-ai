@@ -3,7 +3,9 @@
 Accepted admission design; P21 is now BUILDING/PENDING on its feature branch after
 the single canonical start at 2026-09-27T22:26:51Z. Nothing in this document alone is
 certification evidence. P21 is not validated, merged or deployed.
-Requirement: NXS-COMP-001. Branch: feat/nxs-p21-compliance. Registry dependency: P03.
+Requirement: NXS-COMP-001. Branch: feat/nxs-p21-compliance. Registry dependencies: P03 and P06.
+Requirement dependencies explicitly bind P06 customer authority (NXS-CUSTOMER-001)
+and P04 transactional outbox authority (NXS-EVENT-003), alongside the existing auth/tenant requirements.
 Canonical baseline: 6d0dc0042c10016c0307aeda333b5fd89a7c3a54, P20 PR #46 merged;
 post-merge CI 36343873102 and Security 36343873074 succeeded. P21 had not started at
 that merge. No production deployment has occurred.

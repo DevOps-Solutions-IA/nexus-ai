@@ -222,7 +222,8 @@
       "branch": "feat/nxs-p21-compliance",
       "decision": "PENDING",
       "dependencies": [
-        "NXS-P03"
+        "NXS-P03",
+        "NXS-P06"
       ],
       "id": "NXS-P21",
       "status": "BUILDING",

@@ -4,7 +4,7 @@ import ast
 import json
 from pathlib import Path
 
-from nexus_ai.compliance.contracts import resource_inventory
+from nexus_ai.compliance.contracts import INCOMPLETE_RESOURCES, resource_inventory
 
 
 def test_compliance_admission_and_stage_a_state():
@@ -33,7 +33,32 @@ def test_resource_inventory_does_not_claim_universal_coverage():
     assert supported == ["CUSTOMER_PROFILE"]
     credentials = next(row for row in rows if row["resource_class"] == "CREDENTIALS")
     assert credentials["classification"] == "CREDENTIAL"
-    assert credentials["adapter_status"] == "DEFERRED"
+    assert credentials["adapter_status"] == "NOT_APPLICABLE"
+    assert "CREDENTIALS" not in INCOMPLETE_RESOURCES
+    assert set(INCOMPLETE_RESOURCES) == {
+        row["resource_class"] for row in rows if row["adapter_status"] == "DEFERRED"
+    }
+    assert len(INCOMPLETE_RESOURCES) == 9
+
+
+def test_compliance_dependencies_bind_validated_domain_authorities():
+    manifest = json.loads(Path(".nxs/phases/NXS-P21.json").read_text())
+    registry = json.loads(Path(".nxs/phase-registry.json").read_text())["phases"]
+    registered = next(row for row in registry if row["id"] == "NXS-P21")
+    assert manifest["dependencies"] == registered["dependencies"] == ["NXS-P03", "NXS-P06"]
+    requirements = {
+        row["id"]: row
+        for row in json.loads(Path(".nxs/requirements.json").read_text())["requirements"]
+    }
+    dependencies = requirements["NXS-COMP-001"]["dependencies"]
+    assert dependencies == [
+        "NXS-AUTH-006",
+        "NXS-AUTH-007",
+        "NXS-TENANT-003",
+        "NXS-CUSTOMER-001",
+        "NXS-EVENT-003",
+    ]
+    assert all(requirements[identity]["status"] == "VALIDATED" for identity in dependencies)
 
 
 def test_no_external_or_model_execution_authority():

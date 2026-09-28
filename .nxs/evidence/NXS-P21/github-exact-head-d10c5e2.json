@@ -1,0 +1,173 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS",
+  "candidate_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "remote_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "pr": 48,
+  "pr_state": "OPEN",
+  "verified_at": "2026-09-28 02:12:41 UTC",
+  "workflows": [
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-28T00:30:01Z",
+      "databaseId": 36362434278,
+      "event": "push",
+      "headSha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+      "jobs": [
+        {
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139539,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278/job/108742139539"
+        },
+        {
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139638,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278/job/108742139638"
+        },
+        {
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139665,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278/job/108742139665"
+        },
+        {
+          "name": "integration",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139675,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278/job/108742139675"
+        },
+        {
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139692,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278/job/108742139692"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "updatedAt": "2026-09-28T01:46:21Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434278"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-28T00:30:00Z",
+      "databaseId": 36362434260,
+      "event": "push",
+      "headSha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+      "jobs": [
+        {
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139375,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434260/job/108742139375"
+        },
+        {
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742139493,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434260/job/108742139493"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "updatedAt": "2026-09-28T00:30:56Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362434260"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-28T00:30:18Z",
+      "databaseId": 36362454091,
+      "event": "pull_request",
+      "headSha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+      "jobs": [
+        {
+          "name": "integration",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742192906,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091/job/108742192906"
+        },
+        {
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742193094,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091/job/108742193094"
+        },
+        {
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742193132,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091/job/108742193132"
+        },
+        {
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742193147,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091/job/108742193147"
+        },
+        {
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742193159,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091/job/108742193159"
+        }
+      ],
+      "name": "NXS CI",
+      "status": "completed",
+      "updatedAt": "2026-09-28T02:09:07Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454091"
+    },
+    {
+      "conclusion": "success",
+      "createdAt": "2026-09-28T00:30:18Z",
+      "databaseId": 36362454052,
+      "event": "pull_request",
+      "headSha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+      "jobs": [
+        {
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742192869,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454052/job/108742192869"
+        },
+        {
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success",
+          "databaseId": 108742193011,
+          "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454052/job/108742193011"
+        }
+      ],
+      "name": "NXS Security",
+      "status": "completed",
+      "updatedAt": "2026-09-28T00:31:06Z",
+      "url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36362454052"
+    }
+  ],
+  "ac37": "PASS",
+  "ac38": "PASS",
+  "ci_tests": {
+    "passed": 2701,
+    "failed": 0,
+    "skipped": 0,
+    "coverage_percent": 91.41
+  },
+  "provenance": "gh run view for every run/job plus remote ref and PR head verification; post-candidate receipt kept uncommitted to avoid circular exact-head evidence. Published separately as PR audit comment.",
+  "stage_b_authorized": false,
+  "merge_authorized": false
+}

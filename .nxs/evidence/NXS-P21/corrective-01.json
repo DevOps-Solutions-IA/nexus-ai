@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+  "base_candidate": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "source_set_sha256": "45cb79ffa8287d63e50857df613661ac64b12a5c2d0f5a9461571e905613943e",
+  "recorded_at": "2026-09-28T03:13:35.133729+00:00",
+  "corrective_a": {
+    "phase_dependencies": [
+      "NXS-P03",
+      "NXS-P06"
+    ],
+    "requirement_dependencies": [
+      "NXS-AUTH-006",
+      "NXS-AUTH-007",
+      "NXS-TENANT-003",
+      "NXS-CUSTOMER-001",
+      "NXS-EVENT-003"
+    ],
+    "all_validated": true,
+    "registry_manifest_equal": true
+  },
+  "corrective_b": {
+    "CUSTOMER_PROFILE": "SUPPORTED",
+    "CREDENTIALS": "NOT_APPLICABLE",
+    "incomplete_resources": [
+      "CUSTOMER_IDENTITIES",
+      "CONVERSATIONS",
+      "MESSAGING",
+      "TELEPHONY",
+      "AGENT_RUNTIME",
+      "WORKFLOWS",
+      "CAMPAIGNS",
+      "HUMAN_OPERATIONS",
+      "EVENTS"
+    ],
+    "whole_subject_state": "PARTIAL",
+    "credential_adapter": false
+  },
+  "scope": {
+    "runtime_outside_contracts": false,
+    "migrations": false,
+    "api": false,
+    "customer_mutations": false
+  },
+  "focused": {
+    "passed": 54,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 6.7
+  },
+  "full": {
+    "command": "make test-all",
+    "passed": 2702,
+    "failed": 0,
+    "skipped": 0,
+    "coverage_percent": 91.42,
+    "seconds": 1185.13
+  },
+  "clean_room": {
+    "command": "make clean-room",
+    "result": "PASS",
+    "passed": 2702,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 1201.53,
+    "coverage": {
+      "covered_lines": 25390,
+      "num_statements": 27068,
+      "percent_covered": 91.38092269326684,
+      "percent_covered_display": "91",
+      "missing_lines": 1678,
+      "excluded_lines": 406,
+      "percent_statements_covered": 93.80079799024679,
+      "percent_statements_covered_display": "94",
+      "num_branches": 5012,
+      "num_partial_branches": 949,
+      "covered_branches": 3925,
+      "missing_branches": 1087,
+      "percent_branches_covered": 78.31205107741421,
+      "percent_branches_covered_display": "78"
+    }
+  },
+  "concurrency": {
+    "cases": "C01-C20 plus lease-expiry supplemental",
+    "executed": 20,
+    "passed": 20,
+    "evidence": "Full and clean-room suite logs both include tests/concurrency/test_compliance_races.py: 21 passing tests"
+  },
+  "gates": {
+    "repository": "PASS",
+    "preflight": "PASS",
+    "lint": "PASS",
+    "typing": "PASS",
+    "bootstrap": "PASS",
+    "migration": "PASS",
+    "schema_guard": "PASS",
+    "security": "PASS",
+    "docker": "PASS",
+    "multiarch": "PASS",
+    "clean_room": "PASS"
+  },
+  "artifacts": [
+    {
+      "path": "/tmp/p21-c01-security.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p21-c01-docker.log",
+      "sha256": "3eea4769148cb83f9a60cafc9d53db5fa6e490be72db3e289241cbb86b0fd393"
+    },
+    {
+      "path": "/tmp/p21-c01-infra.log",
+      "sha256": "b39755f0ca57c0ba0086b51f022ba316f29c93f529037597de202abbe7b43664"
+    },
+    {
+      "path": "/tmp/p21-c01-cleanroom.log",
+      "sha256": "4a8b6b6480fb81f1f56a969a24b1bf8ad93a99cd28ed7211c6df46fbddca3c58"
+    },
+    {
+      "path": "/tmp/p21-c01-full.log",
+      "sha256": "28e4bdfacde2f27604671a4d9d2c4333fbd6a65abfc35b9f98f77331ea3e0a90"
+    },
+    {
+      "path": "/tmp/p21-c01-multiarch.log",
+      "sha256": "81acf2b6fb809bd316ed0521aa9a07a4b6d38690850cb32f9bc72bbfc45095bc"
+    },
+    {
+      "path": "/tmp/p21-c01-container.log",
+      "sha256": "be2ede4f3e683ea33f7803c2ce69a6b9101f79be25fac5ec0051b471ba5ee34f"
+    },
+    {
+      "path": "/tmp/p21-c01-focused.log",
+      "sha256": "82a275213ed893ff1e4885fdd808997cfd882a1e9d12cbf311595d8054cf8e07"
+    }
+  ],
+  "historical_receipt": "github-exact-head-d10c5e2.json",
+  "AC37": "PENDING_EXACT_HEAD",
+  "AC38": "PENDING_EXACT_HEAD"
+}

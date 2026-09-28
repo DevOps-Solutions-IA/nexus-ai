@@ -88,6 +88,18 @@
       "cause": "Trailing whitespace in generated SQL in new P21 migration; unstaged diff checks had not included untracked migration.",
       "correction": "Remove trailing whitespace only using apply_patch; staged diff check now passes. Fresh complete clean-room rerun on changed source: 2701 PASS, 0 failed/skipped, 91.37% coverage.",
       "artifact": "/tmp/p21-clean-room-candidate.log"
+    },
+    {
+      "check": "External implementation audit Corrective 01",
+      "result": "CORRECTED",
+      "base_candidate": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+      "findings": [
+        "Missing P06 phase and customer/outbox requirement dependencies",
+        "Credentials incorrectly DEFERRED instead of NOT_APPLICABLE"
+      ],
+      "correction": "Explicit dependency metadata; typed AdapterStatus; incomplete coverage derived only from DEFERRED resources.",
+      "recertification": "corrective-01.json",
+      "historical_exact_head": "github-exact-head-d10c5e2.json"
     }
   ]
 }

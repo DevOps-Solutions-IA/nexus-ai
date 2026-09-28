@@ -2,10 +2,10 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P21",
   "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
-  "source_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
-  "source_set_sha256": "45cb79ffa8287d63e50857df613661ac64b12a5c2d0f5a9461571e905613943e",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
   "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
-  "result": "LOCAL_PASS_EXTERNAL_PENDING",
+  "result": "PASS",
   "validation_source": "targeted-tests.json; local-certification.json",
   "required": 40,
   "mapped": 40,
@@ -17,8 +17,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_compliance_admission_and_stage_a_state",
       "evidence": "admission-baseline.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC02",
@@ -26,8 +25,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_compliance_admission_and_stage_a_state",
       "evidence": "admission-baseline.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC03",
@@ -35,8 +33,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial",
       "evidence": "database.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC04",
@@ -44,8 +41,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/security/test_compliance_security.py::test_every_compliance_table_has_forced_rls_and_no_delete_ddl",
       "evidence": "tenant-isolation.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC05",
@@ -53,8 +49,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/security/test_compliance_security.py::test_missing_tenant_and_foreign_rows_fail_closed",
       "evidence": "tenant-isolation.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC06",
@@ -62,8 +57,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/security/test_compliance_security.py::test_ordinary_member_cannot_administer_compliance",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC07",
@@ -71,8 +65,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_policy_revision_invalidates_existing_plan",
       "evidence": "policy.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC08",
@@ -80,8 +73,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_policy_content_is_database_immutable",
       "evidence": "policy.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC09",
@@ -89,8 +81,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c01_concurrent_policy_activation",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC10",
@@ -98,8 +89,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/unit/test_compliance_contracts.py::test_retention_bounds",
       "evidence": "retention.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC11",
@@ -107,8 +97,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC12",
@@ -116,8 +105,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_no_external_or_model_execution_authority",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC13",
@@ -125,8 +113,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release",
       "evidence": "legal-hold.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC14",
@@ -134,8 +121,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c05_hold_vs_final_destructive_effect",
       "evidence": "legal-hold.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC15",
@@ -143,8 +129,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_terminal_request_cannot_plan_or_verify",
       "evidence": "subject-requests.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC16",
@@ -152,8 +137,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_unverified_and_missing_policy_fail_closed",
       "evidence": "subject-requests.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC17",
@@ -161,8 +145,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/resilience/test_compliance_failures.py::test_unregistered_external_adapter_never_dispatches",
       "evidence": "execution.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC18",
@@ -170,8 +153,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c18_new_unsupported_coverage_cannot_disappear",
       "evidence": "subject-requests.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC19",
@@ -179,8 +161,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/unit/test_compliance_contracts.py::test_fingerprint_semantics_and_budget",
       "evidence": "execution.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC20",
@@ -188,8 +169,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c03_policy_revision_vs_approval",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC21",
@@ -197,8 +177,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c15_target_drift_after_approval",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC22",
@@ -206,8 +185,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_retention_due_requires_approval_and_replays_stable_plan",
       "evidence": "execution.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC23",
@@ -215,8 +193,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c14_duplicate_execution_retry",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC24",
@@ -224,8 +201,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c11_two_claimants",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC25",
@@ -233,8 +209,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c13_stale_worker_cannot_finalize_takeover",
       "evidence": "concurrency.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC26",
@@ -242,8 +217,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/resilience/test_compliance_failures.py::test_unregistered_external_adapter_never_dispatches",
       "evidence": "execution.json",
-      "notes": "No external action adapters enabled; local response-loss replay is idempotent. No provider ambiguity certification claimed.",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": "No external action adapters enabled; local response-loss replay is idempotent. No provider ambiguity certification claimed."
     },
     {
       "criterion": "AC27",
@@ -251,8 +225,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_no_external_or_model_execution_authority",
       "evidence": "execution.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC28",
@@ -260,8 +233,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/concurrency/test_compliance_races.py::test_c20_outbox_failure_rolls_back_effect",
       "evidence": "execution.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC29",
@@ -269,8 +241,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_no_external_or_model_execution_authority",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC30",
@@ -278,8 +249,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial",
       "evidence": "subject-requests.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC31",
@@ -287,8 +257,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_no_external_or_model_execution_authority",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC32",
@@ -296,8 +265,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/contracts/test_compliance_scope.py::test_resource_inventory_does_not_claim_universal_coverage",
       "evidence": "security.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC33",
@@ -305,8 +273,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/security/test_compliance_security.py::test_all_p21_tables_reject_foreign_reads_inserts_updates",
       "evidence": "tenant-isolation.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC34",
@@ -314,8 +281,7 @@
       "result": "PASS",
       "test_or_inspection": "tests/integration/test_compliance_migration.py::test_compliance_upgrade_downgrade_reupgrade",
       "evidence": "migration.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC35",
@@ -323,8 +289,7 @@
       "result": "PASS",
       "test_or_inspection": "scripts/clean-room.sh",
       "evidence": "containers.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC36",
@@ -332,13 +297,12 @@
       "result": "PASS",
       "test_or_inspection": "make clean-room / full pytest; make test-all",
       "evidence": "local-certification.json",
-      "notes": "Canonical combined branch-aware coverage >=90%; branch-only percentage separately disclosed.",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": "Canonical combined branch-aware coverage >=90%; branch-only percentage separately disclosed."
     },
     {
       "criterion": "AC37",
       "description": "Exact-head NXS CI",
-      "result": "PENDING_EXACT_HEAD",
+      "result": "PASS",
       "test_or_inspection": "GitHub NXS CI exact candidate SHA",
       "evidence": "github-exact-head.json",
       "notes": ""
@@ -346,7 +310,7 @@
     {
       "criterion": "AC38",
       "description": "Exact-head NXS Security",
-      "result": "PENDING_EXACT_HEAD",
+      "result": "PASS",
       "test_or_inspection": "GitHub NXS Security exact candidate SHA",
       "evidence": "github-exact-head.json",
       "notes": ""
@@ -357,8 +321,7 @@
       "result": "PASS",
       "test_or_inspection": "README.md; docs/engineering/branch-contract.md",
       "evidence": "admission-baseline.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     },
     {
       "criterion": "AC40",
@@ -366,8 +329,7 @@
       "result": "PASS",
       "test_or_inspection": "docs/adr/0102-compliance-control-authority.md; docs/engineering/nxs-p21-compliance-design.md",
       "evidence": "admission-baseline.json",
-      "notes": "",
-      "corrective_revalidation": "corrective-01.json"
+      "notes": ""
     }
   ],
   "formatting_recertification": {
@@ -376,6 +338,6 @@
     "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
     "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
   },
-  "historical_source": "acceptance-map-d10c5e2.json",
-  "corrective_evidence": "corrective-01.json"
+  "exact_candidate_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
+  "post_candidate_receipt": true
 }

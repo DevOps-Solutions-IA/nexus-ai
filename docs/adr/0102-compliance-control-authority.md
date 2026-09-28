@@ -4,12 +4,16 @@ Status: accepted for P21 admission; implementation and certification pending.
 
 ## Context
 
-P21 is registered with dependency P03 but lacked a mandatory requirement and manifest.
+P21 originally registered only dependency P03 and lacked a mandatory requirement and manifest.
 The Master Orchestrator authorizes NXS-COMP-001 and the admission package before the
 canonical start. P20 is already canonical READY/GO after PR #46; Sentinel remains
 platform SRE authority, not a tenant compliance authority.
 
 ## Decision
+
+P21 directly requires P03 and P06. NXS-COMP-001 additionally binds validated
+NXS-CUSTOMER-001 and NXS-EVENT-003, making the consumed customer and transactional
+outbox authorities explicit alongside its authentication and tenancy dependencies.
 
 Organization is the only tenant boundary. P21 uses authenticated P03 identity,
 explicit organization RBAC, nexus_runtime and forced PostgreSQL RLS. Migrations use

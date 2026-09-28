@@ -49,6 +49,20 @@ class Classification(StrEnum):
     OPERATIONAL = "OPERATIONAL"
 
 
+class AdapterStatus(StrEnum):
+    SUPPORTED = "SUPPORTED"
+    DEFERRED = "DEFERRED"
+    NOT_APPLICABLE = "NOT_APPLICABLE"
+
+
+def adapter_status(resource: ResourceClass) -> AdapterStatus:
+    if resource == ResourceClass.CUSTOMER_PROFILE:
+        return AdapterStatus.SUPPORTED
+    if resource == ResourceClass.CREDENTIALS:
+        return AdapterStatus.NOT_APPLICABLE
+    return AdapterStatus.DEFERRED
+
+
 def resource_inventory() -> tuple[dict[str, str], ...]:
     return tuple(
         {
@@ -62,9 +76,7 @@ def resource_inventory() -> tuple[dict[str, str], ...]:
                 if resource == ResourceClass.WORKFLOWS
                 else Classification.PERSONAL.value
             ),
-            "adapter_status": (
-                "SUPPORTED" if resource == ResourceClass.CUSTOMER_PROFILE else "DEFERRED"
-            ),
+            "adapter_status": adapter_status(resource).value,
         }
         for resource in ResourceClass
     )
@@ -183,7 +195,9 @@ REQUEST_ACTION = {
     RequestKind.RESTRICTION: Action.RESTRICT,
 }
 INCOMPLETE_RESOURCES = tuple(
-    resource.value for resource in ResourceClass if resource != ResourceClass.CUSTOMER_PROFILE
+    resource.value
+    for resource in ResourceClass
+    if adapter_status(resource) == AdapterStatus.DEFERRED
 )
 
 

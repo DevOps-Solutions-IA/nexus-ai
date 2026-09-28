@@ -4,7 +4,8 @@
   "closure_commit": null,
   "decision": "PENDING",
   "dependencies": [
-    "NXS-P03"
+    "NXS-P03",
+    "NXS-P06"
   ],
   "evidence": [],
   "id": "NXS-P21",

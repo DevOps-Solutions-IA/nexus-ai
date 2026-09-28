@@ -1,17 +1,12 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P21",
-  "result": "LOCAL_PASS_EXTERNAL_PENDING",
-  "current_certification": "corrective-01.json",
-  "historical_exact_head": "github-exact-head-d10c5e2.json",
+  "result": "PASS",
+  "note": "Post-candidate inventory includes exact-head receipt and finalized acceptance map; these three receipt files remain uncommitted to preserve the certified candidate SHA. Facts published in PR #48 comment. No closure authorization.",
   "files": [
     {
-      "path": ".nxs/evidence/NXS-P21/acceptance-map-d10c5e2.json",
-      "sha256": "ddb02d664c46cdd10982324421093073e4648e81082a71b690b9e825665e96ad"
-    },
-    {
       "path": ".nxs/evidence/NXS-P21/acceptance-map.json",
-      "sha256": "bb23900a9497417c7f63c90d7a3cc2aa08cba51ca5fd360a4320b90b9fe71274"
+      "sha256": "ddb02d664c46cdd10982324421093073e4648e81082a71b690b9e825665e96ad"
     },
     {
       "path": ".nxs/evidence/NXS-P21/admission-baseline.json",
@@ -26,44 +21,28 @@
       "sha256": "f23a1683f8ef0fc0b92cb350c853f3d4a90fa4fd08e15a3be40f2162e9e579f0"
     },
     {
-      "path": ".nxs/evidence/NXS-P21/corrective-01.json",
-      "sha256": "973ae237a2c5b679e3f55a5a40d06d6d6b1c32636265621030ab6d0cfc41b85b"
-    },
-    {
       "path": ".nxs/evidence/NXS-P21/database.json",
       "sha256": "b1148a10c0dc95717f4ecdf6f4598e6b2024d6de15ebfc27dc03d55b0491032f"
     },
     {
       "path": ".nxs/evidence/NXS-P21/development-history.json",
-      "sha256": "df8a1da4deb4b5424b117d7f86b8ac604f754e02a51a643c45e50887fed20f6f"
-    },
-    {
-      "path": ".nxs/evidence/NXS-P21/evidence-index-d10c5e2.json",
-      "sha256": "40702052a3ef7ab720d3ba1c870fbe773d38cac5954c39008c32a38dc6420542"
+      "sha256": "3678e420105374dd0973b6943aed220ee19ca9d03723938e02fc69ed157910f5"
     },
     {
       "path": ".nxs/evidence/NXS-P21/execution.json",
       "sha256": "4541cac2401237ff33a232698e1189ca46a574a267978a20f9a049cfc5900296"
     },
     {
-      "path": ".nxs/evidence/NXS-P21/github-exact-head-d10c5e2.json",
-      "sha256": "7416e575c71b3092e4c40843a69af53b9b94f05bb45730a1c7a14fee39fb2fda"
-    },
-    {
       "path": ".nxs/evidence/NXS-P21/github-exact-head.json",
-      "sha256": "0956e709d93e36ba058bc9fcd83ce52720a232362ddde2b6d6dd8aa4eaf88fda"
+      "sha256": "7416e575c71b3092e4c40843a69af53b9b94f05bb45730a1c7a14fee39fb2fda"
     },
     {
       "path": ".nxs/evidence/NXS-P21/legal-hold.json",
       "sha256": "1ef5bf15c7969f6c0223542514e7706f688007acd3b54c967b0150d5c138873b"
     },
     {
-      "path": ".nxs/evidence/NXS-P21/local-certification-before-corrective-01.json",
-      "sha256": "2e9b60a675e31daa948a07600b703aada3b0f3fc0e5ff70fe2d9ec0731d1f9d0"
-    },
-    {
       "path": ".nxs/evidence/NXS-P21/local-certification.json",
-      "sha256": "f53a980d60693736b7373bb2d8a3fb1c2267955082e4156a5410b9e7b1cd946b"
+      "sha256": "2e9b60a675e31daa948a07600b703aada3b0f3fc0e5ff70fe2d9ec0731d1f9d0"
     },
     {
       "path": ".nxs/evidence/NXS-P21/migration.json",
@@ -82,20 +61,12 @@
       "sha256": "22ecfb7012e2a7a19e130df65429a046ca4fa26f3ce2165e5775078364cab72a"
     },
     {
-      "path": ".nxs/evidence/NXS-P21/source-integrity-before-corrective-01.json",
+      "path": ".nxs/evidence/NXS-P21/source-integrity.json",
       "sha256": "31730a2627a1705f0141dfd996bb0a344318f18898b94711e74f891831aa826c"
     },
     {
-      "path": ".nxs/evidence/NXS-P21/source-integrity.json",
-      "sha256": "c4ad03da2e36b0b98dc433a3e01b167cf1e39bd7951f965fc48b79f4bf206c1d"
-    },
-    {
-      "path": ".nxs/evidence/NXS-P21/subject-requests-before-corrective-01.json",
-      "sha256": "aa9815f927fe3fdbc139973d0c8cffc1f7fd92ae3d45009d101c3863037c5aa2"
-    },
-    {
       "path": ".nxs/evidence/NXS-P21/subject-requests.json",
-      "sha256": "b699f346fc0f63cc0a304bfff9fc57d69c60d0b6916155caba56399967e14cff"
+      "sha256": "aa9815f927fe3fdbc139973d0c8cffc1f7fd92ae3d45009d101c3863037c5aa2"
     },
     {
       "path": ".nxs/evidence/NXS-P21/targeted-tests.json",

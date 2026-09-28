@@ -33,7 +33,7 @@ async def test_request_executes_profile_only_and_reports_partial(compliance_env,
     request_row = await env.service.get_request(env.principal, identity)
     assert request_row["state"] == "PARTIAL"
     assert "CUSTOMER_IDENTITIES" in request_row["incomplete_resources"]
-    assert "CREDENTIALS" in request_row["incomplete_resources"]
+    assert "CREDENTIALS" not in request_row["incomplete_resources"]
     assert len(await env.service.list_requests(env.principal, limit=1)) == 1
     assert await env.service.list_requests(env.principal, after=identity) == []
 

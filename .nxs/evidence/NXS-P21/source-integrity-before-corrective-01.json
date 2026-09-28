@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PASS",
+  "recorded_at": "2026-09-27T23:15:24.110668+00:00",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_state": "Uncommitted implementation snapshot over source_sha; not a claim that source_sha contains the implementation",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "file_count": 676,
+  "algorithm": "SHA256 of Python json.dumps(manifest,sort_keys=True,separators=(comma,colon)); manifest sorted by repository path, entries path/sha256(file bytes)/mode oct(stat & 0777). Includes git cached and legitimate untracked files in src, tests, migrations, scripts, infrastructure, .github plus pyproject.toml, uv.lock, Dockerfile, compose.yaml, Makefile, .python-version. Excludes evidence/docs/lifecycle.",
+  "clean_room_workspace": "/tmp/nxs-p21-cleanroom.OQkqef/nexus-ai",
+  "clean_room_source_match": true,
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}
