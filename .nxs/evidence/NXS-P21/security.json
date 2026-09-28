@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "commands": [
+    "make security",
+    "uv run bandit -q -c pyproject.toml -r <P21 source paths> -f json",
+    "gitleaks dir <complete tracked+legitimate-untracked snapshot> --redact --exit-code 1",
+    "gitleaks git --redact --exit-code 1"
+  ],
+  "sast_high": "PASS",
+  "p21_sast_all_severities_findings": 0,
+  "dependency_audit": "No known vulnerabilities; unpublished first-party nexus-ai package not on PyPI; all dependency packages audited",
+  "secrets": "No leaks",
+  "medium_review": "Existing B104 core/config.py deployment-controlled 0.0.0.0 listener. No new P21 listener; no suppression or deployment authorization.",
+  "tenant_rbac_tests": "targeted-tests.json",
+  "container_review": "containers.json",
+  "artifacts": [
+    {
+      "path": "/tmp/p21-security-final.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p21-bandit-domain.json",
+      "sha256": "d6b577c99e5f9fe6d033623405cc1447ed7e9e1b03e70750c51eae89fce5bce8"
+    },
+    {
+      "path": "/tmp/p21-secrets-final.log",
+      "sha256": "9eface0b550d59011afd6e86f0a10b273ddfd7cdc6bd34a7b2fbada884a86a84"
+    }
+  ],
+  "no_model_authority": true,
+  "no_p22_ledger": true,
+  "no_p16_send_authority": true,
+  "no_credential_export": true,
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}

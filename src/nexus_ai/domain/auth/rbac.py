@@ -96,6 +96,12 @@ class PermissionKey(StrEnum):
     HUMAN_WORK = "human:work"
     HUMAN_CONFIGURE = "human:configure"
     HUMAN_SUPERVISE = "human:supervise"
+    COMPLIANCE_READ = "compliance:read"
+    COMPLIANCE_MANAGE_POLICY = "compliance:manage_policy"
+    COMPLIANCE_MANAGE_HOLD = "compliance:manage_hold"
+    COMPLIANCE_MANAGE_REQUEST = "compliance:manage_request"
+    COMPLIANCE_APPROVE = "compliance:approve"
+    COMPLIANCE_EXECUTE = "compliance:execute"
 
 
 class RoleKey(StrEnum):
@@ -199,6 +205,12 @@ PERMISSION_IDS: Final[dict[PermissionKey, UUID]] = {
     PermissionKey.HUMAN_WORK: UUID("b2000000-0000-7000-8000-00000000003a"),
     PermissionKey.HUMAN_CONFIGURE: UUID("b2000000-0000-7000-8000-00000000003b"),
     PermissionKey.HUMAN_SUPERVISE: UUID("b2000000-0000-7000-8000-00000000003c"),
+    PermissionKey.COMPLIANCE_READ: UUID("b2000000-0000-7000-8000-00000000003d"),
+    PermissionKey.COMPLIANCE_MANAGE_POLICY: UUID("b2000000-0000-7000-8000-00000000003e"),
+    PermissionKey.COMPLIANCE_MANAGE_HOLD: UUID("b2000000-0000-7000-8000-00000000003f"),
+    PermissionKey.COMPLIANCE_MANAGE_REQUEST: UUID("b2000000-0000-7000-8000-000000000040"),
+    PermissionKey.COMPLIANCE_APPROVE: UUID("b2000000-0000-7000-8000-000000000041"),
+    PermissionKey.COMPLIANCE_EXECUTE: UUID("b2000000-0000-7000-8000-000000000042"),
 }
 
 _CATALOG_SQL = """

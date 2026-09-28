@@ -46,6 +46,15 @@ from nexus_ai.domain.cells.models import (
     OrganizationPlacementRecord,
     PlacementMutationRecord,
 )
+from nexus_ai.domain.compliance.models import (
+    ComplianceApproval,
+    ComplianceControl,
+    ComplianceExecution,
+    ComplianceHold,
+    CompliancePlan,
+    CompliancePolicy,
+    ComplianceRequest,
+)
 from nexus_ai.domain.customers.models import (
     ConversationActivityRecord,
     ConversationParticipantRecord,
@@ -183,6 +192,13 @@ __all__ = [
     "CellRecord",
     "CellSipTargetHeadRecord",
     "CellSipTargetRecord",
+    "ComplianceApproval",
+    "ComplianceControl",
+    "ComplianceExecution",
+    "ComplianceHold",
+    "CompliancePlan",
+    "CompliancePolicy",
+    "ComplianceRequest",
     "ConsumerReceiptRecord",
     "ConversationActivityRecord",
     "ConversationOwnershipRecord",

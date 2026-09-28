@@ -1,0 +1,555 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "command": "uv run pytest tests/{unit,contracts,integration,concurrency,security,resilience}/test_compliance*.py --no-cov -q --junitxml=/tmp/p21-targeted-final.xml (explicit paths)",
+  "passed": 104,
+  "failed": 0,
+  "skipped": 0,
+  "runtime_seconds": 51.6,
+  "artifacts": [
+    {
+      "path": "/tmp/p21-targeted-final.xml",
+      "sha256": "0cbdfdf61baff9dca2602fd805240aa568c3e3ac42606292370728f6d78a0b9d"
+    },
+    {
+      "path": "/tmp/p21-targeted-final.log",
+      "sha256": "b4f72a10a3f7dfd3e8773a5c4114b6a1da0d3e3a23c87f8c035692cabe43612f"
+    }
+  ],
+  "tests": [
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[customers]",
+      "result": "PASS",
+      "seconds": 0.001
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[DROP TABLE customers]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[$(id)]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[https://evil.test]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[IGNORE ALL INSTRUCTIONS]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_untrusted_resource_cannot_select_executable_handler[CREDENTIALS]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_retention_bounds[0]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_retention_bounds[-1]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_retention_bounds[36501]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_retention_bounds[inf]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_policy_rules_bounded_unique_and_strict",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[organization_id]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[approver_id]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[policy_revision]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[handler]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[url]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[sql]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_subject_request_forbids_authority_fields[credential]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_fingerprint_semantics_and_budget",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_retention_uses_aware_effective_time",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[RECEIVED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[VERIFIED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[PLANNED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[APPROVED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[EXECUTING]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[COMPLETED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[PARTIAL]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[DENIED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[CANCELLED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_no_request_self_transition[EXPIRED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_terminal_states_cannot_reopen[COMPLETED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_terminal_states_cannot_reopen[PARTIAL]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_terminal_states_cannot_reopen[DENIED]",
+      "result": "PASS",
+      "seconds": 0.001
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_terminal_states_cannot_reopen[CANCELLED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_terminal_states_cannot_reopen[EXPIRED]",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/unit/test_compliance_contracts.py::test_limits_and_safe_metadata",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/contracts/test_compliance_scope.py::test_compliance_admission_and_stage_a_state",
+      "result": "PASS",
+      "seconds": 0.001
+    },
+    {
+      "nodeid": "tests/contracts/test_compliance_scope.py::test_resource_inventory_does_not_claim_universal_coverage",
+      "result": "PASS",
+      "seconds": 0
+    },
+    {
+      "nodeid": "tests/contracts/test_compliance_scope.py::test_no_external_or_model_execution_authority",
+      "result": "PASS",
+      "seconds": 0.007
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial[ACCESS]",
+      "result": "PASS",
+      "seconds": 1.126
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial[ERASURE]",
+      "result": "PASS",
+      "seconds": 0.552
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_request_executes_profile_only_and_reports_partial[RESTRICTION]",
+      "result": "PASS",
+      "seconds": 0.564
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release",
+      "result": "PASS",
+      "seconds": 0.534
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_duplicate_request_and_payload_conflict",
+      "result": "PASS",
+      "seconds": 0.388
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_policy_revision_invalidates_existing_plan",
+      "result": "PASS",
+      "seconds": 0.486
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_policy_content_is_database_immutable",
+      "result": "PASS",
+      "seconds": 0.383
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_terminal_request_cannot_plan_or_verify[DENIED]",
+      "result": "PASS",
+      "seconds": 0.403
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_terminal_request_cannot_plan_or_verify[CANCELLED]",
+      "result": "PASS",
+      "seconds": 0.396
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_terminal_request_cannot_plan_or_verify[EXPIRED]",
+      "result": "PASS",
+      "seconds": 0.405
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_retention_evaluation_never_mutates_new_target",
+      "result": "PASS",
+      "seconds": 0.387
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_retention_due_requires_approval_and_replays_stable_plan",
+      "result": "PASS",
+      "seconds": 0.43
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_controls.py::test_unverified_and_missing_policy_fail_closed",
+      "result": "PASS",
+      "seconds": 0.406
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_api.py::test_authenticated_api_complete_profile_workflow",
+      "result": "PASS",
+      "seconds": 0.773
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_migration.py::test_compliance_upgrade_downgrade_reupgrade[False]",
+      "result": "PASS",
+      "seconds": 7.803
+    },
+    {
+      "nodeid": "tests/integration/test_compliance_migration.py::test_compliance_upgrade_downgrade_reupgrade[True]",
+      "result": "PASS",
+      "seconds": 8.309
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c01_concurrent_policy_activation",
+      "result": "PASS",
+      "seconds": 0.413
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c02_retirement_vs_planning",
+      "result": "PASS",
+      "seconds": 0.424
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c03_policy_revision_vs_approval",
+      "result": "PASS",
+      "seconds": 0.478
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c04_hold_vs_erasure_planning",
+      "result": "PASS",
+      "seconds": 0.43
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c05_hold_vs_final_destructive_effect",
+      "result": "PASS",
+      "seconds": 0.5
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c06_release_does_not_revive_stale_authorization",
+      "result": "PASS",
+      "seconds": 0.519
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c07_duplicate_subject_request",
+      "result": "PASS",
+      "seconds": 0.424
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c08_approve_vs_deny",
+      "result": "PASS",
+      "seconds": 0.485
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c09_cancel_vs_approve",
+      "result": "PASS",
+      "seconds": 0.459
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c10_cancel_vs_claim",
+      "result": "PASS",
+      "seconds": 0.477
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c11_two_claimants",
+      "result": "PASS",
+      "seconds": 0.471
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c12_expired_lease_takeover",
+      "result": "PASS",
+      "seconds": 1.529
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c13_stale_worker_cannot_finalize_takeover",
+      "result": "PASS",
+      "seconds": 1.552
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c14_duplicate_execution_retry",
+      "result": "PASS",
+      "seconds": 0.738
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c15_target_drift_after_approval",
+      "result": "PASS",
+      "seconds": 0.493
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c16_same_subject_two_organizations",
+      "result": "PASS",
+      "seconds": 0.355
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c17_cross_tenant_forged_resource",
+      "result": "PASS",
+      "seconds": 0.432
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c18_new_unsupported_coverage_cannot_disappear",
+      "result": "PASS",
+      "seconds": 0.512
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c19_retention_evaluation_vs_hold",
+      "result": "PASS",
+      "seconds": 0.444
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_c20_outbox_failure_rolls_back_effect",
+      "result": "PASS",
+      "seconds": 0.495
+    },
+    {
+      "nodeid": "tests/concurrency/test_compliance_races.py::test_lease_expiry_during_target_lock_wait_blocks_effect",
+      "result": "PASS",
+      "seconds": 1.492
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[organization_id]",
+      "result": "PASS",
+      "seconds": 0.45
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[approver_id]",
+      "result": "PASS",
+      "seconds": 0.454
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[policy_revision]",
+      "result": "PASS",
+      "seconds": 0.455
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[handler]",
+      "result": "PASS",
+      "seconds": 0.424
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[url]",
+      "result": "PASS",
+      "seconds": 0.414
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[sql]",
+      "result": "PASS",
+      "seconds": 0.429
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_rejects_forged_authority_fields[credential]",
+      "result": "PASS",
+      "seconds": 0.442
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_ordinary_member_cannot_administer_compliance",
+      "result": "PASS",
+      "seconds": 0.74
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_live_authorization_revocation_blocks_existing_token[membership]",
+      "result": "PASS",
+      "seconds": 0.793
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_live_authorization_revocation_blocks_existing_token[session]",
+      "result": "PASS",
+      "seconds": 0.448
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_live_authorization_revocation_blocks_existing_token[assignment]",
+      "result": "PASS",
+      "seconds": 0.448
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_direct_service_forged_principal_has_no_authority",
+      "result": "PASS",
+      "seconds": 0.344
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_missing_tenant_and_foreign_rows_fail_closed",
+      "result": "PASS",
+      "seconds": 0.365
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_every_compliance_table_has_forced_rls_and_no_delete_ddl",
+      "result": "PASS",
+      "seconds": 0.346
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_approval_and_plan_rows_cannot_be_rewritten",
+      "result": "PASS",
+      "seconds": 0.424
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_api_auth_pagination_and_unknown_ids",
+      "result": "PASS",
+      "seconds": 0.486
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_foreign_subject_does_not_become_authority",
+      "result": "PASS",
+      "seconds": 0.472
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_all_p21_tables_reject_foreign_reads_inserts_updates",
+      "result": "PASS",
+      "seconds": 0.585
+    },
+    {
+      "nodeid": "tests/security/test_compliance_security.py::test_compliance_recheck_uses_single_connection_pool",
+      "result": "PASS",
+      "seconds": 0.392
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_expired_approval_cannot_claim",
+      "result": "PASS",
+      "seconds": 1.467
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_crash_before_claim_has_no_effect_and_requires_owner",
+      "result": "PASS",
+      "seconds": 0.462
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_unregistered_external_adapter_never_dispatches",
+      "result": "PASS",
+      "seconds": 0.356
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_adapter_proven_pre_effect_failure_rolls_back",
+      "result": "PASS",
+      "seconds": 0.477
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_missing_rows_and_repeated_terminal_operations",
+      "result": "PASS",
+      "seconds": 0.45
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_expired_principal_and_duplicate_approval",
+      "result": "PASS",
+      "seconds": 0.444
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_current_hold_without_epoch_shortcut_blocks",
+      "result": "PASS",
+      "seconds": 0.465
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_expiry_is_rechecked_after_claim",
+      "result": "PASS",
+      "seconds": 1.502
+    },
+    {
+      "nodeid": "tests/resilience/test_compliance_failures.py::test_database_unavailable_cannot_cross_effect_boundary",
+      "result": "PASS",
+      "seconds": 0.499
+    }
+  ],
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  },
+  "targeted_run_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+  "final_source_revalidation": "All same tests executed in candidate clean-room full suite"
+}

@@ -25,6 +25,50 @@ REPO_ROOT = Path(__file__).parents[1]
 
 
 @pytest.fixture
+async def compliance_env(auth_client, make_auth_org, make_auth_user, login_helper):
+    import uuid
+    from types import SimpleNamespace
+
+    from nexus_ai.compliance.service import ComplianceService
+    from nexus_ai.domain.auth.entities import Principal
+    from nexus_ai.domain.customers.repository import CustomerRepository
+
+    organization = await make_auth_org()
+    email, password, _user = await make_auth_user(organization=organization)
+    tokens = await login_helper(email, password)
+    resources = auth_client.nexus_app.state.lifespan.resources
+    claims = resources.token_service.verify_access_token(tokens["access_token"])
+    principal = Principal(
+        user_id=claims.subject,
+        session_id=claims.session_id,
+        organization_id=claims.organization_id,
+        token_id=claims.jti,
+        issued_at=claims.issued_at,
+        expires_at=claims.expires_at,
+    )
+    async with resources.database.tenant_transaction(organization.id) as tenant:
+        customer = await CustomerRepository(tenant).insert(
+            customer_id=uuid.uuid7(),
+            display_name="Compliance subject",
+            preferred_locale="en",
+        )
+    return SimpleNamespace(
+        organization=organization,
+        principal=principal,
+        customer=customer,
+        resources=resources,
+        database=resources.database,
+        client=auth_client,
+        headers={"Authorization": f"Bearer {tokens['access_token']}"},
+        service=ComplianceService(
+            resources.database,
+            resources.event_platform.publisher,
+            service_name=resources.settings.service_name,
+        ),
+    )
+
+
+@pytest.fixture
 def anyio_backend() -> str:
     return "asyncio"
 

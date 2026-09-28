@@ -39,6 +39,7 @@ from nexus_ai.domain.auth.repository import (
 )
 from nexus_ai.domain.organizations.status import OrganizationStatus, is_operational
 from nexus_ai.infrastructure.database import Database
+from nexus_ai.infrastructure.tenant_session import TenantSession
 
 
 class PrincipalStateGate(Protocol):
@@ -59,27 +60,31 @@ class PrincipalStateValidator:
     async def require_valid(
         self, *, user_id: UUID, session_id: UUID, organization_id: UUID
     ) -> User:
-        now = self._now()
         async with self._db.tenant_transaction(organization_id) as tenant:
-            session = await RefreshSessionRepository(tenant).by_id(session_id)
-            if session is None or session.revoked_at is not None or session.expires_at <= now:
-                # RLS already hides foreign-org sessions; a missing row here means the
-                # session does not exist in THIS Organization's scope — fail closed.
-                raise SessionRevokedError("The session is no longer active.")
-            user = await UserRepository(tenant.session).by_id(user_id)
-            if user is None or user.status is not UserStatus.ACTIVE:
-                raise UserInactiveError("The user is not active.")
-            membership = await MembershipRepository(tenant).for_user_in_organization(
-                user_id, organization_id
+            return await self.require_valid_in(tenant, user_id=user_id, session_id=session_id)
+
+    async def require_valid_in(
+        self, tenant: TenantSession, *, user_id: UUID, session_id: UUID
+    ) -> User:
+        """Revalidate within an existing tenant transaction without a second pool lease."""
+        now = self._now()
+        session = await RefreshSessionRepository(tenant).by_id(session_id)
+        if session is None or session.revoked_at is not None or session.expires_at <= now:
+            raise SessionRevokedError("The session is no longer active.")
+        user = await UserRepository(tenant.session).by_id(user_id)
+        if user is None or user.status is not UserStatus.ACTIVE:
+            raise UserInactiveError("The user is not active.")
+        membership = await MembershipRepository(tenant).for_user_in_organization(
+            user_id, tenant.organization_id
+        )
+        if membership is None or not membership.is_active:
+            raise MembershipInactiveError(
+                "The user's membership in this Organization is not active."
             )
-            if membership is None or not membership.is_active:
-                raise MembershipInactiveError(
-                    "The user's membership in this Organization is not active."
-                )
-            organization_status = await OrganizationScopeProbe(tenant).current_status()
-            if not is_operational(OrganizationStatus(organization_status)):
-                raise OrganizationInactiveError(
-                    "The Organization is not accepting normal operations.",
-                    extensions={"organization_status": organization_status},
-                )
-            return user
+        organization_status = await OrganizationScopeProbe(tenant).current_status()
+        if not is_operational(OrganizationStatus(organization_status)):
+            raise OrganizationInactiveError(
+                "The Organization is not accepting normal operations.",
+                extensions={"organization_status": organization_status},
+            )
+        return user

@@ -1,0 +1,7 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "result": "PENDING",
+  "candidate_sha": null,
+  "note": "Exact-head receipt is populated only after actual candidate publication and completed workflow verification. This committed placeholder does not claim CI success."
+}

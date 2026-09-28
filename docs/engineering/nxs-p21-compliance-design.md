@@ -1,6 +1,8 @@
 # NXS-P21 — Compliance Controls
 
-Admission design, PLANNED/PENDING. Nothing in this document is certification evidence.
+Accepted admission design; P21 is now BUILDING/PENDING on its feature branch after
+the single canonical start at 2026-09-27T22:26:51Z. Nothing in this document alone is
+certification evidence. P21 is not validated, merged or deployed.
 Requirement: NXS-COMP-001. Branch: feat/nxs-p21-compliance. Registry dependency: P03.
 Canonical baseline: 6d0dc0042c10016c0307aeda333b5fd89a7c3a54, P20 PR #46 merged;
 post-merge CI 36343873102 and Security 36343873074 succeeded. P21 had not started at
@@ -122,10 +124,15 @@ epochs belong to that row. Commit determines ordering for all following races.
    supported P06 local mutation and execution/result/outbox commit atomically.
 
 No database transaction spans provider/network I/O. No external action adapter is
-enabled in P21. A possible-effect result can only be AMBIGUOUS/PARTIAL, never a new
-automatic operation identity. Pre-effect failures are explicit FAILED/fenced outcomes;
-database or outbox failure rolls back the local effect. Successful replay returns the
-same durable result; stale workers cannot finish or dispatch a newer generation.
+enabled in P21; external dispatch and provider ambiguity handling are not implemented
+or certified. Unsupported external operations fail closed before any dispatch. The
+execution schema reserves AMBIGUOUS, but no external adapter can enter that state in
+this release. A lost response after a local commit is recovered by replaying the same
+durable receipt, never by creating a new operation identity. Pre-effect failures roll
+back and leave the existing claim fenced; database or outbox failure also rolls back
+the local effect. Successful replay returns the same durable result. Lease expiry is
+checked again after acquiring the target lock, before mutation; stale workers cannot
+finish a newer generation.
 
 ## API, events and operational bounds
 
@@ -169,8 +176,10 @@ AC39 accurate docs; AC40 no regulatory/production claim.
 Security/resilience tests cover malformed/oversized input, unknown or SQL/shell/URL-shaped
 selectors, forged org/approver, inactive membership, stale token, hold bypass, repository
 bypass, wrong fingerprint/revision, expired approval, missing verification, target drift,
-unsupported adapter, bounded export, crash before/after claim/dispatch, database outage,
-outbox failure and possible external ambiguity. No skips or weakened thresholds.
+unsupported adapter, bounded export, crash before/after claim and local commit,
+database unavailability and outbox failure. External ambiguity is excluded by the
+absence of an external dispatch adapter, not simulated as a certified provider flow.
+No skips or weakened thresholds.
 
 Evidence belongs under `.nxs/evidence/NXS-P21/`, with actual commands/results/source
 binding, AC01–AC40 and C01–C20 mappings. Admission is not proof of implementation.

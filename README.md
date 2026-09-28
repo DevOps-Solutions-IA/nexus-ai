@@ -45,8 +45,9 @@ scheduler, campaign and messaging boundaries. P19 is now canonical READY/GO on
 UDP/TCP/TLS and pre-ARI admission recovery, before the authorized merge. P20 Sentinel
 is canonical READY / GO on main after PR #46. Post-merge NXS CI (36343873102) and
 NXS Security (36343873074) passed against that exact merge SHA. P21 had not started
-at the P20 merge. P21 admission is being prepared on `feat/nxs-p21-compliance`;
-P21 is not implemented, validated or merged. Production deployment has not occurred.
+at the P20 merge. P21 is BUILDING/PENDING on `feat/nxs-p21-compliance` after its
+authorized admission and canonical start. Its implementation is under development,
+not validated or merged. Production deployment has not occurred.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
@@ -321,7 +322,7 @@ Frontend development follows backend certification.
 
 ## Project maturity
 
-Nexus AI is under active development and is not production-deployed. Canonical `main` is completed through NXS-P20 READY/GO at `6d0dc0042c10016c0307aeda333b5fd89a7c3a54` after PR #46 and successful exact-main NXS CI/Security. P21 admission is branch-local and P21 was not started at the P20 merge; it is not implemented, validated or merged. Historical implementation, closure and corrective evidence remains preserved. P18/P19/P20 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. Cell architecture does not establish production readiness.
+Nexus AI is under active development and is not production-deployed. Canonical `main` is completed through NXS-P20 READY/GO at `6d0dc0042c10016c0307aeda333b5fd89a7c3a54` after PR #46 and successful exact-main NXS CI/Security. P21 is BUILDING/PENDING only on `feat/nxs-p21-compliance`, not validated or merged; it had not started at the P20 merge. Historical implementation, closure and corrective evidence remains preserved. P18/P19/P20 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. P21 does not claim legal or regulatory certification. Cell architecture does not establish production readiness.
 
 Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
 

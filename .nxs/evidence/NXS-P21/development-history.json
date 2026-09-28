@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Development history; failures are not relabeled as successful executions",
+  "entries": [
+    {
+      "check": "Initial migration upgrade",
+      "result": "FAIL",
+      "cause": "Generated default names collided for multiple organization-scoped unique constraints: DuplicateTableError uq_compliance_policies_organization_id.",
+      "correction": "Explicit distinct names on new P21 constraints; regenerated only the unpublished P21 migration. Historical migrations unchanged.",
+      "subsequent": "make migrate-check and nxs-schema-guard PASS; fresh/P20-baseline disposable roundtrips PASS."
+    },
+    {
+      "check": "Initial security tests",
+      "result": "FAIL",
+      "counts": {
+        "passed": 16,
+        "failed": 2
+      },
+      "artifact": "/tmp/p21-security-first.log",
+      "cause": "Test fixture used unsupported role-assignment REVOKED state; forged-session test expected wrong canonical exception.",
+      "correction": "Use existing SUSPENDED role state and assert canonical SessionRevokedError. No authorization relaxation.",
+      "subsequent": "18 passed /tmp/p21-security-second.log; expanded security-only set 19 passed /tmp/p21-security-third.log."
+    },
+    {
+      "check": "Unavailable database resilience test",
+      "result": "FAIL",
+      "counts": {
+        "passed": 9,
+        "failed": 1
+      },
+      "artifact": "/tmp/p21-resilience-final.log",
+      "cause": "Disconnected compliance database surfaced ConfigurationError instead of dependency-unavailable taxonomy.",
+      "correction": "Fail closed explicitly with DependencyUnavailableError before opening compliance authority transaction.",
+      "subsequent": "Unavailable database and single-connection-pool focused regression: 2 passed."
+    },
+    {
+      "check": "Supplemental medium-threshold Bandit",
+      "result": "REVIEW",
+      "exit_code": 1,
+      "artifact": "/tmp/p21-sast-medium.log",
+      "finding": "B104 src/nexus_ai/core/config.py:66; existing deployment-controlled 0.0.0.0 listener; no new P21 bind/listener.",
+      "review": "Expected container bind, protected by deployment network exposure and application authentication. No new exposure, no suppression, production deployment remains unauthorized. Mandatory high-severity make security passed."
+    },
+    {
+      "check": "Application image vulnerability scan",
+      "result": "REVIEW",
+      "artifact": "/tmp/p21-container-scan.json",
+      "counts": {
+        "critical": 0,
+        "high": 0,
+        "medium": 6,
+        "low": 2
+      },
+      "review": "Existing pinned Wolfi/Python image findings also documented by P20. P21 adds no archive extraction, compression decoder or caller-controlled libc fopen mode. Findings remain visible; no unsupported claim of universal non-exploitability or waiver of high/critical policy."
+    },
+    {
+      "check": "Initial broad regression",
+      "result": "RUNNING_AT_RECORDING",
+      "artifact": "/tmp/p21-full-attempt-1.log",
+      "note": "Started during source/test stabilization; 2691 collected. Later added migration/security/resilience contracts and unavailable-database guard require fresh final-source full regression, not reuse of this run as final certification."
+    },
+    {
+      "check": "Initial broad regression completion",
+      "result": "PASS",
+      "passed": 2691,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 91.04,
+      "runtime_seconds": 1139.35,
+      "artifact": "/tmp/p21-full-attempt-1.log",
+      "limitation": "Historical stabilization run, not final source certification."
+    },
+    {
+      "check": "Final review target-lock lease gap",
+      "result": "CORRECTED",
+      "cause": "Lease was checked before acquiring the target lock, permitting expiry during lock wait.",
+      "correction": "Recheck DB-time lease after target acquisition immediately before local effect.",
+      "test": "tests/concurrency/test_compliance_races.py::test_lease_expiry_during_target_lock_wait_blocks_effect",
+      "artifact": "/tmp/p21-lease-regression.log",
+      "passed": 1,
+      "failed": 0,
+      "note": "First clean-room preparation intentionally interrupted before pytest; clean-room-final restarted from matching corrected source."
+    },
+    {
+      "check": "Staged diff whitespace gate",
+      "result": "FAIL",
+      "cause": "Trailing whitespace in generated SQL in new P21 migration; unstaged diff checks had not included untracked migration.",
+      "correction": "Remove trailing whitespace only using apply_patch; staged diff check now passes. Fresh complete clean-room rerun on changed source: 2701 PASS, 0 failed/skipped, 91.37% coverage.",
+      "artifact": "/tmp/p21-clean-room-candidate.log"
+    }
+  ]
+}

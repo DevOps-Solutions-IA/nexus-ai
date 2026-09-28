@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "scope": "Stage A implementation certification, not lifecycle closure or regulatory certification",
+  "source_sha": "ea199b2110075d9985288e15b22cba99eba469de",
+  "source_set_sha256": "1479279592c1f6a2869ccc05ad95ed6cf99409d333898cf6a9fb0dc922ddc0df",
+  "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
+  "result": "PASS",
+  "validation_source": "targeted-tests.json; local-certification.json",
+  "revision": "d21a0b1c2d3e",
+  "down_revision": "d20c0b1c2d3e",
+  "heads": 1,
+  "historical_migrations_changed": false,
+  "fresh_upgrade": "PASS",
+  "canonical_upgrade": "PASS",
+  "downgrade": "PASS disposable DB to d20c0b1c2d3e",
+  "reupgrade": "PASS",
+  "alembic_check": "PASS",
+  "schema_guard": "PASS",
+  "tests": [
+    "tests/integration/test_compliance_migration.py::test_compliance_upgrade_downgrade_reupgrade[False]",
+    "tests/integration/test_compliance_migration.py::test_compliance_upgrade_downgrade_reupgrade[True]"
+  ],
+  "artifact": {
+    "path": "/tmp/p21-infra-final.log",
+    "sha256": "e78062f995d39a0c8f708e84e7ad6f90ae4250d981deefe444e646b6564ce80e"
+  },
+  "formatting_recertification": {
+    "prior_source_hash": "83fff231901a9b9ccc6d65d4b881e264bd548545c4b9e87949dafcbe8265f01a",
+    "delta": "Only trailing SQL whitespace removed from new unpublished P21 migration; no SQL semantics changed",
+    "proof": "make clean-room /tmp/p21-clean-room-candidate.log: 2701 passed, 0 failed/skipped; 91.374041% canonical coverage",
+    "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
+  }
+}

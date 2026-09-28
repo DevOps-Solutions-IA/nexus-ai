@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "recorded_at": "2026-09-27T22:56:53.114783+00:00",
+  "result": "PASS",
+  "scope": "Admission and canonical start only; not implementation certification",
+  "canonical_main": "6d0dc0042c10016c0307aeda333b5fd89a7c3a54",
+  "main_ci": {
+    "run": 36343873102,
+    "result": "success",
+    "sha": "6d0dc0042c10016c0307aeda333b5fd89a7c3a54"
+  },
+  "main_security": {
+    "run": 36343873074,
+    "result": "success",
+    "sha": "6d0dc0042c10016c0307aeda333b5fd89a7c3a54"
+  },
+  "admission_commit": "0b98977d96a51ca33e5d0673796af6329857e491",
+  "start_commit": "ea199b2110075d9985288e15b22cba99eba469de",
+  "canonical_start": {
+    "command": "make nxs-start PHASE=NXS-P21 ACTOR=cdxm",
+    "result": "PASS",
+    "executions": 1,
+    "started_at": "2026-09-27T22:26:51Z"
+  },
+  "validation": [
+    "make nxs-validate-repo: PASS",
+    "make nxs-preflight PHASE=NXS-P21: PASS"
+  ],
+  "phase_status": "BUILDING",
+  "decision": "PENDING",
+  "requirement": {
+    "id": "NXS-COMP-001",
+    "status": "IN_PROGRESS"
+  },
+  "deployment": false,
+  "merge": false
+}
