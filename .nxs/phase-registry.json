@@ -220,13 +220,13 @@
     },
     {
       "branch": "feat/nxs-p21-compliance",
-      "decision": "PENDING",
+      "decision": "GO",
       "dependencies": [
         "NXS-P03",
         "NXS-P06"
       ],
       "id": "NXS-P21",
-      "status": "BUILDING",
+      "status": "READY",
       "title": "Compliance Controls"
     },
     {

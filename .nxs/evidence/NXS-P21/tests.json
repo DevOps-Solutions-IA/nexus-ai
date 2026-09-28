@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P21",
+  "implementation_commit": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+  "recorded_at": "2026-09-28T05:54:59Z",
+  "result": "PASS",
+  "command": "make nxs-gate PHASE=NXS-P21",
+  "exit_code": 0,
+  "passed": 2702,
+  "failed": 0,
+  "skipped": 0,
+  "coverage_percent": 91.44,
+  "runtime_seconds": 1174.03,
+  "validation_source": "Fresh Stage B quality-gates.json#details.tests"
+}

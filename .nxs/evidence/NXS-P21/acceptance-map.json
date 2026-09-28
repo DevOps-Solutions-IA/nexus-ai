@@ -5,7 +5,7 @@
   "source_sha": "d10c5e2f9ddb23524aa535e348c0c4075f61a763",
   "source_set_sha256": "45cb79ffa8287d63e50857df613661ac64b12a5c2d0f5a9461571e905613943e",
   "source_binding": "Dirty implementation snapshot over source_sha, verified identical in fresh local clone; source-integrity.json defines digest",
-  "result": "LOCAL_PASS_EXTERNAL_PENDING",
+  "result": "PASS",
   "validation_source": "targeted-tests.json; local-certification.json",
   "required": 40,
   "mapped": 40,
@@ -338,7 +338,7 @@
     {
       "criterion": "AC37",
       "description": "Exact-head NXS CI",
-      "result": "PENDING_EXACT_HEAD",
+      "result": "PASS",
       "test_or_inspection": "GitHub NXS CI exact candidate SHA",
       "evidence": "github-exact-head.json",
       "notes": ""
@@ -346,7 +346,7 @@
     {
       "criterion": "AC38",
       "description": "Exact-head NXS Security",
-      "result": "PENDING_EXACT_HEAD",
+      "result": "PASS",
       "test_or_inspection": "GitHub NXS Security exact candidate SHA",
       "evidence": "github-exact-head.json",
       "notes": ""
@@ -377,5 +377,6 @@
     "artifact_sha256": "488c610c8e30ec7d32b6b721c72f027c7685ac6ccd72a9303025326390af0a9a"
   },
   "historical_source": "acceptance-map-d10c5e2.json",
-  "corrective_evidence": "corrective-01.json"
+  "corrective_evidence": "corrective-01.json",
+  "exact_candidate_sha": "856bd14efe9f5394cd59fe882e89719d4bd428cf"
 }

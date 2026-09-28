@@ -1,8 +1,10 @@
 # NXS-P21 — Compliance Controls
 
-Accepted admission design; P21 is now BUILDING/PENDING on its feature branch after
-the single canonical start at 2026-09-27T22:26:51Z. Nothing in this document alone is
-certification evidence. P21 is not validated, merged or deployed.
+P21 is closed READY/GO on its feature branch after external implementation re-audit
+of `856bd14efe9f5394cd59fe882e89719d4bd428cf`, a fresh Stage B gate and canonical
+closure at 2026-09-28T06:00:33Z. The single canonical start remains
+2026-09-27T22:26:51Z. Machine-readable evidence is authoritative. P21 is not merged
+or deployed; external closure audit is pending and P22 has not started.
 Requirement: NXS-COMP-001. Branch: feat/nxs-p21-compliance. Registry dependencies: P03 and P06.
 Requirement dependencies explicitly bind P06 customer authority (NXS-CUSTOMER-001)
 and P04 transactional outbox authority (NXS-EVENT-003), alongside the existing auth/tenant requirements.

@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P21",
-  "result": "LOCAL_PASS_EXTERNAL_PENDING",
-  "current_certification": "corrective-01.json",
-  "historical_exact_head": "github-exact-head-d10c5e2.json",
+  "result": "PASS",
+  "implementation_commit": "856bd14efe9f5394cd59fe882e89719d4bd428cf",
+  "scope": "Canonical local Stage B closure and exact implementation-head certification; closure-head GitHub certification must be checked separately after publication.",
   "files": [
     {
       "path": ".nxs/evidence/NXS-P21/acceptance-map-d10c5e2.json",
@@ -11,11 +11,23 @@
     },
     {
       "path": ".nxs/evidence/NXS-P21/acceptance-map.json",
-      "sha256": "bb23900a9497417c7f63c90d7a3cc2aa08cba51ca5fd360a4320b90b9fe71274"
+      "sha256": "f445f4202eca74e8fb57fa13553aaa3a6fa527f1b5a98d05a7fa577046a23797"
     },
     {
       "path": ".nxs/evidence/NXS-P21/admission-baseline.json",
       "sha256": "3090613c798743894bf69c160d45ca749d7e9171db2b2ff12c14c4b990aa1d2e"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/closure-documentation.json",
+      "sha256": "20800bc38da69826cf73a32e942f4c3c495bad789c5bb127472d2518eeb4ee6d"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/closure-lock.json",
+      "sha256": "59b038d06000458862cf9cd182076df1cb5d994a2f63fef432eea4a636ebdebc"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/closure.json",
+      "sha256": "0500fdff6225cb523514e3d1ea72c60abd6deceef421256566f6b2fd49d5fd18"
     },
     {
       "path": ".nxs/evidence/NXS-P21/concurrency.json",
@@ -46,12 +58,16 @@
       "sha256": "4541cac2401237ff33a232698e1189ca46a574a267978a20f9a049cfc5900296"
     },
     {
+      "path": ".nxs/evidence/NXS-P21/external-implementation-audit-authorization.json",
+      "sha256": "5b31c933577aa80e10f510e8fa5d80d001f9b0fff84f882a1a4b906288e538c0"
+    },
+    {
       "path": ".nxs/evidence/NXS-P21/github-exact-head-d10c5e2.json",
       "sha256": "7416e575c71b3092e4c40843a69af53b9b94f05bb45730a1c7a14fee39fb2fda"
     },
     {
       "path": ".nxs/evidence/NXS-P21/github-exact-head.json",
-      "sha256": "0956e709d93e36ba058bc9fcd83ce52720a232362ddde2b6d6dd8aa4eaf88fda"
+      "sha256": "1f68118b31e8bd44d75dc3dd075e9ada93ebc541926a366995b272884ac018ff"
     },
     {
       "path": ".nxs/evidence/NXS-P21/legal-hold.json",
@@ -72,6 +88,14 @@
     {
       "path": ".nxs/evidence/NXS-P21/policy.json",
       "sha256": "1475e7e3fddd7071ed76619759a8f0c5d2a6f349f87b1da5604e5c206cb416c9"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/quality-gates.json",
+      "sha256": "4137024f5026991d5257b6504c03365716f7620c06e1c967cea4b1781560fc0e"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/quality-matrix.json",
+      "sha256": "c98744be91a541bf16851805e1c69f62d3744720599c572bbf7bb9bc0dcd2018"
     },
     {
       "path": ".nxs/evidence/NXS-P21/retention.json",
@@ -104,6 +128,10 @@
     {
       "path": ".nxs/evidence/NXS-P21/tenant-isolation.json",
       "sha256": "4d24956feb36fba62abd74d34c2f2f93a004ff36c255705469c79d2b55cf5daf"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P21/tests.json",
+      "sha256": "2af35088a289695b79ff09f1740ad6becb4ad2fcc3b60d86631620c5ae5de322"
     }
   ]
 }

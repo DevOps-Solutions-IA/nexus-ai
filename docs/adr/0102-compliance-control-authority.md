@@ -1,6 +1,8 @@
 # ADR-0102 — Tenant compliance control authority
 
-Status: accepted for P21 admission; implementation and certification pending.
+Status: accepted; P21 implementation re-audited and closed READY/GO on its feature
+branch, binding `856bd14efe9f5394cd59fe882e89719d4bd428cf`. External closure audit
+and merge authorization remain pending. No production deployment or P22 start.
 
 ## Context
 
