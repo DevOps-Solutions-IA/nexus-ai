@@ -62,6 +62,11 @@ No production deployment, capacity certification or automatic failover is claime
 
 ## Architecture
 
+P22 admission on `feat/nxs-p22-audit` defines tenant-scoped audit controls only; it is
+not validated or merged. P22-SD01 explicitly defers platform-global Sentinel audit
+coverage. No universal audit, regulatory certification or deployment claim is made.
+See [the P22 design](docs/engineering/nxs-p22-audit-design.md).
+
 Nexus AI is organized around strict ownership boundaries:
 
 ```text

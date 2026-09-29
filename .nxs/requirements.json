@@ -1798,7 +1798,7 @@
       "dependencies": [
         "NXS-TENANT-001"
       ],
-      "description": "Security-sensitive tenant, human and AI actions produce tamper-evident auditable records.",
+      "description": "Security-sensitive actions executed under trusted tenant authority by human, AI-agent, service or system actors produce durable append-only, tamper-evident tenant audit records. Actor, action, target, source, time, outcome and correlation come from trusted server sources; metadata and RBAC queries are typed, bounded and tenant-isolated. Deterministic ingestion rejects semantic replay conflicts and runtime cannot silently rewrite or delete history. P22-SD01 explicitly defers platform-global Sentinel audit coverage: no fictitious Organization, login-Organization attribution, platform-global ledger or universal audit claim. Business events, audit facts, security/application logs and compliance evidence remain distinct authorities. No statutory or regulatory certification is claimed.",
       "id": "NXS-AUDIT-002",
       "implementation_evidence": [],
       "mandatory": true,

@@ -4,6 +4,16 @@ Every execution branch must define: phase ID, objective, requirement IDs, depend
 
 Every executable phase must map to at least one canonical mandatory requirement in `.nxs/requirements.json` whose `target_phase` equals that phase. The control system enforces this: `scripts/nxs_start` refuses to open a phase with no mandatory requirement, and `.nxs/phase-manifest.schema.json` requires `requirements_implemented` to be non-empty. A registry phase that has no such requirement is a governance gap and cannot be started until one is added canonically.
 
+## NXS-P22 admission contract
+
+- Registered branch: `feat/nxs-p22-audit`; dependencies P04/P21 READY/GO; existing mandatory requirement NXS-AUDIT-002.
+- Baseline: canonical main `d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e`; P21 PR #48 merged at `53149934906d0d243cb3f593efc8a5bbf74bd793`.
+- Authority: ADR-0103 and `nxs-p22-audit-design.md`; tenant-scoped append-only/tamper-evident facts, P04 outbox, trusted actors and bounded RBAC queries.
+- P22-SD01: platform-global Sentinel privileged audit coverage is explicitly DEFERRED; no fake Organization or login-Organization attribution. No global audit ledger or universal coverage claim.
+- Admission is PLANNED/PENDING until canonical start; Stage A remains BUILDING/PENDING, commits unbound, external implementation audit required. No Stage B, merge, P23 or deployment authorization.
+- Certification: AC01-AC43 and real PostgreSQL C01-C20, full local gates and exact candidate-head CI/Security. Evidence belongs under `.nxs/evidence/NXS-P22/`; no fabricated results or lowered thresholds.
+- Rollback before merge: abandon/revert feature work; migration roundtrips only on disposable DBs. Observability uses bounded safe facts, not raw sensitive data.
+
 ## NXS-P21 canonical contract — READY / GO on main
 
 - Branch: `feat/nxs-p21-compliance`; dependencies: P03/P06 READY/GO; requirement: NXS-COMP-001, binding validated auth/tenant/customer/outbox requirements.
