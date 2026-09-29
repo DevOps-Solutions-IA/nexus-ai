@@ -1,12 +1,48 @@
 {
   "$schema": "../phase-manifest.schema.json",
-  "schema_version": "1.0.0",
-  "id": "NXS-P22",
-  "title": "Audit Platform",
-  "objective": "Implement tenant-scoped durable append-only audit records for security-sensitive human, AI and system actions, with trusted actor/source provenance, typed bounded metadata, PostgreSQL forced RLS, tamper-evident integrity verification, deterministic idempotent ingestion, controlled query APIs and P04 transactional-outbox integration without replacing domain authority. ADR-0103, the P22 design and P22-SD01 define AC01-AC43 and explicit platform-global coverage deferral.",
   "branch": "feat/nxs-p22-audit",
-  "dependencies": ["NXS-P04", "NXS-P21"],
-  "requirements_implemented": ["NXS-AUDIT-002"],
+  "closure_commit": null,
+  "decision": "PENDING",
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "evidence": [],
+  "id": "NXS-P22",
+  "implementation_commit": null,
+  "mandatory_gates": [
+    "repository_integrity",
+    "formatting",
+    "lint",
+    "typing",
+    "unit_tests",
+    "integration_tests",
+    "contract_tests",
+    "security_tests",
+    "concurrency_tests",
+    "resilience_tests",
+    "coverage",
+    "sast",
+    "secret_scan",
+    "dependency_security",
+    "container_scan",
+    "docker_build",
+    "non_root_runtime",
+    "graceful_shutdown",
+    "migration_validation",
+    "execution_guard",
+    "generic_phase_start",
+    "generic_closure",
+    "generic_next_phase",
+    "execution_lock",
+    "phase_neutral_ci",
+    "toolchain_consistency",
+    "agent_handoff",
+    "clean_room",
+    "documentation",
+    "regression",
+    "github_ci"
+  ],
   "non_scope": [
     "P23 metering/billing, P24 observability, P25 recovery/failover, P26 backup/DR, P27 final security hardening, P28 capacity, P29 chaos, P30 backend certification, P31 release, P32 deployment and frontend",
     "Legal/regulatory/WORM certification, SIEM, general application logging replacement, distributed tracing, metrics and universal audit coverage",
@@ -14,19 +50,15 @@
     "Cross-tenant audit administration, retrospective fabrication, destructive audit retention and duplication of P03/P04/P08/P13/P16/P20/P21 decision authority",
     "P22-SD01: platform-global Sentinel observations, approvals, executions, kill-switch and global risk-policy audit coverage explicitly DEFERRED; no global ledger, fictitious Organization or attribution to operator login Organization"
   ],
-  "mandatory_gates": [
-    "repository_integrity", "formatting", "lint", "typing", "unit_tests",
-    "integration_tests", "contract_tests", "security_tests", "concurrency_tests",
-    "resilience_tests", "coverage", "sast", "secret_scan", "dependency_security",
-    "container_scan", "docker_build", "non_root_runtime", "graceful_shutdown",
-    "migration_validation", "execution_guard", "generic_phase_start", "generic_closure",
-    "generic_next_phase", "execution_lock", "phase_neutral_ci", "toolchain_consistency",
-    "agent_handoff", "clean_room", "documentation", "regression", "github_ci"
+  "objective": "Implement tenant-scoped durable append-only audit records for security-sensitive human, AI and system actions, with trusted actor/source provenance, typed bounded metadata, PostgreSQL forced RLS, tamper-evident integrity verification, deterministic idempotent ingestion, controlled query APIs and P04 transactional-outbox integration without replacing domain authority. ADR-0103, the P22 design and P22-SD01 define AC01-AC43 and explicit platform-global coverage deferral.",
+  "requirements_implemented": [
+    "NXS-AUDIT-002"
   ],
-  "status": "PLANNED",
-  "decision": "PENDING",
-  "evidence": [],
-  "implementation_commit": null,
-  "closure_commit": null,
-  "timestamps": {"started_at": null, "closed_at": null}
+  "schema_version": "1.0.0",
+  "status": "BUILDING",
+  "timestamps": {
+    "closed_at": null,
+    "started_at": "2026-09-29T20:45:39Z"
+  },
+  "title": "Audit Platform"
 }
