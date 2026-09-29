@@ -1,0 +1,533 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_FINITE_INVENTORY",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": {
+    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+    "status": "VERIFIED_FINAL_XML_BINDING",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+    "xml": "/tmp/p22-full-final2.xml"
+  },
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "coverage_claim": "FINITE_REGISTERED_SOURCE_FAMILIES_ONLY",
+  "inventory_basis": "Current source action registry plus actual source hooks and existing test nodes; registry inclusion alone is not proof every action is executed by tests.",
+  "tenant": [
+    {
+      "producer": "organization",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P02/P05",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "organization.created",
+        "organization.profile_updated",
+        "organization.provisioned",
+        "organization.transitioned"
+      ],
+      "source_files": [
+        "src/nexus_ai/domain/organizations/service.py",
+        "src/nexus_ai/domain/provisioning/service.py"
+      ],
+      "actor_provenance": "HUMAN from verified request; explicit bootstrap/lifecycle SERVICE; provisioning initiator from owning authority",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_organization_lifecycle.py::test_create_core_record_is_provisioning",
+        "tests/integration/test_organization_lifecycle.py::test_suspension_blocks_then_reactivation_restores"
+      ],
+      "test_strength": "SOURCE_INSPECTION_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Regression tests exercise owning service; not every action has an audit-specific assertion."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_organization_lifecycle.py::test_create_core_record_is_provisioning",
+        "tests/integration/test_organization_lifecycle.py::test_suspension_blocks_then_reactivation_restores"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "auth",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P03",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "auth.membership.created",
+        "auth.membership.restored",
+        "auth.membership.revoked",
+        "auth.membership.suspended",
+        "auth.role.assigned",
+        "auth.role.suspended",
+        "auth.session.created",
+        "auth.session.refreshed",
+        "auth.session.revoked"
+      ],
+      "source_files": [
+        "src/nexus_ai/domain/auth/service.py",
+        "src/nexus_ai/domain/auth/administration.py"
+      ],
+      "actor_provenance": "Authenticated HUMAN for tenant session state; auth-session-guard SYSTEM for automatic revocation; membership bootstrap SERVICE",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_audit_producers.py::test_self_suspension_keeps_pre_mutation_human_provenance",
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
+      ],
+      "test_strength": "AUDIT_SPECIFIC_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Global pre-tenant failures and platform grant administration are not covered."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_audit_producers.py::test_self_suspension_keeps_pre_mutation_human_provenance",
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "customer",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P06",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "conversations.closed",
+        "conversations.opened",
+        "customer.created",
+        "customers.created",
+        "customers.identity.linked",
+        "customers.identity.status_changed",
+        "customers.updated"
+      ],
+      "source_files": [
+        "src/nexus_ai/domain/customers/service.py"
+      ],
+      "actor_provenance": "Verified HUMAN or explicit customer SERVICE",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer"
+      ],
+      "test_strength": "AUDIT_SPECIFIC_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Only finite customer/identity/conversation mutations, never identity values or message content."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "tool",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P08",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "tool.execution.completed",
+        "tool.execution.dispatch_authorized",
+        "tool.execution.failed"
+      ],
+      "source_files": [
+        "src/nexus_ai/tools/service.py",
+        "src/nexus_ai/domain/tools/repository.py"
+      ],
+      "actor_provenance": "Verified HUMAN or P13 persisted AI_AGENT; initiating human separate",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries",
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer"
+      ],
+      "test_strength": "AUDIT_SPECIFIC_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Pre-I/O durable authorization intent and separately committed local receipt/outcome. External effect cannot share PostgreSQL transaction; missing outcome means unresolved execution, not success."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "agent",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P13",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "agent.account.created",
+        "agent.account.credential_stored",
+        "agent.account.updated",
+        "agent.definition.created",
+        "agent.definition.updated",
+        "agent.profile.created",
+        "agent.profile.updated",
+        "agent.response.ready",
+        "agent.session.cancelled",
+        "agent.session.completed",
+        "agent.session.created",
+        "agent.session.expired",
+        "agent.session.failed",
+        "agent.session.started",
+        "agent.tool.completed",
+        "agent.tool.failed",
+        "agent.tool.requested",
+        "agent.turn.completed",
+        "agent.turn.failed",
+        "agent.turn.started",
+        "agent.usage.recorded"
+      ],
+      "source_files": [
+        "src/nexus_ai/agents/service.py",
+        "src/nexus_ai/domain/agents/repository.py"
+      ],
+      "actor_provenance": "AI_AGENT derives agent/session/turn from persisted P13 state; HUMAN administrative stop/cancel; explicit SERVICE internal paths",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
+        "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation"
+      ],
+      "test_strength": "AUDIT_SPECIFIC_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Credential rotation requires transactional vault capability; unsupported vaults rejected before mutation. No prompts, context, chain of thought or model payloads."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
+        "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "workflow",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P14",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "workflow.definition.created",
+        "workflow.definition.updated",
+        "workflow.run.cancelled",
+        "workflow.run.completed",
+        "workflow.run.failed",
+        "workflow.run.paused",
+        "workflow.run.resumed",
+        "workflow.run.started",
+        "workflow.step.completed",
+        "workflow.step.failed",
+        "workflow.step.ready",
+        "workflow.step.skipped",
+        "workflow.step.started",
+        "workflow.version.published"
+      ],
+      "source_files": [
+        "src/nexus_ai/workflows/service.py"
+      ],
+      "actor_provenance": "Verified HUMAN or explicit workflow SERVICE",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_workflow_service.py::test_immutable_version_and_durable_noop_execution",
+        "tests/integration/test_workflow_service.py::test_pause_resume_cancel_and_terminal_absorption"
+      ],
+      "test_strength": "SOURCE_INSPECTION_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Owning-service regression evidence; finite lifecycle hooks do not certify all conceivable workflow business effects."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_workflow_service.py::test_immutable_version_and_durable_noop_execution",
+        "tests/integration/test_workflow_service.py::test_pause_resume_cancel_and_terminal_absorption"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "campaign",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P16",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "campaign.cancelled",
+        "campaign.completed",
+        "campaign.contact_preference.changed",
+        "campaign.created",
+        "campaign.failed",
+        "campaign.paused",
+        "campaign.prepared",
+        "campaign.recipient.claimed",
+        "campaign.recipient.dispatched",
+        "campaign.recipient.eligible",
+        "campaign.recipient.failed",
+        "campaign.recipient.suppressed",
+        "campaign.recipient.workflow_started",
+        "campaign.resumed",
+        "campaign.scheduled",
+        "campaign.started",
+        "campaign.suppression.added",
+        "campaign.updated"
+      ],
+      "source_files": [
+        "src/nexus_ai/campaigns/service.py"
+      ],
+      "actor_provenance": "Verified HUMAN or explicit campaign SERVICE",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_campaign_service.py::test_full_flow_authorizes_then_sends_once_through_p09",
+        "tests/integration/test_campaign_service.py::test_missing_consent_and_suppression_fail_closed"
+      ],
+      "test_strength": "SOURCE_INSPECTION_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Audit grants no send eligibility/consent authority; P16/P09 remain authoritative."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_campaign_service.py::test_full_flow_authorizes_then_sends_once_through_p09",
+        "tests/integration/test_campaign_service.py::test_missing_consent_and_suppression_fail_closed"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "human",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P17",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "human.handoff.ai_to_human",
+        "human.handoff.ambiguous",
+        "human.handoff.human_to_ai",
+        "human.message.authorized",
+        "human.message.finalized",
+        "human.presence.changed",
+        "human.queue.created",
+        "human.queue.updated",
+        "human.supervisor.released",
+        "human.work.accepted",
+        "human.work.cancelled",
+        "human.work.claimed",
+        "human.work.completed",
+        "human.work.queued",
+        "human.work.requeued",
+        "human.work.transferred"
+      ],
+      "source_files": [
+        "src/nexus_ai/humans/service.py"
+      ],
+      "actor_provenance": "Verified HUMAN/validated Principal bindings or explicit service; source actor-user mismatch rejected",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_human_operations_api.py::test_human_api_enforces_least_privilege",
+        "tests/integration/test_human_operations_tenancy.py::test_human_transition_history_is_append_only"
+      ],
+      "test_strength": "SOURCE_INSPECTION_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "Message authorization/local outcome and handoff state only; no raw message/body/context capture."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_human_operations_api.py::test_human_api_enforces_least_privilege",
+        "tests/integration/test_human_operations_tenancy.py::test_human_transition_history_is_append_only"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    },
+    {
+      "producer": "compliance",
+      "scope": "TENANT",
+      "organization_id": "REQUIRED",
+      "owner": "P21",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "compliance.state.changed"
+      ],
+      "source_files": [
+        "src/nexus_ai/compliance/service.py"
+      ],
+      "actor_provenance": "Live HUMAN validated by P21 session/RBAC boundary",
+      "durability": "P04 outbox intent in owning local mutation transaction; asynchronous immutable ledger append",
+      "test_nodes": [
+        "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release",
+        "tests/integration/test_compliance_controls.py::test_retention_evaluation_never_mutates_new_target"
+      ],
+      "test_strength": "SOURCE_INSPECTION_AND_OWNING_SERVICE_REGRESSION",
+      "limitations": [
+        "State-only policy/hold/request/approval/execution facts; no exported subjects/evidence content and no replacement of P21 decision authority."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release",
+        "tests/integration/test_compliance_controls.py::test_retention_evaluation_never_mutates_new_target"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    }
+  ],
+  "platform": [
+    {
+      "producer": "sentinel",
+      "scope": "PLATFORM",
+      "organization_id": "MUST_BE_NULL",
+      "owner": "P20",
+      "status": "SUPPORTED",
+      "registered_actions": [
+        "sentinel.approval.recorded",
+        "sentinel.execution.ambiguous",
+        "sentinel.execution.claimed",
+        "sentinel.execution.completed",
+        "sentinel.execution.denied",
+        "sentinel.execution.dispatched",
+        "sentinel.execution.expired",
+        "sentinel.execution.failed",
+        "sentinel.finding.recorded",
+        "sentinel.incident.transitioned",
+        "sentinel.kill_switch.changed",
+        "sentinel.proposal.recorded",
+        "sentinel.runbook.registered",
+        "sentinel.signal.observed"
+      ],
+      "source_files": [
+        "src/nexus_ai/sentinel/control.py",
+        "src/nexus_ai/sentinel/service.py",
+        "src/nexus_ai/sentinel/execution.py",
+        "src/nexus_ai/audit/platform/producer.py"
+      ],
+      "actor_provenance": "Explicit operator from live token plus Sentinel platform grant, or allowlisted source service; login Organization is never fact ownership",
+      "durability": "Immutable source journal inserted by nexus_sentinel in same local transaction; separate nexus_audit_platform worker commits record/head/receipt atomically",
+      "test_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "limitations": [
+        "Typed observation/finding/proposal/runbook and privileged approval/kill-switch/execution facts only, not arbitrary Sentinel diagnostic ingestion.",
+        "Remote dispatch and observed/ambiguous result remain separate facts.",
+        "Policy coverage means registered runbook/control mutations currently implemented, not every future risk-policy administration surface."
+      ],
+      "executed_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "validation_scope": "Bound source implementation and executed owning-service/audit tests; no claim of exhaustive per-action proof beyond declared test_strength and limitations."
+    }
+  ],
+  "unsupported_or_deferred": [
+    {
+      "family": "General raw Sentinel diagnostics/logs",
+      "scope": "PLATFORM",
+      "status": "DEFERRED",
+      "reason": "Only finite typed registered actions captured; no arbitrary raw diagnostic/event/blob ingestion."
+    },
+    {
+      "family": "Platform grant administration",
+      "scope": "PLATFORM",
+      "status": "DEFERRED",
+      "reason": "No registered audit producer for all grant mutation paths; platform query grants are enforced but changes to grants are not universally journaled."
+    },
+    {
+      "family": "Global unauthenticated/pre-tenant login failures",
+      "scope": "PLATFORM",
+      "status": "NOT_IMPLEMENTED",
+      "reason": "Remain security logs; no fictitious Organization and no retrospective human attribution."
+    },
+    {
+      "family": "Nontransactional credential vault mutation",
+      "scope": "TENANT",
+      "status": "REJECTED_BEFORE_MUTATION",
+      "reason": "Agent credential path requires TransactionalVaultClient; no promise of atomic intent with arbitrary external vault implementations.",
+      "test_nodes": [
+        "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation"
+      ]
+    },
+    {
+      "family": "Sentinel tenant business actions",
+      "scope": "TENANT",
+      "status": "NOT_APPLICABLE",
+      "reason": "ADR-0101 prohibits Sentinel tenant business authority."
+    },
+    {
+      "family": "Destructive audit retention/rewriting",
+      "scope": "BOTH",
+      "status": "NOT_IMPLEMENTED",
+      "reason": "No destructive audit API; future retention requires explicit authority preserving integrity anchors and holds."
+    }
+  ],
+  "limitations": [
+    "No universal audit coverage claim.",
+    "No retrospective fabrication of legacy events without trustworthy provenance.",
+    "P22-SD01 global privileged audit deferral is SUPERSEDED; remaining narrow exclusions above are current.",
+    "Security diagnostics, business events, compliance evidence and audit facts retain distinct purposes."
+  ],
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "digest_artifact": "/tmp/p22-tested-source-hash.txt",
+        "status": "PENDING_FINAL_XML_BINDING",
+        "note": "Digest supplied by root for tested source set; this draft does not independently assert hash scope or final XML equality. Evidence JSON document hashes are separate from runtime source-set hash."
+      }
+    }
+  ],
+  "final_full_suite": {
+    "result": "PASS",
+    "tests": 2876,
+    "passed": 2876,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_log": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_display": "91.35%",
+    "coverage_threshold": 90,
+    "xml": "/tmp/p22-full-final2.xml",
+    "log": "/tmp/p22-full-final2.log",
+    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+    },
+    {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    },
+    {
+      "path": "/tmp/p22-security-final2.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-migration-result.json",
+      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+    },
+    {
+      "path": "/tmp/p22-webhook-provenance.log",
+      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+    },
+    {
+      "path": "/tmp/p22-events-cli-corrective.log",
+      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+    }
+  ]
+}

@@ -1,0 +1,384 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+  "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+  "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
+  "certification_pending": [
+    "Separate root-owned clean-room certification",
+    "Exact implementation commit and exact-head CI/security",
+    "External Stage A audit and separately authorized lifecycle closure"
+  ],
+  "migrations": [
+    {
+      "revision": "d22a0b1c2d3e",
+      "down_revision": "d21a0b1c2d3e",
+      "path": "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py",
+      "tables": [
+        "audit_heads",
+        "audit_records"
+      ]
+    },
+    {
+      "revision": "d22b0b1c2d3e",
+      "down_revision": "d22a0b1c2d3e",
+      "path": "migrations/versions/20260929_0200-d22b0b1c2d3e_platform_audit.py",
+      "tables": [
+        "platform_audit_intents",
+        "platform_audit_heads",
+        "platform_audit_records",
+        "platform_audit_receipts"
+      ]
+    }
+  ],
+  "tenant_database_boundary": {
+    "role": "nexus_runtime",
+    "forced_rls_tables": [
+      "audit_heads",
+      "audit_records"
+    ],
+    "organization_foreign_keys": true,
+    "record_mutation_trigger": "immutable_audit",
+    "record_update_delete_grants": false,
+    "head_scope": "One row and lock per Organization",
+    "migration_role": "nexus_migration",
+    "head_identity_check": "id = organization_id"
+  },
+  "platform_database_boundary": {
+    "role": "nexus_audit_platform",
+    "source_role": "nexus_sentinel",
+    "organization_id": "Literal null in typed intent and both persisted fact scope layers; SQL predicates use IS TRUE to reject missing keys/SQL UNKNOWN",
+    "role_flags": {
+      "superuser": false,
+      "bypassrls": false,
+      "createrole": false,
+      "createdb": false,
+      "replication": false,
+      "schema_create": false,
+      "role_memberships": false
+    },
+    "connection_checks": [
+      "current_user equals configured dedicated role",
+      "session_user equals configured dedicated role",
+      "Unsafe role flags and role memberships absent",
+      "No public schema CREATE",
+      "Empty nxs.organization_id setting"
+    ],
+    "grants": {
+      "nexus_sentinel": {
+        "platform_audit_intents": [
+          "INSERT"
+        ]
+      },
+      "nexus_audit_platform": {
+        "platform_audit_intents": [
+          "SELECT"
+        ],
+        "platform_audit_records": [
+          "SELECT",
+          "INSERT"
+        ],
+        "platform_audit_receipts": [
+          "SELECT",
+          "INSERT"
+        ],
+        "platform_audit_heads": [
+          "SELECT",
+          "UPDATE"
+        ]
+      },
+      "nexus_runtime_platform_tables": [],
+      "public_platform_tables": []
+    },
+    "all_selectable_public_tables": [
+      "platform_audit_heads",
+      "platform_audit_intents",
+      "platform_audit_receipts",
+      "platform_audit_records"
+    ],
+    "immutable_tables": [
+      "platform_audit_intents",
+      "platform_audit_records",
+      "platform_audit_receipts"
+    ],
+    "receipt_check": "Exactly successful record reference with no reason, or null record and INVALID_INTENT reason; SQL UNKNOWN rejected",
+    "platform_grants": "Adds audit:platform:read and audit:platform:verify to existing closed vocabulary; seeds no grant and preserves organization/cell/SIP/Sentinel entries"
+  },
+  "disposable_roundtrip": {
+    "status": "VERIFIED",
+    "result": "PASS",
+    "artifact": "/tmp/p22-migration-result.json",
+    "artifact_sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307",
+    "database": "nxs_p22_roundtrip_ff5fee3f3cfc",
+    "database_dropped": true,
+    "head": "d22b0b1c2d3e",
+    "timing": "Re-executed after tenant head identity CHECK hardening; fresh upgrade, P21 downgrade/re-upgrade, Alembic check and schema guard all pass.",
+    "commands": [
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "heads"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:33.073987+00:00",
+        "finished_at": "2026-09-29T21:23:33.500897+00:00",
+        "log": "/tmp/p22-migration-0.log",
+        "log_sha256": "f34ddc96f3b284d1540a08716c3e6ed86b719084d97914bbfa2235e42fef88a6"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "upgrade",
+          "head"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:33.500927+00:00",
+        "finished_at": "2026-09-29T21:23:35.321398+00:00",
+        "log": "/tmp/p22-migration-1.log",
+        "log_sha256": "88a1c0723dc6c13988a85e975ce9f5b095da6a0df4e3f3a424d7ca0c8790f0a6"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "check"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:35.321417+00:00",
+        "finished_at": "2026-09-29T21:23:36.265351+00:00",
+        "log": "/tmp/p22-migration-2.log",
+        "log_sha256": "293c7f3c3b31556dcb520f031aaef71c88e1990700cbdac0072492e58ca126b9"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-m",
+          "scripts.nxs_schema_guard"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:36.265371+00:00",
+        "finished_at": "2026-09-29T21:23:36.902061+00:00",
+        "log": "/tmp/p22-migration-3.log",
+        "log_sha256": "aa590fad4d98e72ccccd4f3496b11ba6b3ff531c44ef6336a3fb31ed1c4fbdc5"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "downgrade",
+          "d21a0b1c2d3e"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:36.902084+00:00",
+        "finished_at": "2026-09-29T21:23:37.595890+00:00",
+        "log": "/tmp/p22-migration-4.log",
+        "log_sha256": "3ec5055e6aec0d12f4277d3085d04b36a9a2bfadb67acc424ed5cb67aa5834da"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "upgrade",
+          "head"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:37.595911+00:00",
+        "finished_at": "2026-09-29T21:23:38.312324+00:00",
+        "log": "/tmp/p22-migration-5.log",
+        "log_sha256": "9a473a4a5852f097bafc9c2e61762c9efae6eea81cbef2e011da0fa04dd747d5"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "check"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:38.312340+00:00",
+        "finished_at": "2026-09-29T21:23:39.290471+00:00",
+        "log": "/tmp/p22-migration-6.log",
+        "log_sha256": "293c7f3c3b31556dcb520f031aaef71c88e1990700cbdac0072492e58ca126b9"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-m",
+          "scripts.nxs_schema_guard"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:39.290492+00:00",
+        "finished_at": "2026-09-29T21:23:39.877210+00:00",
+        "log": "/tmp/p22-migration-7.log",
+        "log_sha256": "aa590fad4d98e72ccccd4f3496b11ba6b3ff531c44ef6336a3fb31ed1c4fbdc5"
+      }
+    ]
+  },
+  "tests": [
+    "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+    "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope",
+    "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+    "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+  ],
+  "focused_proofs": [
+    {
+      "status": "VERIFIED_FOCUSED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+      "passed": 38,
+      "failed": 0,
+      "elapsed_seconds": 3.12,
+      "artifact": "/tmp/p22-platform-tests.log",
+      "coverage": {
+        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+        "passed": 38,
+        "percent": 92.57,
+        "artifact": "/tmp/p22-platform-coverage-final.log",
+        "scope": "Platform packages only; not canonical repository coverage"
+      },
+      "report": "/tmp/p22-platform-report.md",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "runs": [
+        {
+          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+          "passed": 10,
+          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+        },
+        {
+          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+          "passed": 3,
+          "note": "Includes missing-head regression; overlaps first run."
+        }
+      ],
+      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    }
+  ],
+  "independent_review": {
+    "artifact": "/tmp/p22-platform-review.md",
+    "status": "VERIFIED_REINSPECTION",
+    "disposition": "Receipt SQL NULL loophole and contradictory outer scope corrected; focused SQL regression tests pass; no open platform review finding"
+  },
+  "tenant_head_identity_hardening": {
+    "status": "VERIFIED",
+    "constraint": "audit_heads.id = audit_heads.organization_id",
+    "constraint_name": "ck_audit_heads_tenant_identity_valid",
+    "source": [
+      "src/nexus_ai/domain/audit/models.py",
+      "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py"
+    ],
+    "security_property": "A tenant cannot reserve a different Organization head primary key while labeling the row with its own Organization. Forced RLS and the identity CHECK enforce complementary boundaries.",
+    "regression": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+    "final_xml_outcome": "PASS"
+  },
+  "local_certification": {
+    "status": "VERIFIED",
+    "result": "PASS_LOCAL",
+    "command": "make test-all",
+    "tests": 2876,
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds_log": 1248.35,
+    "elapsed_seconds_xml": 1248.336,
+    "xml": {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    "log": {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    "coverage": {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "canonical_threshold_percent": 90,
+      "percent_covered": 91.3468479307026,
+      "percent_covered_rounded": 91.35,
+      "covered_lines": 26292,
+      "num_statements": 28034,
+      "covered_branches": 4079,
+      "num_branches": 5214,
+      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+    },
+    "source_manifest": {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "independently_verified_source_files": 664
+    },
+    "relevant_testcase_count": 10,
+    "exact_testcase_outcomes": [
+      {
+        "node_id": "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+        "result": "PASS",
+        "duration_seconds": 0.132
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+        "result": "PASS",
+        "duration_seconds": 0.073
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload0]",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload1]",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload2]",
+        "result": "PASS",
+        "duration_seconds": 0.056
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload3]",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload4]",
+        "result": "PASS",
+        "duration_seconds": 0.057
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+        "result": "PASS",
+        "duration_seconds": 0.106
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      }
+    ]
+  }
+}

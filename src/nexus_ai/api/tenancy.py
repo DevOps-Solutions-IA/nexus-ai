@@ -15,6 +15,8 @@ from uuid import UUID
 
 from starlette.requests import Request
 
+from nexus_ai.audit.context import bind_verified_actor
+from nexus_ai.audit.contracts import AuditActor
 from nexus_ai.core.config import TenancySettings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import TenantContextInvalidError, TokenValidationError
@@ -68,6 +70,10 @@ class BearerTokenTenantContextResolver:
             user_id=claims.subject,
             session_id=claims.session_id,
             organization_id=claims.organization_id,
+        )
+        bind_verified_actor(
+            claims.organization_id,
+            AuditActor(kind="HUMAN", user_id=claims.subject, session_id=claims.session_id),
         )
         request_context = current_context()
         return TenantContext(

@@ -1,0 +1,236 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "requirement": "NXS-AUDIT-002",
+  "result": "PASS",
+  "evidence_status": "VERIFIED_FINAL_LOCAL_SUITE",
+  "source": {
+    "head": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "branch": "feat/nxs-p22-audit",
+    "working_tree": "DIRTY_IMPLEMENTATION",
+    "frozen_source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "digest_reference": "/tmp/p22-source-final2.json",
+    "qualification": "Exact dirty implementation source manifest for the passing final combined local suite; HEAD is the phase-start commit, not an implementation commit."
+  },
+  "authority": {
+    "status": "USER_DECISION",
+    "scopes": [
+      "TENANT",
+      "PLATFORM"
+    ],
+    "supersedes": "P22-SD01"
+  },
+  "limitations": [
+    "No READY/GO assertion; root owns clean-room reproduction, exact implementation commit CI/security certification and authorized lifecycle decisions.",
+    "Focused tests do not establish universal coverage of every mutation path.",
+    "Counts from overlapping runs must not be added as distinct coverage."
+  ],
+  "historical_source_bindings": [
+    {
+      "status": "SUPERSEDED",
+      "frozen_source_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "digest_reference": "/tmp/p22-tested-source-hash.txt",
+      "qualification": "Historical frozen snapshot before later P04 legacy expectation corrections and P09 verified webhook provenance correction; preserved as history, not final tested source."
+    }
+  ],
+  "final_verification": {
+    "status": "VERIFIED",
+    "result": "PASS",
+    "command": "make test-all",
+    "source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_manifest_digest_verification": "sha256sum matched root-provided digest",
+    "source_unchanged_during_run": "VERIFIED_BY_ROOT",
+    "junit_xml": "/tmp/p22-full-final2.xml",
+    "output": "/tmp/p22-full-final2.log",
+    "coverage_json": "/tmp/p22-full-final2-coverage.json",
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_reported": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_percent_rounded": 91.35,
+    "required_coverage_percent": 90,
+    "coverage_gate": "PASS",
+    "exact_junit_nodes": [
+      {
+        "node": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change0]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change1]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change2]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change3]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change4]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change5]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change6]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change7]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change8]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent[change9]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation",
+        "result": "PASS"
+      }
+    ],
+    "prior_run_qualification": "Earlier focused commands, counts and review failures remain historical intermediate-worktree evidence; they are not relabeled as executions of this final source snapshot."
+  },
+  "external_gates": {
+    "status": "PENDING",
+    "items": [
+      "Root clean-room reproduction",
+      "Implementation commit and exact-HEAD CI/security certification",
+      "Authorized governed closure"
+    ],
+    "qualification": "Local combined suite and coverage are verified PASS; no READY/GO or exact implementation commit certification is inferred."
+  },
+  "scope": "Finite audit metadata and sanitized failure handling",
+  "findings": [
+    {
+      "status": "VERIFIED",
+      "claim": "Webhook provenance is selected by trusted P09 source code after signature/freshness and tenant-account validation, never by request-body actor identity. Invalid and stale signatures with a new sender/message payload create no customer audit facts.",
+      "tests": ["tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature"],
+      "evidence": ".nxs/evidence/NXS-P22/actors.json",
+      "output": "/tmp/p22-webhook-provenance.log"
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Typed contracts forbid extra metadata, unregistered service/action/version, prompt-like state strings, nested blobs and invalid counts; canonical intent limit is 4096 bytes. No raw credentials, prompts, message content or identity values are copied into declared metadata.",
+      "sources": [
+        "src/nexus_ai/audit/contracts.py",
+        "src/nexus_ai/audit/platform/contracts.py"
+      ],
+      "tests": [
+        "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/unit/test_platform_audit_contracts.py::test_closed_platform_intent",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture"
+      ],
+      "qualification": "Finite-contract and selected producer proof, not an exhaustive arbitrary-input fuzz campaign."
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Only parseable UUID request/correlation identifiers persist. Arbitrary strings are omitted; source identity supplies default causation. P21 and Organization transitions retain finite state metadata.",
+      "tests": [
+        "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
+        "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]"
+      ],
+      "review": "/tmp/p22-producer-review.md"
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Malformed subject/payload and unverified envelope producer/correlation never enter audit consumer failure logs. Poison storage/publication is sanitized; no success fact is fabricated.",
+      "tests": [
+        "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+        "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+        "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+        "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Local model vault stores ciphertext, account pointer and intent in one transaction. Audit metadata contains no secret material. Unsupported nontransactional vault mutation fails before invoking the vault.",
+      "tests": [
+        "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/integration/test_audit_ingestion.py --no-cov -q",
+      "passed": 4,
+      "authority": "Independent reviewer report /tmp/p22-producer-review.md"
+    },
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/resilience/test_audit_delivery.py --no-cov -q",
+      "passed": 6,
+      "authority": "Core agent report /tmp/p22-core-report.md"
+    }
+  ],
+  "historical_findings": [
+    {
+      "status": "SUPERSEDED",
+      "finding": "Safe correlation regression initially failed two cases (request_id absent).",
+      "resolution": "Bounded UUID capture and safe explicit source propagation."
+    },
+    {
+      "status": "SUPERSEDED",
+      "finding": "Two resilience tests reproduced malformed subject and unverified producer/correlation disclosure.",
+      "resolution": "Constant malformed reason and sanitized retry envelopes; six resilience tests subsequently passed."
+    }
+  ]
+}

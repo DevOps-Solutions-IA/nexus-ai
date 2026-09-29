@@ -32,6 +32,8 @@ import uuid
 from typing import Any
 from uuid import UUID
 
+from nexus_ai.audit.context import source_actor
+from nexus_ai.audit.producer import emit_audit, safe_identity
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import (
@@ -333,6 +335,18 @@ class CustomerService:
             payload=payload,
         )
         await self._publisher.enqueue(session, envelope)
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="customer",
+            action=event_type,
+            target_type="customer_identity"
+            if event_type.startswith("customers.identity.")
+            else "customer",
+            target_id=UUID(aggregate_id),
+            source_id=envelope.event_id,
+            correlation_id=safe_identity(envelope.correlation_id),
+            actor=source_actor(organization_id, service="customer-service"),
+        )
 
 
 class ConversationService:
@@ -563,3 +577,13 @@ class ConversationService:
             payload=payload,
         )
         await self._publisher.enqueue(session, envelope)
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="customer",
+            action=event_type,
+            target_type="conversation",
+            target_id=UUID(aggregate_id),
+            source_id=envelope.event_id,
+            correlation_id=safe_identity(envelope.correlation_id),
+            actor=source_actor(organization_id, service="customer-service"),
+        )

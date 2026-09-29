@@ -48,9 +48,9 @@
     "Legal/regulatory/WORM certification, SIEM, general application logging replacement, distributed tracing, metrics and universal audit coverage",
     "Arbitrary customer log/event/blob ingestion, SQL queries/table selectors, raw prompts/model context/credentials/tokens/secrets and model-generated audit authority",
     "Cross-tenant audit administration, retrospective fabrication, destructive audit retention and duplication of P03/P04/P08/P13/P16/P20/P21 decision authority",
-    "P22-SD01: platform-global Sentinel observations, approvals, executions, kill-switch and global risk-policy audit coverage explicitly DEFERRED; no global ledger, fictitious Organization or attribution to operator login Organization"
+    "Fictitious/system Organizations, attribution of platform-global actions to an operator login Organization, shared tenant/global audit authority and universal coverage claims not proven by the producer inventory"
   ],
-  "objective": "Implement tenant-scoped durable append-only audit records for security-sensitive human, AI and system actions, with trusted actor/source provenance, typed bounded metadata, PostgreSQL forced RLS, tamper-evident integrity verification, deterministic idempotent ingestion, controlled query APIs and P04 transactional-outbox integration without replacing domain authority. ADR-0103, the P22 design and P22-SD01 define AC01-AC43 and explicit platform-global coverage deferral.",
+  "objective": "Implement dual-scope durable append-only audit records for security-sensitive human, AI and system actions without replacing domain authority. TENANT scope requires Organization ownership, PostgreSQL forced RLS, nexus_runtime authority, tenant RBAC and P04 transactional outbox. PLATFORM scope requires null Organization identity, dedicated least-privilege persistence and query authority, registered platform provenance and durable ingestion including authoritative Sentinel privileged facts. Independent integrity domains, typed bounded metadata, deterministic replay conflict detection and tamper-evident verification protect both scopes. The Master Orchestrator dual-scope decision supersedes P22-SD01; ADR-0103 and the P22 design define the updated acceptance contract.",
   "requirements_implemented": [
     "NXS-AUDIT-002"
   ],

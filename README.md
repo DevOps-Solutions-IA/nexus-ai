@@ -50,8 +50,9 @@ at the P20 merge. P21 is now canonical READY/GO on `main` after PR #48, binding 
 implementation `856bd14efe9f5394cd59fe882e89719d4bd428cf` and closure head
 `4cf786bcbaedfad7c4e3b6f72624e2e434f2bc02`. Post-merge NXS CI (`36425699593`, attempt 2)
 and NXS Security (`36425699366`) passed against exact main merge SHA
-`53149934906d0d243cb3f593efc8a5bbf74bd793`. P22 has not started, and production
-deployment has not occurred.
+`53149934906d0d243cb3f593efc8a5bbf74bd793`. P22 had not started at that merge.
+P22 is now BUILDING/PENDING only on `feat/nxs-p22-audit`; it is not validated or
+merged. Production deployment has not occurred and P23 is not authorized.
 See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
 [the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
 The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
@@ -62,9 +63,10 @@ No production deployment, capacity certification or automatic failover is claime
 
 ## Architecture
 
-P22 admission on `feat/nxs-p22-audit` defines tenant-scoped audit controls only; it is
-not validated or merged. P22-SD01 explicitly defers platform-global Sentinel audit
-coverage. No universal audit, regulatory certification or deployment claim is made.
+P22 work on `feat/nxs-p22-audit` defines separate TENANT and PLATFORM audit controls;
+it is not validated or merged. The dual-scope decision supersedes P22-SD01. Platform
+facts must have no Organization owner and use independent persistence and access control.
+No universal audit, regulatory certification or deployment claim is made.
 See [the P22 design](docs/engineering/nxs-p22-audit-design.md).
 
 Nexus AI is organized around strict ownership boundaries:

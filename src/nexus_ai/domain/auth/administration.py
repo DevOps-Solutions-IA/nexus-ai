@@ -12,6 +12,8 @@ from __future__ import annotations
 import uuid
 from uuid import UUID
 
+from nexus_ai.audit.context import principal_actor, source_actor
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.core.errors import (
     MembershipInactiveError,
     MembershipRequiredError,
@@ -59,39 +61,79 @@ class MembershipService:
                 await self._authorizer.require(
                     actor, PermissionKey.MEMBERSHIP_MANAGE, tenant=tenant
                 )
+            audit_actor = (
+                source_actor(organization_id, service="membership-bootstrap")
+                if actor is None
+                else await principal_actor(self._db, tenant, actor)
+            )
             membership = await MembershipRepository(tenant).insert(
                 membership_id=uuid.uuid7(), organization_id=organization_id, user_id=user_id
             )
             role_id = await RoleAssignmentRepository(tenant).role_id_by_key(_role_value(role))
             if role_id is None:
                 raise PermissionDeniedError(f"Unknown role {_role_value(role)!r}.")
+            assignment_id = uuid.uuid7()
             await RoleAssignmentRepository(tenant).assign(
-                assignment_id=uuid.uuid7(),
+                assignment_id=assignment_id,
                 organization_id=organization_id,
                 user_id=user_id,
                 role_id=role_id,
+            )
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.membership.created",
+                target_type="membership",
+                target_id=membership.id,
+                actor=audit_actor,
+            )
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.role.assigned",
+                target_type="role_assignment",
+                target_id=assignment_id,
+                actor=audit_actor,
             )
             return membership
 
     async def suspend(self, *, actor: Principal, organization_id: UUID, user_id: UUID) -> None:
         await self._require_manage(actor, organization_id)
         async with self._db.tenant_transaction(organization_id) as tenant:
+            audit_actor = await principal_actor(self._db, tenant, actor)
             membership = await MembershipRepository(tenant).for_user_in_organization(
                 user_id, organization_id
             )
             if membership is None:
                 raise MembershipRequiredError("The user is not a member of this Organization.")
             await MembershipRepository(tenant).set_status(membership.id, MembershipStatus.SUSPENDED)
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.membership.suspended",
+                target_type="membership",
+                target_id=membership.id,
+                actor=audit_actor,
+            )
 
     async def revoke(self, *, actor: Principal, organization_id: UUID, user_id: UUID) -> None:
         await self._require_manage(actor, organization_id)
         async with self._db.tenant_transaction(organization_id) as tenant:
+            audit_actor = await principal_actor(self._db, tenant, actor)
             membership = await MembershipRepository(tenant).for_user_in_organization(
                 user_id, organization_id
             )
             if membership is None:
                 raise MembershipRequiredError("The user is not a member of this Organization.")
             await MembershipRepository(tenant).set_status(membership.id, MembershipStatus.REVOKED)
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.membership.revoked",
+                target_type="membership",
+                target_id=membership.id,
+                actor=audit_actor,
+            )
 
     async def restore(self, *, actor: Principal, organization_id: UUID, user_id: UUID) -> None:
         """Reactivate a SUSPENDED or REVOKED membership (explicit recovery semantics)."""
@@ -103,6 +145,14 @@ class MembershipService:
             if membership is None:
                 raise MembershipRequiredError("The user is not a member of this Organization.")
             await MembershipRepository(tenant).set_status(membership.id, MembershipStatus.ACTIVE)
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.membership.restored",
+                target_type="membership",
+                target_id=membership.id,
+                actor=await principal_actor(self._db, tenant, actor),
+            )
 
     async def assign_role(
         self,
@@ -122,11 +172,20 @@ class MembershipService:
             role_id = await RoleAssignmentRepository(tenant).role_id_by_key(_role_value(role))
             if role_id is None:
                 raise PermissionDeniedError(f"Unknown role {_role_value(role)!r}.")
+            assignment_id = uuid.uuid7()
             await RoleAssignmentRepository(tenant).assign(
-                assignment_id=uuid.uuid7(),
+                assignment_id=assignment_id,
                 organization_id=organization_id,
                 user_id=user_id,
                 role_id=role_id,
+            )
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.role.assigned",
+                target_type="role_assignment",
+                target_id=assignment_id,
+                actor=await principal_actor(self._db, tenant, actor),
             )
 
     async def suspend_assignment(
@@ -140,6 +199,14 @@ class MembershipService:
         async with self._db.tenant_transaction(organization_id) as tenant:
             await RoleAssignmentRepository(tenant).set_status(
                 assignment_id, RoleAssignmentStatus.SUSPENDED
+            )
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.role.suspended",
+                target_type="role_assignment",
+                target_id=assignment_id,
+                actor=await principal_actor(self._db, tenant, actor),
             )
 
     async def _require_manage(self, actor: Principal, organization_id: UUID) -> None:

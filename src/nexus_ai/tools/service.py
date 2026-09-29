@@ -31,8 +31,11 @@ import datetime as dt
 import hashlib
 import time
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid7
 
+from nexus_ai.audit.context import actor_scope, principal_actor, require_actor
+from nexus_ai.audit.contracts import AuditActor, AuditMetadata
+from nexus_ai.audit.producer import emit_audit, safe_identity
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import NxsError
@@ -110,7 +113,7 @@ class ToolEngine:
                 "the tool is not ACTIVE", extensions={"status": tool.status.value}
             )
         # 4 — version resolution: the single active definition row / its version
-        await self._authorize(organization_id, principal, tool)  # 5 + 6 — principal + RBAC
+        actor = await self._authorize(organization_id, principal, tool)
         self._check_policy(tool)  # 7 — organization / tool policy
 
         validate_arguments(invocation.arguments, tool.input_schema)  # 8 — argument schema
@@ -136,9 +139,10 @@ class ToolEngine:
                 return replay
 
         try:
-            result = await self._run(  # 11 + 12 + 13
-                organization_id, principal, tool, invocation, merged, started
-            )
+            with actor_scope(organization_id, actor):
+                result = await self._run(
+                    organization_id, principal, tool, invocation, merged, started
+                )
         except NxsError as exc:
             if use_idempotency and invocation.idempotency_key is not None:
                 await self._idem.finalize(
@@ -166,9 +170,10 @@ class ToolEngine:
 
     async def _authorize(
         self, organization_id: UUID, principal: Principal, tool: ToolDefinition
-    ) -> None:
+    ) -> AuditActor:
         async with self._db.tenant_transaction(organization_id) as tenant:
             await self._permissions.require(tenant, principal, tool.required_permissions)
+            return await principal_actor(self._db, tenant, principal)
 
     def _check_policy(self, tool: ToolDefinition) -> None:
         ceiling = RiskClass(self._settings.tools.max_risk_class)
@@ -195,11 +200,31 @@ class ToolEngine:
             idempotency_key=derived_key,
             correlation_id=invocation.correlation_id,
         )
+        operation_id = uuid7()
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            await emit_audit(
+                tenant,
+                producer="tool",
+                action="tool.execution.dispatch_authorized",
+                target_type="tool_execution",
+                target_id=operation_id,
+                source_id=operation_id,
+                actor=require_actor(organization_id),
+                metadata=AuditMetadata(related_id=tool.id, version=tool.version),
+                correlation_id=safe_identity(invocation.correlation_id),
+            )
         try:  # 12 — governed Integration Hub execution, bounded by the tool timeout
             downstream = await self._execute_bounded(organization_id, tool, request)
         except ToolTimeoutError as exc:  # the P08 tool timeout is the stricter bound
             await self._finish_failure(
-                organization_id, principal, tool, invocation, exc, 0, started
+                organization_id,
+                principal,
+                tool,
+                invocation,
+                exc,
+                0,
+                started,
+                operation_id=operation_id,
             )
             raise
         except NxsError as exc:
@@ -213,6 +238,7 @@ class ToolEngine:
                 0,
                 started,
                 downstream_code=_code(exc),
+                operation_id=operation_id,
                 downstream_status=_upstream_status(exc),
             )
             raise mapped from exc
@@ -229,6 +255,7 @@ class ToolEngine:
                 downstream.retry_count,
                 started,
                 downstream_code=downstream.error_code,
+                operation_id=operation_id,
                 downstream_status=downstream.status_code,
             )
             raise
@@ -245,7 +272,7 @@ class ToolEngine:
             correlation_id=invocation.correlation_id or _correlation(),
             idempotency_key=invocation.idempotency_key,
         )
-        await self._record(organization_id, principal, tool, result)  # 14 — receipt
+        await self._record(organization_id, principal, tool, result, operation_id)
         await self._emit_completed(organization_id, tool, result)
         return result
 
@@ -326,6 +353,7 @@ class ToolEngine:
         retry_count: int,
         started: float,
         *,
+        operation_id: UUID,
         downstream_code: str | None = None,
         downstream_status: int | None = None,
     ) -> None:
@@ -345,7 +373,7 @@ class ToolEngine:
             correlation_id=invocation.correlation_id or _correlation(),
             idempotency_key=invocation.idempotency_key,
         )
-        await self._record(organization_id, principal, tool, result)
+        await self._record(organization_id, principal, tool, result, operation_id)
         await self._emit_failed(organization_id, tool, result)
 
     async def _record(
@@ -354,9 +382,11 @@ class ToolEngine:
         principal: Principal,
         tool: ToolDefinition,
         result: ToolResult,
+        operation_id: UUID,
     ) -> None:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            await ToolExecutionRepository(tenant).record(
+            actor = require_actor(organization_id)
+            receipt = await ToolExecutionRepository(tenant).record(
                 tool_id=tool.id,
                 tool_key=tool.tool_key,
                 tool_version=result.tool_version,
@@ -371,6 +401,17 @@ class ToolEngine:
                 correlation_id=result.correlation_id,
                 idempotency_key=result.idempotency_key,
                 caller_user_id=principal.user_id,
+            )
+            await emit_audit(
+                tenant,
+                producer="tool",
+                action="tool.execution.completed" if result.ok else "tool.execution.failed",
+                target_type="tool_execution",
+                target_id=receipt,
+                actor=actor,
+                outcome="SUCCESS" if result.ok else "FAILED",
+                causation_id=operation_id,
+                correlation_id=safe_identity(result.correlation_id),
             )
 
     async def _emit_completed(

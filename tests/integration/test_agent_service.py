@@ -217,6 +217,79 @@ async def test_turn_runs_one_tool_then_a_final_answer(
         ).one()
     assert row[0] == "crm.get" and row[1] == "COMPLETED"
     assert len(row[2]) == 64  # a hash, never the raw arguments
+    async with agent_stack.database.tenant_transaction(org.id) as tenant:
+        facts = (
+            (
+                await tenant.session.execute(
+                    text(
+                        "SELECT envelope->'payload' FROM event_outbox "
+                        "WHERE event_type = 'audit.intent.recorded' "
+                        "AND envelope->'payload'->>'action' IN "
+                        "('tool.execution.completed', 'agent.tool.completed')"
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+    assert len(facts) == 2
+    for fact in facts:
+        assert fact["actor"]["kind"] == "AI_AGENT"
+        assert fact["actor"]["agent_id"] == str(agent.id)
+        assert fact["actor"]["session_id"] == str(session.id)
+        assert fact["actor"]["turn_id"] is not None
+        assert fact["actor"]["initiating_user_id"] == str(principal.user_id)
+        assert fact["actor"]["user_id"] is None
+
+
+async def test_credential_rotation_rolls_back_when_audit_fails(
+    agent_stack: Any, make_organization: Any, monkeypatch: Any
+) -> None:
+    organization = await make_organization()
+    agent = await _provision(agent_stack, organization.id)
+    profile = await agent_stack.service.get_profile(organization.id, agent.model_profile_id)
+    account = await agent_stack.service.get_account(organization.id, profile.account_id)
+    original = await agent_stack.vault.get_secret(organization.id, account.credential_ref)
+
+    async def fail(*args: Any, **kwargs: Any) -> None:
+        raise RuntimeError("injected audit insertion failure")
+
+    monkeypatch.setattr("nexus_ai.agents.service.emit_audit", fail)
+    with pytest.raises(RuntimeError, match="injected audit"):
+        await agent_stack.service.store_account_credential(
+            organization.id,
+            account.id,
+            StoreModelCredentialRequest(fields={"api_key": "replacement-secret"}),
+        )
+    retained = await agent_stack.vault.get_secret(organization.id, account.credential_ref)
+    assert retained.as_transport_fields() == original.as_transport_fields()
+    assert (
+        await agent_stack.service.get_account(organization.id, account.id)
+    ).credential_ref == account.credential_ref
+
+
+async def test_nontransactional_credential_vault_fails_before_mutation(
+    agent_stack: Any, make_organization: Any, monkeypatch: Any
+) -> None:
+    from unittest.mock import AsyncMock
+
+    from nexus_ai.agents.errors import AgentConfigInvalidError
+    from nexus_ai.integrations.credentials import InMemoryVault
+
+    organization = await make_organization()
+    agent = await _provision(agent_stack, organization.id)
+    profile = await agent_stack.service.get_profile(organization.id, agent.model_profile_id)
+    vault = InMemoryVault()
+    mutation = AsyncMock()
+    monkeypatch.setattr(vault, "store_secret", mutation)
+    monkeypatch.setattr(agent_stack.service, "_vault", vault)
+    with pytest.raises(AgentConfigInvalidError, match="transactional vault"):
+        await agent_stack.service.store_account_credential(
+            organization.id,
+            profile.account_id,
+            StoreModelCredentialRequest(fields={"api_key": "replacement-secret"}),
+        )
+    mutation.assert_not_awaited()
 
 
 async def test_bounded_tool_loop_terminates_deterministically(

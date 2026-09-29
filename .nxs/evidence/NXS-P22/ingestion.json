@@ -1,0 +1,271 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+  "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+  "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
+  "certification_pending": [
+    "Separate root-owned clean-room certification",
+    "Exact implementation commit and exact-head CI/security",
+    "External Stage A audit and separately authorized lifecycle closure"
+  ],
+  "tenant_lane": {
+    "source": "Registered source writes typed audit.intent.recorded into P04 transactional outbox with local mutation",
+    "consumer": "AuditConsumer through P04 DurableConsumer",
+    "provenance": "Validate envelope scope/source/type/version/payload and committed outbox content before accepting even completed generic receipt",
+    "atomic_effect": "Ledger record/head and durable receipt commit before ACK",
+    "failure": "Bounded P04 retry and terminal dead-letter behavior remain transport authority; no DB outage becomes successful ACK"
+  },
+  "platform_lane": {
+    "source": "nexus_sentinel inserts typed immutable platform_audit_intents inside same local transaction as supported Sentinel mutation",
+    "worker": "PlatformAuditWorker reads only committed journal rows",
+    "batch_max": 200,
+    "atomic_effect": "Record, independent head and successful receipt commit together",
+    "replay": "Reparse committed intent and compare semantic digest before returning existing record/receipt",
+    "terminal_poison": "Invalid typed intent receives immutable INVALID_INTENT receipt, null record reference and no success fact; later sources proceed",
+    "unexpected_failure": "Database or integrity errors stop processing without false success; journal remains durable for restart",
+    "run_once_result": "Count of inspected sources, including terminal invalid sources; not count of successful facts"
+  },
+  "operational_entrypoint": {
+    "command": "python -m nexus_ai.audit.platform [--once]",
+    "environment_variable": "NXS_AUDIT_PLATFORM_DSN",
+    "tenant_lifecycle_credential_injection": false,
+    "shutdown": "SIGINT/SIGTERM cancels in-flight work and bounds transaction drain/connection close",
+    "startup_failure_logging": "Fixed sanitized failure message without exception or payload"
+  },
+  "atomicity_limits": [
+    "Local source mutation plus source intent is atomic; subsequent ledger processing is durable eventual ingestion",
+    "P04 publish_global remains direct confirmed publication and is not represented as transactional durable outbox",
+    "Remote provider effects cannot be made atomic with PostgreSQL; local dispatch authorization and observed/ambiguous outcomes remain separate facts",
+    "No arbitrary log ingestion or replacement generic broker"
+  ],
+  "focused_proofs": [
+    {
+      "status": "VERIFIED_FOCUSED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+      "passed": 38,
+      "failed": 0,
+      "elapsed_seconds": 3.12,
+      "artifact": "/tmp/p22-platform-tests.log",
+      "coverage": {
+        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+        "passed": 38,
+        "percent": 92.57,
+        "artifact": "/tmp/p22-platform-coverage-final.log",
+        "scope": "Platform packages only; not canonical repository coverage"
+      },
+      "report": "/tmp/p22-platform-report.md",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "runs": [
+        {
+          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+          "passed": 10,
+          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+        },
+        {
+          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+          "passed": 3,
+          "note": "Includes missing-head regression; overlaps first run."
+        }
+      ],
+      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "tests_file": "tests/resilience/test_audit_delivery.py",
+      "passed": 6,
+      "scope": "Real persisted outbox/ledger/receipt; deterministic ACK transport boundary",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-producers-report.md",
+      "artifact": "/tmp/p22-sentinel-producers-final.log",
+      "passed": 104,
+      "scope": "Actual Sentinel producer tests plus existing Sentinel regression subset; count includes non-audit regression tests",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    }
+  ],
+  "tests": [
+    "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+    "tests/integration/test_audit_ingestion.py::test_rolled_back_source_cannot_be_ingested",
+    "tests/integration/test_platform_audit.py::test_source_transaction_rollback_and_committed_visibility",
+    "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+    "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact",
+    "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+    "tests/resilience/test_audit_delivery.py::test_retry_rolls_back_fact_and_receipt_before_ack",
+    "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+    "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+    "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+    "tests/resilience/test_audit_delivery.py::test_retry_budget_terminates_without_a_success_fact",
+    "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
+    "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+    "tests/unit/test_platform_audit_contracts.py::test_cli_shutdown_cancels_inflight_transaction"
+  ],
+  "additional_final_suite_nodes": [
+    "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+    "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact",
+    "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay",
+    "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback",
+    "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable",
+    "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success",
+    "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
+  ],
+  "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification.",
+  "sanitized_data": "Finite registered actor/action/target/version metadata; no raw credentials, tokens, request bodies, model context or uncontrolled error text.",
+  "local_certification": {
+    "status": "VERIFIED",
+    "result": "PASS_LOCAL",
+    "command": "make test-all",
+    "tests": 2876,
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds_log": 1248.35,
+    "elapsed_seconds_xml": 1248.336,
+    "xml": {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    "log": {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    "coverage": {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "canonical_threshold_percent": 90,
+      "percent_covered": 91.3468479307026,
+      "percent_covered_rounded": 91.35,
+      "covered_lines": 26292,
+      "num_statements": 28034,
+      "covered_branches": 4079,
+      "num_branches": 5214,
+      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+    },
+    "source_manifest": {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "independently_verified_source_files": 664
+    },
+    "relevant_testcase_count": 21,
+    "exact_testcase_outcomes": [
+      {
+        "node_id": "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/integration/test_audit_ingestion.py::test_rolled_back_source_cannot_be_ingested",
+        "result": "PASS",
+        "duration_seconds": 0.044
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_source_transaction_rollback_and_committed_visibility",
+        "result": "PASS",
+        "duration_seconds": 0.1
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "result": "PASS",
+        "duration_seconds": 0.098
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact",
+        "result": "PASS",
+        "duration_seconds": 0.097
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+        "result": "PASS",
+        "duration_seconds": 0.114
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_retry_rolls_back_fact_and_receipt_before_ack",
+        "result": "PASS",
+        "duration_seconds": 0.074
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+        "result": "PASS",
+        "duration_seconds": 0.047
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+        "result": "PASS",
+        "duration_seconds": 0.005
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_retry_budget_terminates_without_a_success_fact",
+        "result": "PASS",
+        "duration_seconds": 0.068
+      },
+      {
+        "node_id": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
+        "result": "PASS",
+        "duration_seconds": 0.051
+      },
+      {
+        "node_id": "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "result": "PASS",
+        "duration_seconds": 0.05
+      },
+      {
+        "node_id": "tests/unit/test_platform_audit_contracts.py::test_cli_shutdown_cancels_inflight_transaction",
+        "result": "PASS",
+        "duration_seconds": 0.001
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+        "result": "PASS",
+        "duration_seconds": 0.063
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact",
+        "result": "PASS",
+        "duration_seconds": 0.067
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay",
+        "result": "PASS",
+        "duration_seconds": 0.065
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback",
+        "result": "PASS",
+        "duration_seconds": 0.053
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable",
+        "result": "PASS",
+        "duration_seconds": 0.42
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success",
+        "result": "PASS",
+        "duration_seconds": 0.13
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit",
+        "result": "PASS",
+        "duration_seconds": 0.082
+      }
+    ]
+  }
+}

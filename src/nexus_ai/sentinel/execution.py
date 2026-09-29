@@ -8,6 +8,8 @@ from uuid import UUID, uuid7
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from nexus_ai.audit.platform.contracts import PlatformAuditActor, PlatformAuditMetadata
+from nexus_ai.audit.platform.producer import emit_platform_audit
 from nexus_ai.domain.sentinel.models import (
     SentinelActionProposal,
     SentinelApproval,
@@ -94,7 +96,9 @@ class SentinelActionExecutor:
             min(book.timeout_seconds, self.store.settings.execution_timeout_seconds),
         )
 
-    async def claim(self, proposal_id: UUID, owner_id: UUID) -> ExecutionClaim:
+    async def claim(
+        self, proposal_id: UUID, owner_id: UUID, *, actor: PlatformAuditActor | None = None
+    ) -> ExecutionClaim:
         async with self.store.database.transaction() as session:
             row = await self._lock_proposal(session, proposal_id)
             if row.state not in {"PROPOSED", "EXECUTING"}:
@@ -140,6 +144,16 @@ class SentinelActionExecutor:
                 session.add(execution)
                 row.state = "EXECUTING"
             await session.flush()
+            await emit_platform_audit(
+                session,
+                action="sentinel.execution.claimed",
+                target_type="execution",
+                target_id=execution.id,
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-executor"),
+                metadata=PlatformAuditMetadata(
+                    state="CLAIMED", version=execution.execution_generation, related_id=proposal_id
+                ),
+            )
             return ExecutionClaim(
                 proposal_id,
                 execution.id,
@@ -164,7 +178,7 @@ class SentinelActionExecutor:
         return row
 
     async def prepare_dispatch(
-        self, claim: ExecutionClaim
+        self, claim: ExecutionClaim, *, actor: PlatformAuditActor | None = None
     ) -> tuple[SentinelActionAdapter, DispatchRequest, float]:
         async with self.store.database.transaction() as session:
             proposal_row = await self._lock_proposal(session, claim.proposal_id)
@@ -177,6 +191,14 @@ class SentinelActionExecutor:
                 raise SentinelDenied("dispatch_lease_or_state_denied")
             execution.dispatch_state = "DISPATCHED"
             await session.flush()
+            await emit_platform_audit(
+                session,
+                action="sentinel.execution.dispatched",
+                target_type="execution",
+                target_id=execution.id,
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-executor"),
+                metadata=PlatformAuditMetadata(state="DISPATCHED", related_id=claim.proposal_id),
+            )
             request = DispatchRequest(
                 target_kind=proposal.target_kind,
                 target_id=proposal.target_id,
@@ -187,7 +209,12 @@ class SentinelActionExecutor:
             return adapter, request, timeout
 
     async def finish(
-        self, claim: ExecutionClaim, outcome: str, result: ActionResult | None = None
+        self,
+        claim: ExecutionClaim,
+        outcome: str,
+        result: ActionResult | None = None,
+        *,
+        actor: PlatformAuditActor | None = None,
     ) -> None:
         if outcome not in {"SUCCEEDED", "FAILED", "AMBIGUOUS"}:
             raise SentinelDenied("unknown_execution_outcome")
@@ -203,12 +230,29 @@ class SentinelActionExecutor:
             execution.result_classification = result.classification if result else outcome
             execution.external_reference = result.external_reference if result else None
             proposal.state = outcome
+            await emit_platform_audit(
+                session,
+                action={
+                    "SUCCEEDED": "sentinel.execution.completed",
+                    "FAILED": "sentinel.execution.failed",
+                    "AMBIGUOUS": "sentinel.execution.ambiguous",
+                }[outcome],
+                target_type="execution",
+                target_id=execution.id,
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-executor"),
+                outcome="SUCCESS"
+                if outcome == "SUCCEEDED"
+                else ("FAILED" if outcome == "FAILED" else "AMBIGUOUS"),
+                metadata=PlatformAuditMetadata(state=outcome, related_id=claim.proposal_id),
+            )
 
-    async def dispatch(self, claim: ExecutionClaim) -> str:
+    async def dispatch(
+        self, claim: ExecutionClaim, *, actor: PlatformAuditActor | None = None
+    ) -> str:
         try:
-            adapter, request, timeout = await self.prepare_dispatch(claim)
+            adapter, request, timeout = await self.prepare_dispatch(claim, actor=actor)
         except SentinelDenied:
-            await self.reject_claim(claim)
+            await self.reject_claim(claim, actor=actor)
             raise
         result = None
         outcome = "AMBIGUOUS"
@@ -224,10 +268,12 @@ class SentinelActionExecutor:
         except Exception:
             result = None
             outcome = "AMBIGUOUS"
-        await self.finish(claim, outcome, result)
+        await self.finish(claim, outcome, result, actor=actor)
         return outcome
 
-    async def reject_claim(self, claim: ExecutionClaim) -> None:
+    async def reject_claim(
+        self, claim: ExecutionClaim, *, actor: PlatformAuditActor | None = None
+    ) -> None:
         async with self.store.database.transaction() as session:
             proposal = await self._lock_proposal(session, claim.proposal_id)
             execution = await self._owned(session, claim)
@@ -239,6 +285,17 @@ class SentinelActionExecutor:
             ).scalar_one()
             execution.result_classification = "PRE_DISPATCH_DENIED"
             proposal.state = "FAILED"
+            await emit_platform_audit(
+                session,
+                action="sentinel.execution.denied",
+                target_type="execution",
+                target_id=execution.id,
+                outcome="DENIED",
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-executor"),
+                metadata=PlatformAuditMetadata(
+                    reason_code="POLICY_DENIED", related_id=claim.proposal_id
+                ),
+            )
 
     async def cleanup(self) -> int:
         async with self.store.database.transaction() as session:
@@ -279,5 +336,18 @@ class SentinelActionExecutor:
                     "AMBIGUOUS" if ambiguous else "PRE_DISPATCH_EXPIRED"
                 )
                 proposal.state = "AMBIGUOUS" if ambiguous else "FAILED"
+                await emit_platform_audit(
+                    session,
+                    action="sentinel.execution.ambiguous"
+                    if ambiguous
+                    else "sentinel.execution.expired",
+                    target_type="execution",
+                    target_id=execution.id,
+                    actor=PlatformAuditActor(kind="SERVICE", service="sentinel-executor"),
+                    outcome="AMBIGUOUS" if ambiguous else "FAILED",
+                    metadata=PlatformAuditMetadata(
+                        reason_code="AMBIGUOUS" if ambiguous else "EXPIRED", related_id=identity
+                    ),
+                )
                 count += 1
         return count

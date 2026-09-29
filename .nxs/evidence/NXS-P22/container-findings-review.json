@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "REVIEW",
+  "scope": "Independent MEDIUM/LOW applicability and residual-risk review, bound separately to final amd64 and arm64 image scans after exact inventory comparison; not lifecycle closure, deployment authorization, suppression or fix claim.",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "reviewed_scan": {
+    "path": "/tmp/p22-trivy.json",
+    "sha256": "8d2547b91c1b6afdf032d12f630f10eb1abe897e2734e76afde17a67bd927836",
+    "artifact_name": "nexus-ai:p22-audit",
+    "image_id": "sha256:648573e3a125c86fceceb10aac521d3d7dbfc5a2fdc3932af2ce2e43b1ed2f39",
+    "architecture": "amd64",
+    "os": "wolfi 20230201",
+    "counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 6,
+      "LOW": 2
+    },
+    "package_findings": 8,
+    "unique_cves": 4,
+    "limitations": "Counts and versions apply only to this ImageID and supplied scan. No final rebuild, arm64 or later database result is implied."
+  },
+  "review_method": [
+    "Read exact Trivy package, installed/fixed versions, descriptions and references.",
+    "Read Dockerfile and inspected application source for vulnerable API/input patterns.",
+    "Inspected selected installed OpenTelemetry compression code to avoid confusing generic compression with the reported native gzFile vulnerability.",
+    "Opened accessible upstream CPython and zlib sources; unavailable advisory bodies explicitly identified.",
+    "No database access, tests, exploit execution, image modification, runtime edit, ignore rule or vulnerability suppression."
+  ],
+  "scanner_status_interpretation": "Trivy Status=fixed means a remediation version is known. It does not mean the reported installed image package is fixed.",
+  "observed_controls": {
+    "non_root_uid_gid": "65532:65532",
+    "runtime_entrypoint": "/opt/venv/bin/uvicorn nexus_ai.main:app",
+    "runtime_base_digest_in_reviewed_Dockerfile": "sha256:1f37785e5cdb70151f36aaa15e1e3cef4571424dbefbf4b0d8a9222535cb13ff",
+    "deployed_read_only_rootfs": "NOT_VERIFIED",
+    "deployed_memory_limit": "NOT_VERIFIED",
+    "control_limit": "Non-root narrows OS privileges; it does not eliminate memory corruption, credential exposure or denial of service inside the application process."
+  },
+  "findings": [
+    {
+      "vulnerability_id": "CVE-2026-18374",
+      "severity": "MEDIUM",
+      "installed_version": "2.44-r5",
+      "fixed_version_reported": "2.44-r6",
+      "description": "An attacker-controlled glibc fopen mode with an effectively empty ccs encoding can overflow a heap buffer.",
+      "exploit_preconditions": [
+        "Application or native dependency forwards attacker-controlled mode text to glibc fopen using the ccs extension."
+      ],
+      "application_evidence": [
+        "No fopen, ccs= or direct ctypes entrypoint found in src/nexus_ai static search.",
+        "src/nexus_ai/domain/auth/keys.py reads an operator-configured signing-key file with fixed UTF-8/default read mode.",
+        "Sentinel credential loading uses os.open with fixed numeric flags, not client-provided fopen modes."
+      ],
+      "applicability": "INFERRED: the described mode-string input path was not identified in inspected application code. Native/transitive paths were not exhaustively analyzed; this is not a claim of unreachability.",
+      "residual_risk": "Vulnerable libc remains installed. A newly introduced or overlooked native call forwarding untrusted mode text could cause memory corruption under the application UID. Non-root execution does not prevent process compromise or protect application-readable credentials.",
+      "primary_advisory": "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=advisories/GLIBC-SA-2026-0015",
+      "corroborating_reference": "https://sourceware.org/bugzilla/show_bug.cgi?id=34574",
+      "advisory_validation": "Description and references verified in supplied Trivy record. Sourceware fetch was inaccessible/anti-bot; no independent upstream advisory-body verification claimed.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "glibc-2.44"
+    },
+    {
+      "vulnerability_id": "CVE-2026-18374",
+      "severity": "MEDIUM",
+      "installed_version": "2.44-r5",
+      "fixed_version_reported": "2.44-r6",
+      "description": "An attacker-controlled glibc fopen mode with an effectively empty ccs encoding can overflow a heap buffer.",
+      "exploit_preconditions": [
+        "Application or native dependency forwards attacker-controlled mode text to glibc fopen using the ccs extension."
+      ],
+      "application_evidence": [
+        "No fopen, ccs= or direct ctypes entrypoint found in src/nexus_ai static search.",
+        "src/nexus_ai/domain/auth/keys.py reads an operator-configured signing-key file with fixed UTF-8/default read mode.",
+        "Sentinel credential loading uses os.open with fixed numeric flags, not client-provided fopen modes."
+      ],
+      "applicability": "INFERRED: the described mode-string input path was not identified in inspected application code. Native/transitive paths were not exhaustively analyzed; this is not a claim of unreachability.",
+      "residual_risk": "Vulnerable libc remains installed. A newly introduced or overlooked native call forwarding untrusted mode text could cause memory corruption under the application UID. Non-root execution does not prevent process compromise or protect application-readable credentials.",
+      "primary_advisory": "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=advisories/GLIBC-SA-2026-0015",
+      "corroborating_reference": "https://sourceware.org/bugzilla/show_bug.cgi?id=34574",
+      "advisory_validation": "Description and references verified in supplied Trivy record. Sourceware fetch was inaccessible/anti-bot; no independent upstream advisory-body verification claimed.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "glibc-2.44-locale-posix",
+      "package_note": "Same CVE in a separately reported glibc-related package; retained as its own scanner finding, not counted as a distinct CVE."
+    },
+    {
+      "vulnerability_id": "CVE-2026-18374",
+      "severity": "MEDIUM",
+      "installed_version": "2.44-r5",
+      "fixed_version_reported": "2.44-r6",
+      "description": "An attacker-controlled glibc fopen mode with an effectively empty ccs encoding can overflow a heap buffer.",
+      "exploit_preconditions": [
+        "Application or native dependency forwards attacker-controlled mode text to glibc fopen using the ccs extension."
+      ],
+      "application_evidence": [
+        "No fopen, ccs= or direct ctypes entrypoint found in src/nexus_ai static search.",
+        "src/nexus_ai/domain/auth/keys.py reads an operator-configured signing-key file with fixed UTF-8/default read mode.",
+        "Sentinel credential loading uses os.open with fixed numeric flags, not client-provided fopen modes."
+      ],
+      "applicability": "INFERRED: the described mode-string input path was not identified in inspected application code. Native/transitive paths were not exhaustively analyzed; this is not a claim of unreachability.",
+      "residual_risk": "Vulnerable libc remains installed. A newly introduced or overlooked native call forwarding untrusted mode text could cause memory corruption under the application UID. Non-root execution does not prevent process compromise or protect application-readable credentials.",
+      "primary_advisory": "https://sourceware.org/git/?p=glibc.git;a=blob_plain;f=advisories/GLIBC-SA-2026-0015",
+      "corroborating_reference": "https://sourceware.org/bugzilla/show_bug.cgi?id=34574",
+      "advisory_validation": "Description and references verified in supplied Trivy record. Sourceware fetch was inaccessible/anti-bot; no independent upstream advisory-body verification claimed.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "ld-linux-2.44",
+      "package_note": "Same CVE in separately reported glibc loader package; retained without suppression."
+    },
+    {
+      "vulnerability_id": "CVE-2026-19672",
+      "severity": "MEDIUM",
+      "installed_version": "3.14.7-r7",
+      "fixed_version_reported": "3.14.7_git20260912-r0",
+      "description": "On POSIX, crafted tar member names that exit and re-enter the destination can create empty directories outside extraction root despite tar/data filters. Member contents remain within the destination.",
+      "exploit_preconditions": [
+        "Application extracts attacker-controlled tar archives using affected filters.",
+        "Attacker can predict the destination directory's final component; a securely randomized extraction directory avoids the described path pattern."
+      ],
+      "application_evidence": [
+        "No tarfile, extractall or shutil.unpack_archive call found in src/nexus_ai static search.",
+        "Application image starts Uvicorn; package installation occurs in Docker builder stages.",
+        "Separate Kamailio Dockerfiles extract fixed downloaded build inputs; those are a different image/build surface, not evidence of a runtime endpoint in the scanned Python image."
+      ],
+      "applicability": "INFERRED: no archive-extraction runtime surface was identified in inspected application code. The Python standard-library module remains present; dependency/plugin or future usage was not exhaustively excluded.",
+      "residual_risk": "A future or overlooked untrusted tar extraction path could create unauthorized empty directories wherever the application UID can write. Non-root limits privileges but is not containment of writable application directories. Read-only root filesystem and randomized extraction roots were not verified as deployed controls.",
+      "primary_advisory": "https://mail.python.org/archives/list/security-announce@python.org/thread/J2WT2ALRWEXQJOB3C7Q2HYWUXP3CINWO/",
+      "verified_upstream_reference": "https://github.com/python/cpython/pull/156000",
+      "advisory_validation": "Supplied Trivy description reviewed; CPython upstream fix PR independently opened and its exit/re-entry tar path purpose verified. Python mailing-list fetch unavailable.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "python-3.14"
+    },
+    {
+      "vulnerability_id": "CVE-2026-19672",
+      "severity": "MEDIUM",
+      "installed_version": "3.14.7-r7",
+      "fixed_version_reported": "3.14.7_git20260912-r0",
+      "description": "On POSIX, crafted tar member names that exit and re-enter the destination can create empty directories outside extraction root despite tar/data filters. Member contents remain within the destination.",
+      "exploit_preconditions": [
+        "Application extracts attacker-controlled tar archives using affected filters.",
+        "Attacker can predict the destination directory's final component; a securely randomized extraction directory avoids the described path pattern."
+      ],
+      "application_evidence": [
+        "No tarfile, extractall or shutil.unpack_archive call found in src/nexus_ai static search.",
+        "Application image starts Uvicorn; package installation occurs in Docker builder stages.",
+        "Separate Kamailio Dockerfiles extract fixed downloaded build inputs; those are a different image/build surface, not evidence of a runtime endpoint in the scanned Python image."
+      ],
+      "applicability": "INFERRED: no archive-extraction runtime surface was identified in inspected application code. The Python standard-library module remains present; dependency/plugin or future usage was not exhaustively excluded.",
+      "residual_risk": "A future or overlooked untrusted tar extraction path could create unauthorized empty directories wherever the application UID can write. Non-root limits privileges but is not containment of writable application directories. Read-only root filesystem and randomized extraction roots were not verified as deployed controls.",
+      "primary_advisory": "https://mail.python.org/archives/list/security-announce@python.org/thread/J2WT2ALRWEXQJOB3C7Q2HYWUXP3CINWO/",
+      "verified_upstream_reference": "https://github.com/python/cpython/pull/156000",
+      "advisory_validation": "Supplied Trivy description reviewed; CPython upstream fix PR independently opened and its exit/re-entry tar path purpose verified. Python mailing-list fetch unavailable.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "python-3.14-base",
+      "package_note": "Same Python CVE reported in base package; retained as separate package finding."
+    },
+    {
+      "vulnerability_id": "CVE-2026-15310",
+      "severity": "LOW",
+      "installed_version": "3.14.7-r7",
+      "fixed_version_reported": "3.14.7_git20260912-r0",
+      "description": "Crafted ZIP members using bzip2, LZMA or Zstandard can expand an unbounded decompression chunk before output clipping, causing excessive allocation and memory exhaustion.",
+      "exploit_preconditions": [
+        "Application reads attacker-controlled ZIP members with affected compression methods through Python zipfile."
+      ],
+      "application_evidence": [
+        "No zipfile, archive extraction or explicit bzip/LZMA/Zstandard ZIP processing found in src/nexus_ai static search.",
+        "Dependency installation occurs in the builder; the application runtime entrypoint is Uvicorn, not a user-directed package installer."
+      ],
+      "applicability": "INFERRED: an untrusted ZIP-reading runtime path was not identified in inspected app code. Python ZIP support remains available; this is not an exhaustive dependency call-graph result.",
+      "residual_risk": "If affected ZIP reading becomes reachable, the process can suffer memory exhaustion and service loss. Non-root does not mitigate memory denial of service. No production memory limit was verified; generic HTTP body limits would not establish a decompressed-size bound.",
+      "primary_advisory": "https://mail.python.org/archives/list/security-announce@python.org/thread/YUHXURX2WZGKGNA4ANYBQS2VZRYQ5JNK/",
+      "verified_upstream_reference": "https://github.com/python/cpython/issues/156002",
+      "upstream_fix_reference": "https://github.com/python/cpython/pull/156003",
+      "advisory_validation": "Supplied Trivy description reviewed; upstream CPython issue independently confirms missing decompressor output bounds for these ZIP methods. Mailing-list fetch unavailable.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "python-3.14"
+    },
+    {
+      "vulnerability_id": "CVE-2026-15310",
+      "severity": "LOW",
+      "installed_version": "3.14.7-r7",
+      "fixed_version_reported": "3.14.7_git20260912-r0",
+      "description": "Crafted ZIP members using bzip2, LZMA or Zstandard can expand an unbounded decompression chunk before output clipping, causing excessive allocation and memory exhaustion.",
+      "exploit_preconditions": [
+        "Application reads attacker-controlled ZIP members with affected compression methods through Python zipfile."
+      ],
+      "application_evidence": [
+        "No zipfile, archive extraction or explicit bzip/LZMA/Zstandard ZIP processing found in src/nexus_ai static search.",
+        "Dependency installation occurs in the builder; the application runtime entrypoint is Uvicorn, not a user-directed package installer."
+      ],
+      "applicability": "INFERRED: an untrusted ZIP-reading runtime path was not identified in inspected app code. Python ZIP support remains available; this is not an exhaustive dependency call-graph result.",
+      "residual_risk": "If affected ZIP reading becomes reachable, the process can suffer memory exhaustion and service loss. Non-root does not mitigate memory denial of service. No production memory limit was verified; generic HTTP body limits would not establish a decompressed-size bound.",
+      "primary_advisory": "https://mail.python.org/archives/list/security-announce@python.org/thread/YUHXURX2WZGKGNA4ANYBQS2VZRYQ5JNK/",
+      "verified_upstream_reference": "https://github.com/python/cpython/issues/156002",
+      "upstream_fix_reference": "https://github.com/python/cpython/pull/156003",
+      "advisory_validation": "Supplied Trivy description reviewed; upstream CPython issue independently confirms missing decompressor output bounds for these ZIP methods. Mailing-list fetch unavailable.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "python-3.14-base",
+      "package_note": "Same ZIP CVE reported in base package; retained as separate package finding."
+    },
+    {
+      "vulnerability_id": "CVE-2026-85091",
+      "severity": "MEDIUM",
+      "installed_version": "1.3.2-r5",
+      "fixed_version_reported": "1.3.2.1_rc20260601-r0",
+      "description": "In affected zlib versions, a nonblocking gzwrite stall followed by gzprintf/gzvprintf can leave stale external input pointers; gz_vacate may then copy beyond its internal buffer.",
+      "exploit_preconditions": [
+        "Native zlib gzFile nonblocking write path encounters a stall.",
+        "The caller subsequently uses gzprintf or gzvprintf with the affected buffer state."
+      ],
+      "application_evidence": [
+        "No gzwrite, gzprintf or gzvprintf call or direct native binding for them found in src/nexus_ai static search.",
+        "The installed OpenTelemetry HTTP exporter dependency contains optional gzip.GzipFile into BytesIO and zlib.compress calls. Compression presence was explicitly considered; it does not by itself demonstrate the specific nonblocking gzFile printf sequence.",
+        "The complete native/transitive dependency call graph and rebuilt image symbols were not analyzed."
+      ],
+      "applicability": "INFERRED: the specific native nonblocking gzFile sequence was not identified in inspected app or exporter usage. Generic compression exists in dependencies, so no claim that zlib is unused or unreachable is made.",
+      "residual_risk": "Vulnerable native zlib remains installed. A hidden or future extension using the affected sequence may suffer memory corruption under the app UID; isolation does not protect in-process data. FixedVersion is an upstream/distribution candidate string from Trivy, not proof the pinned image contains the fix.",
+      "primary_advisory": "https://www.vulncheck.com/advisories/zlib-1.3.1.2-through-1.3.2-heap-buffer-overflow-via-gz-vacate",
+      "verified_upstream_reference": "https://github.com/madler/zlib/blob/v1.3.2/gzwrite.c#L393",
+      "advisory_validation": "Supplied Trivy description reviewed; upstream gzwrite.c independently shows gz_vacate memmove before its size-result check and use by printf path. VulnCheck advisory fetch unavailable; no exploit reproduction performed.",
+      "disposition": "REVIEW",
+      "remediation_state": "OPEN_FIX_AVAILABLE_NOT_INSTALLED",
+      "package": "zlib"
+    }
+  ],
+  "decision": {
+    "medium_low_disposition": "REVIEW",
+    "finding_suppression": false,
+    "installed_fix_claim": false,
+    "unreachable_claim": false,
+    "reviewer_assessment": "No demonstrated application-specific exploitable path or additional HIGH/CRITICAL blocker was established by this bounded review. All eight findings remain open, with stated prerequisites and residual risk; this is reviewed MEDIUM/LOW evidence, not proof of absence of exploitability.",
+    "final_binding_blocker": null,
+    "final_binding_assessment": "Independently parsed both final architecture scans and compared every CVE/package/installed-version/fixed-version/severity tuple against the reviewed scan: all eight match exactly on each architecture. Each scan reports zero HIGH/CRITICAL, six MEDIUM and two LOW. Applicability remains a bounded static assessment; architecture-specific exploit testing or deployment risk acceptance is not implied.",
+    "production_authorization": "No deployment or general risk acceptance is granted by this evidence.",
+    "future_remediation": "Evaluate and deliberately pin a patched runtime base containing vendor-fixed glibc/Python/zlib packages; rebuild and rescan. This recommended future change is separate from the current candidate and is not performed or claimed here.",
+    "rereview_triggers": [
+      "Different final-image package or CVE inventory",
+      "New native fopen mode-string or gzFile printf integration",
+      "Archive upload/extraction or untrusted ZIP handling feature",
+      "Changed dependency/runtime base or exposure of native extension entrypoints"
+    ]
+  },
+  "arm64_image_binding": {
+    "status": "VERIFIED",
+    "image_id": "sha256:a8a42b8a05f1b05b886647b170bb34a5340de299ea628117febcb2c26d26d849",
+    "artifact_name": "nexus-ai:p22-final-arm64",
+    "architecture": "arm64",
+    "build_load_artifact": "/tmp/p22-arm64-final2.log",
+    "scan_path": "/tmp/p22-trivy-final2-arm64.json",
+    "scan_sha256": "618e8527af22d1d4fe20f8f235e7e18355c6df886b93bb8713cd2b66f61ae39e",
+    "counts": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 6, "LOW": 2},
+    "package_findings": 8,
+    "inventory_identical_to_final_amd64": true,
+    "arm64_only_finding_tuples": [],
+    "amd64_only_finding_tuples": [],
+    "high_critical_gate": "PASS for this exact arm64 image and supplied scan only",
+    "medium_low_gate": "REVIEW with all eight findings open; the same package/CVE review applies without suppression or installed fix claim",
+    "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed."
+  },
+  "final_image_binding": {
+    "status": "VERIFIED",
+    "image_id": "sha256:e322fa271365a7eada848f3ea2678117347a6afe66e7f85af79de79ad303663a",
+    "artifact_name": "nexus-ai:p22-final",
+    "architecture": "amd64",
+    "build_load_artifact": "/tmp/p22-docker-final2.log",
+    "scan_path": "/tmp/p22-trivy-final2-amd64.json",
+    "scan_sha256": "27859eb022f578aeaca6caa0ed239a4751f82b6af0238838d882afe23f58fd11",
+    "inventory_identical_to_reviewed_scan": true,
+    "counts": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 6, "LOW": 2},
+    "high_critical_gate": "PASS for this exact image and supplied scan only",
+    "medium_low_gate": "REVIEW with all findings open; no suppression or installed fix claim"
+  }
+}

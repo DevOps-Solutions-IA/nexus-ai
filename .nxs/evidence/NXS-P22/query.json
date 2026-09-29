@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+  "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+  "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
+  "certification_pending": [
+    "Separate root-owned clean-room certification",
+    "Exact implementation commit and exact-head CI/security",
+    "External Stage A audit and separately authorized lifecycle closure"
+  ],
+  "tenant_interface": {
+    "routes": [
+      "GET /api/v1/audit/records",
+      "GET /api/v1/audit/records/{record_id}",
+      "GET /api/v1/audit/verify"
+    ],
+    "authentication": "Trusted tenant resolution plus LivePrincipalDep and current P03 state",
+    "capabilities": {
+      "read": "audit:read",
+      "verify": "audit:verify"
+    },
+    "default_grants": "Organization owner role only; ordinary member receives neither",
+    "database_role": "nexus_runtime",
+    "rls_scoped": true,
+    "foreign_record_contract": "Same not-found response as unknown UUID",
+    "mutating_routes": []
+  },
+  "platform_interface": {
+    "surface": "Separate internal PlatformAuditControl.records/verify",
+    "authentication": "Verified access token and live user/session/membership/Organization state through P03; separate explicit PlatformGrantRecord required",
+    "capabilities": {
+      "read": "audit:platform:read",
+      "verify": "audit:platform:verify"
+    },
+    "default_grants": [],
+    "tenant_capability_substitution": false,
+    "organization_attribution": "Login Organization participates only in authentication state validation; never assigns ownership to platform facts",
+    "database_role": "nexus_audit_platform",
+    "credential_in_tenant_request_lifecycle": false
+  },
+  "bounds": {
+    "tenant_records_max": 100,
+    "tenant_verification_max": 1000,
+    "platform_records_and_verification_max": 200,
+    "sequence_max": "9223372036854775807",
+    "continuation": "Requires immutable after plus supplied high_water; new appends remain outside cutoff",
+    "tenant_time_window": "Paired timezone-aware inputs, maximum 366 days",
+    "tenant_statement_timeout_seconds": 5,
+    "platform_database_timeout_seconds_max": 60,
+    "filters": "Declared finite fields and typed UUIDs only; bound SQL parameters, no expression/table/URL selectors"
+  },
+  "focused_proofs": [
+    {
+      "status": "VERIFIED_FOCUSED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+      "passed": 38,
+      "failed": 0,
+      "elapsed_seconds": 3.12,
+      "artifact": "/tmp/p22-platform-tests.log",
+      "coverage": {
+        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+        "passed": 38,
+        "percent": 92.57,
+        "artifact": "/tmp/p22-platform-coverage-final.log",
+        "scope": "Platform packages only; not canonical repository coverage"
+      },
+      "report": "/tmp/p22-platform-report.md",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "runs": [
+        {
+          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+          "passed": 10,
+          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+        },
+        {
+          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+          "passed": 3,
+          "note": "Includes missing-head regression; overlaps first run."
+        }
+      ],
+      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    }
+  ],
+  "tests": [
+    "tests/integration/test_audit_query.py::test_snapshot_pagination_excludes_concurrent_append",
+    "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
+  ],
+  "additional_final_suite_nodes": [
+    "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation",
+    "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+    "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends",
+    "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact"
+  ],
+  "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification.",
+  "historical_fact_rule": "Later membership/grant revocation does not rewrite occurred source fact. New reads require live authority.",
+  "non_authority": "Reading/verifying audit facts grants no domain mutation, P21 compliance decision, platform control or cross-tenant business authority.",
+  "local_certification": {
+    "status": "VERIFIED",
+    "result": "PASS_LOCAL",
+    "command": "make test-all",
+    "tests": 2876,
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds_log": 1248.35,
+    "elapsed_seconds_xml": 1248.336,
+    "xml": {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    "log": {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    "coverage": {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "canonical_threshold_percent": 90,
+      "percent_covered": 91.3468479307026,
+      "percent_covered_rounded": 91.35,
+      "covered_lines": 26292,
+      "num_statements": 28034,
+      "covered_branches": 4079,
+      "num_branches": 5214,
+      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+    },
+    "source_manifest": {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "independently_verified_source_files": 664
+    },
+    "relevant_testcase_count": 9,
+    "exact_testcase_outcomes": [
+      {
+        "node_id": "tests/integration/test_audit_query.py::test_snapshot_pagination_excludes_concurrent_append",
+        "result": "PASS",
+        "duration_seconds": 0.059
+      },
+      {
+        "node_id": "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+        "result": "PASS",
+        "duration_seconds": 0.457
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+        "result": "PASS",
+        "duration_seconds": 0.407
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+        "result": "PASS",
+        "duration_seconds": 0.114
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append",
+        "result": "PASS",
+        "duration_seconds": 0.112
+      },
+      {
+        "node_id": "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation",
+        "result": "PASS",
+        "duration_seconds": 0.687
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends",
+        "result": "PASS",
+        "duration_seconds": 0.065
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact",
+        "result": "PASS",
+        "duration_seconds": 1.213
+      }
+    ]
+  }
+}

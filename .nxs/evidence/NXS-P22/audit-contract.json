@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "requirement": "NXS-AUDIT-002",
+  "result": "PASS",
+  "evidence_status": "VERIFIED_FINAL_LOCAL_SUITE",
+  "source": {
+    "head": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "branch": "feat/nxs-p22-audit",
+    "working_tree": "DIRTY_IMPLEMENTATION",
+    "frozen_source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "digest_reference": "/tmp/p22-source-final2.json",
+    "qualification": "Exact dirty implementation source manifest for the passing final combined local suite; HEAD is the phase-start commit, not an implementation commit."
+  },
+  "authority": {
+    "status": "USER_DECISION",
+    "scopes": [
+      "TENANT",
+      "PLATFORM"
+    ],
+    "supersedes": "P22-SD01"
+  },
+  "limitations": [
+    "No READY/GO assertion; root owns clean-room reproduction, exact implementation commit CI/security certification and authorized lifecycle decisions.",
+    "Focused tests do not establish universal coverage of every mutation path.",
+    "Counts from overlapping runs must not be added as distinct coverage."
+  ],
+  "historical_source_bindings": [
+    {
+      "status": "SUPERSEDED",
+      "frozen_source_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "digest_reference": "/tmp/p22-tested-source-hash.txt",
+      "qualification": "Historical frozen snapshot before later P04 legacy expectation corrections and P09 verified webhook provenance correction; preserved as history, not final tested source."
+    }
+  ],
+  "final_verification": {
+    "status": "VERIFIED",
+    "result": "PASS",
+    "command": "make test-all",
+    "source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_manifest_digest_verification": "sha256sum matched root-provided digest",
+    "source_unchanged_during_run": "VERIFIED_BY_ROOT",
+    "junit_xml": "/tmp/p22-full-final2.xml",
+    "output": "/tmp/p22-full-final2.log",
+    "coverage_json": "/tmp/p22-full-final2-coverage.json",
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_reported": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_percent_rounded": 91.35,
+    "required_coverage_percent": 90,
+    "coverage_gate": "PASS",
+    "exact_junit_nodes": [
+      {
+        "node": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_customer_missing_http_actor_rolls_back",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_ingestion.py::test_rolled_back_source_cannot_be_ingested",
+        "result": "PASS"
+      }
+    ],
+    "prior_run_qualification": "Earlier focused commands, counts and review failures remain historical intermediate-worktree evidence; they are not relabeled as executions of this final source snapshot."
+  },
+  "external_gates": {
+    "status": "PENDING",
+    "items": [
+      "Root clean-room reproduction",
+      "Implementation commit and exact-HEAD CI/security certification",
+      "Authorized governed closure"
+    ],
+    "qualification": "Local combined suite and coverage are verified PASS; no READY/GO or exact implementation commit certification is inferred."
+  },
+  "scope": "Versioned typed intent, source transaction and outcome contracts",
+  "contract": {
+    "status": "VERIFIED",
+    "intent_version": 1,
+    "scopes": {
+      "TENANT": "organization_id required; P04 transactional tenant outbox; per-Organization chain",
+      "PLATFORM": "organization_id null; immutable Sentinel source journal; separate platform chain and dedicated worker"
+    },
+    "actor_kinds": {
+      "TENANT": [
+        "HUMAN",
+        "AI_AGENT",
+        "SYSTEM",
+        "SERVICE"
+      ],
+      "PLATFORM": [
+        "HUMAN",
+        "SERVICE"
+      ]
+    },
+    "outcomes": [
+      "SUCCESS",
+      "FAILED",
+      "DENIED",
+      "AMBIGUOUS"
+    ],
+    "bounded_metadata": "Declared UUID identifiers, finite enums, counts and versions; no generic blob",
+    "canonicalization": "UTF-8 JSON with sorted keys, compact separators, finite numbers; timezone-aware time normalized to UTC",
+    "source_identity": "Semantic digest detects changed content under an existing source identity; sequence and persistence metadata belong to ledger authority"
+  },
+  "atomicity": [
+    {
+      "status": "VERIFIED",
+      "boundary": "Verified inbound channel source",
+      "claim": "Registered SERVICE/customer-channel scope is bound only after P09 account resolution and signature/freshness validation. Downstream customer and conversation mutation-intent transactions retain that service actor. This does not claim one transaction covering all webhook processing.",
+      "tests": ["tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature"]
+    },
+    {
+      "status": "VERIFIED",
+      "boundary": "Local tenant mutation and audit intent",
+      "claim": "Same source transaction; insertion/provenance failure rolls back mutation.",
+      "tests": [
+        "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer",
+        "tests/integration/test_audit_producers.py::test_customer_missing_http_actor_rolls_back"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "boundary": "Tool remote dispatch",
+      "claim": "Committed tool.execution.dispatch_authorized intent precedes I/O after P08 validation/claim. SUCCESS here means local dispatch authorization persisted, not remote completion. Later receipt and completion/failure intent share their own transaction; causation references operation UUID. Tool UUID/version only, no arguments/results in intent metadata.",
+      "tests": [
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "boundary": "P13 model credentials",
+      "claim": "TransactionalVaultClient and local ModelSecretStore share ciphertext/pointer/intent transaction. Unsupported external/nontransactional adapters fail before mutation; no external vault atomicity claim.",
+      "tests": [
+        "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
+        "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "boundary": "Sentinel platform local mutation",
+      "claim": "Existing Sentinel transaction inserts source intent; separate core worker appends ledger. Kill switch rollback on injected journal failure is proven. Privileged approval/claim/dispatch/completion intents retain platform attribution.",
+      "tests": [
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance"
+      ]
+    }
+  ],
+  "tests": [
+    "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+    "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+    "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+    "tests/integration/test_audit_ingestion.py::test_rolled_back_source_cannot_be_ingested"
+  ],
+  "runs": [
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/integration/test_audit_producers.py tests/integration/test_tool_engine.py tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer --no-cov -q --maxfail=3 --tb=short --show-capture=no",
+      "passed": 23,
+      "seconds": 15.51,
+      "output": "/tmp/p22-tool-dispatch-proof.log"
+    },
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/integration/test_audit_producers.py -k tool_durable_attempt --no-cov -q --tb=short --show-capture=no",
+      "passed": 2,
+      "deselected": 5,
+      "seconds": 2.18,
+      "output": "/tmp/p22-tool-dispatch-final.log"
+    }
+  ],
+  "review": {
+    "status": "VERIFIED",
+    "reference": "/tmp/p22-producer-review.md",
+    "disposition": "No open producer finding remains from final independent reinspection; final local combined suite and coverage passed. Clean-room and exact implementation commit external gates remain root obligations."
+  },
+  "historical_findings": [
+    {
+      "status": "SUPERSEDED",
+      "finding": "Credential rotation preceded intent transaction.",
+      "resolution": "Same-transaction ciphertext/pointer/intent and rollback regression."
+    },
+    {
+      "status": "SUPERSEDED",
+      "finding": "Tool outcome-only audit left no durable attempt after external effect followed by local failure.",
+      "resolution": "Committed pre-I/O dispatch authorization plus separately transactional outcome."
+    },
+    {
+      "status": "SUPERSEDED",
+      "finding": "Runtime failed/expired events defaulted SUCCESS and generic transitions omitted state.",
+      "resolution": "Explicit failed outcome and finite state metadata."
+    }
+  ]
+}

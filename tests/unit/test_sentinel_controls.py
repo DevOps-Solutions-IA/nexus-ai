@@ -10,6 +10,7 @@ import pytest
 from pydantic import SecretStr
 
 from nexus_ai.agents.models.base import ModelMessage, ModelRequest, ModelRole
+from nexus_ai.audit.platform.contracts import PlatformAuditActor
 from nexus_ai.sentinel.config import SentinelSettings
 from nexus_ai.sentinel.contracts import Approval, IncidentState, Parameters, Risk, Subject
 from nexus_ai.sentinel.control import (
@@ -231,12 +232,19 @@ async def test_operator_facade_binds_each_authorized_operation():
     assert await control.incidents("valid", limit=1) == []
     assert await control.transition("valid", identity, 5, IncidentState.RESOLVED) == 6
     persistence.transition.assert_awaited_once_with(
-        identity, 5, IncidentState.RESOLVED, resolution_source="AUTHORIZED_OPERATOR"
+        identity,
+        5,
+        IncidentState.RESOLVED,
+        resolution_source="AUTHORIZED_OPERATOR",
+        actor=PlatformAuditActor(kind="HUMAN", user_id=authority.require.return_value),
     )
     assert await control.set_mutable_actions("valid", 1, enabled=False) == 2
     assert await control.execute("valid", identity) == "SUCCEEDED"
     assert authority.require.await_count == 5
-    executor.dispatch.assert_awaited_once_with(executor.claim.return_value)
+    executor.dispatch.assert_awaited_once_with(
+        executor.claim.return_value,
+        actor=PlatformAuditActor(kind="HUMAN", user_id=authority.require.return_value),
+    )
 
 
 @pytest.mark.anyio

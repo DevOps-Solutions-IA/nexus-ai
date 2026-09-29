@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "requirement": "NXS-AUDIT-002",
+  "result": "PASS",
+  "evidence_status": "VERIFIED_FINAL_LOCAL_SUITE",
+  "source": {
+    "head": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "branch": "feat/nxs-p22-audit",
+    "working_tree": "DIRTY_IMPLEMENTATION",
+    "frozen_source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "digest_reference": "/tmp/p22-source-final2.json",
+    "qualification": "Exact dirty implementation source manifest for the passing final combined local suite; HEAD is the phase-start commit, not an implementation commit."
+  },
+  "authority": {
+    "status": "USER_DECISION",
+    "scopes": [
+      "TENANT",
+      "PLATFORM"
+    ],
+    "supersedes": "P22-SD01"
+  },
+  "limitations": [
+    "No READY/GO assertion; root owns clean-room reproduction, exact implementation commit CI/security certification and authorized lifecycle decisions.",
+    "Focused tests do not establish universal coverage of every mutation path.",
+    "Counts from overlapping runs must not be added as distinct coverage."
+  ],
+  "historical_source_bindings": [
+    {
+      "status": "SUPERSEDED",
+      "frozen_source_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "digest_reference": "/tmp/p22-tested-source-hash.txt",
+      "qualification": "Historical frozen snapshot before later P04 legacy expectation corrections and P09 verified webhook provenance correction; preserved as history, not final tested source."
+    }
+  ],
+  "final_verification": {
+    "status": "VERIFIED",
+    "result": "PASS",
+    "command": "make test-all",
+    "source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_manifest_digest_verification": "sha256sum matched root-provided digest",
+    "source_unchanged_during_run": "VERIFIED_BY_ROOT",
+    "junit_xml": "/tmp/p22-full-final2.xml",
+    "output": "/tmp/p22-full-final2.log",
+    "coverage_json": "/tmp/p22-full-final2-coverage.json",
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_reported": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_percent_rounded": 91.35,
+    "required_coverage_percent": 90,
+    "coverage_gate": "PASS",
+    "exact_junit_nodes": [
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_retry_rolls_back_fact_and_receipt_before_ack",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_retry_budget_terminates_without_a_success_fact",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+        "result": "PASS"
+      }
+    ],
+    "prior_run_qualification": "Earlier focused commands, counts and review failures remain historical intermediate-worktree evidence; they are not relabeled as executions of this final source snapshot."
+  },
+  "external_gates": {
+    "status": "PENDING",
+    "items": [
+      "Root clean-room reproduction",
+      "Implementation commit and exact-HEAD CI/security certification",
+      "Authorized governed closure"
+    ],
+    "qualification": "Local combined suite and coverage are verified PASS; no READY/GO or exact implementation commit certification is inferred."
+  },
+  "scope": "Durable consumer failure, bounded retry and source failure windows",
+  "harness": {
+    "status": "VERIFIED",
+    "database": "Real PostgreSQL source outbox, ledger, consumer receipt and dead-letter persistence",
+    "transport": "Deterministic ACK/NAK/TERM and publication mocks",
+    "qualification": "Exercises consumer transaction and acknowledgement decisions with real persistence; not a live broker network-partition or process-kill campaign."
+  },
+  "run": {
+    "status": "VERIFIED",
+    "command": "uv run pytest tests/resilience/test_audit_delivery.py --no-cov -q",
+    "passed": 6,
+    "authority": "Core agent report /tmp/p22-core-report.md"
+  },
+  "cases": [
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_retry_rolls_back_fact_and_receipt_before_ack",
+      "status": "VERIFIED",
+      "proves": "Injected failure after ledger append rolls back ledger and successful receipt, delays NAK without ACK/TERM; next attempt commits both before ACK."
+    },
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
+      "status": "VERIFIED",
+      "proves": "Unavailable DB transaction produces delayed NAK, no ACK/TERM, no unverified producer/correlation disclosure."
+    },
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication",
+      "status": "VERIFIED",
+      "proves": "Invalid payload enters sanitized dead-letter storage/publication, no success fact, terminal transport disposition without successful ACK."
+    },
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
+      "status": "VERIFIED",
+      "proves": "Malformed payload and subject are not logged; terminal disposition, no ACK or retry."
+    },
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_retry_budget_terminates_without_a_success_fact",
+      "status": "VERIFIED",
+      "proves": "Third failed delivery terminates within configured retry budget; DEAD receipt and sanitized dead letter, no ledger success."
+    },
+    {
+      "node": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
+      "status": "VERIFIED",
+      "proves": "Terminal-storage outage preserves retry with bounded maximum delay instead of acknowledging or terminating unpersisted failure."
+    }
+  ],
+  "source_windows": [
+    {
+      "status": "VERIFIED",
+      "tests": [
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]"
+      ],
+      "claim": "Pre-dispatch journal failure prevents tool I/O; later outcome failure preserves durable attempt while local receipt rolls back. External effects remain non-atomic."
+    },
+    {
+      "status": "VERIFIED",
+      "tests": [
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
+      ],
+      "claim": "Source journal failure rolls back actual Sentinel control mutation."
+    },
+    {
+      "status": "VERIFIED",
+      "tests": [
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "claim": "Already processed receipt does not bypass source semantic/provenance validation on replay."
+    }
+  ],
+  "historical_findings": [
+    {
+      "status": "SUPERSEDED",
+      "finding": "Two tests initially reproduced sensitive malformed/retry logging.",
+      "resolution": "Sanitized audit-specific failure paths; subsequent six-test run passed."
+    }
+  ],
+  "remaining": "Local combined execution is verified PASS; root owns clean-room reproduction and external exact implementation commit gates. Platform worker crash/replay details remain in their owning evidence artifacts."
+}

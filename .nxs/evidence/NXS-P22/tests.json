@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+  "result": "PASS",
+  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-full-final2.xml' make test-all",
+  "exit_code": 0,
+  "passed": 2876,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "runtime_seconds": 1248.336,
+  "started_at": "2026-09-29T16:48:57.057174-05:00",
+  "coverage_percent": 91.3468479307026,
+  "statement_coverage_percent": 93.78611685810088,
+  "branch_coverage_percent": 78.23168392788646,
+  "canonical_threshold": 90,
+  "canonical_measure": "pytest-cov combined statement and branch opportunities; separate branch-only percentage is not the canonical threshold metric.",
+  "audit_module_coverage": {
+    "covered_lines": 730,
+    "num_statements": 797,
+    "covered_branches": 137,
+    "num_branches": 190,
+    "percent_covered": 87.8419452887538
+  },
+  "audit_coverage_scope": "src/nexus_ai/audit/**, domain/audit/**, domain/platform_audit/**, api/audit.py measured within the same full-suite execution; not a separate focused run.",
+  "xml": {
+    "path": "/tmp/p22-full-final2.xml",
+    "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+  },
+  "coverage": {
+    "path": "/tmp/p22-full-final2-coverage.json",
+    "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+  },
+  "history": "development-history.json",
+  "lifecycle_certification": false,
+  "limitations": [
+    "Exact-head GitHub and clean-room certification are recorded separately."
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "scope": "Stage A dual-scope Audit Platform; no Stage B or universal coverage claim.",
+  "records": [
+    {
+      "path": ".nxs/evidence/NXS-P22/acceptance-map.json",
+      "sha256": "20359a620751140c148f4fd36c969dbec53d871a14640dcd61e12cfad43d1b63",
+      "result": "PENDING_EXACT_HEAD"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/actors.json",
+      "sha256": "3c53ffe6ce876252824209341655b6ddb20a622933e76ffcc4d43d5a7ab7a2f2",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/admission-baseline.json",
+      "sha256": "e1559608be92da15ea49821ae0ec8bd2d31bcca3b17645733dfc9abae5907d16",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/audit-contract.json",
+      "sha256": "14551904164328d3aa47d772b996b956d2444533f3616dd15a71ff519f958b45",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/concurrency.json",
+      "sha256": "5ce453cc454035ff6fb3e534df44767dcb12faf627bc66820d3af5ecdbbc8468",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/container-findings-review.json",
+      "sha256": "85e1ee4d26c0d07e30106516f97855de7d274f2d9aa35cb0f2904386b7dbdc5e",
+      "result": "REVIEW"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/containers.json",
+      "sha256": "d89b11bec2ac1bdadaee8e9234f21b5103f986b41ea16c9b45d5b8c3a9ffc629",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/database.json",
+      "sha256": "75a81fb4b51d0ec42f53ae983204f6eb09fdc662eff0705c170464a2af1169a1",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/development-history.json",
+      "sha256": "b7e5fcd310b4efba51d799827a29c7adca82c4f98ce29fd854ac548e334f1adf",
+      "result": "HISTORY_PRESERVED"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/ingestion.json",
+      "sha256": "745ccaf1815e2a161dc512580b4e9f5e44416948b13f3ffc01813ed5bada6b38",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/integrity.json",
+      "sha256": "9a647324ebf602abb4aeeb4de8ce1841d2f6ce0d27c637f305627886a5d9983d",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/local-certification.json",
+      "sha256": "89d4b2f906e2d4b6e7e54dd05de2260e9eff5f6d0760172ba85638549253803c",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/metadata-security.json",
+      "sha256": "e99aec14791bf522938d03c50c58d8ef39e9def411336877f5af1e6bf8fd4a70",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/migration.json",
+      "sha256": "fc754519ffc71ac607517a88a53df2a2e577c62883e53c107eafcacfa496b320",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/producer-inventory.json",
+      "sha256": "9c91fae92f1f227800c1a2fb27fa1df3581614b5b680f9072d4669657c5a214d",
+      "result": "PASS_FINITE_INVENTORY"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/query.json",
+      "sha256": "352914473680a323dfa5dc8dfbdb2ab191002455b4ae8f6e0ab2d72ec88d1532",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/resilience.json",
+      "sha256": "6fe7fbab07d449210d7451a918ed0b953595af5f1e30d9d84f3db029d7c0359d",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+      "sha256": "ac67668feeeec587967eb2a07fa5340988dee511c1107a7cbb6e4ac6b0514ed5",
+      "result": "AUTHORIZED"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/scope-decision-p22-sd01.json",
+      "sha256": "48ccfcab5e6ff676ae51bfb6398877fc09c9d8e3678037ee7ad0ec7ae3adb7ef",
+      "result": "SUPERSEDED"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/security.json",
+      "sha256": "b33136e0716f0727b41cb5f24ae7902445e797a57abf045d807527039496fdb6",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/source-integrity.json",
+      "sha256": "0c84052161f69d91c4c73b07c29f4a56cf7af69b4ab31ad4211123efd59c5d39",
+      "result": "PASS"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/tenant-isolation.json",
+      "sha256": "aae2234a910d5e29193872d9f21fef14031db4d6bc22b2248cc4d8deeeb5207c",
+      "result": "PASS_LOCAL"
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/tests.json",
+      "sha256": "cf12bd7d7d8144291d7f9c03195e55143fdeb2c2be848aae56081d3ee3d601c5",
+      "result": "PASS"
+    }
+  ],
+  "records_count": 23,
+  "required_acceptance": 49,
+  "local_acceptance_pass": 47,
+  "external_pending": [
+    "AC37",
+    "AC38"
+  ],
+  "concurrency": {
+    "required": 20,
+    "mapped": 20,
+    "executed": 20,
+    "missing": 0
+  },
+  "historical_scope": "P22-SD01 is preserved but SUPERSEDED by dual-scope authorization.",
+  "exact_head_receipt": "Publish verified exact-candidate workflow receipt separately after commit, without circular self-referential candidate hashes.",
+  "prohibited": {
+    "nxs_gate": true,
+    "nxs_close": true,
+    "merge": true,
+    "P23": true,
+    "deployment": true
+  }
+}

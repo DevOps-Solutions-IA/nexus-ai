@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+  "result": "PASS",
+  "head": "d22b0b1c2d3e",
+  "head_count": 1,
+  "previous_canonical_revision": "d21a0b1c2d3e",
+  "additive_revisions": [
+    "d22a0b1c2d3e",
+    "d22b0b1c2d3e"
+  ],
+  "historical_migrations_modified": false,
+  "roundtrip": {
+    "disposable_database": "nxs_p22_roundtrip_ff5fee3f3cfc",
+    "dropped": true,
+    "commands": [
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "heads"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:33.073987+00:00",
+        "finished_at": "2026-09-29T21:23:33.500897+00:00",
+        "log": "/tmp/p22-migration-0.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "upgrade",
+          "head"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:33.500927+00:00",
+        "finished_at": "2026-09-29T21:23:35.321398+00:00",
+        "log": "/tmp/p22-migration-1.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "check"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:35.321417+00:00",
+        "finished_at": "2026-09-29T21:23:36.265351+00:00",
+        "log": "/tmp/p22-migration-2.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-m",
+          "scripts.nxs_schema_guard"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:36.265371+00:00",
+        "finished_at": "2026-09-29T21:23:36.902061+00:00",
+        "log": "/tmp/p22-migration-3.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "downgrade",
+          "d21a0b1c2d3e"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:36.902084+00:00",
+        "finished_at": "2026-09-29T21:23:37.595890+00:00",
+        "log": "/tmp/p22-migration-4.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "upgrade",
+          "head"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:37.595911+00:00",
+        "finished_at": "2026-09-29T21:23:38.312324+00:00",
+        "log": "/tmp/p22-migration-5.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "alembic",
+          "check"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:38.312340+00:00",
+        "finished_at": "2026-09-29T21:23:39.290471+00:00",
+        "log": "/tmp/p22-migration-6.log"
+      },
+      {
+        "command": [
+          "uv",
+          "run",
+          "python",
+          "-m",
+          "scripts.nxs_schema_guard"
+        ],
+        "exit_code": 0,
+        "started_at": "2026-09-29T21:23:39.290492+00:00",
+        "finished_at": "2026-09-29T21:23:39.877210+00:00",
+        "log": "/tmp/p22-migration-7.log"
+      }
+    ],
+    "result": "PASS"
+  },
+  "local_commands": [
+    {
+      "command": "make db-bootstrap",
+      "exit_code": 0,
+      "log": "/tmp/p22-bootstrap-final.log"
+    },
+    {
+      "command": "make migrate-check",
+      "exit_code": 0,
+      "log": "/tmp/p22-migrate-check-final.log"
+    },
+    {
+      "command": "make nxs-schema-guard",
+      "exit_code": 0,
+      "log": "/tmp/p22-schema-final.log"
+    }
+  ],
+  "security_constraints": [
+    "Tenant head id equals organization_id; forced RLS and tenant-aware foreign keys.",
+    "Runtime audit facts are append-only by grants and immutable trigger.",
+    "Dedicated platform role, null Organization and immutable source/ledger/receipt boundaries.",
+    "Independent platform head; no global tenant serialization."
+  ],
+  "limitations": [
+    "Disposable/local test databases only; no production schema operation."
+  ]
+}

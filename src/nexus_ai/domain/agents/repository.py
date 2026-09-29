@@ -677,31 +677,34 @@ class ModelSecretStore:
 
     async def put(self, organization_id: uuid.UUID, ref: str, secret: EncryptedSecret) -> None:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            existing = (
-                await tenant.session.execute(
-                    select(AiModelSecretRecord).where(
-                        AiModelSecretRecord.organization_id == organization_id,
-                        AiModelSecretRecord.credential_ref == ref,
-                    )
+            await self.put_in(tenant, ref, secret)
+
+    async def put_in(self, tenant: TenantSession, ref: str, secret: EncryptedSecret) -> None:
+        existing = (
+            await tenant.session.execute(
+                select(AiModelSecretRecord).where(
+                    AiModelSecretRecord.organization_id == tenant.organization_id,
+                    AiModelSecretRecord.credential_ref == ref,
                 )
-            ).scalar_one_or_none()
-            now = dt.datetime.now(dt.UTC)
-            if existing is None:
-                tenant.session.add(
-                    AiModelSecretRecord(
-                        id=uuid.uuid7(),
-                        organization_id=organization_id,
-                        credential_ref=ref,
-                        credential_type=secret.credential_type.value,
-                        ciphertext=secret.ciphertext,
-                        created_at=now,
-                        updated_at=now,
-                    )
+            )
+        ).scalar_one_or_none()
+        now = dt.datetime.now(dt.UTC)
+        if existing is None:
+            tenant.session.add(
+                AiModelSecretRecord(
+                    id=uuid.uuid7(),
+                    organization_id=tenant.organization_id,
+                    credential_ref=ref,
+                    credential_type=secret.credential_type.value,
+                    ciphertext=secret.ciphertext,
+                    created_at=now,
+                    updated_at=now,
                 )
-            else:
-                existing.ciphertext = secret.ciphertext
-                existing.credential_type = secret.credential_type.value
-                existing.updated_at = now
+            )
+        else:
+            existing.ciphertext = secret.ciphertext
+            existing.credential_type = secret.credential_type.value
+            existing.updated_at = now
 
     async def delete(self, organization_id: uuid.UUID, ref: str) -> bool:
         from sqlalchemy import delete as _delete

@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "requirement": "NXS-AUDIT-002",
+  "result": "PASS",
+  "evidence_status": "VERIFIED_FINAL_LOCAL_SUITE",
+  "source": {
+    "head": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "branch": "feat/nxs-p22-audit",
+    "working_tree": "DIRTY_IMPLEMENTATION",
+    "frozen_source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "digest_reference": "/tmp/p22-source-final2.json",
+    "qualification": "Exact dirty implementation source manifest for the passing final combined local suite; HEAD is the phase-start commit, not an implementation commit."
+  },
+  "authority": {
+    "status": "USER_DECISION",
+    "scopes": [
+      "TENANT",
+      "PLATFORM"
+    ],
+    "supersedes": "P22-SD01"
+  },
+  "limitations": [
+    "No READY/GO assertion; root owns clean-room reproduction, exact implementation commit CI/security certification and authorized lifecycle decisions.",
+    "Focused tests do not establish universal coverage of every mutation path.",
+    "Counts from overlapping runs must not be added as distinct coverage."
+  ],
+  "historical_source_bindings": [
+    {
+      "status": "SUPERSEDED",
+      "frozen_source_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "digest_reference": "/tmp/p22-tested-source-hash.txt",
+      "qualification": "Historical frozen snapshot before later P04 legacy expectation corrections and P09 verified webhook provenance correction; preserved as history, not final tested source."
+    }
+  ],
+  "final_verification": {
+    "status": "VERIFIED",
+    "result": "PASS",
+    "command": "make test-all",
+    "source_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_manifest_digest_verification": "sha256sum matched root-provided digest",
+    "source_unchanged_during_run": "VERIFIED_BY_ROOT",
+    "junit_xml": "/tmp/p22-full-final2.xml",
+    "output": "/tmp/p22-full-final2.log",
+    "coverage_json": "/tmp/p22-full-final2-coverage.json",
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_reported": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_percent_rounded": 91.35,
+    "required_coverage_percent": 90,
+    "coverage_gate": "PASS",
+    "exact_junit_nodes": [
+      {
+        "node": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_source_context.py::test_actor_is_tenant_scoped_and_does_not_leak_to_child_task",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_source_context.py::test_request_without_live_actor_never_becomes_service",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_source_context.py::test_bound_actor_cannot_escape_request_lifetime",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_audit_source_context.py::test_explicit_internal_service_and_human_scope",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_customer_missing_http_actor_rolls_back",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_producers.py::test_self_suspension_keeps_pre_mutation_human_provenance",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_sentinel_audit_sources.py::test_control_preserves_platform_operator_for_kill_switch",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/unit/test_sentinel_audit_sources.py::test_control_preserves_platform_operator_for_execution",
+        "result": "PASS"
+      },
+      {
+        "node": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "result": "PASS"
+      }
+    ],
+    "prior_run_qualification": "Earlier focused commands, counts and review failures remain historical intermediate-worktree evidence; they are not relabeled as executions of this final source snapshot."
+  },
+  "external_gates": {
+    "status": "PENDING",
+    "items": [
+      "Root clean-room reproduction",
+      "Implementation commit and exact-HEAD CI/security certification",
+      "Authorized governed closure"
+    ],
+    "qualification": "Local combined suite and coverage are verified PASS; no READY/GO or exact implementation commit certification is inferred."
+  },
+  "scope": "Source actor provenance across tenant and platform lanes",
+  "findings": [
+    {
+      "status": "VERIFIED",
+      "claim": "P09 inbound messaging binds registered SERVICE/customer-channel only after token-derived tenant account/provider resolution, signature/freshness verification and active-account checks. Scoped binding surrounds Customer/Conversation processing and is restored afterward; it is not a permissive HTTP fallback or a body-selected actor.",
+      "sources": ["src/nexus_ai/messaging/webhooks.py"],
+      "tests": ["tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature"],
+      "proof": "Valid signed HTTP callback produces exactly two customer/conversation facts attributed to customer-channel, with no human or initiating-user identity. Invalid and stale signatures with a distinct sender/message payload create no additional facts.",
+      "adjacent_inspection": "P11 telephony and P12 voice callbacks mutate their own repositories and do not call CustomerService or current P22 hooks. No extra provenance fallback was added there."
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "HTTP HUMAN binding follows verified bearer claims and live session/user/membership/Organization validation, includes session UUID, and is fenced by Organization, RequestContext identity and asyncio task identity.",
+      "sources": [
+        "src/nexus_ai/api/tenancy.py",
+        "src/nexus_ai/api/middleware.py",
+        "src/nexus_ai/audit/context.py"
+      ],
+      "tests": [
+        "tests/unit/test_audit_source_context.py::test_actor_is_tenant_scoped_and_does_not_leak_to_child_task",
+        "tests/unit/test_audit_source_context.py::test_request_without_live_actor_never_becomes_service",
+        "tests/unit/test_audit_source_context.py::test_bound_actor_cannot_escape_request_lifetime",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Registered internal org-only service seams can use finite SERVICE identity outside HTTP context; missing HTTP provenance fails closed. Principal-taking tool, P13 and P17 seams validate human identity. Membership self-suspension captures actor before mutation.",
+      "tests": [
+        "tests/unit/test_audit_source_context.py::test_explicit_internal_service_and_human_scope",
+        "tests/integration/test_audit_producers.py::test_customer_missing_http_actor_rolls_back",
+        "tests/integration/test_audit_producers.py::test_self_suspension_keeps_pre_mutation_human_provenance"
+      ]
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "P13 execution actor derives from persisted agent/session/turn; initiating_user_id is separate from executing AI. Both P08 tool and P13 tool-completion intents retain AI attribution. Explicit stop/cancel preserves source actor.",
+      "tests": [
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer"
+      ],
+      "review": "/tmp/p22-producer-review.md: Final re-review disposition"
+    },
+    {
+      "status": "VERIFIED",
+      "claim": "Sentinel global operator identity comes from live platform authority; service identities are registered. PLATFORM organization_id is null, even when operator login uses a tenant session. No fake Organization or Sentinel ledger authority is introduced.",
+      "tests": [
+        "tests/unit/test_sentinel_audit_sources.py::test_control_preserves_platform_operator_for_kill_switch",
+        "tests/unit/test_sentinel_audit_sources.py::test_control_preserves_platform_operator_for_execution",
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance"
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature tests/integration/test_telephony_api.py::test_signed_inbound_webhook_creates_a_call tests/integration/test_telephony_api.py::test_unsigned_webhook_route_is_rejected tests/unit/test_audit_source_context.py --no-cov -q --tb=short --show-capture=no",
+      "passed": 7,
+      "seconds": 1.94,
+      "output": "/tmp/p22-webhook-provenance.log"
+    },
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/unit/test_audit_source_context.py tests/unit/test_sentinel_audit_sources.py --no-cov -q",
+      "passed": 23,
+      "authority": "Independent reviewer recorded /tmp/p22-producer-review.md"
+    },
+    {
+      "status": "VERIFIED",
+      "command": "uv run pytest tests/integration/test_audit_sentinel_producers.py tests/integration/test_sentinel_persistence.py tests/integration/test_sentinel_execution.py tests/unit/test_sentinel_controls.py tests/unit/test_sentinel_audit_sources.py --no-cov -q --maxfail=3 --tb=short --show-capture=no",
+      "passed": 104,
+      "seconds": 13.43,
+      "output": "/tmp/p22-sentinel-producers-final.log"
+    }
+  ],
+  "historical_findings": [
+    {
+      "status": "SUPERSEDED",
+      "finding": "Root combined run reported 2874 passed / 2 failed with 91.39% coverage. One genuine runtime failure was valid signed P09 HTTP webhook returning 403 because downstream customer audit lacked trusted actor provenance.",
+      "source": "/tmp/p22-full-certified.log",
+      "resolution": "Owning verified-webhook boundary explicitly binds registered customer-channel service; seven focused tests passed. The other CLI failure was root-owned. Both failures are absent in the verified final local suite of 2876 passing tests."
+    },
+    {
+      "status": "SUPERSEDED",
+      "finding": "Post-mutation actor revalidation blocked legitimate self-suspension; test principal fixture had nonexistent sessions.",
+      "resolution": "Validate/capture actor before mutation; fixture now registers and authenticates real live sessions."
+    },
+    {
+      "status": "SUPERSEDED",
+      "finding": "P13 human stop/cancel attributed to AI; P17 direct Principal path could become SERVICE.",
+      "resolution": "Source-specific stop/cancel actor and explicit validated principal binding; independent re-review reports no remaining producer finding."
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "HISTORY_PRESERVED",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_binding": {
+    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+    "status": "VERIFIED_FINAL_XML_BINDING",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+    "xml": "/tmp/p22-full-final2.xml"
+  },
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "purpose": "Preserve unsuccessful attempts and review corrections without claiming final certification.",
+  "artifact_retention": "Original logs/reports remain at listed local paths; only bounded factual summaries copied here, never full logs or secrets.",
+  "artifact_bindings": [
+    {
+      "path": "/tmp/p22-head-collision-red.log",
+      "sha256": "f81aa4315e32ed1ee41a431dbd9139bc9433c9fa7cd037f3ce94f1d42fb612d8"
+    },
+    {
+      "path": "/tmp/p22-head-collision-green.log",
+      "sha256": "8d7ff111c5df8a8f211b571e2cf7108820ab7beb0bd8b29c6219291fafa147a2"
+    },
+    {
+      "path": "/tmp/p22-jwt-regression.log",
+      "sha256": "16607d50d23914143f0c29bdf4c39d6ea4d493ed19426674e2cdf14900b38602"
+    },
+    {
+      "path": "/tmp/p22-security-gate.log",
+      "sha256": "d6f256ede5cdab05e8e50fe272772c4d70578ffa05f5294025bf4fb0d0c0afa9"
+    },
+    {
+      "path": "/tmp/p22-security-gate-corrected.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-pyjwt-advisory.json",
+      "sha256": "23b14f75f796eea4b4710af5f6505de857cc4195d6b0c2ee647825b140db2a3f"
+    },
+    {
+      "path": "/tmp/p22-full-first.log",
+      "sha256": "b1373245506dcaeafb9374a7066f11dca6182c9f028c09642c752f86f5697d83"
+    },
+    {
+      "path": "/tmp/p22-full-final.log",
+      "sha256": "e9a1de8d9e011e8c85e3b1db1fc711bf57d46a23be880b0c9cf905241d0251ec"
+    },
+    {
+      "path": "/tmp/p22-security-final.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-concurrency-final.xml",
+      "sha256": "0995413ce1345ce03e4ef946bcc1fb53f86fc529bf6912f8ba6e5ccce11d05ce"
+    },
+    {
+      "path": "/tmp/p22-contracts-report.md",
+      "sha256": "70691b08c912622ad65ad641cd5d3556f81e67d9dcf79cffea2608d1c1c24a52"
+    },
+    {
+      "path": "/tmp/p22-core-report.md",
+      "sha256": "9379fefb6122b3714fb8aeef24c0ca480ef698fca67c926fe2a02d100c47ec05"
+    },
+    {
+      "path": "/tmp/p22-platform-report.md",
+      "sha256": "604e469a866575ee16763745a545728f0ee4113251c809733f4db93878ec3ca0"
+    },
+    {
+      "path": "/tmp/p22-platform-review.md",
+      "sha256": "7ac2abe0ec71207eb308df169965f797af0b4473aa1c892d8286ffeef35ed387"
+    },
+    {
+      "path": "/tmp/p22-producer-review.md",
+      "sha256": "5dcaef9418869c249ffa33a443515179e1d109431ccad9dfbce5de488ffde00c"
+    },
+    {
+      "path": "/tmp/p22-producers-report.md",
+      "sha256": "c98f1c87b81d3d4b279552ab2394e668ce9cb4ca5e94f9a98eb00bc09a860699"
+    }
+  ],
+  "events": [
+    {
+      "id": "H01",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Canonical P22 start invalidated stale P20/P21/OTP assertions requiring P22 PLANNED.",
+      "correction": "Strict lifecycle contract now allows valid BUILDING/VALIDATING/READY combinations without weakening requirement/dependency consistency.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-contracts-report.md",
+          "kind": "WORKER_REPORT",
+          "initial": {
+            "failed": 2,
+            "passed": 27
+          },
+          "final_focused": {
+            "passed": 89
+          }
+        }
+      ]
+    },
+    {
+      "id": "H02",
+      "status": "SUPERSEDED_SCOPE_PRESERVED",
+      "problem": "Initial tenant-only global deferral under P22-SD01 became obsolete after authorized dual-scope decision.",
+      "correction": "Preserved SD01 historically as SUPERSEDED; implemented separate PLATFORM lane with null Organization.",
+      "evidence": [
+        {
+          "artifact": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+          "kind": "USER_DECISION"
+        }
+      ]
+    },
+    {
+      "id": "H03",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Early d22a auto-generated unique names collided and blocked contract DB fixtures.",
+      "correction": "Explicit tenant-ledger unique names fixed migration; failed broader contract attempt retained.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-contracts-report.md",
+          "kind": "WORKER_REPORT",
+          "historical_attempt": {
+            "failed": 1,
+            "passed": 229,
+            "errors": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "H04",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Bounded tenant query API absent; initial tests failed for missing page method and route. Intermediate full-join verifier returned outside requested page.",
+      "correction": "Added authenticated bounded API and sequence/high-water pagination; verifier now uses bounded consistent SQL.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-core-report.md",
+          "kind": "WORKER_REPORT"
+        }
+      ]
+    },
+    {
+      "id": "H05",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Missing-head regression initially attempted forbidden runtime DELETE.",
+      "correction": "Retained runtime denial; test uses isolated privileged tamper to prove missing-head verification failure.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-core-report.md",
+          "kind": "WORKER_REPORT"
+        }
+      ]
+    },
+    {
+      "id": "H06",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Producer regressions exposed post-mutation actor validation, fabricated fixture sessions and missing workflow_step_run target.",
+      "correction": "Capture actor before self-suspension; real login-backed test principals; finite target registry update.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producers-report.md",
+          "kind": "WORKER_REPORT",
+          "initial": {
+            "failed": 8,
+            "passed": 52
+          },
+          "subsequent_focused": {
+            "passed": 105
+          },
+          "note": "Later corrections mean 105 is historical focused evidence only."
+        }
+      ]
+    },
+    {
+      "id": "H07",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Sentinel incident states absent from finite metadata registry caused source regressions.",
+      "correction": "Added valid finite owning-domain states without arbitrary string acceptance.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producers-report.md",
+          "kind": "WORKER_REPORT",
+          "initial": {
+            "failed": 3,
+            "passed": 67
+          },
+          "subsequent_focused": {
+            "passed": 104
+          }
+        }
+      ]
+    },
+    {
+      "id": "H08",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Model credential vault write committed before audit transaction.",
+      "correction": "Ciphertext/account pointer/intent share tenant transaction; nontransactional vault fails before mutation.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producer-review.md",
+          "kind": "INDEPENDENT_REVIEW"
+        },
+        {
+          "artifact": "/tmp/p22-producers-report.md",
+          "kind": "WORKER_REPORT"
+        }
+      ]
+    },
+    {
+      "id": "H09",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Human stop/cancel attributed to AI; failed agent events defaulted SUCCESS; Principal-taking human operations lacked explicit binding.",
+      "correction": "Explicit source human/service attribution, failed outcomes, validated Principal bindings; initiator remains distinct from AI executor.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producer-review.md",
+          "kind": "INDEPENDENT_REVIEW"
+        }
+      ]
+    },
+    {
+      "id": "H10",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Generic transition audit lacked state, request/correlation/source-causation fields were omitted.",
+      "correction": "Preserve finite state/version and safe UUID identifiers; arbitrary correlation strings are not captured.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producer-review.md",
+          "kind": "INDEPENDENT_REVIEW",
+          "correlation_red": {
+            "failed": 2
+          },
+          "correlation_green": {
+            "passed": 4
+          }
+        }
+      ]
+    },
+    {
+      "id": "H11",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Outcome audit persistence failure after external tool I/O could leave no durable audit attempt.",
+      "correction": "Committed dispatch_authorized intent before I/O and linked separate outcome. Intent failure prevents I/O; later outcome failure leaves unresolved durable attempt.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-producers-report.md",
+          "kind": "WORKER_REPORT",
+          "focused": {
+            "passed": 23
+          },
+          "metadata_followup": {
+            "passed": 2,
+            "deselected": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "H12",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Platform receipt CHECK accepted SQL UNKNOWN for NULL/NULL; outer fact scope was unchecked; partial anchor checked digest without row metadata binding; shutdown waited entire batch.",
+      "correction": "IS TRUE checks on receipt and both scope layers; full anchor validation; cancel/drain/close deadlines and operator instructions.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-platform-review.md",
+          "kind": "INDEPENDENT_REVIEW"
+        },
+        {
+          "artifact": "/tmp/p22-platform-report.md",
+          "kind": "WORKER_REPORT"
+        }
+      ]
+    },
+    {
+      "id": "H13",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Malformed audit messages logged untrusted subject; DB retry logged unverified producer/correlation fields.",
+      "correction": "Constant malformed reason and sanitized retry envelope; real-PG resilience tests cover rollback/retry/outage/poison.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-core-report.md",
+          "kind": "WORKER_REPORT",
+          "initial_redaction": {
+            "failed": 2,
+            "passed": 2
+          },
+          "final_focused": {
+            "passed": 6
+          }
+        }
+      ]
+    },
+    {
+      "id": "H14",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Tenant A could reserve predictable tenant B audit-head primary key despite organization RLS.",
+      "correction": "CHECK(id=organization_id) in ORM/d22a; local test DB P21 downgrade/re-upgrade reported by root; adversarial regression rejects reservation.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-head-collision-red.log",
+          "kind": "EXECUTED_LOG",
+          "failed": 1,
+          "observed": "DID NOT RAISE DBAPIError"
+        },
+        {
+          "artifact": "/tmp/p22-head-collision-green.log",
+          "kind": "EXECUTED_LOG",
+          "passed": 29
+        }
+      ]
+    },
+    {
+      "id": "H15",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "make security rejected PyJWT 2.13.0 for GHSA-w6j9-cwv2-h6wq.",
+      "correction": "Pin and lock PyJWT 2.14.0; JWT/auth regression and security gate rerun passed.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-security-gate.log",
+          "kind": "EXECUTED_LOG",
+          "result": "FAIL"
+        },
+        {
+          "artifact": "/tmp/p22-pyjwt-advisory.json",
+          "kind": "FETCHED_ADVISORY"
+        },
+        {
+          "artifact": "/tmp/p22-jwt-regression.log",
+          "kind": "EXECUTED_LOG",
+          "passed": 41
+        },
+        {
+          "artifact": "/tmp/p22-security-gate-corrected.log",
+          "kind": "EXECUTED_LOG",
+          "result": "PASS"
+        }
+      ]
+    },
+    {
+      "id": "H16",
+      "status": "PENDING_CORRECTION_AND_COMPLETE_RERUN",
+      "problem": "Two combined-suite attempts were interrupted; second also failed P04 global outbox-count assumption after legitimate new Organization audit intents.",
+      "correction": "Retain aborted attempts; owning producer narrows P04 assertion to intended event type/identity before fresh complete certification.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-full-first.log",
+          "kind": "EXECUTED_LOG",
+          "result": "ABORTED",
+          "observed": "KeyboardInterrupt"
+        },
+        {
+          "artifact": "/tmp/p22-full-final.log",
+          "kind": "EXECUTED_LOG",
+          "result": "ABORTED_WITH_OBSERVED_FAILURE",
+          "failed_node": "tests/concurrency/test_event_concurrency.py::test_many_relay_workers_publish_each_row_once"
+        }
+      ]
+    },
+    {
+      "id": "H17",
+      "status": "CORRECTED_PENDING_FINAL_CERTIFICATION",
+      "problem": "Platform migration initially failed naming-convention-prefixed constraint drop; grant test exposed closed platform capability catalog; duplicate unit/integration basename impeded collection.",
+      "correction": "Use op.f for named drop, additive explicit platform grant vocabulary, distinct test basename.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-platform-report.md",
+          "kind": "WORKER_REPORT"
+        }
+      ]
+    },
+    {
+      "id": "H18",
+      "status": "FULL_FAILED",
+      "problem": "First completed combined-suite attempt failed two tests. Its coverage threshold passed, but the mandatory test gate failed.",
+      "correction": "PENDING: verified signed-webhook SERVICE binding is being added at the owning authority boundary without permissive missing-human fallback. Replay test will select its explicit probe event instead of a setup Organization audit intent, preserving poison/retry behavior.",
+      "passed": 2874,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0,
+      "tests": 2876,
+      "duration_seconds_log": 1262.46,
+      "duration_seconds_junit": 1262.445,
+      "coverage_percent": 91.39419461573169,
+      "coverage_display": "91.39%",
+      "coverage_threshold_passed": true,
+      "final_certification": "PENDING_FINAL_CERTIFICATION",
+      "failures": [
+        {
+          "test_node": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
+          "diagnosis": "Valid signed webhook reached audit source under HTTP context without human actor and was denied; source requires verified SERVICE provenance."
+        },
+        {
+          "test_node": "tests/integration/test_nxs_events_cli.py::test_replay_re_arms_an_outbox_dead_letter",
+          "diagnosis": "Test selected the first setup Organization audit outbox row rather than its intended probe event."
+        }
+      ],
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-full-certified.xml",
+          "kind": "EXECUTED_JUNIT_XML",
+          "sha256": "c3e148dd1c7fd4fd320fd4c6ae9d998e4f46055b64997e71c18ec61794c55c6c"
+        },
+        {
+          "artifact": "/tmp/p22-full-certified.log",
+          "kind": "EXECUTED_LOG",
+          "sha256": "3991b120bb78aea6bec032bd220ad4d2700253d93d4208929e1854f1e9639974"
+        },
+        {
+          "artifact": "/tmp/p22-full-failed-coverage.json",
+          "kind": "EXECUTED_COVERAGE_JSON",
+          "sha256": "ad2690e55bbab28a7b5d6bfd2c0acedff70152810bb696f15f6926ae4463cadd"
+        }
+      ],
+      "note": "The artifact basename certified does not change this attempt's FAILED result. Earlier ABORTED attempts remain separate historical records."
+    },
+    {
+      "id": "H19",
+      "status": "CORRECTED_AND_FULL_PASS",
+      "problem": "H18 signed-webhook source attribution and event replay fixture selected wrong outbox row.",
+      "correction": "Bind allowlisted SERVICE actor only after authenticated signature verification; preserve fail-closed missing-human behavior. Replay test explicitly selects its probe event while retaining terminal poison/retry semantics.",
+      "evidence": [
+        {
+          "artifact": "/tmp/p22-webhook-provenance.log",
+          "kind": "EXECUTED_LOG",
+          "passed": 7
+        },
+        {
+          "artifact": "/tmp/p22-events-cli-corrective.log",
+          "kind": "EXECUTED_LOG",
+          "passed": 4
+        }
+      ],
+      "executed_final_nodes": [
+        "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
+        "tests/integration/test_nxs_events_cli.py::test_replay_re_arms_an_outbox_dead_letter"
+      ]
+    },
+    {
+      "id": "H20",
+      "status": "FULL_PASS",
+      "result": "PASS",
+      "tests": 2876,
+      "passed": 2876,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds_log": 1248.35,
+      "duration_seconds_junit": 1248.336,
+      "coverage_percent": 91.3468479307026,
+      "coverage_display": "91.35%",
+      "coverage_threshold": 90,
+      "xml": "/tmp/p22-full-final2.xml",
+      "log": "/tmp/p22-full-final2.log",
+      "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "evidence": [
+        {
+          "path": "/tmp/p22-full-final2.xml",
+          "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+        },
+        {
+          "path": "/tmp/p22-full-final2.log",
+          "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+        },
+        {
+          "path": "/tmp/p22-full-final2-coverage.json",
+          "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+        },
+        {
+          "path": "/tmp/p22-source-final2.json",
+          "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+        },
+        {
+          "path": "/tmp/p22-security-final2.log",
+          "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+        }
+      ],
+      "note": "Passing complete run supersedes neither the existence nor recorded results of H16 aborted attempts or H18 completed failure. Exact-head CI/Security and remaining local certification gates remain root-owned."
+    },
+    {
+      "id": "H21",
+      "classification": "VERIFIED",
+      "event": "Canonical clean-room PASS on unchanged source",
+      "command": "make clean-room",
+      "result": "PASS",
+      "tests": 2876,
+      "failed": 0,
+      "skipped": 0,
+      "coverage_percent": 91.37391722810395,
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "log": {
+        "path": "/tmp/p22-cleanroom-final.log",
+        "sha256": "a5785d56720eb54e788c2380f392dcde5509785496d0d36d31a1cefad66e5874"
+      },
+      "xml": {
+        "path": "/tmp/p22-cleanroom-full.xml",
+        "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
+      }
+    }
+  ],
+  "open_final_gates": [
+    "Exact candidate GitHub CI",
+    "Exact candidate GitHub Security",
+    "External Master Orchestrator implementation audit"
+  ],
+  "scope_limits": [
+    "No commit/push/lifecycle closure implied.",
+    "No universal producer coverage or external-effect database atomicity claim.",
+    "Historical focused PASS does not erase intervening failures or certify later source changes."
+  ],
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": null,
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "prior_source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+        "status": "PENDING_RECOMPUTATION_AFTER_CORRECTIVES",
+        "note": "Tenant-head constraint, PyJWT update and P04 test corrections postdate the earlier candidate. No earlier digest/test result is promoted to final certification."
+      }
+    }
+  ],
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "final_full_suite": {
+    "result": "PASS",
+    "tests": 2876,
+    "passed": 2876,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_log": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_display": "91.35%",
+    "coverage_threshold": 90,
+    "xml": "/tmp/p22-full-final2.xml",
+    "log": "/tmp/p22-full-final2.log",
+    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+    },
+    {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    },
+    {
+      "path": "/tmp/p22-security-final2.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-migration-result.json",
+      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+    },
+    {
+      "path": "/tmp/p22-webhook-provenance.log",
+      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+    },
+    {
+      "path": "/tmp/p22-events-cli-corrective.log",
+      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+    }
+  ]
+}

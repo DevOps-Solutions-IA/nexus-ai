@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "authority": "USER_DECISION: Master Orchestrator dual-scope audit authority authorization",
+  "status": "AUTHORIZED",
+  "supersedes": "P22-SD01",
+  "source_head_at_scope_change": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "implementation_certified": false,
+  "scopes": {
+    "TENANT": {
+      "organization_id": "REQUIRED",
+      "authority": "nexus_runtime, forced RLS, trusted tenant context and tenant RBAC",
+      "ingestion": "P04 tenant transactional outbox"
+    },
+    "PLATFORM": {
+      "organization_id": "MUST_BE_NULL",
+      "authority": "Dedicated least-privilege persistence and independent platform access control",
+      "ingestion": "Durable server-authenticated source intent; direct GLOBAL publication alone is insufficient",
+      "sentinel": "Authoritative privileged approvals, executions, kill-switch and risk-policy mutations where technically observable"
+    }
+  },
+  "integrity": "Independent platform integrity domain and per-tenant domains; no shared global tenant serialization point; real PostgreSQL concurrency/recovery proof required",
+  "prohibited": [
+    "fictitious Organization",
+    "operator login Organization attribution for platform facts",
+    "weakening nexus_sentinel authority",
+    "unproven universal producer coverage",
+    "false source/ledger/external-effect atomicity claims"
+  ],
+  "limitations": "This file records authorization/design at the scope change, not its certification. Subsequent actual execution is bound separately in local-certification.json and exact-head receipts."
+}

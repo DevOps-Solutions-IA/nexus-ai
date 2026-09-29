@@ -90,9 +90,12 @@ async def test_replay_re_arms_an_outbox_dead_letter(
             text("UPDATE event_outbox SET attempt_count = 8 WHERE id = :i"),
             {"i": envelope.event_id},
         )
-        [item] = await event_platform.outbox.claim_batch(
-            session, owner="w", batch_size=1, lease_seconds=30
+        pending = await event_platform.outbox.pending_count(session)
+        claimed = await event_platform.outbox.claim_batch(
+            session, owner="w", batch_size=pending, lease_seconds=30
         )
+        assert len(claimed) == pending
+        item = next(item for item in claimed if item.id == envelope.event_id)
     await nats_messaging.disconnect()
     try:
         await event_platform.relay._publish_one(item)

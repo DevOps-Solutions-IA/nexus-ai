@@ -12,6 +12,9 @@ import datetime as dt
 import uuid
 from uuid import UUID
 
+from nexus_ai.audit.context import source_actor
+from nexus_ai.audit.contracts import AuditMetadata
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.core.errors import OrganizationInactiveError
 from nexus_ai.core.tenancy import TenantContext
 from nexus_ai.domain.organizations.entities import (
@@ -43,7 +46,16 @@ class OrganizationService:
         organization_id = uuid.uuid7()
         async with self._db.tenant_transaction(organization_id) as tenant_session:
             repository = OrganizationRepository(tenant_session)
-            return await repository.insert(draft, organization_id=organization_id)
+            organization = await repository.insert(draft, organization_id=organization_id)
+            await emit_audit(
+                tenant_session,
+                producer="organization",
+                action="organization.created",
+                target_type="organization",
+                target_id=organization.id,
+                actor=source_actor(organization_id, service="organization-bootstrap"),
+            )
+            return organization
 
     async def get_current(self, context: TenantContext) -> Organization:
         async with self._db.tenant_transaction(context.organization_id) as tenant_session:
@@ -69,9 +81,18 @@ class OrganizationService:
                     "Profile changes require an ACTIVE Organization.",
                     extensions={"organization_status": current.status.value},
                 )
-            return await repository.apply(
+            organization = await repository.apply(
                 expected_version=payload.expected_version, changes=payload.changes()
             )
+            await emit_audit(
+                tenant_session,
+                producer="organization",
+                action="organization.profile_updated",
+                target_type="organization",
+                target_id=organization.id,
+                actor=source_actor(context.organization_id, service="organization-service"),
+            )
+            return organization
 
     async def transition(self, organization_id: UUID, target: OrganizationStatus) -> Organization:
         """Legal lifecycle transition. A system/service operation (used by tests and P05)."""
@@ -83,4 +104,14 @@ class OrganizationService:
             timestamp_column = _TRANSITION_TIMESTAMP.get(target)
             if timestamp_column is not None:
                 changes[timestamp_column] = dt.datetime.now(dt.UTC)
-            return await repository.apply(expected_version=current.version, changes=changes)
+            organization = await repository.apply(expected_version=current.version, changes=changes)
+            await emit_audit(
+                tenant_session,
+                producer="organization",
+                action="organization.transitioned",
+                target_type="organization",
+                target_id=organization.id,
+                actor=source_actor(organization_id, service="organization-lifecycle"),
+                metadata=AuditMetadata.model_validate({"state": target.value}),
+            )
+            return organization

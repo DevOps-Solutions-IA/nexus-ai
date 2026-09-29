@@ -1,0 +1,367 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_binding": {
+    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+    "status": "VERIFIED_FINAL_XML_BINDING",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+    "xml": "/tmp/p22-full-final2.xml"
+  },
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "purpose": "Security evidence draft; local corrective checks are not final exact-head certification.",
+  "local_checks": [
+    {
+      "name": "Tenant adversarial head reservation regression",
+      "result": "FAIL_THEN_FOCUSED_PASS",
+      "failure_artifact": "/tmp/p22-head-collision-red.log",
+      "correction_artifact": "/tmp/p22-head-collision-green.log",
+      "initial_failed": 1,
+      "subsequent_security_tests_passed": 29,
+      "test_node": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+      "finding": "Forced RLS did not prevent foreign predictable head-ID reservation.",
+      "fix": [
+        "src/nexus_ai/domain/audit/models.py",
+        "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py"
+      ],
+      "invariant": "id = organization_id",
+      "final_snapshot_result": "PASS",
+      "executed_nodes": [
+        "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+      ]
+    },
+    {
+      "name": "Dependency and Bandit make security gate",
+      "command": "make security",
+      "initial_result": "FAIL",
+      "initial_artifact": "/tmp/p22-security-gate.log",
+      "corrected_result": "PASS",
+      "corrected_artifact": "/tmp/p22-security-gate-corrected.log",
+      "result_scope": "Bandit configured -lll and pip-audit only; not secret/container/exact-head workflow proof.",
+      "final_snapshot_result": "PASS"
+    },
+    {
+      "name": "JWT/auth corrective regression",
+      "result": "FOCUSED_PASS",
+      "passed": 41,
+      "artifact": "/tmp/p22-jwt-regression.log",
+      "final_snapshot_result": "PASS"
+    },
+    {
+      "name": "Audit malformed/retry log redaction",
+      "result": "FOCUSED_PASS_REPORTED",
+      "passed": 6,
+      "artifact": "/tmp/p22-core-report.md",
+      "test_file": "tests/resilience/test_audit_delivery.py",
+      "note": "Two disclosure assertions failed before correction; final six-case real-PG resilience run passed. Historical focused run; final source/XML binding is now verified.",
+      "final_snapshot_result": "PASS"
+    }
+  ],
+  "dependency_findings": [
+    {
+      "package": "PyJWT",
+      "affected_installed_version": "2.13.0",
+      "advisory": "GHSA-w6j9-cwv2-h6wq",
+      "cve": "CVE-2026-102274",
+      "severity": "MEDIUM",
+      "advisory_artifact": "/tmp/p22-pyjwt-advisory.json",
+      "advisory_url": "https://github.com/advisories/GHSA-w6j9-cwv2-h6wq",
+      "impact": "Malformed RSA JWK can abort parsing an entire JWK Set, causing conditional availability failure; advisory does not identify signature-forgery or claims-verification bypass.",
+      "disposition": "REMEDIATED_NOT_ACCEPTED",
+      "patched_version": "2.14.0",
+      "fix_files": [
+        "pyproject.toml",
+        "uv.lock"
+      ],
+      "validation_artifacts": [
+        "/tmp/p22-jwt-regression.log",
+        "/tmp/p22-security-gate-corrected.log"
+      ]
+    }
+  ],
+  "audit_tool_limitations": [
+    {
+      "tool": "pip-audit",
+      "scope": "Resolved external Python dependencies",
+      "skip": "nexus-ai 0.1.0 is the local project and not found on PyPI; local application is not certified by this dependency scan.",
+      "observed_corrected_output": "No known vulnerabilities found"
+    }
+  ],
+  "review_findings": [
+    {
+      "id": "TENANT_HEAD_RESERVATION",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-head-collision-green.log"
+    },
+    {
+      "id": "PLATFORM_RECEIPT_SQL_NULL",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-platform-review.md"
+    },
+    {
+      "id": "PLATFORM_OUTER_SCOPE_BINDING",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-platform-review.md"
+    },
+    {
+      "id": "PLATFORM_PARTIAL_ANCHOR_BINDING",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-platform-review.md"
+    },
+    {
+      "id": "AUDIT_LOG_UNTRUSTED_FIELD_CAPTURE",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-core-report.md"
+    },
+    {
+      "id": "CREDENTIAL_AUDIT_ATOMICITY",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-producer-review.md"
+    },
+    {
+      "id": "HUMAN_AI_PROVENANCE_AND_OUTCOMES",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-producer-review.md"
+    },
+    {
+      "id": "EXTERNAL_TOOL_DURABLE_ATTEMPT",
+      "status": "CORRECTED_AND_FINAL_SUITE_PASS",
+      "evidence": "/tmp/p22-producers-report.md"
+    }
+  ],
+  "authority_tests": [
+    "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation",
+    "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+    "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction",
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+    "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor"
+  ],
+  "remaining_gates": [
+    {
+      "gate": "Combined tests and security regressions",
+      "result": "PASS",
+      "note": "Later complete bound suite passed 2876 tests. Earlier failures/aborts preserved in development-history."
+    },
+    {
+      "gate": "Secret scan",
+      "result": "PASS",
+      "evidence": "local-certification.json"
+    },
+    {
+      "gate": "Container vulnerability scan",
+      "result": "PASS",
+      "evidence": "containers.json",
+      "review": "container-findings-review.json"
+    },
+    {
+      "gate": "Final snapshot source/XML/artifact binding",
+      "result": "PASS"
+    },
+    {
+      "gate": "GitHub CI exact candidate SHA",
+      "result": "PENDING_EXACT_HEAD"
+    },
+    {
+      "gate": "GitHub Security exact candidate SHA",
+      "result": "PENDING_EXACT_HEAD"
+    }
+  ],
+  "risk_acceptances": [],
+  "artifact_bindings": [
+    {
+      "path": "/tmp/p22-head-collision-red.log",
+      "sha256": "f81aa4315e32ed1ee41a431dbd9139bc9433c9fa7cd037f3ce94f1d42fb612d8"
+    },
+    {
+      "path": "/tmp/p22-head-collision-green.log",
+      "sha256": "8d7ff111c5df8a8f211b571e2cf7108820ab7beb0bd8b29c6219291fafa147a2"
+    },
+    {
+      "path": "/tmp/p22-jwt-regression.log",
+      "sha256": "16607d50d23914143f0c29bdf4c39d6ea4d493ed19426674e2cdf14900b38602"
+    },
+    {
+      "path": "/tmp/p22-security-gate.log",
+      "sha256": "d6f256ede5cdab05e8e50fe272772c4d70578ffa05f5294025bf4fb0d0c0afa9"
+    },
+    {
+      "path": "/tmp/p22-security-gate-corrected.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-pyjwt-advisory.json",
+      "sha256": "23b14f75f796eea4b4710af5f6505de857cc4195d6b0c2ee647825b140db2a3f"
+    },
+    {
+      "path": "/tmp/p22-security-final.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-core-report.md",
+      "sha256": "9379fefb6122b3714fb8aeef24c0ca480ef698fca67c926fe2a02d100c47ec05"
+    },
+    {
+      "path": "/tmp/p22-platform-review.md",
+      "sha256": "7ac2abe0ec71207eb308df169965f797af0b4473aa1c892d8286ffeef35ed387"
+    },
+    {
+      "path": "/tmp/p22-producer-review.md",
+      "sha256": "5dcaef9418869c249ffa33a443515179e1d109431ccad9dfbce5de488ffde00c"
+    },
+    {
+      "path": "/tmp/p22-producers-report.md",
+      "sha256": "c98f1c87b81d3d4b279552ab2394e668ce9cb4ca5e94f9a98eb00bc09a860699"
+    }
+  ],
+  "limitations": [
+    "No claim that all security weaknesses are absent.",
+    "No HIGH/CRITICAL acceptance or gate bypass is authorized by this draft.",
+    "No hostile database-owner tamper-proof/WORM/regulatory certification.",
+    "No production deployment or phase READY/GO implied."
+  ],
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": null,
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "prior_source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+        "status": "PENDING_RECOMPUTATION_AFTER_CORRECTIVES",
+        "note": "Tenant-head constraint, PyJWT update and P04 test corrections postdate the earlier candidate. No earlier digest/test result is promoted to final certification."
+      }
+    }
+  ],
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "final_full_suite": {
+    "result": "PASS",
+    "tests": 2876,
+    "passed": 2876,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_log": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_display": "91.35%",
+    "coverage_threshold": 90,
+    "xml": "/tmp/p22-full-final2.xml",
+    "log": "/tmp/p22-full-final2.log",
+    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+    },
+    {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    },
+    {
+      "path": "/tmp/p22-security-final2.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-migration-result.json",
+      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+    },
+    {
+      "path": "/tmp/p22-webhook-provenance.log",
+      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+    },
+    {
+      "path": "/tmp/p22-events-cli-corrective.log",
+      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+    }
+  ],
+  "full_security_test_result": "PASS",
+  "final_local_security_gate": {
+    "command": "make security",
+    "result": "PASS",
+    "artifact": "/tmp/p22-security-final2.log",
+    "scope": "Bandit configured -lll and pip-audit, not gitleaks/container/exact-head certification."
+  },
+  "executed_authority_nodes": [
+    "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation",
+    "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+    "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes0]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes1]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes2]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes3]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes4]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes5]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes6]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
+    "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload0]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload1]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload2]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload3]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload4]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload5]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload6]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload7]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload8]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload9]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
+    "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET fact=jsonb_set(fact,'{intent,outcome}','\"FAILED\"') WHERE organization_id=:organization AND sequence=2]",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET digest=repeat('1',64) WHERE organization_id=:organization AND sequence=2]",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET predecessor=repeat('2',64) WHERE organization_id=:organization AND sequence=2]",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[DELETE FROM audit_records WHERE organization_id=:organization AND sequence=2]",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_heads SET digest=repeat('3',64) WHERE organization_id=:organization]",
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+    "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET semantic_digest=repeat('f',64) WHERE sequence=1]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET predecessor=repeat('f',64) WHERE sequence=2]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[DELETE FROM platform_audit_records WHERE sequence=2]"
+  ],
+  "final_secret_scan": {
+    "result": "PASS",
+    "findings": 0,
+    "worktree": {
+      "path": "/tmp/p22-gitleaks-final.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    "history": {
+      "path": "/tmp/p22-gitleaks-history.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    }
+  },
+  "final_container_scans": {
+    "result": "PASS",
+    "evidence": "containers.json",
+    "HIGH": 0,
+    "CRITICAL": 0,
+    "MEDIUM": "REVIEW: six package findings on each architecture",
+    "LOW": "DOCUMENTED: two package findings on each architecture"
+  }
+}

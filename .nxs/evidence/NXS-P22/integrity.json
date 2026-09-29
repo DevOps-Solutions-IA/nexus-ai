@@ -1,0 +1,285 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+  "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+  "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
+  "certification_pending": [
+    "Separate root-owned clean-room certification",
+    "Exact implementation commit and exact-head CI/security",
+    "External Stage A audit and separately authorized lifecycle closure"
+  ],
+  "encoding": {
+    "algorithm": "SHA-256",
+    "json": "UTF-8, sorted keys, compact separators, finite values; aware UTC timestamps",
+    "semantic_digest": "Typed source content before persistence metadata",
+    "record_digest": "Versioned fact including scope, Organization attribution, record identity, source intent, sequence, predecessor and persistence time",
+    "server_assigned": [
+      "record identity",
+      "sequence",
+      "predecessor",
+      "recorded_at",
+      "semantic digest",
+      "record digest"
+    ]
+  },
+  "chain_domains": {
+    "TENANT": "Independent Organization head row locks and sequence/source uniqueness",
+    "PLATFORM": "Separate singleton platform head; never locks tenant head"
+  },
+  "append_rules": [
+    "Committed records are SELECT/INSERT only to writing runtime roles and guarded by UPDATE/DELETE triggers",
+    "Same source identity and semantics returns original immutable record",
+    "Changed semantics under same identity fail even when successful receipt exists",
+    "Ledger append does not emit an equivalent audit intent",
+    "Tenant corrections append a new same-Organization reference rather than rewriting history"
+  ],
+  "verification": {
+    "bounded": true,
+    "tenant_page_max": 1000,
+    "platform_page_max": 200,
+    "platform_snapshot": "Repeatable-read transaction",
+    "tenant_snapshot": "Bounded single-statement head/fact observation",
+    "checks": [
+      "Expected sequence and predecessor",
+      "Canonical fact digest",
+      "Semantic digest",
+      "Fact scope and Organization",
+      "Fact-to-row identity, source, sequence, recorded time and predecessor binding",
+      "Complete persisted anchor row validation for platform continuation",
+      "High-water head consistency and missing interior/terminal sequence detection"
+    ],
+    "partial_claim": "Reports explicit range/anchor/cutoff; partial pages are not whole-history proof. Platform complete is completion of the requested snapshot cutoff, not automatically current live history."
+  },
+  "focused_proofs": [
+    {
+      "status": "VERIFIED_FOCUSED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+      "passed": 38,
+      "failed": 0,
+      "elapsed_seconds": 3.12,
+      "artifact": "/tmp/p22-platform-tests.log",
+      "coverage": {
+        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+        "passed": 38,
+        "percent": 92.57,
+        "artifact": "/tmp/p22-platform-coverage-final.log",
+        "scope": "Platform packages only; not canonical repository coverage"
+      },
+      "report": "/tmp/p22-platform-report.md",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "runs": [
+        {
+          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+          "passed": 10,
+          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+        },
+        {
+          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+          "passed": 3,
+          "note": "Includes missing-head regression; overlaps first run."
+        }
+      ],
+      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    }
+  ],
+  "tests": [
+    "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification",
+    "tests/integration/test_audit_ledger.py::test_missing_head_never_certifies_existing_facts",
+    "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append",
+    "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+    "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+    "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+  ],
+  "additional_final_suite_nodes": [
+    "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+    "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts",
+    "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders",
+    "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied",
+    "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot",
+    "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting",
+    "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction"
+  ],
+  "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification.",
+  "review": {
+    "artifact": "/tmp/p22-platform-review.md",
+    "resolved_finding": "Partial anchor formerly checked only fact digest; full validate_record now binds metadata and semantics, tested with privileged anchor-column substitution."
+  },
+  "threat_model": {
+    "trusted_database_owner_required": true,
+    "externally_retained_anchor": false,
+    "claims_excluded": [
+      "Protection against hostile database owner rewriting all facts and anchors",
+      "WORM or regulatory certification",
+      "Infinite retention or destructive retention authority"
+    ]
+  },
+  "tenant_head_identity_hardening": {
+    "status": "VERIFIED",
+    "constraint": "audit_heads.id = audit_heads.organization_id",
+    "constraint_name": "ck_audit_heads_tenant_identity_valid",
+    "source": [
+      "src/nexus_ai/domain/audit/models.py",
+      "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py"
+    ],
+    "security_property": "A tenant cannot reserve a different Organization head primary key while labeling the row with its own Organization. Forced RLS and the identity CHECK enforce complementary boundaries.",
+    "regression": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+    "final_xml_outcome": "PASS"
+  },
+  "local_certification": {
+    "status": "VERIFIED",
+    "result": "PASS_LOCAL",
+    "command": "make test-all",
+    "tests": 2876,
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds_log": 1248.35,
+    "elapsed_seconds_xml": 1248.336,
+    "xml": {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    "log": {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    "coverage": {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "canonical_threshold_percent": 90,
+      "percent_covered": 91.3468479307026,
+      "percent_covered_rounded": 91.35,
+      "covered_lines": 26292,
+      "num_statements": 28034,
+      "covered_branches": 4079,
+      "num_branches": 5214,
+      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+    },
+    "source_manifest": {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "independently_verified_source_files": 664
+    },
+    "relevant_testcase_count": 21,
+    "exact_testcase_outcomes": [
+      {
+        "node_id": "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification",
+        "result": "PASS",
+        "duration_seconds": 0.05
+      },
+      {
+        "node_id": "tests/integration/test_audit_ledger.py::test_missing_head_never_certifies_existing_facts",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+        "result": "PASS",
+        "duration_seconds": 0.149
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET semantic_digest=repeat('f',64) WHERE sequence=1]",
+        "result": "PASS",
+        "duration_seconds": 0.116
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET predecessor=repeat('f',64) WHERE sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.119
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[DELETE FROM platform_audit_records WHERE sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.117
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append",
+        "result": "PASS",
+        "duration_seconds": 0.112
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+        "result": "PASS",
+        "duration_seconds": 0.114
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+        "result": "PASS",
+        "duration_seconds": 0.114
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+        "result": "PASS",
+        "duration_seconds": 0.073
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts",
+        "result": "PASS",
+        "duration_seconds": 0.073
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders",
+        "result": "PASS",
+        "duration_seconds": 0.141
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied",
+        "result": "PASS",
+        "duration_seconds": 0.057
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot",
+        "result": "PASS",
+        "duration_seconds": 0.07
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting",
+        "result": "PASS",
+        "duration_seconds": 0.073
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET fact=jsonb_set(fact,'{intent,outcome}','\"FAILED\"') WHERE organization_id=:organization AND sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.087
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET digest=repeat('1',64) WHERE organization_id=:organization AND sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.086
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET predecessor=repeat('2',64) WHERE organization_id=:organization AND sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.09
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[DELETE FROM audit_records WHERE organization_id=:organization AND sequence=2]",
+        "result": "PASS",
+        "duration_seconds": 0.105
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_heads SET digest=repeat('3',64) WHERE organization_id=:organization]",
+        "result": "PASS",
+        "duration_seconds": 0.095
+      }
+    ]
+  }
+}

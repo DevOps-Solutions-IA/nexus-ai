@@ -11,6 +11,9 @@ from typing import Any
 from sqlalchemy import func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
+from nexus_ai.audit.context import actor_scope, require_actor
+from nexus_ai.audit.contracts import AuditActor, AuditMetadata
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.compliance.contracts import (
     DESTRUCTIVE,
     INCOMPLETE_RESOURCES,
@@ -134,13 +137,28 @@ class ComplianceService:
             if principal.expires_at <= await self._now(tenant):
                 raise PermissionDeniedError("expired compliance principal")
             await self._authorizer.require(principal, capability, tenant=tenant)
-            yield tenant, control
+            with actor_scope(
+                principal.organization_id,
+                AuditActor(
+                    kind="HUMAN", user_id=principal.user_id, session_id=principal.session_id
+                ),
+            ):
+                yield tenant, control
 
     async def _event(
         self, tenant: TenantSession, identity: uuid.UUID, kind: str, state: str
     ) -> None:
         payload = ComplianceStateChangedV1(resource_id=identity, resource_type=kind, state=state)
         await tenant.session.flush()
+        await emit_audit(
+            tenant,
+            producer="compliance",
+            action="compliance.state.changed",
+            target_type=f"compliance_{kind}",
+            target_id=identity,
+            actor=require_actor(tenant.organization_id),
+            metadata=AuditMetadata.model_validate({"state": state}),
+        )
         await self._publisher.enqueue(
             tenant.session,
             EventEnvelope.create(

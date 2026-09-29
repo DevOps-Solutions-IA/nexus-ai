@@ -190,7 +190,14 @@ def test_later_phases_remain_planned() -> None:
     assert compliance["decision"] == ("GO" if compliance_closed else "PENDING")
     requirement = next(item for item in requirements if item["id"] == "NXS-COMP-001")
     assert requirement["status"] == ("VALIDATED" if compliance_closed else "IN_PROGRESS")
-    for phase_number in range(22, 33):
+    if phases["NXS-P22"]["status"] != "PLANNED":
+        from audit_lifecycle import assert_audit_lifecycle_consistent
+
+        assert closed and compliance_closed
+        assert_audit_lifecycle_consistent()
+    else:
+        assert phases["NXS-P22"]["decision"] == "PENDING"
+    for phase_number in range(23, 33):
         phase = phases[f"NXS-P{phase_number:02d}"]
         assert phase["status"] == "PLANNED"
         assert phase["decision"] == "PENDING"

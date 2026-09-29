@@ -2,21 +2,29 @@
 
 ## Admission and authority
 
-This admission design incorporates the authorized scope decision P22-SD01. It is not
-a certification receipt. Canonical main
+This design incorporates the authorized dual-scope decision that SUPERSEDES P22-SD01.
+Historical admission evidence remains preserved as historical, not current certification.
+Canonical main
 at admission is `d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e`. P21 PR #48 merged at
-`53149934906d0d243cb3f593efc8a5bbf74bd793`; P21 is READY/GO on main. P22 is initially
-PLANNED/PENDING on `feat/nxs-p22-audit`. The canonical start, not this document,
-establishes BUILDING/PENDING. No deployment or P23 start is authorized.
+`53149934906d0d243cb3f593efc8a5bbf74bd793`; P21 is READY/GO on main. P22 admission
+was PLANNED/PENDING on `feat/nxs-p22-audit`. Canonical start executed once at
+2026-09-29T20:45:39Z and established BUILDING/PENDING, NXS-AUDIT-002 IN_PROGRESS.
+No deployment or P23 start is authorized.
 
 NXS-AUDIT-002 remains the existing mandatory requirement. P04 and P21 remain the
 registered dependencies. P22 records evidence about actions; P03 authorizes, P06 owns
 customer semantics, P08 tools, P13 agent execution, P16 send eligibility, P20 platform
 SRE, and P21 compliance decisions. An audit record grants no business authority.
 
+The requirement retains NXS-TENANT-001 and explicitly depends on already VALIDATED
+NXS-EVENT-003 for durable tenant outbox authority and NXS-SRE-001 for the newly authorized
+Sentinel platform producer integration. This refines real consumed authority without
+duplicating requirements or changing the canonical P04/P21 phase dependency mapping.
+
 ## Integrity architecture
 
-Use a PostgreSQL tenant-scoped SHA-256 chain rather than a global chain or independent
+Use PostgreSQL tenant-scoped SHA-256 chains and a separate PLATFORM chain, not one global
+chain shared by tenants or independent
 row digests. Independent digests cannot detect interior deletion; a global chain would
 serialize unrelated Organizations and risk exposing cross-tenant predecessors.
 
@@ -93,7 +101,8 @@ No retrospective actor attribution is fabricated for old events lacking that evi
 
 ## Record, metadata and time contract
 
-Facts bind record UUID, Organization, producer, trusted source operation/event UUID,
+Facts bind explicit scope, record UUID, Organization (required for TENANT, null for
+PLATFORM), producer, trusted source operation/event UUID,
 occurred_at, DB recorded_at, actor type/identity/context, action, target type/UUID,
 outcome, correlation/causation/request identity, schema version, typed metadata and
 integrity version/digest/predecessor/sequence. HUMAN, AI_AGENT and SYSTEM/SERVICE are
@@ -135,29 +144,30 @@ hook plus tests before certification; missing mandatory coverage blocks Stage A.
 | Membership/role administration | P03; authenticated human or explicit bootstrap service; Organization | MembershipService transactions; no complete outbox producer | SUPPORTED; membership/assignment IDs and enum change; no tokens/passwords |
 | Tenant session lifecycle | P03; authenticated user; selected Organization | AuthService local transactions and security logs | SUPPORTED for tenant-bound successful/session state facts; global pre-tenant login failures remain security logs, NOT_APPLICABLE to tenant facts |
 | Customer/identity/conversation mutations | P06; human or registered channel service; Organization | Typed events, source transaction, correlation | SUPPORTED; IDs and bounded lifecycle facts, no identity values or content |
-| Tool execution | P08; human or P13 AI; Organization | Execution receipt has caller; completion event currently separate transaction | SUPPORTED; add intent to receipt transaction; external effect remains separately bounded, no arguments/results/secrets |
+| Tool execution | P08; human or P13 AI; Organization | Durable dispatch-authorized intent before I/O; outcome intent shares receipt transaction | SUPPORTED; operation identity links attempt/result; dispatch authorization never claims remote success, no arguments/results/secrets |
 | Agent execution | P13; AI plus distinct initiating human; Organization | Typed session/turn/tool events; persisted agent/session/turn references | SUPPORTED; IDs/outcome only, no prompts, context or chain of thought |
+| Model account credential rotation | P13/P07; authenticated human or registered service; Organization | Local encrypted vault and account reference | SUPPORTED for TransactionalVaultClient/local PostgreSQL vault only; encrypted material, pointer and audit intent share a transaction; no credential contents in audit |
+| External nontransactional credential vault mutation | P13/P07; tenant action | External effect cannot join local transaction | DEFERRED/unsupported mutation fails closed until a durable audited adapter exists; no silent fallback |
 | Workflow administration | P14; human or registered service; Organization | Version/run events and correlation; actor capture required | SUPPORTED; definition/version/run IDs and state, no workflow inputs/outputs |
 | Campaign administration | P16; human or registered scheduler; Organization | Transactional events/transition history | SUPPORTED; IDs/state only; no new send/consent authority |
 | Human-agent operations | P17; human or explicit AI handoff; Organization | Typed events carry source actor_user_id and durable history | SUPPORTED; assignment/queue/work IDs and bounded state; no message bodies |
 | Compliance policy/holds/subject requests | P21; live authenticated human; Organization | Transactional compliance.state.changed, actor available in service transaction | SUPPORTED; resource IDs/state; no subject exports or verification evidence content |
 | Sentinel tenant-owned business actions | P20; no such authority | Prohibited by ADR-0101 | NOT_APPLICABLE; Sentinel is not a tenant business actor |
-| Sentinel global observation/diagnostic facts | P20; platform service; no Organization owner | Separate nexus_sentinel state | DEFERRED by P22-SD01 wherever audit capture requires a global ledger |
-| Sentinel global privileged approvals/executions | P20; platform operator/service; no Organization owner | Separate nexus_sentinel transactions and platform grants | DEFERRED by P22-SD01; no tenant attribution |
-| Sentinel kill-switch/global risk-policy mutation | P20; platform operator; no Organization owner | Platform controls, no tenant transactional outbox | DEFERRED by P22-SD01; known privileged audit gap, not NOT_APPLICABLE |
+| Sentinel global observation/diagnostic facts | P20; platform service; no Organization owner | Separate nexus_sentinel state | DEFERRED for general raw diagnostic ingestion; registered execution outcomes are included below, not arbitrary logs |
+| Sentinel global privileged approvals/executions | P20; platform operator/service; no Organization owner | Separate nexus_sentinel transactions and platform grants | SUPPORTED implementation obligation in PLATFORM; typed IDs/state, distinct operator/service; external effects are not database-atomic |
+| Sentinel kill-switch/global risk-policy mutation | P20; platform operator; no Organization owner | Platform control transactions | SUPPORTED implementation obligation in PLATFORM through durable same-transaction intent; no tenant attribution |
+| General platform grant administration and pre-tenant authentication failures | P03/P05; global identity plane | Existing authority/security logs | DEFERRED for platform audit producer coverage; no manufactured tenant owner or universal claim |
 
 ## Platform-global audit boundary
 
-P22's certified runtime scope is tenant-owned audit records. Platform-global Sentinel
-privileged operations require a different authority boundary because they have no
-legitimate Organization owner. They are explicitly DEFERRED by Master Orchestrator
-decision P22-SD01. The former admission blocker is resolved, not a runtime exclusion
-invented by the implementation agent. No universal audit claim is permitted.
-
-The only permitted coverage claim is: "Tenant-scoped immutable/tamper-evident audit
-coverage for the supported action and producer families documented in the P22 producer
-inventory." Audit Platform is a phase name, not a claim of complete enterprise or
-platform-global audit coverage. Global facts must fail closed at tenant ingestion.
+P22 implements explicit TENANT and PLATFORM audit authority. The dual-scope decision
+SUPERSEDES P22-SD01's global deferral. Platform-global Sentinel actions have no legitimate
+Organization owner: PLATFORM organization_id is always null, including when an operator
+authenticated using a tenant session: the operator's login Organization is not an audit
+owner. Global facts fail closed at tenant ingestion;
+tenant facts cannot enter the platform ledger. No fake system Organization may be created.
+Coverage claims must name the supported producer/action families in this inventory;
+there is no unproven universal coverage claim.
 
 Source inspection at the exact baseline established:
 
@@ -170,30 +180,57 @@ Source inspection at the exact baseline established:
 - P04's tenant outbox needs Organization ownership. Its direct global publisher has
   no same-transaction tenant intent and cannot be presented as such.
 
-The execution contract requires a tenant-scoped ledger. P22-SD01 explicitly authorizes
-deferring Sentinel's platform-global coverage. Choosing
-the operator's login Organization as owner of a platform-wide kill-switch change would
-misstate provenance and potentially expose platform facts to tenant readers. A fake
-system Organization is not a solution. A separate platform ledger/query authority is
-an explicit scope extension, not an inference from tenant audit permission.
+The platform lane uses immutable platform source intents, platform records, an independent
+integrity head and processing receipts. Each supported Sentinel local transaction appends
+its typed intent before commit. nexus_sentinel receives INSERT-only source-intent
+privileges, not ledger read/write authority. Its non-tenant checks and business authority
+remain intact.
 
-P22-SD01 selects tenant-only P22 with explicit platform-global deferral, not a separate
-platform audit lane. Global unauthenticated login failures likewise
-cannot be assigned a trusted tenant from request data; existing security logs remain
-distinct from tenant audit records. No retrospective facts are fabricated.
+The dedicated nexus_audit_platform role has no superuser, BYPASSRLS, role membership,
+schema CREATE or tenant access. A bounded worker reads committed intents and atomically
+appends an idempotent fact and receipt. Crash before commit retries unchanged; crash after
+commit returns the same fact. Changed semantics under the same identity fail closed.
+The platform head never locks a tenant head. Intent remains durable while workers or
+brokers are unavailable; source mutation rolls back if intent persistence fails.
+Remote effects are not database-atomic: dispatch and observed/ambiguous outcomes remain
+separate facts, never fabricated completion.
 
-### Deferred design: Privileged platform-global audit authority
+Platform query/verification uses a bounded separate control interface with verified live
+authentication and explicit platform grants. Tenant capabilities grant no platform access.
+The dedicated connection is not placed in the tenant request lifecycle. Platform
+operator/service provenance excludes synthetic tenant principals and login-org ownership.
 
-This durable gap remains visible for P27 security-hardening and P30 backend-certification
-planning; it is not a P22 Stage A implementation obligation. A future scoped contract
-must cover Sentinel privileged approvals and executions, kill-switch and global
-risk-policy mutation, authenticated global actor/operator provenance, durable global
-ingestion, append-only platform ledger authority, independent access-control rules,
-global integrity/tamper-evidence semantics and retention authority. It must prohibit
-fictitious Organizations and cross-tenant exposure. P04 GLOBAL EventEnvelope is a
-possible future primitive only: publish_global is direct confirmed publication, not
-the tenant transactional outbox and not durable authoritative Sentinel audit capture.
-No partial global Sentinel integration is implemented or certified by P22.
+P04 GLOBAL envelopes may represent platform facts, but publish_global is direct confirmed
+publication, not durable transactional ingestion. The narrow platform source journal
+supplies that missing durable boundary, not a new generic broker or replacement tenant
+outbox. Neither scope implements destructive retention. Future retention must establish
+explicit authority and preserve integrity/hold requirements.
+
+### Platform worker operation
+
+Run the independent worker with `uv run python -m nexus_ai.audit.platform`; `--once`
+processes one bounded batch for controlled draining. Operations supplies
+`NXS_AUDIT_PLATFORM_DSN` through its secret channel with the dedicated
+`nexus_audit_platform` identity. Never put this credential in tenant settings, request
+bodies, logs or audit metadata. Local bootstrap creates a development-only password;
+production must supply its own secret out of band. The worker performs DB role checks,
+bounded polling and graceful shutdown; failures imply no successful processing.
+
+The internal `PlatformAuditControl` facade requires live authenticated tokens and
+explicit `audit:platform:read` or `audit:platform:verify` grants. No tenant owner receives
+those grants automatically. It is not a tenant-facing HTTP route or a cross-tenant query
+feature. Pending source intents survive worker outages, and terminal invalid intents
+remain inspectable without becoming successful audit facts. P24 metrics/alerting and
+destructive journal retention are not introduced here.
+
+### Historical deferred design and remaining coverage
+
+P22-SD01's "Privileged platform-global audit authority" gap is historical SUPERSEDED:
+durable ingestion, global provenance, append-only ledger, independent ACL and integrity
+now belong to P22. General raw Sentinel diagnostics and global unauthenticated login
+failures remain outside registered coverage unless individually integrated and proven.
+They are not implicitly certified. Remaining gaps and future retention authority remain
+visible for P27/P30 planning. No retrospective facts are fabricated.
 
 ## Concurrency and failure certification
 
@@ -204,6 +241,11 @@ assignment; C09 stale predecessor; C10 verification during append; C11 chain iso
 C12 foreign record ID; C13 pagination during append; C14 correction/original race;
 C15 source rollback/intent; C16 committed outbox/consumer; C17 revoked membership and
 historical fact; C18 same actor across tenants; C19 poison retry/terminal; C20 recursion.
+
+Additional PLATFORM PostgreSQL tests prove independent tenant/platform append,
+concurrent append and replay, modified replay rejection, source rollback/intent atomicity,
+worker crash/recovery, immutability and role separation, platform query grants, and
+rejection of non-null Organization attribution.
 
 Security covers forged tenant/actor/source/event, foreign IDs and CRUD, runtime mutation,
 digest/predecessor substitution, changed replay, SQL/shell/URL-shaped selectors/metadata,
@@ -225,9 +267,15 @@ AC28 explicit time; AC29 authenticated RBAC queries; AC30 bounded stable paginat
 AC31 no SQL filter language; AC32 isolation attacks; AC33 P21 authority preserved;
 AC34 P04 authority preserved; AC35 migration/schema; AC36 regression/coverage; AC37 exact
 CI; AC38 exact Security; AC39 accurate canonical/branch docs; AC40 no certification claims;
-AC41 explicit Sentinel global deferrals/no universal claim; AC42 no global Sentinel
+AC41 explicit supported/deferred Sentinel inventory and no unproven universal claim;
+AC42 no global Sentinel
 attribution to a login/arbitrary Organization; AC43 no misrepresentation of direct P04
 GLOBAL publication as transactional durable audit capture.
+
+AC44 disjoint TENANT/PLATFORM scopes; AC45 independent least-privilege platform role;
+AC46 durable platform ingestion/idempotent recovery; AC47 append-only independent platform
+integrity; AC48 bounded platform-grant queries; AC49 authoritative Sentinel privileged
+facts without tenant attribution.
 
 Implementation proceeds admission, canonical start, typed contracts/integrity with unit
 tests, tenant persistence/migration with real DB tests, P04 ingestion/provenance/replay,

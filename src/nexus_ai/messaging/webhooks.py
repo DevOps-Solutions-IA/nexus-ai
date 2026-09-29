@@ -28,6 +28,8 @@ from uuid import UUID
 from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError
 
+from nexus_ai.audit.context import actor_scope
+from nexus_ai.audit.contracts import AuditActor
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.logging import get_logger
@@ -142,7 +144,10 @@ class InboundMessagingService:
 
         for inbound in parsed.inbound:
             event_id = f"msg:{inbound.provider_message_id}"
-            stored = await self._process_inbound(organization_id, account, inbound, event_id)
+            with actor_scope(
+                organization_id, AuditActor(kind="SERVICE", service="customer-channel")
+            ):
+                stored = await self._process_inbound(organization_id, account, inbound, event_id)
             if stored is None:
                 replayed += 1
             else:

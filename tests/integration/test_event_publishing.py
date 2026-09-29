@@ -36,14 +36,16 @@ async def test_relay_publishes_and_marks_published(
     async with tenant_database.tenant_transaction(org.id) as ts:
         await event_platform.publisher.enqueue(ts.session, envelope)
 
+    async with tenant_database.transaction() as session:
+        expected = await event_platform.outbox.pending_count(session)
     processed = await event_platform.relay.drain_now()
-    assert processed == 1
+    assert processed == expected
     assert await _status(tenant_database, envelope.event_id) == "PUBLISHED"
 
     # The message is really on the stream and carries the canonical envelope.
     js = nats_messaging.jetstream()
     psub = await js.pull_subscribe(
-        event_platform.transport.tenant_subject_filter(),
+        event_platform.publisher.subject_for(envelope),
         durable=f"verify-{uuid.uuid4().hex[:8]}",
         stream="NXS_EVENTS",
     )
@@ -131,9 +133,12 @@ async def test_publication_is_dead_lettered_after_exhausting_attempts(
             text("UPDATE event_outbox SET attempt_count = 8 WHERE id = :i"),
             {"i": envelope.event_id},
         )
-        [item] = await event_platform.outbox.claim_batch(
-            session, owner="w", batch_size=1, lease_seconds=30
+        expected = await event_platform.outbox.pending_count(session)
+        claimed = await event_platform.outbox.claim_batch(
+            session, owner="w", batch_size=expected, lease_seconds=30
         )
+        assert len(claimed) == expected
+        item = next(item for item in claimed if item.id == envelope.event_id)
 
     await nats_messaging.disconnect()
     try:

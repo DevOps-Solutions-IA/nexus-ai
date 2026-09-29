@@ -186,6 +186,9 @@ class ApplicationLifespan:
         # environments: if durable JetStream is required and unavailable, or the stream
         # topology cannot be established, ``start`` raises ConfigurationError.
         event_platform = EventPlatform(settings, database, messaging)
+        from nexus_ai.audit.consumer import register_audit_consumer
+
+        register_audit_consumer(event_platform, database, settings)
         self._event_platform = event_platform
         await event_platform.start()
 

@@ -1,0 +1,220 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+  "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
+  "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
+  "certification_pending": [
+    "Separate root-owned clean-room certification",
+    "Exact implementation commit and exact-head CI/security",
+    "External Stage A audit and separately authorized lifecycle closure"
+  ],
+  "boundaries": [
+    {
+      "scope": "TENANT",
+      "organization_id": "Required UUID from trusted tenant boundary",
+      "authentication": "P03 verified token and live principal state before actor binding/query authority",
+      "database_role": "nexus_runtime",
+      "enforcement": "Forced PostgreSQL RLS on audit_records and audit_heads; Organization foreign keys and per-Organization unique source/sequence; correction reference uses Organization-scoped composite foreign key"
+    },
+    {
+      "scope": "PLATFORM",
+      "organization_id": "Always null; operator login Organization never owns fact",
+      "database_role": "nexus_audit_platform",
+      "source_role": "nexus_sentinel",
+      "enforcement": "Dedicated role/table grants; no tenant table SELECT; no nonempty tenant GUC; independent source journal/head/ledger/receipt; no tenant lifecycle connection injection"
+    }
+  ],
+  "actor_boundary": "HUMAN operator identity or registered SERVICE identity is source-owned; audit fact creates no business, compliance or platform authority.",
+  "noninterference": "A platform append completes while a tenant append still holds its own uncommitted head lock; unrelated tenant heads likewise remain independent.",
+  "supported_scope_claim": "Two disjoint audit scopes and explicitly registered producers; no universal coverage claim.",
+  "focused_proofs": [
+    {
+      "status": "VERIFIED_FOCUSED",
+      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+      "passed": 38,
+      "failed": 0,
+      "elapsed_seconds": 3.12,
+      "artifact": "/tmp/p22-platform-tests.log",
+      "coverage": {
+        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+        "passed": 38,
+        "percent": 92.57,
+        "artifact": "/tmp/p22-platform-coverage-final.log",
+        "scope": "Platform packages only; not canonical repository coverage"
+      },
+      "report": "/tmp/p22-platform-report.md",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    },
+    {
+      "status": "VERIFIED_FOCUSED_REPORTED",
+      "report": "/tmp/p22-core-report.md",
+      "runs": [
+        {
+          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+          "passed": 10,
+          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+        },
+        {
+          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+          "passed": 3,
+          "note": "Includes missing-head regression; overlaps first run."
+        }
+      ],
+      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+    }
+  ],
+  "tests": [
+    "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+    "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+    "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+    "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization",
+    "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+    "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+  ],
+  "additional_final_suite_nodes": [
+    "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+    "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+    "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+    "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+    "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+    "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append"
+  ],
+  "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification.",
+  "review_artifact": "/tmp/p22-platform-review.md",
+  "tenant_head_identity_hardening": {
+    "status": "VERIFIED",
+    "constraint": "audit_heads.id = audit_heads.organization_id",
+    "constraint_name": "ck_audit_heads_tenant_identity_valid",
+    "source": [
+      "src/nexus_ai/domain/audit/models.py",
+      "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py"
+    ],
+    "security_property": "A tenant cannot reserve a different Organization head primary key while labeling the row with its own Organization. Forced RLS and the identity CHECK enforce complementary boundaries.",
+    "regression": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+    "final_xml_outcome": "PASS"
+  },
+  "local_certification": {
+    "status": "VERIFIED",
+    "result": "PASS_LOCAL",
+    "command": "make test-all",
+    "tests": 2876,
+    "passed": 2876,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds_log": 1248.35,
+    "elapsed_seconds_xml": 1248.336,
+    "xml": {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    "log": {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    "coverage": {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "canonical_threshold_percent": 90,
+      "percent_covered": 91.3468479307026,
+      "percent_covered_rounded": 91.35,
+      "covered_lines": 26292,
+      "num_statements": 28034,
+      "covered_branches": 4079,
+      "num_branches": 5214,
+      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+    },
+    "source_manifest": {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "independently_verified_source_files": 664
+    },
+    "relevant_testcase_count": 15,
+    "exact_testcase_outcomes": [
+      {
+        "node_id": "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+        "result": "PASS",
+        "duration_seconds": 0.1
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+        "result": "PASS",
+        "duration_seconds": 0.132
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+        "result": "PASS",
+        "duration_seconds": 0.073
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+        "result": "PASS",
+        "duration_seconds": 0.129
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+        "result": "PASS",
+        "duration_seconds": 0.407
+      },
+      {
+        "node_id": "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization",
+        "result": "PASS",
+        "duration_seconds": 0.0
+      },
+      {
+        "node_id": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "result": "PASS",
+        "duration_seconds": 0.127
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+        "result": "PASS",
+        "duration_seconds": 0.095
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+        "result": "PASS",
+        "duration_seconds": 0.06
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+        "result": "PASS",
+        "duration_seconds": 0.058
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+        "result": "PASS",
+        "duration_seconds": 0.088
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+        "result": "PASS",
+        "duration_seconds": 0.05
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
+        "result": "PASS",
+        "duration_seconds": 0.05
+      }
+    ]
+  }
+}

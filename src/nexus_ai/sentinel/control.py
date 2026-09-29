@@ -5,6 +5,7 @@ from uuid import UUID, uuid7
 
 from sqlalchemy import select
 
+from nexus_ai.audit.platform.contracts import PlatformAuditActor
 from nexus_ai.domain.auth.models import UserRecord
 from nexus_ai.domain.auth.state import PrincipalStateValidator
 from nexus_ai.domain.auth.tokens import TokenService
@@ -84,22 +85,29 @@ class SentinelControl:
         return await self._store.record_approval(request)
 
     async def set_mutable_actions(self, token: str, revision: int, *, enabled: bool) -> int:
-        await self._authority.require(token, SentinelPermission.CONTROL)
-        return await self._store.set_mutable_actions(revision, enabled=enabled)
+        identity = await self._authority.require(token, SentinelPermission.CONTROL)
+        return await self._store.set_mutable_actions(
+            revision, enabled=enabled, actor=PlatformAuditActor(kind="HUMAN", user_id=identity)
+        )
 
     async def transition(
         self, token: str, incident_id: UUID, revision: int, state: IncidentState
     ) -> int:
-        await self._authority.require(token, SentinelPermission.TRIAGE)
+        identity = await self._authority.require(token, SentinelPermission.TRIAGE)
         return await self._store.transition(
             incident_id,
             revision,
             state,
             resolution_source="AUTHORIZED_OPERATOR" if state == IncidentState.RESOLVED else None,
+            actor=PlatformAuditActor(kind="HUMAN", user_id=identity),
         )
 
     async def execute(self, token: str, proposal_id: UUID) -> str:
-        await self._authority.require(token, SentinelPermission.CONTROL)
-        claim = await self._executor.claim(proposal_id, uuid7())
-        await self._authority.require(token, SentinelPermission.CONTROL)
-        return await self._executor.dispatch(claim)
+        identity = await self._authority.require(token, SentinelPermission.CONTROL)
+        claim = await self._executor.claim(
+            proposal_id, uuid7(), actor=PlatformAuditActor(kind="HUMAN", user_id=identity)
+        )
+        identity = await self._authority.require(token, SentinelPermission.CONTROL)
+        return await self._executor.dispatch(
+            claim, actor=PlatformAuditActor(kind="HUMAN", user_id=identity)
+        )

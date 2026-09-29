@@ -1,0 +1,426 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": {
+    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+    "status": "VERIFIED_FINAL_XML_BINDING",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+    "xml": "/tmp/p22-full-final2.xml"
+  },
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "required": 20,
+  "mapped": 20,
+  "focused_result": "PASS",
+  "focused_xml": "/tmp/p22-concurrency-final.xml",
+  "focused_tests": 20,
+  "focused_failures": 0,
+  "focused_errors": 0,
+  "focused_skipped": 0,
+  "focused_snapshot_binding": "HISTORICAL_FOCUSED_RUN_NOT_FINAL_BINDING",
+  "note": "Original focused20PASS retained; final C01–C20 and platform cases independently matched final full-suite XML.",
+  "cases": [
+    {
+      "case": "C01",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append"
+      ]
+    },
+    {
+      "case": "C02",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head"
+      ]
+    },
+    {
+      "case": "C03",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges"
+      ]
+    },
+    {
+      "case": "C04",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
+      ]
+    },
+    {
+      "case": "C05",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected"
+      ]
+    },
+    {
+      "case": "C06",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact"
+      ]
+    },
+    {
+      "case": "C07",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ]
+    },
+    {
+      "case": "C08",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
+      ]
+    },
+    {
+      "case": "C09",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied"
+      ]
+    },
+    {
+      "case": "C10",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot"
+      ]
+    },
+    {
+      "case": "C11",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head"
+      ],
+      "additional_integrity_regression": {
+        "test_node": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "executed_nodes": [
+          "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+        ],
+        "result": "PASS",
+        "focused_artifact": "/tmp/p22-head-collision-green.log",
+        "focused_security_passed": 29,
+        "invariant": "audit_heads.id = organization_id",
+        "history": "Failed reproduction and repair retained in development-history H14; no unresolved collision claim."
+      }
+    },
+    {
+      "case": "C12",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible"
+      ]
+    },
+    {
+      "case": "C13",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends"
+      ]
+    },
+    {
+      "case": "C14",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
+      ]
+    },
+    {
+      "case": "C15",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback"
+      ]
+    },
+    {
+      "case": "C16",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable"
+      ]
+    },
+    {
+      "case": "C17",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact"
+      ]
+    },
+    {
+      "case": "C18",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations"
+      ]
+    },
+    {
+      "case": "C19",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success"
+      ]
+    },
+    {
+      "case": "C20",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit",
+      "result": "PASS",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
+      ]
+    }
+  ],
+  "platform_additional_nodes": [
+    "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+    "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+    "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
+  ],
+  "additional_result": "PASS",
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "digest_artifact": "/tmp/p22-tested-source-hash.txt",
+        "status": "PENDING_FINAL_XML_BINDING",
+        "note": "Digest supplied by root for tested source set; this draft does not independently assert hash scope or final XML equality. Evidence JSON document hashes are separate from runtime source-set hash."
+      }
+    }
+  ],
+  "final_full_suite": {
+    "result": "PASS",
+    "tests": 2876,
+    "passed": 2876,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_log": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_display": "91.35%",
+    "coverage_threshold": 90,
+    "xml": "/tmp/p22-full-final2.xml",
+    "log": "/tmp/p22-full-final2.log",
+    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+    },
+    {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    },
+    {
+      "path": "/tmp/p22-security-final2.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-migration-result.json",
+      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+    },
+    {
+      "path": "/tmp/p22-webhook-provenance.log",
+      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+    },
+    {
+      "path": "/tmp/p22-events-cli-corrective.log",
+      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+    }
+  ],
+  "platform_executed_nodes": [
+    "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+    "tests/integration/test_platform_audit.py::test_source_transaction_rollback_and_committed_visibility",
+    "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+    "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+    "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+    "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload0]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload1]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload2]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload3]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload4]",
+    "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET semantic_digest=repeat('f',64) WHERE sequence=1]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET predecessor=repeat('f',64) WHERE sequence=2]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[DELETE FROM platform_audit_records WHERE sequence=2]",
+    "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+    "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append",
+    "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl"
+  ],
+  "platform_executed_case_count": 21,
+  "platform_result": "PASS"
+}

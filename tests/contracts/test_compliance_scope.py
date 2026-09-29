@@ -4,6 +4,8 @@ import ast
 import json
 from pathlib import Path
 
+from audit_lifecycle import assert_audit_lifecycle_consistent
+
 from nexus_ai.compliance.contracts import INCOMPLETE_RESOURCES, resource_inventory
 
 
@@ -16,14 +18,22 @@ def test_compliance_admission_and_stage_a_state():
     closed = manifest["status"] == "READY"
     assert manifest["decision"] == ("GO" if closed else "PENDING")
     assert requirement["status"] == ("VALIDATED" if closed else "IN_PROGRESS")
-    assert state["active_phase"] == (None if closed else "NXS-P21")
+    if closed:
+        assert state["active_phase"] in {None, "NXS-P22"}
+    else:
+        assert state["active_phase"] == "NXS-P21"
     if not closed:
         assert manifest["implementation_commit"] is None
         assert manifest["closure_commit"] is None
     registry = json.loads(Path(".nxs/phase-registry.json").read_text())["phases"]
     for phase in registry:
-        if int(phase["id"].split("P")[-1]) >= 22:
+        if phase["id"] == "NXS-P22" and phase["status"] != "PLANNED":
+            assert closed
+            assert_audit_lifecycle_consistent()
+        elif int(phase["id"].split("P")[-1]) >= 22:
             assert phase["status"] == "PLANNED" and phase["decision"] == "PENDING"
+    if state["active_phase"] == "NXS-P22":
+        assert_audit_lifecycle_consistent()
 
 
 def test_resource_inventory_does_not_claim_universal_coverage():

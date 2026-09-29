@@ -76,6 +76,9 @@ from nexus_ai.agents.state_machine import (
     turn_is_terminal,
 )
 from nexus_ai.agents.toolbridge import AgentToolBridge, ToolCallOutcome
+from nexus_ai.audit.context import actor_scope, principal_actor, source_actor
+from nexus_ai.audit.contracts import AuditActor
+from nexus_ai.audit.producer import emit_audit, safe_identity
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import NxsError
 from nexus_ai.core.logging import get_logger
@@ -95,7 +98,12 @@ from nexus_ai.events.envelope import EventEnvelope
 from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
 from nexus_ai.infrastructure.tenant_session import TenantSession
-from nexus_ai.integrations.credentials import CredentialType, SecretMaterial, VaultClient
+from nexus_ai.integrations.credentials import (
+    CredentialType,
+    SecretMaterial,
+    TransactionalVaultClient,
+    VaultClient,
+)
 from nexus_ai.integrations.destination import DestinationPolicy
 from nexus_ai.integrations.errors import IntegrationDestinationBlockedError
 from nexus_ai.tools.registry import ToolRegistry
@@ -200,13 +208,22 @@ class AgentService:
         async with self._db.tenant_transaction(organization_id) as tenant:
             if await ModelProviderAccountRepository(tenant).by_slug(request.slug) is not None:
                 raise AgentConfigInvalidError("a model provider account with this slug exists")
-            return await ModelProviderAccountRepository(tenant).insert(
+            account = await ModelProviderAccountRepository(tenant).insert(
                 provider=request.provider,
                 slug=request.slug,
                 api_base=request.api_base,
                 external_account_id=request.external_account_id,
                 configuration=dict(request.configuration),
             )
+            await emit_audit(
+                tenant,
+                producer="agent",
+                action="agent.account.created",
+                target_type="model_provider_account",
+                target_id=account.id,
+                actor=source_actor(organization_id, service="agent-service"),
+            )
+            return account
 
     async def get_account(self, organization_id: UUID, account_id: UUID) -> ModelProviderAccount:
         async with self._db.tenant_transaction(organization_id) as tenant:
@@ -241,6 +258,15 @@ class AgentService:
             changes["status"] = request.status.value
         async with self._db.tenant_transaction(organization_id) as tenant:
             updated = await ModelProviderAccountRepository(tenant).apply(account_id, changes)
+            if updated is not None:
+                await emit_audit(
+                    tenant,
+                    producer="agent",
+                    action="agent.account.updated",
+                    target_type="model_provider_account",
+                    target_id=account_id,
+                    actor=source_actor(organization_id, service="agent-service"),
+                )
         if updated is None:
             raise AgentModelProviderAccountNotFoundError("no such model provider account")
         return updated
@@ -251,9 +277,22 @@ class AgentService:
         account = await self.get_account(organization_id, account_id)
         ref = account.credential_ref or f"ai-model:{account.id}"
         material = SecretMaterial(CredentialType.PROVIDER_SECRET_SET, dict(request.fields))
-        await self._vault.store_secret(organization_id, ref, material)
+        actor = source_actor(organization_id, service="agent-service")
+        if not isinstance(self._vault, TransactionalVaultClient):
+            raise AgentConfigInvalidError(
+                "credential mutation requires transactional vault persistence"
+            )
         async with self._db.tenant_transaction(organization_id) as tenant:
+            await self._vault.store_secret_in(tenant, ref, material)
             await ModelProviderAccountRepository(tenant).apply(account_id, {"credential_ref": ref})
+            await emit_audit(
+                tenant,
+                producer="agent",
+                action="agent.account.credential_stored",
+                target_type="model_provider_account",
+                target_id=account_id,
+                actor=actor,
+            )
 
     # -- model profiles ---------------------------------------------------------
 
@@ -265,7 +304,7 @@ class AgentService:
             account = await ModelProviderAccountRepository(tenant).by_id(request.account_id)
             if account is None:
                 raise AgentModelProviderAccountNotFoundError("no such model provider account")
-            return await ModelProfileRepository(tenant).insert(
+            profile = await ModelProfileRepository(tenant).insert(
                 account_id=request.account_id,
                 slug=request.slug,
                 display_name=request.display_name,
@@ -273,6 +312,15 @@ class AgentService:
                 temperature=request.temperature,
                 max_output_tokens=request.max_output_tokens,
             )
+            await emit_audit(
+                tenant,
+                producer="agent",
+                action="agent.profile.created",
+                target_type="model_profile",
+                target_id=profile.id,
+                actor=source_actor(organization_id, service="agent-service"),
+            )
+            return profile
 
     async def get_profile(self, organization_id: UUID, profile_id: UUID) -> ModelProfile:
         async with self._db.tenant_transaction(organization_id) as tenant:
@@ -294,6 +342,15 @@ class AgentService:
         }
         async with self._db.tenant_transaction(organization_id) as tenant:
             updated = await ModelProfileRepository(tenant).apply(profile_id, changes)
+            if updated is not None:
+                await emit_audit(
+                    tenant,
+                    producer="agent",
+                    action="agent.profile.updated",
+                    target_type="model_profile",
+                    target_id=profile_id,
+                    actor=source_actor(organization_id, service="agent-service"),
+                )
         if updated is None:
             raise AgentModelProfileNotFoundError("no such model profile")
         return updated
@@ -309,7 +366,7 @@ class AgentService:
             if profile is None:
                 raise AgentModelProfileNotFoundError("no such model profile")
             await self._validate_tool_keys(tenant, organization_id, request.tool_keys)
-            return await AgentRepository(tenant).insert(
+            agent = await AgentRepository(tenant).insert(
                 slug=request.slug,
                 display_name=request.display_name,
                 model_profile_id=request.model_profile_id,
@@ -324,6 +381,15 @@ class AgentService:
                 temperature=request.temperature,
                 timeout_seconds=request.timeout_seconds,
             )
+            await emit_audit(
+                tenant,
+                producer="agent",
+                action="agent.definition.created",
+                target_type="agent",
+                target_id=agent.id,
+                actor=source_actor(organization_id, service="agent-service"),
+            )
+            return agent
 
     async def get_agent(self, organization_id: UUID, agent_id: UUID) -> AgentDefinition:
         async with self._db.tenant_transaction(organization_id) as tenant:
@@ -362,6 +428,15 @@ class AgentService:
             if "status" in payload:
                 changes["status"] = request.status.value if request.status else None
             updated = await AgentRepository(tenant).apply(agent_id, changes)
+            if updated is not None:
+                await emit_audit(
+                    tenant,
+                    producer="agent",
+                    action="agent.definition.updated",
+                    target_type="agent",
+                    target_id=agent_id,
+                    actor=source_actor(organization_id, service="agent-service"),
+                )
         if updated is None:
             raise AgentNotFoundError("no such agent")
         return updated
@@ -383,6 +458,8 @@ class AgentService:
         self, organization_id: UUID, principal: Principal, request: StartAgentSessionRequest
     ) -> AgentSession:
         self._require_enabled()
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            await principal_actor(self._db, tenant, principal)
         agent = await self.get_agent(organization_id, request.agent_id)
         if agent.status is not AgentStatus.ACTIVE:
             raise AgentConfigInvalidError("the agent is disabled")
@@ -517,6 +594,7 @@ class AgentService:
                 organization_id,
                 updated,
                 SESSION_STATE_EVENT_TYPE[fold.state.value],
+                actor=source_actor(organization_id, service="agent-service"),
             )
             await self._record_usage(tenant.session, organization_id, updated)
         return updated
@@ -924,15 +1002,16 @@ class AgentService:
                 sequence,
             )
 
-        return await self._runtime.run_turn(
-            ctx=ctx,
-            adapter=adapter,
-            secret=secret,
-            http=self._http,
-            on_tool=_on_tool,
-            authorize_model=_authorize_model,
-            authorize_tool=_authorize_tool,
-        )
+        with actor_scope(organization_id, self._audit_actor(session, turn)):
+            return await self._runtime.run_turn(
+                ctx=ctx,
+                adapter=adapter,
+                secret=secret,
+                http=self._http,
+                on_tool=_on_tool,
+                authorize_model=_authorize_model,
+                authorize_tool=_authorize_tool,
+            )
 
     async def _assert_turn_authority(
         self,
@@ -1419,6 +1498,15 @@ class AgentService:
                     "latency_ms": outcome.latency_ms,
                 }
             )
+            await emit_audit(
+                tenant,
+                producer="agent",
+                action="agent.tool.completed" if outcome.ok else "agent.tool.failed",
+                target_type="agent_tool_call",
+                target_id=record.id,
+                actor=self._audit_actor(session, turn),
+                outcome="SUCCESS" if outcome.ok else "FAILED" if outcome.allowed else "DENIED",
+            )
             base = {
                 "session_id": str(session.id),
                 "turn_id": str(turn.id),
@@ -1494,6 +1582,14 @@ class AgentService:
                 "latency_ms_total": 0,
             },
         )
+        await emit_audit(
+            shim,
+            producer="agent",
+            action="agent.usage.recorded",
+            target_type="agent_session",
+            target_id=row.id,
+            actor=self._audit_actor(row),
+        )
         await self._publisher.enqueue(
             session,
             EventEnvelope.create(
@@ -1550,8 +1646,24 @@ class AgentService:
         return existing
 
     async def _emit_session_event(
-        self, session: Any, organization_id: UUID, row: AgentSession, event_type: str
+        self,
+        session: Any,
+        organization_id: UUID,
+        row: AgentSession,
+        event_type: str,
+        *,
+        actor: AuditActor | None = None,
     ) -> None:
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="agent",
+            action=event_type,
+            target_type="agent_session",
+            target_id=row.id,
+            actor=actor or self._audit_actor(row),
+            correlation_id=safe_identity(row.correlation_id),
+            outcome="FAILED" if event_type.endswith((".failed", ".expired")) else "SUCCESS",
+        )
         payload: dict[str, Any] = {
             "session_id": str(row.id),
             "agent_id": str(row.agent_id),
@@ -1585,6 +1697,16 @@ class AgentService:
         event_type: str,
         extra: dict[str, Any],
     ) -> None:
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="agent",
+            action=event_type,
+            target_type="agent_turn",
+            target_id=turn.id,
+            actor=self._audit_actor(session_row, turn),
+            correlation_id=safe_identity(session_row.correlation_id),
+            outcome="FAILED" if event_type.endswith(".failed") else "SUCCESS",
+        )
         payload = {
             "session_id": str(session_row.id),
             "turn_id": str(turn.id),
@@ -1604,6 +1726,16 @@ class AgentService:
                 correlation_id=session_row.correlation_id,
                 payload=payload,
             ),
+        )
+
+    @staticmethod
+    def _audit_actor(session: AgentSession, turn: AgentTurn | None = None) -> AuditActor:
+        return AuditActor(
+            kind="AI_AGENT",
+            agent_id=session.agent_id,
+            session_id=session.id,
+            turn_id=None if turn is None else turn.id,
+            initiating_user_id=session.initiator_user_id,
         )
 
     def _response_from_turn(self, turn: AgentTurn) -> AgentResponse:
