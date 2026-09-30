@@ -15,6 +15,7 @@ INV-CANCEL-001..009, INV-LEASE-001, INV-CRASH-001 (ADR-0094 "Distributed cancell
 from __future__ import annotations
 
 import asyncio
+from threading import Event
 from typing import Any
 
 import pytest
@@ -238,16 +239,15 @@ async def test_already_dispatched_tool_completes_but_nothing_further_dispatches(
     org = await make_organization()
     principal = await make_tool_principal(org)
     await _register_tool(agent_stack, org.id, mock_http_server)
-    import time as _time
-
     seen: list[str] = []
+    dispatch_started = Event()
+    release_dispatch = Event()
 
     def slow_handler(method: str, path: str, headers: Any, body: Any) -> tuple[int, dict[str, Any]]:
         seen.append(path)
-        # runs on the mock server's OWN thread (ThreadingHTTPServer) — this blocks only
-        # that thread, leaving the event loop free to run worker_b.cancel_session()
-        # concurrently, so the delay genuinely races a live in-flight dispatch.
-        _time.sleep(0.6)
+        dispatch_started.set()
+        if not release_dispatch.wait(timeout=10):
+            return 504, {"error": "dispatch_barrier_timeout"}
         return 200, {"id": path.rsplit("/", 1)[-1]}
 
     mock_http_server.set_handler(slow_handler)
@@ -272,23 +272,38 @@ async def test_already_dispatched_tool_completes_but_nothing_further_dispatches(
     task_a = asyncio.create_task(
         worker_a.submit_turn(org.id, session.id, SubmitTurnRequest(content="go"))
     )
-    await asyncio.sleep(0.15)  # the checkpoint has already passed; tool #1 is dispatching
-    cancelled = await worker_b.cancel_session(org.id, session.id)
-    assert cancelled.state is AgentSessionState.CANCELLED
+    try:
+        async with asyncio.timeout(6):
+            assert await asyncio.to_thread(dispatch_started.wait, 5)
+        assert seen == ["/c/d1"]
+        async with asyncio.timeout(5):
+            cancelled = await worker_b.cancel_session(org.id, session.id)
+            assert cancelled.state is AgentSessionState.CANCELLED
+            assert (await _session_row(agent_stack, org.id, session.id)).state == "CANCELLED"
+    finally:
+        release_dispatch.set()
 
     # the ALREADY-DISPATCHED tool #1 call is allowed to complete (documented boundary) —
     # but tool #2 (a genuinely NEW dispatch, requested only after cancellation already
     # committed) is blocked by the checkpoint immediately preceding it. Without that
     # checkpoint tool #2 WOULD reach the mock server (this is the assertion the red-team
     # finding required: it must actually fail against a build missing the checkpoint).
-    with pytest.raises(AgentCancelledError):
-        await task_a
+    async with asyncio.timeout(5):
+        with pytest.raises(AgentCancelledError):
+            await task_a
 
     assert seen == ["/c/d1"]  # tool #1 completed despite the race; tool #2 NEVER dispatched
     assert await _execs(agent_stack, org.id) == 1  # exactly the pre-cancel effect, no more
     turns = await worker_a.list_turns(org.id, session.id, limit=5)
     assert turns[0].state.value == "CANCELLED"
     assert turns[0].response_text is None  # no stale "final" content committed
+
+    async with agent_stack.database.tenant_transaction(org.id) as tenant:
+        permits = await tenant.session.execute(
+            text("SELECT count(*) FROM ai_agent_tool_dispatch_permits WHERE turn_id = :turn_id"),
+            {"turn_id": turns[0].id},
+        )
+        assert permits.scalar_one() == 1
 
     await worker_b.shutdown()
 

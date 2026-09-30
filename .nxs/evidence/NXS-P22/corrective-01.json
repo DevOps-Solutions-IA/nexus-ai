@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "result": "PENDING_RECERTIFICATION",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
   "superseded_candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
   "authorization": "Master Orchestrator implementation audit Corrective 01",
   "lifecycle": {
@@ -163,12 +163,93 @@
           "path": "/tmp/p22-corrective-cleanroom-attempt-2-coverage.json",
           "sha256": "1a2736fcfb3750229ed2982d7d5c1c62c984f58b6eae68f484b75912a5f9d5ab"
         }
-      ]
+      ],
+      "focused_unchanged_rerun": {
+        "result": "PASS",
+        "passed": 1,
+        "artifact": {
+          "path": "/tmp/p22-corrective-sip-rerun.xml",
+          "sha256": "6cdfb80b716b0ec77802a25220ca66bdcc3db47046aa59822b34e310595901d1"
+        }
+      }
+    },
+    {
+      "result": "FAIL",
+      "attempt": 3,
+      "command": "make clean-room",
+      "exit_code": 2,
+      "tests": 2901,
+      "failed": 1,
+      "skipped": 0,
+      "runtime_seconds": 1284.767,
+      "passed": 2900,
+      "coverage_percent": 91.30760472223886,
+      "artifacts": [
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.xml",
+          "sha256": "a5338e7476c674dd43e4f21a97ccd181673eefed6764bee61c190b1ae6e2cbb6"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.log",
+          "sha256": "8696f79216c4c6fbdfa7b2bf850dadc3daf62506602176f2c77c5467ed202384"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3-coverage.json",
+          "sha256": "586ba745892e537d511983289d0d833fbc5e6cec1700bed40d3507a0bb21606f"
+        }
+      ],
+      "failure": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "observed": "seen=[] instead of ['/c/d1']; cancellation begins after fixed asyncio.sleep(0.15), without synchronizing actual first dispatch.",
+      "source_unchanged": true,
+      "scope": "Existing P13 test, unchanged from b201759; modifying its synchronization is outside the requested PLATFORM corrective.",
+      "focused_followup": {
+        "result": "PASS",
+        "tests": 7,
+        "failed": 0,
+        "skipped": 0,
+        "runtime_seconds": 15.101,
+        "artifact": {
+          "path": "/tmp/p22-corrective-cancel-covered.xml",
+          "sha256": "2d4e1de4192ca9a1cc0f3ee17af689a9d71544f443497d71e3fb8befda4b66ae"
+        },
+        "note": "Diagnostic coverage run uses --cov-fail-under=0 because it covers only seven P13 tests; not canonical regression certification."
+      }
     }
   ],
   "prohibited_operations_executed": [],
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
-  "recovery_checkpoint_note": "Work preserved for clean-tree canonical stale-lock recovery after interrupted certification; not an implementation candidate; clean-room and exact-head gates remain pending."
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "recovery_checkpoint_note": "Work preserved for clean-tree canonical stale-lock recovery after interrupted certification; not an implementation candidate; clean-room and exact-head gates remain pending.",
+  "lock_recovery": {
+    "checkpoint": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "canonical_recover": "PASS",
+    "canonical_acquire": "PASS",
+    "expires_at": "2026-09-30T17:16:54Z",
+    "implementation_candidate": false
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "BLOCKED_CERTIFICATION"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "historical_blocker": {
+    "classification": "SCOPE_CHANGE_REQUIRED",
+    "result": "BLOCKED",
+    "reason": "Mandatory clean-room fails repeatedly at pre-existing sleep-based P13 dispatch synchronization. No threshold lowered, tests skipped, sleep extended, or unrelated P13 source changed.",
+    "required_decision": "Authorize a narrowly scoped deterministic synchronization corrective to the P13 test, then repeat complete certification.",
+    "candidate_created": false,
+    "push": false,
+    "exact_head": "NOT_EXECUTED"
+  },
+  "resolution": "Corrective01A authorized test-only synchronization; 20 consecutive PASS, complete surface PASS, full suite and clean-room PASS; see corrective-01a.json."
 }

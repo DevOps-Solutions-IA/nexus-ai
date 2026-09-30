@@ -1,0 +1,362 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+  "authorization": "Master Orchestrator Corrective 01A",
+  "scope": "One P13 regression test synchronization; no production P13 runtime change or lifecycle reopen.",
+  "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+  "historical_failure_classification": "TEST_SYNCHRONIZATION_DEFECT",
+  "production_semantic_regression_demonstrated": false,
+  "test_ordering_assumption_demonstrated_unsafe": true,
+  "historical_evidence": "corrective-01.json",
+  "ordering": [
+    "Mock HTTP handler records real request and signals thread-safe dispatch_started.",
+    "Async test waits boundedly for external-boundary entry.",
+    "Worker B commits cancellation and authoritative persisted session state is checked.",
+    "Finally releases bounded handler barrier; Worker A must raise AgentCancelledError.",
+    "Exactly tool d1 reached external boundary; exactly one durable execution and one dispatch permit; cancelled turn has no response."
+  ],
+  "sip_history": {
+    "classification": "TRANSIENT / CAUSE NOT YET PROVEN",
+    "test": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+    "changed": false,
+    "next_reproduction": "STOP and investigate independently; no timeout increase or assertion reduction authorized.",
+    "reproduced_in_corrective01a": false
+  },
+  "global_hardening_obligation": {
+    "id": "NXS-HARDEN-CONCURRENCY-001",
+    "classification": "USER_DECISION",
+    "status": "RECORDED_FOR_CROSS_PHASE_HARDENING",
+    "invariant": "Concurrency tests must establish happens-before through observable semantic boundaries: committed state, durable permits, lease/fences, explicit barriers or actual external-boundary entry. Fixed sleeps can simulate elapsed time but cannot prove concurrent state arrival.",
+    "future_audit_scope": "P00-P22",
+    "current_scope": "Only the proven defective P13 test; no wholesale historical test refactor."
+  },
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "stress": {
+    "required": 20,
+    "executed": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "all_iterations_required": true,
+    "iterations": [
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.695,
+        "started_at": "2026-09-30T08:52:13.873548-05:00",
+        "iteration": 1,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-1.xml",
+          "sha256": "d436c15de2db9b8db61774319feb29bf59414e22af8b4aaa9b9eee827365ed6c"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.705,
+        "started_at": "2026-09-30T08:52:18.048344-05:00",
+        "iteration": 2,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-2.xml",
+          "sha256": "f3dfd89ca96d37cdb5a970ceb4a992935be9fb44c51790a27def44408ecaab10"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 2.035,
+        "started_at": "2026-09-30T08:52:22.358957-05:00",
+        "iteration": 3,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-3.xml",
+          "sha256": "063b627a899e186aa9bd5aeb7f17fd6d54435b0e98be7cb08d821026f20e43f1"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.752,
+        "started_at": "2026-09-30T08:52:26.965754-05:00",
+        "iteration": 4,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-4.xml",
+          "sha256": "b19771dfaf37c5f8e20fb6c9e5dc326d9f755dd6ec484925e610e9e9485e7430"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.817,
+        "started_at": "2026-09-30T08:52:31.255179-05:00",
+        "iteration": 5,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-5.xml",
+          "sha256": "3ef2bd9327faffde5cd2599aa8dfabffafb2d459974d9aafdc9cb57db9981d8b"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.621,
+        "started_at": "2026-09-30T08:52:35.457323-05:00",
+        "iteration": 6,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-6.xml",
+          "sha256": "cf29ea591cdfd4b4971105f31008c05fd8e16a725b25b5a4a516aa8377fff488"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.677,
+        "started_at": "2026-09-30T08:52:39.676238-05:00",
+        "iteration": 7,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-7.xml",
+          "sha256": "bace974abe1c852c259327bc2e89fadc37aa6f8b8bbf0bc3b3b24c1bbac53090"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.649,
+        "started_at": "2026-09-30T08:52:43.775918-05:00",
+        "iteration": 8,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-8.xml",
+          "sha256": "813fbc581d5c56598145f9db30ef60beb4fc550d6e328a7b70fe914e23b09505"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.64,
+        "started_at": "2026-09-30T08:52:47.836363-05:00",
+        "iteration": 9,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-9.xml",
+          "sha256": "8f444f09fdf7441d7127633c1a3e03b532d00c797a0cf801554764ebb635ead1"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.693,
+        "started_at": "2026-09-30T08:52:51.938526-05:00",
+        "iteration": 10,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-10.xml",
+          "sha256": "dddf3a9baa8c86d647cb9bc4715a30d29de831018b3925ac196ce15c031eb4da"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.627,
+        "started_at": "2026-09-30T08:52:56.046927-05:00",
+        "iteration": 11,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-11.xml",
+          "sha256": "9bc5864e9137cec7a3d31ba978164a4684fb2b4558b14d83769cafe4ade19831"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.657,
+        "started_at": "2026-09-30T08:52:59.994292-05:00",
+        "iteration": 12,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-12.xml",
+          "sha256": "64be330043dca397d9290aba419d2b8ce501c96194a1ee436c790717df8da334"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.656,
+        "started_at": "2026-09-30T08:53:04.002328-05:00",
+        "iteration": 13,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-13.xml",
+          "sha256": "655f88ca36699653cbd242ee1f0d8bfc1d4578b921ed2a1f974221f59d14b18d"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.71,
+        "started_at": "2026-09-30T08:53:08.050376-05:00",
+        "iteration": 14,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-14.xml",
+          "sha256": "6cc754384ab12cd9618e98619551d356710ee8a864827268ee2031a263204dfb"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.665,
+        "started_at": "2026-09-30T08:53:12.296511-05:00",
+        "iteration": 15,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-15.xml",
+          "sha256": "d479fabe24f1496c96ecc8439d122f8a2af79b5f41d145faa380df9bde8b75db"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.747,
+        "started_at": "2026-09-30T08:53:16.426840-05:00",
+        "iteration": 16,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-16.xml",
+          "sha256": "8e24ac1fec3973fd3b1a5048599838b1e0bc2b2afa61d2885eb357a61bd658e5"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.76,
+        "started_at": "2026-09-30T08:53:20.581351-05:00",
+        "iteration": 17,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-17.xml",
+          "sha256": "c6704d4abb6f87f246bacb75b4e5dafa6415852ea1d54a4d4eb5e41b55daf576"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.671,
+        "started_at": "2026-09-30T08:53:25.042592-05:00",
+        "iteration": 18,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-18.xml",
+          "sha256": "1014695e96fac9034d64e042485afd0f55d5f365fff2d85b001f2865f94682c2"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.928,
+        "started_at": "2026-09-30T08:53:29.386801-05:00",
+        "iteration": 19,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-19.xml",
+          "sha256": "e3058fdace6bb1416d5b1203e63c1a12ee586cd20129eb121d363f15cba1565d"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.739,
+        "started_at": "2026-09-30T08:53:33.911556-05:00",
+        "iteration": 20,
+        "artifact": {
+          "path": "/tmp/p22-01a-stress-20.xml",
+          "sha256": "a5b83dcc6718f2d30c9e1283bc8029017b214a38dd9f3e28771bc86df4159d2a"
+        }
+      }
+    ]
+  },
+  "related_surface": {
+    "passed": 22,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 30.144,
+    "started_at": "2026-09-30T08:53:38.141918-05:00",
+    "result": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01a-surface.xml",
+      "sha256": "c8106893b5bf643edc01c5ff1518d1157c46686b25d5f47c5bae27e44e46bc08"
+    }
+  },
+  "full_suite": {
+    "result": "PASS",
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1241.457,
+    "started_at": "2026-09-30T09:30:17.126355-05:00",
+    "tests": 2901,
+    "coverage_percent": 91.37652064481333,
+    "xml": "/tmp/p22-01a-full.xml",
+    "log": "/tmp/p22-01a-full.log",
+    "coverage_artifact": "/tmp/p22-01a-coverage.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811"
+  },
+  "clean_room": {
+    "result": "PASS",
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1249.225,
+    "started_at": "2026-09-30T09:53:32.210998-05:00",
+    "coverage_percent": 91.3195901000779,
+    "exit_code": 0,
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
+    "xml": {
+      "path": "/tmp/p22-01a-cleanroom-full.xml",
+      "sha256": "d4d9195e2a36cc15548926d20177a46a8f11d208c3f12b5a8181554d692cf562"
+    }
+  }
+}

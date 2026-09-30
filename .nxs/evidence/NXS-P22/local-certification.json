@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
-  "result": "PENDING_CLEAN_ROOM",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "result": "PASS_LOCAL",
   "stage": "A",
   "lifecycle": {
     "phase": "NXS-P22",
@@ -17,62 +17,54 @@
   },
   "full_regression": {
     "result": "PASS",
-    "command": "make test-all",
     "passed": 2901,
     "failed": 0,
+    "errors": 0,
     "skipped": 0,
-    "coverage_percent": 91.33157547791694,
-    "evidence": "tests.json"
+    "runtime_seconds": 1241.457,
+    "started_at": "2026-09-30T09:30:17.126355-05:00",
+    "tests": 2901,
+    "coverage_percent": 91.37652064481333,
+    "xml": "/tmp/p22-01a-full.xml",
+    "log": "/tmp/p22-01a-full.log",
+    "coverage_artifact": "/tmp/p22-01a-coverage.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "evidence": "tests.json",
+    "command": "make test-all",
+    "exit_code": 0
   },
   "clean_room": {
-    "result": "PENDING_UNCHANGED_RERUN",
-    "first_attempt": {
-      "result": "FAIL",
-      "exit_code": 2,
-      "passed": 2900,
-      "failed": 1,
-      "errors": 0,
-      "skipped": 0,
-      "runtime_seconds": 1437.658,
-      "started_at": "2026-09-29T20:13:31.396717-05:00",
-      "log": {
-        "path": "/tmp/p22-corrective-cleanroom-attempt-1.log",
-        "sha256": "12b88feff3ef301ed1ad194f0684c7a4418a5ebed545e0021a4b7851257f6c3b"
-      },
-      "xml": {
-        "path": "/tmp/p22-corrective-cleanroom-attempt-1.xml",
-        "sha256": "47a628aa2d426e5d33bf233df3bd39a3b2933ec191ab0803871f33ce8ecaa570"
-      },
-      "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
-      "diagnosis": "Existing P13 test assumes first tool dispatched after asyncio.sleep(0.15); actual seen=[] before cancellation. No P13/tool/test source delta.",
-      "classification": "TIMING_HYPOTHESIS_SUPPORTED_BY_UNCHANGED_FOCUSED_RERUNS",
-      "unchanged_focused_reruns": [
-        {
-          "result": "PASS",
-          "passed": 1,
-          "xml": {
-            "path": "/tmp/p22-corrective-cancel-rerun-1.xml",
-            "sha256": "e87a1d91c26acbcea80cbdb913fdaea71ab10e6434d7528b4d3a0e8c720aafc7"
-          }
-        },
-        {
-          "result": "PASS",
-          "passed": 1,
-          "xml": {
-            "path": "/tmp/p22-corrective-cancel-rerun-2.xml",
-            "sha256": "4cd79289a927aa3456201446692b753429e2e8626203ec7b94ed295547062f1a"
-          }
-        },
-        {
-          "result": "PASS",
-          "passed": 1,
-          "xml": {
-            "path": "/tmp/p22-corrective-cancel-rerun-3.xml",
-            "sha256": "49c6901f7f8008a22cfdb1cecfe9399a597d4aeaf00c0aa7c23eb960a6167487"
-          }
-        }
-      ]
-    }
+    "result": "PASS",
+    "command": "make clean-room",
+    "exit_code": 0,
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1249.225,
+    "started_at": "2026-09-30T09:53:32.210998-05:00",
+    "coverage_percent": 91.3195901000779,
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
+    "xml": {
+      "path": "/tmp/p22-01a-cleanroom-full.xml",
+      "sha256": "d4d9195e2a36cc15548926d20177a46a8f11d208c3f12b5a8181554d692cf562"
+    },
+    "coverage_artifact": {
+      "path": "/tmp/p22-01a-cleanroom-coverage.json",
+      "sha256": "6f381176e5f49402ce7b617f735bd33a3a0f0d4a871dc27515de77762ec21f4e"
+    },
+    "scope": [
+      "Fresh frozen dependencies",
+      "Fresh disposable PostgreSQL/Valkey/NATS",
+      "Bootstrap/migration/schema",
+      "Complete suite including P22 and corrected P13 test",
+      "amd64/arm64 build",
+      "Non-root/live/ready/shutdown",
+      "Agent handoff regression"
+    ]
   },
   "local_gates": [
     {
@@ -80,7 +72,7 @@
       "command": "make nxs-validate-repo",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-corrective-validate.log",
+        "path": "/tmp/p22-01a-nxs-validate-repo.log",
         "sha256": "59c78d815d87ee643a9cedde1d7110cfb1409354c6fea2c5519c85cedaa0ed49"
       }
     },
@@ -89,7 +81,7 @@
       "command": "make nxs-preflight PHASE=NXS-P22",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-corrective-preflight.log",
+        "path": "/tmp/p22-01a-nxs-preflight.log",
         "sha256": "5ca34dc2c5f6e2c1afa77dfc367b79f3a7e8f7261f76d51b6c133955c87b4d5d"
       }
     },
@@ -98,7 +90,7 @@
       "command": "make lint",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-corrective-lint.log",
+        "path": "/tmp/p22-01a-lint.log",
         "sha256": "f2e41b99c9161f7b9ff1136cd266b6848af834681946745a88e3cf6888fdb0d0"
       }
     },
@@ -107,7 +99,7 @@
       "command": "make type",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-corrective-type.log",
+        "path": "/tmp/p22-01a-type.log",
         "sha256": "a63af73d0a084072555e5bee8c0d4bf5c693ffefb92dfaf266e796863c95e5fa"
       }
     },
@@ -116,7 +108,7 @@
       "command": "make security",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-corrective-security.log",
+        "path": "/tmp/p22-01a-security.log",
         "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
       }
     },
@@ -126,7 +118,7 @@
       "result": "PASS",
       "findings": 0,
       "artifact": {
-        "path": "/tmp/p22-corrective-gitleaks.json",
+        "path": "/tmp/p22-01a-gitleaks.json",
         "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       }
     },
@@ -136,7 +128,7 @@
       "result": "PASS",
       "findings": 0,
       "artifact": {
-        "path": "/tmp/p22-corrective-gitleaks-history.json",
+        "path": "/tmp/p22-01a-gitleaks-history.json",
         "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       }
     },
@@ -175,7 +167,7 @@
   "coverage_threshold": 90,
   "coverage_threshold_unchanged": true,
   "new_code_excluded_from_coverage": false,
-  "source_content_unchanged_during_full_and_cleanroom": null,
+  "source_content_unchanged_during_full_and_cleanroom": true,
   "external_gates": {
     "AC37": "PENDING_EXACT_HEAD",
     "AC38": "PENDING_EXACT_HEAD"
@@ -359,5 +351,154 @@
         "Local certification is not external implementation audit, lifecycle closure, universal producer coverage, regulatory certification or deployment authorization."
       ]
     }
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "BLOCKED_CLEAN_ROOM"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "historical_clean_room": {
+    "result": "FAIL",
+    "first_attempt": {
+      "result": "FAIL",
+      "exit_code": 2,
+      "passed": 2900,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1437.658,
+      "started_at": "2026-09-29T20:13:31.396717-05:00",
+      "log": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.log",
+        "sha256": "12b88feff3ef301ed1ad194f0684c7a4418a5ebed545e0021a4b7851257f6c3b"
+      },
+      "xml": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.xml",
+        "sha256": "47a628aa2d426e5d33bf233df3bd39a3b2933ec191ab0803871f33ce8ecaa570"
+      },
+      "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "diagnosis": "Existing P13 test assumes first tool dispatched after asyncio.sleep(0.15); actual seen=[] before cancellation. No P13/tool/test source delta.",
+      "classification": "TIMING_HYPOTHESIS_SUPPORTED_BY_UNCHANGED_FOCUSED_RERUNS",
+      "unchanged_focused_reruns": [
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-1.xml",
+            "sha256": "e87a1d91c26acbcea80cbdb913fdaea71ab10e6434d7528b4d3a0e8c720aafc7"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-2.xml",
+            "sha256": "4cd79289a927aa3456201446692b753429e2e8626203ec7b94ed295547062f1a"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-3.xml",
+            "sha256": "49c6901f7f8008a22cfdb1cecfe9399a597d4aeaf00c0aa7c23eb960a6167487"
+          }
+        }
+      ]
+    },
+    "latest_attempt": {
+      "result": "FAIL",
+      "attempt": 3,
+      "command": "make clean-room",
+      "exit_code": 2,
+      "tests": 2901,
+      "failed": 1,
+      "skipped": 0,
+      "runtime_seconds": 1284.767,
+      "passed": 2900,
+      "coverage_percent": 91.30760472223886,
+      "artifacts": [
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.xml",
+          "sha256": "a5338e7476c674dd43e4f21a97ccd181673eefed6764bee61c190b1ae6e2cbb6"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.log",
+          "sha256": "8696f79216c4c6fbdfa7b2bf850dadc3daf62506602176f2c77c5467ed202384"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3-coverage.json",
+          "sha256": "586ba745892e537d511983289d0d833fbc5e6cec1700bed40d3507a0bb21606f"
+        }
+      ],
+      "failure": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "observed": "seen=[] instead of ['/c/d1']; cancellation begins after fixed asyncio.sleep(0.15), without synchronizing actual first dispatch.",
+      "source_unchanged": true,
+      "scope": "Existing P13 test, unchanged from b201759; modifying its synchronization is outside the requested PLATFORM corrective.",
+      "focused_followup": {
+        "result": "PASS",
+        "tests": 7,
+        "failed": 0,
+        "skipped": 0,
+        "runtime_seconds": 15.101,
+        "artifact": {
+          "path": "/tmp/p22-corrective-cancel-covered.xml",
+          "sha256": "2d4e1de4192ca9a1cc0f3ee17af689a9d71544f443497d71e3fb8befda4b66ae"
+        },
+        "note": "Diagnostic coverage run uses --cov-fail-under=0 because it covers only seven P13 tests; not canonical regression certification."
+      }
+    },
+    "second_attempt": {
+      "classification": "VERIFIED_FAILURE",
+      "result": "FAIL",
+      "command": "make clean-room",
+      "attempt": 2,
+      "passed": 2900,
+      "failed": 1,
+      "skipped": 0,
+      "exit_code": 2,
+      "failure": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+      "diagnosis": "Timeout waiting five seconds for INVITE at test line421; no SIP runtime/test changes in corrective. Focused unchanged rerun pending.",
+      "artifacts": [
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2.log",
+          "sha256": "17d0f85966baff2250701394985aeb2f0fe81553cb717cb70df6d10cea94b16d"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2.xml",
+          "sha256": "ed3070fe1f254531fc184918975b363136b4186e1fc0f99bd06951d85290fa39"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2-coverage.json",
+          "sha256": "1a2736fcfb3750229ed2982d7d5c1c62c984f58b6eae68f484b75912a5f9d5ab"
+        }
+      ],
+      "focused_unchanged_rerun": {
+        "result": "PASS",
+        "passed": 1,
+        "artifact": {
+          "path": "/tmp/p22-corrective-sip-rerun.xml",
+          "sha256": "6cdfb80b716b0ec77802a25220ca66bdcc3db47046aa59822b34e310595901d1"
+        }
+      }
+    }
+  },
+  "historical_blocker": {
+    "classification": "SCOPE_CHANGE_REQUIRED",
+    "result": "BLOCKED",
+    "reason": "Mandatory clean-room fails repeatedly at pre-existing sleep-based P13 dispatch synchronization. No threshold lowered, tests skipped, sleep extended, or unrelated P13 source changed.",
+    "required_decision": "Authorize a narrowly scoped deterministic synchronization corrective to the P13 test, then repeat complete certification.",
+    "candidate_created": false,
+    "push": false,
+    "exact_head": "NOT_EXECUTED"
   }
 }

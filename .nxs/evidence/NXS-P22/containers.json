@@ -1,25 +1,25 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
-  "result": "PENDING_CLEAN_ROOM",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "result": "PASS_LOCAL",
   "commands": [
     {
-      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-corrective",
+      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-01a",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-corrective-docker.log",
-        "sha256": "3ad54c8180058386ac113a5aa4fd263062d34ab68d6cb38baf315589e3b05ff5"
+        "path": "/tmp/p22-01a-docker.log",
+        "sha256": "0ef85a658aa7dacf5bef1ac0ceb49441c08cebd899c67097574c4307d7d12990"
       }
     },
     {
-      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-corrective-multiarch",
+      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-01a-multiarch",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-corrective-multiarch.log",
-        "sha256": "1fda0e9a3b4a8b9f795d6104c0e3cea40e6f05cfdf32cb2f30cd7bbd7f7c9cde"
+        "path": "/tmp/p22-01a-multiarch.log",
+        "sha256": "bc22535e63aa12c48398cb2553fbc13e4f220d4e9963c08d91c7251af3a56edc"
       }
     },
     {
@@ -73,19 +73,35 @@
   "findings_review": "container-findings-review.json",
   "suppressed_findings": 0,
   "non_root": {
-    "result": "PENDING_CLEAN_ROOM",
+    "result": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
     "evidence": "local-certification.json"
   },
   "health_readiness": {
-    "result": "PENDING_CLEAN_ROOM",
+    "result": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
     "evidence": "local-certification.json"
   },
   "graceful_shutdown": {
-    "result": "PENDING_CLEAN_ROOM",
+    "result": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
     "evidence": "local-certification.json"
   },
   "clean_room": {
-    "result": "PENDING_CLEAN_ROOM",
+    "result": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01a-cleanroom.log",
+      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+    },
     "evidence": "local-certification.json"
   },
   "limitations": [
@@ -194,5 +210,20 @@
         "No production deployment or regulatory certification."
       ]
     }
-  }
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "PARTIAL_CLEAN_ROOM_FAILED"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01a_image_identity": "amd64 rebuild ImageID equals previously scanned sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced; test-only delta is outside production image. Both architectures rebuilt in clean-room."
 }

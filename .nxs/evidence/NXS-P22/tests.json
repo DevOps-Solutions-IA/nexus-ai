@@ -1,21 +1,21 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
   "result": "PASS",
-  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-corrective-full.xml' make test-all",
-  "exit_code": null,
+  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-01a-full.xml' make test-all",
+  "exit_code": 0,
   "passed": 2901,
   "failed": 0,
   "errors": 0,
   "skipped": 0,
-  "runtime_seconds": 1536.621,
-  "started_at": "2026-09-29T19:45:28.067225-05:00",
-  "coverage_percent": 91.33157547791694,
-  "statement_coverage_percent": 93.77711400327146,
-  "branch_coverage_percent": 78.23686214775324,
+  "runtime_seconds": 1241.457,
+  "started_at": "2026-09-30T09:30:17.126355-05:00",
+  "coverage_percent": 91.37652064481333,
+  "statement_coverage_percent": 93.81622928667947,
+  "branch_coverage_percent": 78.3130236100533,
   "canonical_threshold": 90,
   "canonical_measure": "pytest-cov combined statement and branch opportunities; separate branch-only percentage is not the canonical threshold metric.",
   "audit_module_coverage": {
@@ -27,12 +27,12 @@
   },
   "audit_coverage_scope": "src/nexus_ai/audit/**, domain/audit/**, domain/platform_audit/**, api/audit.py measured within the same full-suite execution; not a separate focused run.",
   "xml": {
-    "path": "/tmp/p22-corrective-full.xml",
-    "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+    "path": "/tmp/p22-01a-full.xml",
+    "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
   },
   "coverage": {
-    "path": "/tmp/p22-corrective-coverage.json",
-    "sha256": "de998279534e7f2653496f000f1ca176e6b55b856b0ef58eec950e027c2375a4"
+    "path": "/tmp/p22-01a-coverage.json",
+    "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd"
   },
   "history": "development-history.json",
   "lifecycle_certification": false,
@@ -85,9 +85,23 @@
       ]
     }
   },
-  "exit_code_note": "Completed pytest log and JUnit prove 2901 PASS; process wrapper receipt was lost during tool daemon restart. Fresh canonical clean-room result is recorded separately.",
+  "exit_code_note": "Actual completed command exit status 0 captured.",
   "log": {
-    "path": "/tmp/p22-corrective-full.log",
-    "sha256": "8e2eb1f7bc02668a575b5e2a11d9946b731c59a2bae47a9ff819a7bda97786eb"
+    "path": "/tmp/p22-01a-full.log",
+    "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "PASS"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
   }
 }

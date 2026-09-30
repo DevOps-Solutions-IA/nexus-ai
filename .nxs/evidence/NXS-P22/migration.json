@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
   "result": "PASS",
   "head": "d22c0b1c2d3e",
   "head_count": 1,
@@ -318,8 +318,22 @@
     "test": "tests/integration/test_platform_audit_migration.py::test_platform_corrective_preserves_legacy_and_refuses_populated_downgrade",
     "result": "PASS",
     "xml": {
-      "path": "/tmp/p22-corrective-full.xml",
-      "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+      "path": "/tmp/p22-01a-full.xml",
+      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
     }
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "PASS"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
   }
 }

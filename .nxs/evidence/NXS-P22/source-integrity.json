@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
   "result": "PASS",
   "algorithm": {
     "selection": "Sorted unique git ls-files --cached --others --exclude-standard -z paths.",
@@ -21,20 +21,23 @@
     "serialization": "JSON list, sorted object keys, separators comma/colon, UTF-8 plus trailing newline; SHA-256 of serialized bytes.",
     "timestamps_in_identity": false
   },
-  "before_full_manifest": "/tmp/p22-corrective-source-final.json",
-  "after_full_manifest": "/tmp/p22-corrective-source-after-full.json",
+  "before_full_manifest": "/tmp/p22-01a-source-before.json",
+  "after_full_manifest": "/tmp/p22-01a-source-after-full.json",
   "byte_identical": true,
-  "hash": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "hash": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
   "tests_artifact": {
-    "path": "/tmp/p22-corrective-full.xml",
-    "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+    "path": "/tmp/p22-01a-full.xml",
+    "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
   },
   "evidence_mutations_excluded": true,
   "lock_mutations_excluded": true,
   "scope": "Corrective 01 source snapshot; historical candidate certification is preserved but not reused as current proof.",
-  "after_cleanroom_manifest": null,
-  "cleanroom_byte_identical": null,
-  "cleanroom_artifact": null,
+  "after_cleanroom_manifest": "/tmp/p22-01a-source-after-cleanroom.json",
+  "cleanroom_byte_identical": true,
+  "cleanroom_artifact": {
+    "path": "/tmp/p22-01a-cleanroom-full.xml",
+    "sha256": "d4d9195e2a36cc15548926d20177a46a8f11d208c3f12b5a8181554d692cf562"
+  },
   "historical_certification": {
     "status": "SUPERSEDED_BY_CORRECTIVE_01",
     "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
@@ -80,5 +83,20 @@
       }
     }
   },
-  "cleanroom_result": "PENDING_UNCHANGED_RERUN"
+  "cleanroom_result": "PASS",
+  "note": "Full and clean-room source manifests byte-identical.",
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "PASS"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  }
 }

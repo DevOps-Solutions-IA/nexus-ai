@@ -555,13 +555,13 @@
     "head": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
     "branch": "feat/nxs-p22-audit",
     "working_tree": "DIRTY_CORRECTIVE_IMPLEMENTATION",
-    "frozen_source_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-    "digest_reference": "/tmp/p22-corrective-source-final.json",
+    "frozen_source_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "digest_reference": "/tmp/p22-01a-source-before.json",
     "qualification": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred."
   },
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
-  "source_binding": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred.",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
   "evidence_status": "VERIFIED_CORRECTIVE01_LOCAL_SUITE",
   "corrective01_architecture": {
     "status": "VERIFIED",
@@ -603,42 +603,42 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "elapsed_seconds_log": 1536.63,
-    "elapsed_seconds_xml": 1536.621,
+    "elapsed_seconds_log": 1241.47,
+    "elapsed_seconds_xml": 1241.457,
     "xml": {
-      "path": "/tmp/p22-corrective-full.xml",
-      "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+      "path": "/tmp/p22-01a-full.xml",
+      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
     },
     "log": {
-      "path": "/tmp/p22-corrective-full.log",
-      "sha256": "8e2eb1f7bc02668a575b5e2a11d9946b731c59a2bae47a9ff819a7bda97786eb"
+      "path": "/tmp/p22-01a-full.log",
+      "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
     },
     "coverage": {
-      "path": "/tmp/p22-corrective-coverage.json",
-      "sha256": "de998279534e7f2653496f000f1ca176e6b55b856b0ef58eec950e027c2375a4",
+      "path": "/tmp/p22-01a-coverage.json",
+      "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd",
       "canonical_threshold_percent": 90,
-      "covered_lines": 26372,
+      "covered_lines": 26383,
       "num_statements": 28122,
-      "percent_covered": 91.33157547791694,
+      "percent_covered": 91.37652064481333,
       "percent_covered_display": "91",
-      "missing_lines": 1750,
+      "missing_lines": 1739,
       "excluded_lines": 413,
-      "percent_statements_covered": 93.77711400327146,
+      "percent_statements_covered": 93.81622928667947,
       "percent_statements_covered_display": "94",
       "num_branches": 5252,
-      "num_partial_branches": 997,
-      "covered_branches": 4109,
-      "missing_branches": 1143,
-      "percent_branches_covered": 78.23686214775324,
+      "num_partial_branches": 995,
+      "covered_branches": 4113,
+      "missing_branches": 1139,
+      "percent_branches_covered": 78.3130236100533,
       "percent_branches_covered_display": "78",
       "scope": "Combined canonical statement/branch coverage; no focused-package substitution."
     },
     "source_manifest": {
-      "path": "/tmp/p22-corrective-source-final.json",
-      "sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+      "path": "/tmp/p22-01a-source-before.json",
+      "sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
       "independently_verified_source_files": 921
     },
-    "source_unchanged_during_run": "VERIFIED_BY_ROOT; post-run snapshot files independently rehashed by evidence agent",
+    "source_unchanged_during_run": "Verified by root: source manifests before full suite, after full suite and after clean-room are byte-identical.",
     "relevant_testcase_count": 47,
     "exact_testcase_outcomes": [
       {
@@ -649,207 +649,197 @@
       {
         "node_id": "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_attribution_is_not_promoted_to_audit_actor",
         "result": "PASS",
-        "duration_seconds": 0.009
+        "duration_seconds": 0.008
       },
       {
         "node_id": "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_seam_has_no_certified_production_caller",
         "result": "PASS",
-        "duration_seconds": 0.314
+        "duration_seconds": 0.28
       },
       {
         "node_id": "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
         "result": "PASS",
-        "duration_seconds": 0.202
+        "duration_seconds": 0.195
       },
       {
         "node_id": "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation",
         "result": "PASS",
-        "duration_seconds": 0.205
+        "duration_seconds": 0.189
       },
       {
         "node_id": "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
         "result": "PASS",
-        "duration_seconds": 1.259
+        "duration_seconds": 1.123
       },
       {
         "node_id": "tests/integration/test_audit_grant_inventory.py::test_platform_grant_mutation_acl_inventory",
         "result": "PASS",
-        "duration_seconds": 0.014
+        "duration_seconds": 0.013
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer",
         "result": "PASS",
-        "duration_seconds": 0.089
+        "duration_seconds": 0.07
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
         "result": "PASS",
-        "duration_seconds": 0.608
+        "duration_seconds": 0.413
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session",
         "result": "PASS",
-        "duration_seconds": 0.564
+        "duration_seconds": 0.342
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_self_suspension_keeps_pre_mutation_human_provenance",
         "result": "PASS",
-        "duration_seconds": 0.705
+        "duration_seconds": 0.351
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]",
         "result": "PASS",
-        "duration_seconds": 3.547
+        "duration_seconds": 0.945
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
         "result": "PASS",
-        "duration_seconds": 0.612
+        "duration_seconds": 0.596
       },
       {
         "node_id": "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback",
         "result": "PASS",
-        "duration_seconds": 0.065
+        "duration_seconds": 0.048
       },
       {
         "node_id": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
         "result": "PASS",
-        "duration_seconds": 0.212
+        "duration_seconds": 0.125
       },
       {
         "node_id": "tests/integration/test_campaign_service.py::test_full_flow_authorizes_then_sends_once_through_p09",
-        "result": "PASS",
-        "duration_seconds": 1.402
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_campaign_service.py::test_missing_consent_and_suppression_fail_closed",
-        "result": "PASS",
-        "duration_seconds": 0.933
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release",
-        "result": "PASS",
-        "duration_seconds": 0.545
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_compliance_controls.py::test_retention_evaluation_never_mutates_new_target",
-        "result": "PASS",
-        "duration_seconds": 0.396
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_human_operations_api.py::test_human_api_enforces_least_privilege",
-        "result": "PASS",
-        "duration_seconds": 0.722
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_human_operations_tenancy.py::test_human_transition_history_is_append_only",
-        "result": "PASS",
-        "duration_seconds": 0.643
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_organization_lifecycle.py::test_create_core_record_is_provisioning",
-        "result": "PASS",
-        "duration_seconds": 0.028
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_organization_lifecycle.py::test_suspension_blocks_then_reactivation_restores",
-        "result": "PASS",
-        "duration_seconds": 0.063
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
         "result": "PASS",
-        "duration_seconds": 0.111
+        "duration_seconds": 0.105
       },
       {
         "node_id": "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
         "result": "PASS",
-        "duration_seconds": 0.101
+        "duration_seconds": 0.099
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
         "result": "PASS",
-        "duration_seconds": 0.139
+        "duration_seconds": 0.134
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
         "result": "PASS",
-        "duration_seconds": 0.105
+        "duration_seconds": 0.098
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
         "result": "PASS",
-        "duration_seconds": 0.129
+        "duration_seconds": 0.118
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_update_privilege_cannot_mutate_source",
         "result": "PASS",
-        "duration_seconds": 0.09
+        "duration_seconds": 0.079
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
         "result": "PASS",
-        "duration_seconds": 0.244
+        "duration_seconds": 0.211
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[forged]",
         "result": "PASS",
-        "duration_seconds": 0.114
+        "duration_seconds": 0.109
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v1:legacy]",
         "result": "PASS",
-        "duration_seconds": 0.11
+        "duration_seconds": 0.106
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v2:10]",
         "result": "PASS",
-        "duration_seconds": 0.132
+        "duration_seconds": 0.106
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
         "result": "PASS",
-        "duration_seconds": 0.123
+        "duration_seconds": 0.112
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
         "result": "PASS",
-        "duration_seconds": 0.17
+        "duration_seconds": 0.15
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
         "result": "PASS",
-        "duration_seconds": 0.183
+        "duration_seconds": 0.17
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
         "result": "PASS",
-        "duration_seconds": 0.103
+        "duration_seconds": 0.096
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata",
         "result": "PASS",
-        "duration_seconds": 0.135
+        "duration_seconds": 0.143
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
         "result": "PASS",
-        "duration_seconds": 0.291
+        "duration_seconds": 0.267
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
         "result": "PASS",
-        "duration_seconds": 0.118
+        "duration_seconds": 0.103
       },
       {
         "node_id": "tests/integration/test_workflow_service.py::test_immutable_version_and_durable_noop_execution",
-        "result": "PASS",
-        "duration_seconds": 0.572
+        "result": "PASS"
       },
       {
         "node_id": "tests/integration/test_workflow_service.py::test_pause_resume_cancel_and_terminal_absorption",
-        "result": "PASS",
-        "duration_seconds": 0.253
+        "result": "PASS"
       },
       {
         "node_id": "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
@@ -859,22 +849,22 @@
       {
         "node_id": "tests/unit/test_platform_domain_contracts.py::test_registry_is_closed_and_describes_source_authority",
         "result": "PASS",
-        "duration_seconds": 0.0
+        "duration_seconds": 0
       },
       {
         "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[admin]",
         "result": "PASS",
-        "duration_seconds": 0.0
+        "duration_seconds": 0
       },
       {
         "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[runtime]",
         "result": "PASS",
-        "duration_seconds": 0.0
+        "duration_seconds": 0
       },
       {
         "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[unknown]",
         "result": "PASS",
-        "duration_seconds": 0.0
+        "duration_seconds": 0
       }
     ],
     "node_resolution": "Every node reference independently resolved against current XML; parameterized base references expand to exact passing cases.",
@@ -888,5 +878,19 @@
     "status": "VERIFIED_SOURCE_PASS",
     "artifact": "/tmp/p22-corrective-final-review.md",
     "qualification": "Previously identified unknown-domain omission fixed by DB constraint and negative worker INSERT tests; no remaining source blocker found. Not external certification."
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred.",
+    "result": "PASS"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
   }
 }

@@ -3,8 +3,8 @@
   "phase": "NXS-P22",
   "result": "REVIEW",
   "scope": "Independent MEDIUM/LOW applicability and residual-risk review, bound separately to final amd64 and arm64 image scans after exact inventory comparison; not lifecycle closure, deployment authorization, suppression or fix claim.",
-  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
-  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
   "reviewed_scan": {
     "path": "/tmp/p22-trivy.json",
     "sha256": "8d2547b91c1b6afdf032d12f630f10eb1abe897e2734e76afde17a67bd927836",
@@ -335,5 +335,19 @@
       "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed."
     }
   },
-  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash."
+  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "REVIEW"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "exact_head": "PENDING_EXACT_HEAD"
+  }
 }
