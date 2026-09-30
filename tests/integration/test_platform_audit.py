@@ -4,8 +4,9 @@ import asyncio
 import datetime as dt
 import json
 from contextlib import asynccontextmanager
+from functools import partial
 from unittest.mock import AsyncMock
-from uuid import uuid7
+from uuid import UUID, uuid7
 
 import asyncpg
 import pytest
@@ -16,7 +17,11 @@ from sqlalchemy.exc import DBAPIError
 
 from nexus_ai.audit.contracts import AuditActor, AuditConflict, AuditIntent, AuditProvenanceError
 from nexus_ai.audit.platform.config import PlatformAuditSettings
-from nexus_ai.audit.platform.contracts import PlatformAuditActor, PlatformAuditIntent
+from nexus_ai.audit.platform.contracts import (
+    PlatformAuditActor,
+    PlatformAuditIntent,
+    integrity_domain,
+)
 from nexus_ai.audit.platform.control import (
     PlatformAuditAuthority,
     PlatformAuditControl,
@@ -62,20 +67,24 @@ async def platform(migrated_database):
         await connection.close()
 
 
-async def source(database, *, identity=None):
+async def source(database, *, identity=None, target_id=None):
     async with database.transaction() as session:
         return await emit_platform_audit(
             session,
             action="sentinel.proposal.recorded",
             target_type="proposal",
-            target_id=uuid7(),
+            target_id=target_id or UUID(int=1),
             source_id=identity,
             actor=PlatformAuditActor(kind="SERVICE", service="sentinel-store"),
         )
 
 
 def control(platform):
-    return PlatformAuditControl(AsyncMock(), platform)
+    query = PlatformAuditControl(AsyncMock(), platform)
+    domain = integrity_domain("sentinel", UUID(int=1))
+    query.records = partial(query.records, domain=domain)
+    query.verify = partial(query.verify, domain=domain)
+    return query
 
 
 async def test_committed_source_replay_conflict_and_scope(platform, database):
@@ -236,7 +245,7 @@ async def test_live_platform_grants_and_revocation(
     )
     query = PlatformAuditControl(authority, platform)
     with pytest.raises(AuditProvenanceError, match="grant"):
-        await query.records(token)
+        await query.records(token, domain=integrity_domain("sentinel", UUID(int=1)))
     admin = await asyncpg.connect(SUPERUSER_DSN)
     try:
         await admin.execute(
@@ -244,12 +253,14 @@ async def test_live_platform_grants_and_revocation(
             user.id,
             "audit:platform:read",
         )
-        assert (await query.records(token))["records"] == []
+        assert (await query.records(token, domain=integrity_domain("sentinel", UUID(int=1))))[
+            "records"
+        ] == []
         with pytest.raises(AuditProvenanceError):
-            await query.verify(token)
+            await query.verify(token, domain=integrity_domain("sentinel", UUID(int=1)))
         await admin.execute("DELETE FROM platform_grants WHERE user_id=$1", user.id)
         with pytest.raises(AuditProvenanceError):
-            await query.records(token)
+            await query.records(token, domain=integrity_domain("sentinel", UUID(int=1)))
         await admin.execute(
             "INSERT INTO platform_grants(user_id,capability) VALUES($1,$2)",
             user.id,

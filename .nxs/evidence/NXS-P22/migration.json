@@ -1,20 +1,21 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-  "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
   "result": "PASS",
-  "head": "d22b0b1c2d3e",
+  "head": "d22c0b1c2d3e",
   "head_count": 1,
   "previous_canonical_revision": "d21a0b1c2d3e",
   "additive_revisions": [
     "d22a0b1c2d3e",
-    "d22b0b1c2d3e"
+    "d22b0b1c2d3e",
+    "d22c0b1c2d3e"
   ],
   "historical_migrations_modified": false,
   "roundtrip": {
-    "disposable_database": "nxs_p22_roundtrip_ff5fee3f3cfc",
+    "disposable_database": "nxs_p22_corrective_f5c1398d7e61",
     "dropped": true,
     "commands": [
       {
@@ -25,9 +26,9 @@
           "heads"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:33.073987+00:00",
-        "finished_at": "2026-09-29T21:23:33.500897+00:00",
-        "log": "/tmp/p22-migration-0.log"
+        "started_at": "2026-09-30T00:43:36.343846+00:00",
+        "finished_at": "2026-09-30T00:43:36.780922+00:00",
+        "log": "/tmp/p22-corrective-migration-0.log"
       },
       {
         "command": [
@@ -38,9 +39,9 @@
           "head"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:33.500927+00:00",
-        "finished_at": "2026-09-29T21:23:35.321398+00:00",
-        "log": "/tmp/p22-migration-1.log"
+        "started_at": "2026-09-30T00:43:36.780945+00:00",
+        "finished_at": "2026-09-30T00:43:38.548814+00:00",
+        "log": "/tmp/p22-corrective-migration-1.log"
       },
       {
         "command": [
@@ -50,9 +51,9 @@
           "check"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:35.321417+00:00",
-        "finished_at": "2026-09-29T21:23:36.265351+00:00",
-        "log": "/tmp/p22-migration-2.log"
+        "started_at": "2026-09-30T00:43:38.548832+00:00",
+        "finished_at": "2026-09-30T00:43:39.551468+00:00",
+        "log": "/tmp/p22-corrective-migration-2.log"
       },
       {
         "command": [
@@ -63,9 +64,9 @@
           "scripts.nxs_schema_guard"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:36.265371+00:00",
-        "finished_at": "2026-09-29T21:23:36.902061+00:00",
-        "log": "/tmp/p22-migration-3.log"
+        "started_at": "2026-09-30T00:43:39.551486+00:00",
+        "finished_at": "2026-09-30T00:43:40.150277+00:00",
+        "log": "/tmp/p22-corrective-migration-3.log"
       },
       {
         "command": [
@@ -76,9 +77,9 @@
           "d21a0b1c2d3e"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:36.902084+00:00",
-        "finished_at": "2026-09-29T21:23:37.595890+00:00",
-        "log": "/tmp/p22-migration-4.log"
+        "started_at": "2026-09-30T00:43:40.150296+00:00",
+        "finished_at": "2026-09-30T00:43:40.860796+00:00",
+        "log": "/tmp/p22-corrective-migration-4.log"
       },
       {
         "command": [
@@ -89,9 +90,9 @@
           "head"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:37.595911+00:00",
-        "finished_at": "2026-09-29T21:23:38.312324+00:00",
-        "log": "/tmp/p22-migration-5.log"
+        "started_at": "2026-09-30T00:43:40.860813+00:00",
+        "finished_at": "2026-09-30T00:43:41.599595+00:00",
+        "log": "/tmp/p22-corrective-migration-5.log"
       },
       {
         "command": [
@@ -101,9 +102,9 @@
           "check"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:38.312340+00:00",
-        "finished_at": "2026-09-29T21:23:39.290471+00:00",
-        "log": "/tmp/p22-migration-6.log"
+        "started_at": "2026-09-30T00:43:41.599615+00:00",
+        "finished_at": "2026-09-30T00:43:42.577093+00:00",
+        "log": "/tmp/p22-corrective-migration-6.log"
       },
       {
         "command": [
@@ -114,9 +115,9 @@
           "scripts.nxs_schema_guard"
         ],
         "exit_code": 0,
-        "started_at": "2026-09-29T21:23:39.290492+00:00",
-        "finished_at": "2026-09-29T21:23:39.877210+00:00",
-        "log": "/tmp/p22-migration-7.log"
+        "started_at": "2026-09-30T00:43:42.577113+00:00",
+        "finished_at": "2026-09-30T00:43:43.178443+00:00",
+        "log": "/tmp/p22-corrective-migration-7.log"
       }
     ],
     "result": "PASS"
@@ -125,26 +126,200 @@
     {
       "command": "make db-bootstrap",
       "exit_code": 0,
-      "log": "/tmp/p22-bootstrap-final.log"
+      "artifact": {
+        "path": "/tmp/p22-corrective-bootstrap.log",
+        "sha256": "b5ce2b21d9899abac4594d51bf7fc6f42482a4541bd0c05eed295fe81a1da90c"
+      }
     },
     {
       "command": "make migrate-check",
       "exit_code": 0,
-      "log": "/tmp/p22-migrate-check-final.log"
+      "artifact": {
+        "path": "/tmp/p22-corrective-migrate-check.log",
+        "sha256": "c149e02c3fc1a05ef2d3f1e7b7bcf5eb0f049bf7dbc6024034caca9a2e4de076"
+      }
     },
     {
       "command": "make nxs-schema-guard",
       "exit_code": 0,
-      "log": "/tmp/p22-schema-final.log"
+      "artifact": {
+        "path": "/tmp/p22-corrective-schema.log",
+        "sha256": "c284d24155eff80d643b22ef7a77e69d243837126db585868b8ca9605ba7d549"
+      }
     }
   ],
   "security_constraints": [
     "Tenant head id equals organization_id; forced RLS and tenant-aware foreign keys.",
     "Runtime audit facts are append-only by grants and immutable trigger.",
     "Dedicated platform role, null Organization and immutable source/ledger/receipt boundaries.",
-    "Independent platform head; no global tenant serialization."
+    "Independent tenant heads and sixteen independently locked platform v2 heads; legacy v1 preserved without new appends."
   ],
   "limitations": [
     "Disposable/local test databases only; no production schema operation."
-  ]
+  ],
+  "historical_certification": {
+    "status": "SUPERSEDED_BY_CORRECTIVE_01",
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "record": {
+      "schema_version": "1.0.0",
+      "phase": "NXS-P22",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+      "result": "PASS",
+      "head": "d22b0b1c2d3e",
+      "head_count": 1,
+      "previous_canonical_revision": "d21a0b1c2d3e",
+      "additive_revisions": [
+        "d22a0b1c2d3e",
+        "d22b0b1c2d3e"
+      ],
+      "historical_migrations_modified": false,
+      "roundtrip": {
+        "disposable_database": "nxs_p22_roundtrip_ff5fee3f3cfc",
+        "dropped": true,
+        "commands": [
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "heads"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:33.073987+00:00",
+            "finished_at": "2026-09-29T21:23:33.500897+00:00",
+            "log": "/tmp/p22-migration-0.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "upgrade",
+              "head"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:33.500927+00:00",
+            "finished_at": "2026-09-29T21:23:35.321398+00:00",
+            "log": "/tmp/p22-migration-1.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "check"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:35.321417+00:00",
+            "finished_at": "2026-09-29T21:23:36.265351+00:00",
+            "log": "/tmp/p22-migration-2.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "python",
+              "-m",
+              "scripts.nxs_schema_guard"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:36.265371+00:00",
+            "finished_at": "2026-09-29T21:23:36.902061+00:00",
+            "log": "/tmp/p22-migration-3.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "downgrade",
+              "d21a0b1c2d3e"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:36.902084+00:00",
+            "finished_at": "2026-09-29T21:23:37.595890+00:00",
+            "log": "/tmp/p22-migration-4.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "upgrade",
+              "head"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:37.595911+00:00",
+            "finished_at": "2026-09-29T21:23:38.312324+00:00",
+            "log": "/tmp/p22-migration-5.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "alembic",
+              "check"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:38.312340+00:00",
+            "finished_at": "2026-09-29T21:23:39.290471+00:00",
+            "log": "/tmp/p22-migration-6.log"
+          },
+          {
+            "command": [
+              "uv",
+              "run",
+              "python",
+              "-m",
+              "scripts.nxs_schema_guard"
+            ],
+            "exit_code": 0,
+            "started_at": "2026-09-29T21:23:39.290492+00:00",
+            "finished_at": "2026-09-29T21:23:39.877210+00:00",
+            "log": "/tmp/p22-migration-7.log"
+          }
+        ],
+        "result": "PASS"
+      },
+      "local_commands": [
+        {
+          "command": "make db-bootstrap",
+          "exit_code": 0,
+          "log": "/tmp/p22-bootstrap-final.log"
+        },
+        {
+          "command": "make migrate-check",
+          "exit_code": 0,
+          "log": "/tmp/p22-migrate-check-final.log"
+        },
+        {
+          "command": "make nxs-schema-guard",
+          "exit_code": 0,
+          "log": "/tmp/p22-schema-final.log"
+        }
+      ],
+      "security_constraints": [
+        "Tenant head id equals organization_id; forced RLS and tenant-aware foreign keys.",
+        "Runtime audit facts are append-only by grants and immutable trigger.",
+        "Dedicated platform role, null Organization and immutable source/ledger/receipt boundaries.",
+        "Independent platform head; no global tenant serialization."
+      ],
+      "limitations": [
+        "Disposable/local test databases only; no production schema operation."
+      ]
+    }
+  },
+  "corrective_compatibility": {
+    "legacy": "Version-1 fact/digest bytes and replay identity preserved in platform:v1:legacy.",
+    "new_domains": "Sixteen fixed version-2 domains; immutable domain bound to digest; independent heads.",
+    "downgrade": "Preserves legacy data when v2 empty. Populated v2 refuses destructive downgrade, requiring explicit future migration rather than silently collapsing history.",
+    "test": "tests/integration/test_platform_audit_migration.py::test_platform_corrective_preserves_legacy_and_refuses_populated_downgrade",
+    "result": "PASS",
+    "xml": {
+      "path": "/tmp/p22-corrective-full.xml",
+      "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+    }
+  }
 }

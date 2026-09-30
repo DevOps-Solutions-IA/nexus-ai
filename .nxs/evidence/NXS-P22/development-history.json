@@ -2,18 +2,11 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
   "result": "HISTORY_PRESERVED",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_binding": {
-    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
-    "status": "VERIFIED_FINAL_XML_BINDING",
-    "source_manifest": "/tmp/p22-source-final2.json",
-    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
-    "xml": "/tmp/p22-full-final2.xml"
-  },
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
   "dependencies": [
     "NXS-P04",
+    "NXS-P20",
     "NXS-P21"
   ],
   "scope_decision": {
@@ -508,6 +501,115 @@
         "path": "/tmp/p22-cleanroom-full.xml",
         "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
       }
+    },
+    {
+      "id": "H22",
+      "classification": "USER_DECISION",
+      "event": "Master Orchestrator Corrective01",
+      "superseded_candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "result": "CORRECTIVE_REQUIRED",
+      "reason": "Singleton PLATFORM append head and hard-coded producer authority require partitioned serialization, useful worker claiming and closed extensible registration.",
+      "historical_exact_head": "history-b201759/github-exact-head.json"
+    },
+    {
+      "id": "H23",
+      "artifact": "/tmp/p22-corrective-dependency-red.log",
+      "classification": "EXPECTED_RED",
+      "result": "1 failed: missing direct P20 dependency"
+    },
+    {
+      "id": "H24",
+      "artifact": "/tmp/p22-corrective-migration-test.log",
+      "classification": "DEVELOPMENT_FAILURE",
+      "result": "1 failed: unique constraint naming drift in additive migration/model; corrected explicit model name"
+    },
+    {
+      "id": "H25",
+      "artifact": "/tmp/p22-corrective-lint-initial.log",
+      "classification": "DEVELOPMENT_FAILURE",
+      "result": "3 line-length errors; corrected without behavior changes"
+    },
+    {
+      "id": "H26",
+      "classification": "INDEPENDENT_REVIEW_CORRECTION",
+      "result": "Finite domain DB constraint added to prevent invisible unknown-domain records; NOWAIT avoids waiting on busy domain within bounded attempts."
+    },
+    {
+      "id": "H27",
+      "result": "FAIL",
+      "exit_code": 2,
+      "passed": 2900,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1437.658,
+      "started_at": "2026-09-29T20:13:31.396717-05:00",
+      "log": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.log",
+        "sha256": "12b88feff3ef301ed1ad194f0684c7a4418a5ebed545e0021a4b7851257f6c3b"
+      },
+      "xml": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.xml",
+        "sha256": "47a628aa2d426e5d33bf233df3bd39a3b2933ec191ab0803871f33ce8ecaa570"
+      },
+      "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "diagnosis": "Existing P13 test assumes first tool dispatched after asyncio.sleep(0.15); actual seen=[] before cancellation. No P13/tool/test source delta.",
+      "classification": "TIMING_HYPOTHESIS_SUPPORTED_BY_UNCHANGED_FOCUSED_RERUNS",
+      "unchanged_focused_reruns": [
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-1.xml",
+            "sha256": "e87a1d91c26acbcea80cbdb913fdaea71ab10e6434d7528b4d3a0e8c720aafc7"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-2.xml",
+            "sha256": "4cd79289a927aa3456201446692b753429e2e8626203ec7b94ed295547062f1a"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-3.xml",
+            "sha256": "49c6901f7f8008a22cfdb1cecfe9399a597d4aeaf00c0aa7c23eb960a6167487"
+          }
+        }
+      ]
+    },
+    {
+      "id": "H28",
+      "classification": "VERIFIED",
+      "event": "Corrective full regression",
+      "result": "PASS",
+      "passed": 2901,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1536.621,
+      "started_at": "2026-09-29T19:45:28.067225-05:00",
+      "coverage_percent": 91.33157547791694,
+      "evidence": [
+        {
+          "path": "/tmp/p22-corrective-full.xml",
+          "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
+        },
+        {
+          "path": "/tmp/p22-corrective-full.log",
+          "sha256": "8e2eb1f7bc02668a575b5e2a11d9946b731c59a2bae47a9ff819a7bda97786eb"
+        },
+        {
+          "path": "/tmp/p22-corrective-coverage.json",
+          "sha256": "de998279534e7f2653496f000f1ca176e6b55b856b0ef58eec950e027c2375a4"
+        }
+      ],
+      "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+      "note": "Completed pytest log and JUnit prove 2901 PASS; process wrapper receipt was lost during tool daemon restart. Fresh canonical clean-room result is recorded separately."
     }
   ],
   "open_final_gates": [
@@ -529,58 +631,105 @@
         "status": "PENDING_RECOMPUTATION_AFTER_CORRECTIVES",
         "note": "Tenant-head constraint, PyJWT update and P04 test corrections postdate the earlier candidate. No earlier digest/test result is promoted to final certification."
       }
+    },
+    {
+      "status": "SUPERSEDED_CANDIDATE",
+      "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "status": "VERIFIED_FINAL_XML_BINDING",
+        "source_manifest": "/tmp/p22-source-final2.json",
+        "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+        "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+        "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+        "xml": "/tmp/p22-full-final2.xml"
+      },
+      "full_suite": {
+        "result": "PASS",
+        "tests": 2876,
+        "passed": 2876,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "duration_seconds_log": 1248.35,
+        "duration_seconds_junit": 1248.336,
+        "coverage_percent": 91.3468479307026,
+        "coverage_display": "91.35%",
+        "coverage_threshold": 90,
+        "xml": "/tmp/p22-full-final2.xml",
+        "log": "/tmp/p22-full-final2.log",
+        "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+        "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+      },
+      "artifact_bindings": [
+        {
+          "path": "/tmp/p22-full-final2.xml",
+          "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+        },
+        {
+          "path": "/tmp/p22-full-final2.log",
+          "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+        },
+        {
+          "path": "/tmp/p22-full-final2-coverage.json",
+          "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+        },
+        {
+          "path": "/tmp/p22-source-final2.json",
+          "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+        },
+        {
+          "path": "/tmp/p22-security-final2.log",
+          "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+        },
+        {
+          "path": "/tmp/p22-migration-result.json",
+          "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+        },
+        {
+          "path": "/tmp/p22-webhook-provenance.log",
+          "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+        },
+        {
+          "path": "/tmp/p22-events-cli-corrective.log",
+          "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+        }
+      ]
     }
   ],
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
   "final_full_suite": {
     "result": "PASS",
-    "tests": 2876,
-    "passed": 2876,
+    "passed": 2901,
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "duration_seconds_log": 1248.35,
-    "duration_seconds_junit": 1248.336,
-    "coverage_percent": 91.3468479307026,
-    "coverage_display": "91.35%",
-    "coverage_threshold": 90,
-    "xml": "/tmp/p22-full-final2.xml",
-    "log": "/tmp/p22-full-final2.log",
-    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
-    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    "runtime_seconds": 1536.621,
+    "started_at": "2026-09-29T19:45:28.067225-05:00",
+    "coverage_percent": 91.33157547791694,
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "xml": "/tmp/p22-corrective-full.xml",
+    "log": "/tmp/p22-corrective-full.log",
+    "coverage_artifact": "/tmp/p22-corrective-coverage.json"
   },
   "final_artifact_bindings": [
     {
-      "path": "/tmp/p22-full-final2.xml",
-      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+      "path": "/tmp/p22-corrective-full.xml",
+      "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
     },
     {
-      "path": "/tmp/p22-full-final2.log",
-      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+      "path": "/tmp/p22-corrective-full.log",
+      "sha256": "8e2eb1f7bc02668a575b5e2a11d9946b731c59a2bae47a9ff819a7bda97786eb"
     },
     {
-      "path": "/tmp/p22-full-final2-coverage.json",
-      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+      "path": "/tmp/p22-corrective-coverage.json",
+      "sha256": "de998279534e7f2653496f000f1ca176e6b55b856b0ef58eec950e027c2375a4"
     },
     {
-      "path": "/tmp/p22-source-final2.json",
-      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
-    },
-    {
-      "path": "/tmp/p22-security-final2.log",
-      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
-    },
-    {
-      "path": "/tmp/p22-migration-result.json",
-      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
-    },
-    {
-      "path": "/tmp/p22-webhook-provenance.log",
-      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
-    },
-    {
-      "path": "/tmp/p22-events-cli-corrective.log",
-      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+      "path": "/tmp/p22-corrective-source-final.json",
+      "sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99"
     }
   ]
 }

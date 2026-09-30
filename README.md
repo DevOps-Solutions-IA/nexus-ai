@@ -66,6 +66,9 @@ No production deployment, capacity certification or automatic failover is claime
 P22 work on `feat/nxs-p22-audit` defines separate TENANT and PLATFORM audit controls;
 it is not validated or merged. The dual-scope decision supersedes P22-SD01. Platform
 facts must have no Organization owner and use independent persistence and access control.
+Corrective 01 replaces the candidate's singleton PLATFORM append head with versioned
+integrity domains and transactional worker claims; producer authority stays registered
+and server-controlled. This branch work still requires external implementation audit.
 No universal audit, regulatory certification or deployment claim is made.
 See [the P22 design](docs/engineering/nxs-p22-audit-design.md).
 

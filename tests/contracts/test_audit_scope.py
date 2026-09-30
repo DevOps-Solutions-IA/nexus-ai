@@ -82,10 +82,10 @@ def test_audit_lifecycle_contract_rejects_inconsistent_combinations(
         "implementation_commit": "a" * 40 if closed else None,
         "closure_commit": None,
         "requirements_implemented": ["NXS-AUDIT-002"],
-        "dependencies": ["NXS-P04", "NXS-P21"],
+        "dependencies": ["NXS-P04", "NXS-P20", "NXS-P21"],
     }
     registered = {key: manifest[key] for key in ("id", "status", "decision", "branch")}
-    registered["dependencies"] = ["NXS-P04", "NXS-P21"]
+    registered["dependencies"] = ["NXS-P04", "NXS-P20", "NXS-P21"]
     current = {
         key: manifest[key]
         for key in ("id", "status", "decision", "branch", "implementation_commit", "closure_commit")
@@ -93,7 +93,7 @@ def test_audit_lifecycle_contract_rejects_inconsistent_combinations(
     state = {
         "active_phase": None if closed else "NXS-P22",
         "current_phase": current,
-        "completed_phases": ["NXS-P04", "NXS-P21"] + (["NXS-P22"] if closed else []),
+        "completed_phases": ["NXS-P04", "NXS-P20", "NXS-P21"] + (["NXS-P22"] if closed else []),
     }
     requirement = {
         "id": "NXS-AUDIT-002",
@@ -142,6 +142,7 @@ def test_audit_lifecycle_contract_rejects_inconsistent_combinations(
         "phase-registry": {
             "phases": [
                 {"id": "NXS-P04", "status": "READY", "decision": "GO"},
+                {"id": "NXS-P20", "status": "READY", "decision": "GO"},
                 dependency,
                 registered,
                 future,

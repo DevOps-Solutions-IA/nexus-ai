@@ -1,11 +1,8 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "result": "PASS_LOCAL",
+  "result": "PASS",
   "scope": "Dual-scope TENANT and PLATFORM local implementation proof bound to completed canonical combined suite; not phase closure, regulatory certification or deployment authorization",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-  "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
   "scope_authority": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
   "supersedes": "Historical P22-SD01 platform deferral; historical admission evidence is not current scope or certification.",
   "certification_pending": [
@@ -32,43 +29,6 @@
   "actor_boundary": "HUMAN operator identity or registered SERVICE identity is source-owned; audit fact creates no business, compliance or platform authority.",
   "noninterference": "A platform append completes while a tenant append still holds its own uncommitted head lock; unrelated tenant heads likewise remain independent.",
   "supported_scope_claim": "Two disjoint audit scopes and explicitly registered producers; no universal coverage claim.",
-  "focused_proofs": [
-    {
-      "status": "VERIFIED_FOCUSED",
-      "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
-      "passed": 38,
-      "failed": 0,
-      "elapsed_seconds": 3.12,
-      "artifact": "/tmp/p22-platform-tests.log",
-      "coverage": {
-        "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
-        "passed": 38,
-        "percent": 92.57,
-        "artifact": "/tmp/p22-platform-coverage-final.log",
-        "scope": "Platform packages only; not canonical repository coverage"
-      },
-      "report": "/tmp/p22-platform-report.md",
-      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
-    },
-    {
-      "status": "VERIFIED_FOCUSED_REPORTED",
-      "report": "/tmp/p22-core-report.md",
-      "runs": [
-        {
-          "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
-          "passed": 10,
-          "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
-        },
-        {
-          "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
-          "passed": 3,
-          "note": "Includes missing-head regression; overlaps first run."
-        }
-      ],
-      "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
-      "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
-    }
-  ],
   "tests": [
     "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
     "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
@@ -88,7 +48,6 @@
     "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
     "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append"
   ],
-  "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification.",
   "review_artifact": "/tmp/p22-platform-review.md",
   "tenant_head_identity_hardening": {
     "status": "VERIFIED",
@@ -102,73 +61,402 @@
     "regression": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
     "final_xml_outcome": "PASS"
   },
+  "corrective01_prior_evidence": {
+    "status": "SUPERSEDED",
+    "qualification": "Preserved pre-corrective source bindings, executions and scans; not certification of the current corrective snapshot. Historical failures/results are retained without relabeling.",
+    "evidence": {
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Dirty implementation snapshot over source_sha. Source-set SHA-256 equals /tmp/p22-source-final2.json; source/test/migration/infrastructure file hashes independently checked against the manifest after the final full run. No commit-level or CI identity is implied.",
+      "local_certification": {
+        "status": "VERIFIED",
+        "result": "PASS_LOCAL",
+        "command": "make test-all",
+        "tests": 2876,
+        "passed": 2876,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds_log": 1248.35,
+        "elapsed_seconds_xml": 1248.336,
+        "xml": {
+          "path": "/tmp/p22-full-final2.xml",
+          "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+        },
+        "log": {
+          "path": "/tmp/p22-full-final2.log",
+          "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+        },
+        "coverage": {
+          "path": "/tmp/p22-full-final2-coverage.json",
+          "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+          "canonical_threshold_percent": 90,
+          "percent_covered": 91.3468479307026,
+          "percent_covered_rounded": 91.35,
+          "covered_lines": 26292,
+          "num_statements": 28034,
+          "covered_branches": 4079,
+          "num_branches": 5214,
+          "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+        },
+        "source_manifest": {
+          "path": "/tmp/p22-source-final2.json",
+          "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+          "independently_verified_source_files": 664
+        },
+        "relevant_testcase_count": 15,
+        "exact_testcase_outcomes": [
+          {
+            "node_id": "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+            "result": "PASS",
+            "duration_seconds": 0.058
+          },
+          {
+            "node_id": "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+            "result": "PASS",
+            "duration_seconds": 0.1
+          },
+          {
+            "node_id": "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+            "result": "PASS",
+            "duration_seconds": 0.132
+          },
+          {
+            "node_id": "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+            "result": "PASS",
+            "duration_seconds": 0.073
+          },
+          {
+            "node_id": "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+            "result": "PASS",
+            "duration_seconds": 0.129
+          },
+          {
+            "node_id": "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+            "result": "PASS",
+            "duration_seconds": 0.407
+          },
+          {
+            "node_id": "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization",
+            "result": "PASS",
+            "duration_seconds": 0.0
+          },
+          {
+            "node_id": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+            "result": "PASS",
+            "duration_seconds": 0.127
+          },
+          {
+            "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+            "result": "PASS",
+            "duration_seconds": 0.06
+          },
+          {
+            "node_id": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+            "result": "PASS",
+            "duration_seconds": 0.095
+          },
+          {
+            "node_id": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+            "result": "PASS",
+            "duration_seconds": 0.06
+          },
+          {
+            "node_id": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+            "result": "PASS",
+            "duration_seconds": 0.058
+          },
+          {
+            "node_id": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+            "result": "PASS",
+            "duration_seconds": 0.088
+          },
+          {
+            "node_id": "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+            "result": "PASS",
+            "duration_seconds": 0.05
+          },
+          {
+            "node_id": "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
+            "result": "PASS",
+            "duration_seconds": 0.05
+          }
+        ]
+      },
+      "focused_proofs": [
+        {
+          "status": "VERIFIED_FOCUSED",
+          "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --no-cov -q",
+          "passed": 38,
+          "failed": 0,
+          "elapsed_seconds": 3.12,
+          "artifact": "/tmp/p22-platform-tests.log",
+          "coverage": {
+            "command": "uv run pytest tests/unit/test_platform_audit_contracts.py tests/integration/test_platform_audit.py --cov-reset --cov=nexus_ai.audit.platform --cov=nexus_ai.domain.platform_audit --cov-report=term-missing --cov-fail-under=90 -q",
+            "passed": 38,
+            "percent": 92.57,
+            "artifact": "/tmp/p22-platform-coverage-final.log",
+            "scope": "Platform packages only; not canonical repository coverage"
+          },
+          "report": "/tmp/p22-platform-report.md",
+          "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+        },
+        {
+          "status": "VERIFIED_FOCUSED_REPORTED",
+          "report": "/tmp/p22-core-report.md",
+          "runs": [
+            {
+              "command": "uv run pytest tests/unit/test_audit_contracts.py tests/integration/test_audit_ledger.py tests/integration/test_audit_ingestion.py tests/integration/test_audit_query.py --no-cov -q",
+              "passed": 10,
+              "note": "Before later missing-head and additional query/ingestion regressions; do not equate this count with final current collection."
+            },
+            {
+              "command": "uv run pytest tests/integration/test_audit_ledger.py --no-cov -q",
+              "passed": 3,
+              "note": "Includes missing-head regression; overlaps first run."
+            }
+          ],
+          "final_current_collection": "VERIFIED by final combined-suite XML in local_certification",
+          "evidence_timing": "HISTORICAL_FOCUSED_DEVELOPMENT_RUN; retained as history, final source certification uses local_certification"
+        }
+      ],
+      "additional_nodes_execution": "VERIFIED PASS: every listed base node and every parameterized case matched final XML; exact outcomes in local_certification."
+    }
+  },
+  "source": {
+    "head": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "branch": "feat/nxs-p22-audit",
+    "working_tree": "DIRTY_CORRECTIVE_IMPLEMENTATION",
+    "frozen_source_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "digest_reference": "/tmp/p22-corrective-source-final.json",
+    "qualification": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred."
+  },
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_binding": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred.",
+  "evidence_status": "VERIFIED_CORRECTIVE01_LOCAL_SUITE",
+  "corrective01_architecture": {
+    "status": "VERIFIED",
+    "domains": "16 fixed v2 domains platform:v2:00..0f plus preserved v1 legacy domain; independent head locks and domain-bound facts/digests; finite domain/fact CHECK prevents unenumerated rows.",
+    "derivation": "First SHA-256 byte of registered producer + colon + canonical trusted target UUID modulo16; server derived, no append-domain request selector.",
+    "claims": "Source FOR UPDATE SKIP LOCKED; fresh receipt recheck; domain-head NOWAIT in bounded batch. Claim, ledger, head and receipt commit together; busy-head rollback excludes source for current invocation. No leases; no unlimited queue fairness claim.",
+    "producer_authority": "Immutable source-code registry binds subsystem, DB role, actions/targets, human/service actors, metadata schema and durability. Sentinel sole production entry; synthetic extension is test-only. DB stamps session_user and worker rejects role/producer mismatch.",
+    "privileges": "Worker UPDATE(id) on intents is row-lock enabling only; immutable trigger still forbids actual changes. Runtime receives no generic platform journal/ledger write permission.",
+    "verification": "Explicit validated domains; single repeatable-read multi-domain snapshot; bounded requested-domain completion distinct from all17-domain inclusion; no global sequence order.",
+    "test_nodes": [
+      "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
+      "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+      "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
+      "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v2:10]",
+      "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[forged]",
+      "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v1:legacy]",
+      "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
+      "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
+      "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
+      "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
+      "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
+      "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
+      "tests/integration/test_platform_domains.py::test_claim_update_privilege_cannot_mutate_source",
+      "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
+      "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata",
+      "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
+      "tests/unit/test_platform_domain_contracts.py::test_registry_is_closed_and_describes_source_authority",
+      "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[unknown]",
+      "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[runtime]",
+      "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[admin]"
+    ]
+  },
   "local_certification": {
     "status": "VERIFIED",
     "result": "PASS_LOCAL",
     "command": "make test-all",
-    "tests": 2876,
-    "passed": 2876,
+    "tests": 2901,
+    "passed": 2901,
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "elapsed_seconds_log": 1248.35,
-    "elapsed_seconds_xml": 1248.336,
+    "elapsed_seconds_log": 1536.63,
+    "elapsed_seconds_xml": 1536.621,
     "xml": {
-      "path": "/tmp/p22-full-final2.xml",
-      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+      "path": "/tmp/p22-corrective-full.xml",
+      "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
     },
     "log": {
-      "path": "/tmp/p22-full-final2.log",
-      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+      "path": "/tmp/p22-corrective-full.log",
+      "sha256": "8e2eb1f7bc02668a575b5e2a11d9946b731c59a2bae47a9ff819a7bda97786eb"
     },
     "coverage": {
-      "path": "/tmp/p22-full-final2-coverage.json",
-      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256",
+      "path": "/tmp/p22-corrective-coverage.json",
+      "sha256": "de998279534e7f2653496f000f1ca176e6b55b856b0ef58eec950e027c2375a4",
       "canonical_threshold_percent": 90,
-      "percent_covered": 91.3468479307026,
-      "percent_covered_rounded": 91.35,
-      "covered_lines": 26292,
-      "num_statements": 28034,
-      "covered_branches": 4079,
-      "num_branches": 5214,
-      "scope": "Canonical repository combined statement/branch coverage; no focused-package substitution"
+      "covered_lines": 26372,
+      "num_statements": 28122,
+      "percent_covered": 91.33157547791694,
+      "percent_covered_display": "91",
+      "missing_lines": 1750,
+      "excluded_lines": 413,
+      "percent_statements_covered": 93.77711400327146,
+      "percent_statements_covered_display": "94",
+      "num_branches": 5252,
+      "num_partial_branches": 997,
+      "covered_branches": 4109,
+      "missing_branches": 1143,
+      "percent_branches_covered": 78.23686214775324,
+      "percent_branches_covered_display": "78",
+      "scope": "Combined canonical statement/branch coverage; no focused-package substitution."
     },
     "source_manifest": {
-      "path": "/tmp/p22-source-final2.json",
-      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-      "independently_verified_source_files": 664
+      "path": "/tmp/p22-corrective-source-final.json",
+      "sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+      "independently_verified_source_files": 921
     },
-    "relevant_testcase_count": 15,
+    "source_unchanged_during_run": "VERIFIED_BY_ROOT; post-run snapshot files independently rehashed by evidence agent",
+    "relevant_testcase_count": 35,
     "exact_testcase_outcomes": [
       {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+        "result": "PASS",
+        "duration_seconds": 0.098
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+        "result": "PASS",
+        "duration_seconds": 0.067
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+        "result": "PASS",
+        "duration_seconds": 0.061
+      },
+      {
+        "node_id": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+        "result": "PASS",
+        "duration_seconds": 0.083
+      },
+      {
         "node_id": "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
-        "result": "PASS",
-        "duration_seconds": 0.058
-      },
-      {
-        "node_id": "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
-        "result": "PASS",
-        "duration_seconds": 0.1
-      },
-      {
-        "node_id": "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
-        "result": "PASS",
-        "duration_seconds": 0.132
-      },
-      {
-        "node_id": "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
         "result": "PASS",
         "duration_seconds": 0.073
       },
       {
+        "node_id": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "result": "PASS",
+        "duration_seconds": 0.212
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+        "result": "PASS",
+        "duration_seconds": 0.069
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+        "result": "PASS",
+        "duration_seconds": 0.111
+      },
+      {
         "node_id": "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
         "result": "PASS",
-        "duration_seconds": 0.129
+        "duration_seconds": 0.148
       },
       {
         "node_id": "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
         "result": "PASS",
-        "duration_seconds": 0.407
+        "duration_seconds": 0.412
+      },
+      {
+        "node_id": "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+        "result": "PASS",
+        "duration_seconds": 0.13
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
+        "result": "PASS",
+        "duration_seconds": 0.139
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
+        "result": "PASS",
+        "duration_seconds": 0.105
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+        "result": "PASS",
+        "duration_seconds": 0.129
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_claim_update_privilege_cannot_mutate_source",
+        "result": "PASS",
+        "duration_seconds": 0.09
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
+        "result": "PASS",
+        "duration_seconds": 0.244
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[forged]",
+        "result": "PASS",
+        "duration_seconds": 0.114
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v1:legacy]",
+        "result": "PASS",
+        "duration_seconds": 0.11
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v2:10]",
+        "result": "PASS",
+        "duration_seconds": 0.132
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
+        "result": "PASS",
+        "duration_seconds": 0.123
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
+        "result": "PASS",
+        "duration_seconds": 0.17
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
+        "result": "PASS",
+        "duration_seconds": 0.183
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
+        "result": "PASS",
+        "duration_seconds": 0.103
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata",
+        "result": "PASS",
+        "duration_seconds": 0.135
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
+        "result": "PASS",
+        "duration_seconds": 0.291
+      },
+      {
+        "node_id": "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
+        "result": "PASS",
+        "duration_seconds": 0.118
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+        "result": "PASS",
+        "duration_seconds": 0.051
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
+        "result": "PASS",
+        "duration_seconds": 0.052
+      },
+      {
+        "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "result": "PASS",
+        "duration_seconds": 0.058
       },
       {
         "node_id": "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization",
@@ -176,45 +464,41 @@
         "duration_seconds": 0.0
       },
       {
-        "node_id": "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "node_id": "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
         "result": "PASS",
-        "duration_seconds": 0.127
+        "duration_seconds": 0.001
       },
       {
-        "node_id": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "node_id": "tests/unit/test_platform_domain_contracts.py::test_registry_is_closed_and_describes_source_authority",
         "result": "PASS",
-        "duration_seconds": 0.06
+        "duration_seconds": 0.0
       },
       {
-        "node_id": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+        "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[admin]",
         "result": "PASS",
-        "duration_seconds": 0.095
+        "duration_seconds": 0.0
       },
       {
-        "node_id": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+        "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[runtime]",
         "result": "PASS",
-        "duration_seconds": 0.06
+        "duration_seconds": 0.0
       },
       {
-        "node_id": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+        "node_id": "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[unknown]",
         "result": "PASS",
-        "duration_seconds": 0.058
-      },
-      {
-        "node_id": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
-        "result": "PASS",
-        "duration_seconds": 0.088
-      },
-      {
-        "node_id": "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
-        "result": "PASS",
-        "duration_seconds": 0.05
-      },
-      {
-        "node_id": "tests/security/test_audit_integrity.py::test_missing_tenant_context_cannot_read_or_append",
-        "result": "PASS",
-        "duration_seconds": 0.05
+        "duration_seconds": 0.0
       }
-    ]
+    ],
+    "node_resolution": "Every node reference independently resolved against current XML; parameterized base references expand to exact passing cases.",
+    "qualification": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred."
+  },
+  "external_gates": {
+    "status": "PENDING",
+    "qualification": "No current clean-room PASS claimed. Root owns clean-room evidence, exact new candidate CI/Security, external audit and authorized closure. A previous clean-room attempt failed the preexisting P13 cancellation timing test; rerun was in progress at this evidence update."
+  },
+  "corrective01_review": {
+    "status": "VERIFIED_SOURCE_PASS",
+    "artifact": "/tmp/p22-corrective-final-review.md",
+    "qualification": "Previously identified unknown-domain omission fixed by DB constraint and negative worker INSERT tests; no remaining source blocker found. Not external certification."
   }
 }

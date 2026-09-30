@@ -1,39 +1,39 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-  "source_binding": "Dirty implementation snapshot over canonical start; exact candidate commit is established after local certification.",
-  "result": "PASS_LOCAL",
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+  "result": "PENDING_CLEAN_ROOM",
   "commands": [
     {
-      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-final",
+      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-corrective",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-docker-final2.log",
-        "sha256": "21e3d682a3cca56f82e04d778eb76e3dd4fc4aed7e48c52787be84bbcc9f7958"
+        "path": "/tmp/p22-corrective-docker.log",
+        "sha256": "3ad54c8180058386ac113a5aa4fd263062d34ab68d6cb38baf315589e3b05ff5"
       }
     },
     {
-      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-final-multiarch",
+      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-corrective-multiarch",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-multiarch-final2.log",
-        "sha256": "495da994496f480451b7987a2123dab88bfa0d2b25e080ce315244425408ebe9"
+        "path": "/tmp/p22-corrective-multiarch.log",
+        "sha256": "1fda0e9a3b4a8b9f795d6104c0e3cea40e6f05cfdf32cb2f30cd7bbd7f7c9cde"
       }
     },
     {
-      "command": "docker buildx build --platform linux/arm64 --load --tag nexus-ai:p22-final-arm64 .",
+      "command": "docker buildx build --platform linux/arm64 --load --tag nexus-ai:p22-corrective-arm64 .",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-arm64-final2.log",
-        "sha256": "b17d86132a772ebcb5175f650efd019967be4f71b8d3d4efe5dd85ce7258785a"
+        "path": "/tmp/p22-corrective-arm64.log",
+        "sha256": "ed11f5b3f9a80ba06fe6073d9af23e5621a4d01cfec01ba04c765f1a1ca39138"
       }
     }
   ],
   "scans": {
     "amd64": {
-      "image_id": "sha256:e322fa271365a7eada848f3ea2678117347a6afe66e7f85af79de79ad303663a",
+      "image_id": "sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced",
       "architecture": "amd64",
       "counts": {
         "CRITICAL": 0,
@@ -42,12 +42,13 @@
         "LOW": 2
       },
       "artifact": {
-        "path": "/tmp/p22-trivy-final2-amd64.json",
-        "sha256": "27859eb022f578aeaca6caa0ed239a4751f82b6af0238838d882afe23f58fd11"
-      }
+        "path": "/tmp/p22-corrective-trivy-amd64.json",
+        "sha256": "6b00be3b4bf31f67c0a46bf634e124d07ec8930adfa4b0f996948ef4a7a83f47"
+      },
+      "inventory_identical": true
     },
     "arm64": {
-      "image_id": "sha256:a8a42b8a05f1b05b886647b170bb34a5340de299ea628117febcb2c26d26d849",
+      "image_id": "sha256:eeaebfbd1553ec486501325f0bfefcfb097c3fa216004cdf2503f86999bf37ea",
       "architecture": "arm64",
       "counts": {
         "CRITICAL": 0,
@@ -56,9 +57,10 @@
         "LOW": 2
       },
       "artifact": {
-        "path": "/tmp/p22-trivy-final2-arm64.json",
-        "sha256": "618e8527af22d1d4fe20f8f235e7e18355c6df886b93bb8713cd2b66f61ae39e"
-      }
+        "path": "/tmp/p22-corrective-trivy-arm64.json",
+        "sha256": "f054f12d2e3c34d94f5ce39212cf96e23a0130a4566ccba159ab4aa03612df81"
+      },
+      "inventory_identical": true
     }
   },
   "scanner": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
@@ -71,28 +73,126 @@
   "findings_review": "container-findings-review.json",
   "suppressed_findings": 0,
   "non_root": {
-    "result": "PASS",
-    "user": "65532:65532",
-    "evidence": "make clean-room tests image Config.User"
+    "result": "PENDING_CLEAN_ROOM",
+    "evidence": "local-certification.json"
   },
   "health_readiness": {
-    "result": "PASS",
-    "evidence": "make clean-room live/ready HTTP checks against fresh local dependencies"
+    "result": "PENDING_CLEAN_ROOM",
+    "evidence": "local-certification.json"
   },
   "graceful_shutdown": {
-    "result": "PASS",
-    "evidence": "make clean-room docker stop --time 15 and integration/test_agent_handoff.py; canonical full suite shutdown/resilience tests"
+    "result": "PENDING_CLEAN_ROOM",
+    "evidence": "local-certification.json"
   },
   "clean_room": {
-    "result": "PASS",
-    "artifact": {
-      "path": "/tmp/p22-cleanroom-final.log",
-      "sha256": "a5785d56720eb54e788c2380f392dcde5509785496d0d36d31a1cefad66e5874"
-    }
+    "result": "PENDING_CLEAN_ROOM",
+    "evidence": "local-certification.json"
   },
   "limitations": [
     "MEDIUM/LOW vendor fixes remain open and reviewed, not suppressed or falsely reported fixed.",
     "Multiarch cache-only build warning is expected: no image push was requested.",
     "No production deployment or regulatory certification."
-  ]
+  ],
+  "historical_certification": {
+    "status": "SUPERSEDED_BY_CORRECTIVE_01",
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "record": {
+      "schema_version": "1.0.0",
+      "phase": "NXS-P22",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Dirty implementation snapshot over canonical start; exact candidate commit is established after local certification.",
+      "result": "PASS_LOCAL",
+      "commands": [
+        {
+          "command": "make docker-build IMAGE_TAG=nexus-ai:p22-final",
+          "exit_code": 0,
+          "artifact": {
+            "path": "/tmp/p22-docker-final2.log",
+            "sha256": "21e3d682a3cca56f82e04d778eb76e3dd4fc4aed7e48c52787be84bbcc9f7958"
+          }
+        },
+        {
+          "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-final-multiarch",
+          "exit_code": 0,
+          "artifact": {
+            "path": "/tmp/p22-multiarch-final2.log",
+            "sha256": "495da994496f480451b7987a2123dab88bfa0d2b25e080ce315244425408ebe9"
+          }
+        },
+        {
+          "command": "docker buildx build --platform linux/arm64 --load --tag nexus-ai:p22-final-arm64 .",
+          "exit_code": 0,
+          "artifact": {
+            "path": "/tmp/p22-arm64-final2.log",
+            "sha256": "b17d86132a772ebcb5175f650efd019967be4f71b8d3d4efe5dd85ce7258785a"
+          }
+        }
+      ],
+      "scans": {
+        "amd64": {
+          "image_id": "sha256:e322fa271365a7eada848f3ea2678117347a6afe66e7f85af79de79ad303663a",
+          "architecture": "amd64",
+          "counts": {
+            "CRITICAL": 0,
+            "HIGH": 0,
+            "MEDIUM": 6,
+            "LOW": 2
+          },
+          "artifact": {
+            "path": "/tmp/p22-trivy-final2-amd64.json",
+            "sha256": "27859eb022f578aeaca6caa0ed239a4751f82b6af0238838d882afe23f58fd11"
+          }
+        },
+        "arm64": {
+          "image_id": "sha256:a8a42b8a05f1b05b886647b170bb34a5340de299ea628117febcb2c26d26d849",
+          "architecture": "arm64",
+          "counts": {
+            "CRITICAL": 0,
+            "HIGH": 0,
+            "MEDIUM": 6,
+            "LOW": 2
+          },
+          "artifact": {
+            "path": "/tmp/p22-trivy-final2-arm64.json",
+            "sha256": "618e8527af22d1d4fe20f8f235e7e18355c6df886b93bb8713cd2b66f61ae39e"
+          }
+        }
+      },
+      "scanner": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
+      "scanner_policy": {
+        "CRITICAL": "FAIL",
+        "HIGH": "FAIL",
+        "MEDIUM": "REVIEW",
+        "LOW": "DOCUMENTED"
+      },
+      "findings_review": "container-findings-review.json",
+      "suppressed_findings": 0,
+      "non_root": {
+        "result": "PASS",
+        "user": "65532:65532",
+        "evidence": "make clean-room tests image Config.User"
+      },
+      "health_readiness": {
+        "result": "PASS",
+        "evidence": "make clean-room live/ready HTTP checks against fresh local dependencies"
+      },
+      "graceful_shutdown": {
+        "result": "PASS",
+        "evidence": "make clean-room docker stop --time 15 and integration/test_agent_handoff.py; canonical full suite shutdown/resilience tests"
+      },
+      "clean_room": {
+        "result": "PASS",
+        "artifact": {
+          "path": "/tmp/p22-cleanroom-final.log",
+          "sha256": "a5785d56720eb54e788c2380f392dcde5509785496d0d36d31a1cefad66e5874"
+        }
+      },
+      "limitations": [
+        "MEDIUM/LOW vendor fixes remain open and reviewed, not suppressed or falsely reported fixed.",
+        "Multiarch cache-only build warning is expected: no image push was requested.",
+        "No production deployment or regulatory certification."
+      ]
+    }
+  }
 }

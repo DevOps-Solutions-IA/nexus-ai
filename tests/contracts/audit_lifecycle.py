@@ -26,8 +26,12 @@ def assert_audit_lifecycle_consistent():
     assert requirement["mandatory"] is True
     assert requirement["target_phase"] == "NXS-P22"
     assert manifest["requirements_implemented"] == ["NXS-AUDIT-002"]
-    assert manifest["dependencies"] == registry["NXS-P22"]["dependencies"] == ["NXS-P04", "NXS-P21"]
-    for dependency in ("NXS-P04", "NXS-P21"):
+    assert (
+        manifest["dependencies"]
+        == registry["NXS-P22"]["dependencies"]
+        == ["NXS-P04", "NXS-P20", "NXS-P21"]
+    )
+    for dependency in ("NXS-P04", "NXS-P20", "NXS-P21"):
         assert registry[dependency]["status"] == "READY"
         assert registry[dependency]["decision"] == "GO"
         assert dependency in state["completed_phases"]

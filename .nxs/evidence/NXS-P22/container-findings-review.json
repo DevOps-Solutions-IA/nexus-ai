@@ -3,8 +3,8 @@
   "phase": "NXS-P22",
   "result": "REVIEW",
   "scope": "Independent MEDIUM/LOW applicability and residual-risk review, bound separately to final amd64 and arm64 image scans after exact inventory comparison; not lifecycle closure, deployment authorization, suppression or fix claim.",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
   "reviewed_scan": {
     "path": "/tmp/p22-trivy.json",
     "sha256": "8d2547b91c1b6afdf032d12f630f10eb1abe897e2734e76afde17a67bd927836",
@@ -250,32 +250,90 @@
   },
   "arm64_image_binding": {
     "status": "VERIFIED",
-    "image_id": "sha256:a8a42b8a05f1b05b886647b170bb34a5340de299ea628117febcb2c26d26d849",
-    "artifact_name": "nexus-ai:p22-final-arm64",
+    "image_id": "sha256:eeaebfbd1553ec486501325f0bfefcfb097c3fa216004cdf2503f86999bf37ea",
+    "artifact_name": "nexus-ai:p22-corrective-arm64",
     "architecture": "arm64",
-    "build_load_artifact": "/tmp/p22-arm64-final2.log",
-    "scan_path": "/tmp/p22-trivy-final2-arm64.json",
-    "scan_sha256": "618e8527af22d1d4fe20f8f235e7e18355c6df886b93bb8713cd2b66f61ae39e",
-    "counts": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 6, "LOW": 2},
+    "build_load_artifact": "/tmp/p22-corrective-arm64.log",
+    "scan_path": "/tmp/p22-corrective-trivy-arm64.json",
+    "scan_sha256": "f054f12d2e3c34d94f5ce39212cf96e23a0130a4566ccba159ab4aa03612df81",
+    "counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 6,
+      "LOW": 2
+    },
     "package_findings": 8,
     "inventory_identical_to_final_amd64": true,
     "arm64_only_finding_tuples": [],
     "amd64_only_finding_tuples": [],
     "high_critical_gate": "PASS for this exact arm64 image and supplied scan only",
     "medium_low_gate": "REVIEW with all eight findings open; the same package/CVE review applies without suppression or installed fix claim",
-    "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed."
+    "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed.",
+    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path."
   },
   "final_image_binding": {
     "status": "VERIFIED",
-    "image_id": "sha256:e322fa271365a7eada848f3ea2678117347a6afe66e7f85af79de79ad303663a",
-    "artifact_name": "nexus-ai:p22-final",
+    "image_id": "sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced",
+    "artifact_name": "nexus-ai:p22-corrective",
     "architecture": "amd64",
-    "build_load_artifact": "/tmp/p22-docker-final2.log",
-    "scan_path": "/tmp/p22-trivy-final2-amd64.json",
-    "scan_sha256": "27859eb022f578aeaca6caa0ed239a4751f82b6af0238838d882afe23f58fd11",
+    "build_load_artifact": "/tmp/p22-corrective-docker.log",
+    "scan_path": "/tmp/p22-corrective-trivy-amd64.json",
+    "scan_sha256": "6b00be3b4bf31f67c0a46bf634e124d07ec8930adfa4b0f996948ef4a7a83f47",
     "inventory_identical_to_reviewed_scan": true,
-    "counts": {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 6, "LOW": 2},
+    "counts": {
+      "CRITICAL": 0,
+      "HIGH": 0,
+      "MEDIUM": 6,
+      "LOW": 2
+    },
     "high_critical_gate": "PASS for this exact image and supplied scan only",
-    "medium_low_gate": "REVIEW with all findings open; no suppression or installed fix claim"
-  }
+    "medium_low_gate": "REVIEW with all findings open; no suppression or installed fix claim",
+    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path."
+  },
+  "historical_image_bindings": {
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "amd64": {
+      "status": "VERIFIED",
+      "image_id": "sha256:e322fa271365a7eada848f3ea2678117347a6afe66e7f85af79de79ad303663a",
+      "artifact_name": "nexus-ai:p22-final",
+      "architecture": "amd64",
+      "build_load_artifact": "/tmp/p22-docker-final2.log",
+      "scan_path": "/tmp/p22-trivy-final2-amd64.json",
+      "scan_sha256": "27859eb022f578aeaca6caa0ed239a4751f82b6af0238838d882afe23f58fd11",
+      "inventory_identical_to_reviewed_scan": true,
+      "counts": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 6,
+        "LOW": 2
+      },
+      "high_critical_gate": "PASS for this exact image and supplied scan only",
+      "medium_low_gate": "REVIEW with all findings open; no suppression or installed fix claim"
+    },
+    "arm64": {
+      "status": "VERIFIED",
+      "image_id": "sha256:a8a42b8a05f1b05b886647b170bb34a5340de299ea628117febcb2c26d26d849",
+      "artifact_name": "nexus-ai:p22-final-arm64",
+      "architecture": "arm64",
+      "build_load_artifact": "/tmp/p22-arm64-final2.log",
+      "scan_path": "/tmp/p22-trivy-final2-arm64.json",
+      "scan_sha256": "618e8527af22d1d4fe20f8f235e7e18355c6df886b93bb8713cd2b66f61ae39e",
+      "counts": {
+        "CRITICAL": 0,
+        "HIGH": 0,
+        "MEDIUM": 6,
+        "LOW": 2
+      },
+      "package_findings": 8,
+      "inventory_identical_to_final_amd64": true,
+      "arm64_only_finding_tuples": [],
+      "amd64_only_finding_tuples": [],
+      "high_critical_gate": "PASS for this exact arm64 image and supplied scan only",
+      "medium_low_gate": "REVIEW with all eight findings open; the same package/CVE review applies without suppression or installed fix claim",
+      "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed."
+    }
+  },
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash."
 }

@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-  "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
   "result": "PASS",
   "algorithm": {
     "selection": "Sorted unique git ls-files --cached --others --exclude-standard -z paths.",
@@ -21,21 +21,64 @@
     "serialization": "JSON list, sorted object keys, separators comma/colon, UTF-8 plus trailing newline; SHA-256 of serialized bytes.",
     "timestamps_in_identity": false
   },
-  "before_full_manifest": "/tmp/p22-source-final2.json",
-  "after_full_manifest": "/tmp/p22-source-after-full.json",
+  "before_full_manifest": "/tmp/p22-corrective-source-final.json",
+  "after_full_manifest": "/tmp/p22-corrective-source-after-full.json",
   "byte_identical": true,
-  "hash": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "hash": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
   "tests_artifact": {
-    "path": "/tmp/p22-full-final2.xml",
-    "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    "path": "/tmp/p22-corrective-full.xml",
+    "sha256": "78056fbcde2be3d65902d5fd3b170a57049efc8726546e6b0826d731d668c016"
   },
   "evidence_mutations_excluded": true,
   "lock_mutations_excluded": true,
-  "scope": "Current dual-scope implementation; does not reuse historical P20/P21 or failed/aborted P22 regression as final certification.",
-  "after_cleanroom_manifest": "/tmp/p22-source-after-cleanroom.json",
-  "cleanroom_byte_identical": true,
-  "cleanroom_artifact": {
-    "path": "/tmp/p22-cleanroom-full.xml",
-    "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
-  }
+  "scope": "Corrective 01 source snapshot; historical candidate certification is preserved but not reused as current proof.",
+  "after_cleanroom_manifest": null,
+  "cleanroom_byte_identical": null,
+  "cleanroom_artifact": null,
+  "historical_certification": {
+    "status": "SUPERSEDED_BY_CORRECTIVE_01",
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "record": {
+      "schema_version": "1.0.0",
+      "phase": "NXS-P22",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+      "result": "PASS",
+      "algorithm": {
+        "selection": "Sorted unique git ls-files --cached --others --exclude-standard -z paths.",
+        "excluded": [
+          ".nxs/evidence/**",
+          ".nxs/execution-lock.json",
+          ".coverage.*"
+        ],
+        "entry_fields": [
+          "path",
+          "type",
+          "mode (stat.S_IMODE)",
+          "sha256 (file bytes or symlink target bytes)"
+        ],
+        "serialization": "JSON list, sorted object keys, separators comma/colon, UTF-8 plus trailing newline; SHA-256 of serialized bytes.",
+        "timestamps_in_identity": false
+      },
+      "before_full_manifest": "/tmp/p22-source-final2.json",
+      "after_full_manifest": "/tmp/p22-source-after-full.json",
+      "byte_identical": true,
+      "hash": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "tests_artifact": {
+        "path": "/tmp/p22-full-final2.xml",
+        "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+      },
+      "evidence_mutations_excluded": true,
+      "lock_mutations_excluded": true,
+      "scope": "Current dual-scope implementation; does not reuse historical P20/P21 or failed/aborted P22 regression as final certification.",
+      "after_cleanroom_manifest": "/tmp/p22-source-after-cleanroom.json",
+      "cleanroom_byte_identical": true,
+      "cleanroom_artifact": {
+        "path": "/tmp/p22-cleanroom-full.xml",
+        "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
+      }
+    }
+  },
+  "cleanroom_result": "PENDING_UNCHANGED_RERUN"
 }

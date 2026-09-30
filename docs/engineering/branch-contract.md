@@ -6,7 +6,7 @@ Every executable phase must map to at least one canonical mandatory requirement 
 
 ## NXS-P22 implementation contract — BUILDING / PENDING on feature branch
 
-- Registered branch: `feat/nxs-p22-audit`; dependencies P04/P21 READY/GO; existing mandatory requirement NXS-AUDIT-002.
+- Registered branch: `feat/nxs-p22-audit`; dependencies P04/P20/P21 READY/GO; existing mandatory requirement NXS-AUDIT-002.
 - Baseline: canonical main `d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e`; P21 PR #48 merged at `53149934906d0d243cb3f593efc8a5bbf74bd793`.
 - Authority: ADR-0103 and `nxs-p22-audit-design.md`; tenant-scoped append-only/tamper-evident facts, P04 outbox, trusted actors and bounded RBAC queries.
 - P22-SD01 is SUPERSEDED by the Master Orchestrator dual-scope decision: TENANT audit retains forced RLS/nexus_runtime/P04 outbox; PLATFORM audit requires null organization_id, independent least-privilege persistence, durable ingestion and platform query grants. Authoritative Sentinel privileged facts belong only to PLATFORM, never an operator login Organization. Unsupported producers remain explicit; no unproven universal coverage claim.

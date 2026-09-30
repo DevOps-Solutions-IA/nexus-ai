@@ -5,6 +5,7 @@
   "decision": "PENDING",
   "dependencies": [
     "NXS-P04",
+    "NXS-P20",
     "NXS-P21"
   ],
   "evidence": [],

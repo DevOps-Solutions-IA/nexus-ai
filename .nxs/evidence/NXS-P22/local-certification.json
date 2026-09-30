@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
-  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
-  "source_binding": "Dirty implementation snapshot over canonical start; exact candidate commit is established after local certification.",
-  "result": "PASS_LOCAL",
+  "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+  "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+  "result": "PENDING_CLEAN_ROOM",
   "stage": "A",
   "lifecycle": {
     "phase": "NXS-P22",
@@ -18,47 +18,60 @@
   "full_regression": {
     "result": "PASS",
     "command": "make test-all",
-    "passed": 2876,
+    "passed": 2901,
     "failed": 0,
     "skipped": 0,
-    "coverage_percent": 91.3468479307026,
+    "coverage_percent": 91.33157547791694,
     "evidence": "tests.json"
   },
   "clean_room": {
-    "result": "PASS",
-    "command": "make clean-room",
-    "exit_code": 0,
-    "passed": 2876,
-    "failed": 0,
-    "errors": 0,
-    "skipped": 0,
-    "runtime_seconds": 1241.901,
-    "started_at": "2026-09-29T17:12:01.241903-05:00",
-    "coverage_percent": 91.37391722810395,
-    "branch_coverage_percent": 78.27004219409282,
-    "scope": [
-      "Fresh frozen dependencies",
-      "Fresh disposable PostgreSQL/Valkey/NATS",
-      "Least-privilege role bootstrap",
-      "Migrations and schema guard",
-      "All P22 tenant/platform tests within complete suite",
-      "Docker non-root",
-      "amd64/arm64 build",
-      "HTTP live/ready",
-      "Bounded shutdown",
-      "Agent-handoff regression"
-    ],
-    "artifact": {
-      "path": "/tmp/p22-cleanroom-final.log",
-      "sha256": "a5785d56720eb54e788c2380f392dcde5509785496d0d36d31a1cefad66e5874"
-    },
-    "xml": {
-      "path": "/tmp/p22-cleanroom-full.xml",
-      "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
-    },
-    "coverage_artifact": {
-      "path": "/tmp/p22-cleanroom-coverage.json",
-      "sha256": "24e2e44607b94b52d1385989a570d2ec498c5ca044d91c1a3b7a3bad04073034"
+    "result": "PENDING_UNCHANGED_RERUN",
+    "first_attempt": {
+      "result": "FAIL",
+      "exit_code": 2,
+      "passed": 2900,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1437.658,
+      "started_at": "2026-09-29T20:13:31.396717-05:00",
+      "log": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.log",
+        "sha256": "12b88feff3ef301ed1ad194f0684c7a4418a5ebed545e0021a4b7851257f6c3b"
+      },
+      "xml": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.xml",
+        "sha256": "47a628aa2d426e5d33bf233df3bd39a3b2933ec191ab0803871f33ce8ecaa570"
+      },
+      "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "diagnosis": "Existing P13 test assumes first tool dispatched after asyncio.sleep(0.15); actual seen=[] before cancellation. No P13/tool/test source delta.",
+      "classification": "TIMING_HYPOTHESIS_SUPPORTED_BY_UNCHANGED_FOCUSED_RERUNS",
+      "unchanged_focused_reruns": [
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-1.xml",
+            "sha256": "e87a1d91c26acbcea80cbdb913fdaea71ab10e6434d7528b4d3a0e8c720aafc7"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-2.xml",
+            "sha256": "4cd79289a927aa3456201446692b753429e2e8626203ec7b94ed295547062f1a"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-3.xml",
+            "sha256": "49c6901f7f8008a22cfdb1cecfe9399a597d4aeaf00c0aa7c23eb960a6167487"
+          }
+        }
+      ]
     }
   },
   "local_gates": [
@@ -67,7 +80,7 @@
       "command": "make nxs-validate-repo",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-validate-final.log",
+        "path": "/tmp/p22-corrective-validate.log",
         "sha256": "59c78d815d87ee643a9cedde1d7110cfb1409354c6fea2c5519c85cedaa0ed49"
       }
     },
@@ -76,7 +89,7 @@
       "command": "make nxs-preflight PHASE=NXS-P22",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-preflight-final.log",
+        "path": "/tmp/p22-corrective-preflight.log",
         "sha256": "5ca34dc2c5f6e2c1afa77dfc367b79f3a7e8f7261f76d51b6c133955c87b4d5d"
       }
     },
@@ -85,8 +98,8 @@
       "command": "make lint",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-lint-final2.log",
-        "sha256": "9733352c82bc74a113c851e48ea8d6f67ee377acf9a2cc5476d9183e3e835e7b"
+        "path": "/tmp/p22-corrective-lint.log",
+        "sha256": "f2e41b99c9161f7b9ff1136cd266b6848af834681946745a88e3cf6888fdb0d0"
       }
     },
     {
@@ -94,7 +107,7 @@
       "command": "make type",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-type-final2.log",
+        "path": "/tmp/p22-corrective-type.log",
         "sha256": "a63af73d0a084072555e5bee8c0d4bf5c693ffefb92dfaf266e796863c95e5fa"
       }
     },
@@ -103,7 +116,7 @@
       "command": "make security",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-security-final2.log",
+        "path": "/tmp/p22-corrective-security.log",
         "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
       }
     },
@@ -113,7 +126,7 @@
       "result": "PASS",
       "findings": 0,
       "artifact": {
-        "path": "/tmp/p22-gitleaks-final.json",
+        "path": "/tmp/p22-corrective-gitleaks.json",
         "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       }
     },
@@ -123,7 +136,7 @@
       "result": "PASS",
       "findings": 0,
       "artifact": {
-        "path": "/tmp/p22-gitleaks-history.json",
+        "path": "/tmp/p22-corrective-gitleaks-history.json",
         "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       }
     },
@@ -143,7 +156,11 @@
       "mapped": 20,
       "executed": 20,
       "missing": 0,
-      "evidence": "concurrency.json"
+      "evidence": "concurrency.json",
+      "platform_required": 10,
+      "platform_mapped": 10,
+      "platform_executed": 10,
+      "platform_missing": 0
     },
     {
       "name": "security_resilience_tenant_isolation",
@@ -158,7 +175,7 @@
   "coverage_threshold": 90,
   "coverage_threshold_unchanged": true,
   "new_code_excluded_from_coverage": false,
-  "source_content_unchanged_during_full_and_cleanroom": true,
+  "source_content_unchanged_during_full_and_cleanroom": null,
   "external_gates": {
     "AC37": "PENDING_EXACT_HEAD",
     "AC38": "PENDING_EXACT_HEAD"
@@ -167,5 +184,180 @@
   "prohibited_operations_executed": [],
   "limitations": [
     "Local certification is not external implementation audit, lifecycle closure, universal producer coverage, regulatory certification or deployment authorization."
-  ]
+  ],
+  "historical_certification": {
+    "status": "SUPERSEDED_BY_CORRECTIVE_01",
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "record": {
+      "schema_version": "1.0.0",
+      "phase": "NXS-P22",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Dirty implementation snapshot over canonical start; exact candidate commit is established after local certification.",
+      "result": "PASS_LOCAL",
+      "stage": "A",
+      "lifecycle": {
+        "phase": "NXS-P22",
+        "status": "BUILDING",
+        "decision": "PENDING",
+        "requirement": "NXS-AUDIT-002",
+        "requirement_status": "IN_PROGRESS",
+        "implementation_commit": null,
+        "closure_commit": null
+      },
+      "full_regression": {
+        "result": "PASS",
+        "command": "make test-all",
+        "passed": 2876,
+        "failed": 0,
+        "skipped": 0,
+        "coverage_percent": 91.3468479307026,
+        "evidence": "tests.json"
+      },
+      "clean_room": {
+        "result": "PASS",
+        "command": "make clean-room",
+        "exit_code": 0,
+        "passed": 2876,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1241.901,
+        "started_at": "2026-09-29T17:12:01.241903-05:00",
+        "coverage_percent": 91.37391722810395,
+        "branch_coverage_percent": 78.27004219409282,
+        "scope": [
+          "Fresh frozen dependencies",
+          "Fresh disposable PostgreSQL/Valkey/NATS",
+          "Least-privilege role bootstrap",
+          "Migrations and schema guard",
+          "All P22 tenant/platform tests within complete suite",
+          "Docker non-root",
+          "amd64/arm64 build",
+          "HTTP live/ready",
+          "Bounded shutdown",
+          "Agent-handoff regression"
+        ],
+        "artifact": {
+          "path": "/tmp/p22-cleanroom-final.log",
+          "sha256": "a5785d56720eb54e788c2380f392dcde5509785496d0d36d31a1cefad66e5874"
+        },
+        "xml": {
+          "path": "/tmp/p22-cleanroom-full.xml",
+          "sha256": "41f0a5b57a2816bb60b41ab73b97061ae53da6f3173419a5f992aa34b5cb1a92"
+        },
+        "coverage_artifact": {
+          "path": "/tmp/p22-cleanroom-coverage.json",
+          "sha256": "24e2e44607b94b52d1385989a570d2ec498c5ca044d91c1a3b7a3bad04073034"
+        }
+      },
+      "local_gates": [
+        {
+          "name": "repository_integrity",
+          "command": "make nxs-validate-repo",
+          "result": "PASS",
+          "artifact": {
+            "path": "/tmp/p22-validate-final.log",
+            "sha256": "59c78d815d87ee643a9cedde1d7110cfb1409354c6fea2c5519c85cedaa0ed49"
+          }
+        },
+        {
+          "name": "execution_preflight",
+          "command": "make nxs-preflight PHASE=NXS-P22",
+          "result": "PASS",
+          "artifact": {
+            "path": "/tmp/p22-preflight-final.log",
+            "sha256": "5ca34dc2c5f6e2c1afa77dfc367b79f3a7e8f7261f76d51b6c133955c87b4d5d"
+          }
+        },
+        {
+          "name": "formatting_lint",
+          "command": "make lint",
+          "result": "PASS",
+          "artifact": {
+            "path": "/tmp/p22-lint-final2.log",
+            "sha256": "9733352c82bc74a113c851e48ea8d6f67ee377acf9a2cc5476d9183e3e835e7b"
+          }
+        },
+        {
+          "name": "typing",
+          "command": "make type",
+          "result": "PASS",
+          "artifact": {
+            "path": "/tmp/p22-type-final2.log",
+            "sha256": "a63af73d0a084072555e5bee8c0d4bf5c693ffefb92dfaf266e796863c95e5fa"
+          }
+        },
+        {
+          "name": "sast_dependency_security",
+          "command": "make security",
+          "result": "PASS",
+          "artifact": {
+            "path": "/tmp/p22-security-final2.log",
+            "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+          }
+        },
+        {
+          "name": "secret_scan_worktree",
+          "command": "gitleaks v8.28.0 dir . --redact --config .gitleaks.toml",
+          "result": "PASS",
+          "findings": 0,
+          "artifact": {
+            "path": "/tmp/p22-gitleaks-final.json",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+          }
+        },
+        {
+          "name": "secret_scan_history",
+          "command": "gitleaks v8.28.0 git --redact --config .gitleaks.toml",
+          "result": "PASS",
+          "findings": 0,
+          "artifact": {
+            "path": "/tmp/p22-gitleaks-history.json",
+            "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+          }
+        },
+        {
+          "name": "migration_roundtrip_schema",
+          "result": "PASS",
+          "evidence": "migration.json"
+        },
+        {
+          "name": "docker_multiarch_containers",
+          "result": "PASS",
+          "evidence": "containers.json"
+        },
+        {
+          "name": "real_postgresql_concurrency",
+          "result": "PASS",
+          "mapped": 20,
+          "executed": 20,
+          "missing": 0,
+          "evidence": "concurrency.json"
+        },
+        {
+          "name": "security_resilience_tenant_isolation",
+          "result": "PASS",
+          "evidence": [
+            "security.json",
+            "resilience.json",
+            "tenant-isolation.json"
+          ]
+        }
+      ],
+      "coverage_threshold": 90,
+      "coverage_threshold_unchanged": true,
+      "new_code_excluded_from_coverage": false,
+      "source_content_unchanged_during_full_and_cleanroom": true,
+      "external_gates": {
+        "AC37": "PENDING_EXACT_HEAD",
+        "AC38": "PENDING_EXACT_HEAD"
+      },
+      "history": "development-history.json",
+      "prohibited_operations_executed": [],
+      "limitations": [
+        "Local certification is not external implementation audit, lifecycle closure, universal producer coverage, regulatory certification or deployment authorization."
+      ]
+    }
+  }
 }

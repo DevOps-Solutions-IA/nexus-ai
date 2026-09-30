@@ -3,11 +3,13 @@
 from typing import Literal
 from uuid import UUID, uuid7
 
+from pydantic import BaseModel
 from sqlalchemy import func, insert, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from nexus_ai.audit.contracts import AuditProvenanceError
 from nexus_ai.audit.platform.contracts import (
+    PRODUCERS,
     PlatformAuditActor,
     PlatformAuditIntent,
     PlatformAuditMetadata,
@@ -18,11 +20,12 @@ from nexus_ai.domain.platform_audit.models import PlatformAuditIntentRecord
 async def emit_platform_audit(
     session: AsyncSession,
     *,
+    producer: str = "sentinel",
     action: str,
     target_type: str,
     target_id: UUID,
     actor: PlatformAuditActor,
-    metadata: PlatformAuditMetadata | None = None,
+    metadata: BaseModel | None = None,
     source_id: UUID | None = None,
     outcome: Literal["SUCCESS", "FAILED", "DENIED", "AMBIGUOUS"] = "SUCCESS",
 ) -> UUID:
@@ -34,9 +37,15 @@ async def emit_platform_audit(
             )
         )
     ).one()
-    if identity != ("nexus_sentinel", "nexus_sentinel", ""):
+    specification = PRODUCERS.get(producer)
+    if specification is None or identity != (
+        specification.source_role,
+        specification.source_role,
+        "",
+    ):
         raise AuditProvenanceError("platform source identity invalid")
     intent = PlatformAuditIntent(
+        producer=producer,
         source_id=source_id or uuid7(),
         action=action,
         target_type=target_type,
