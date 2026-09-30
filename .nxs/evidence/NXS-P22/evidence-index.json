@@ -2,137 +2,180 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
   "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
   "scope": "Stage A dual-scope Audit Platform; no Stage B or universal coverage claim.",
   "records": [
     {
       "path": ".nxs/evidence/NXS-P22/acceptance-map.json",
-      "sha256": "c9aae2b6c4732239a6a9bf4c001c42627e9ac8705a37eb7639c9e28ae6d3d969",
-      "result": "PASS_LOCAL_PENDING_EXACT_HEAD"
+      "sha256": "2a49f79fbd53ed83416733c0ec3750b0766a4d282412da0740b99bedba006280",
+      "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/actors.json",
-      "sha256": "2c6e3b4c1ef44feb2f5542470079df87a15c35d3c5f88414435d172e6cec8fac",
-      "result": "PASS"
+      "sha256": "cad513a72854a6d38c11c32e0fc06bdc831ff6fbbc867f1fda3d05ebec18b543",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/admission-baseline.json",
       "sha256": "e1559608be92da15ea49821ae0ec8bd2d31bcca3b17645733dfc9abae5907d16",
-      "result": "PASS"
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/audit-contract.json",
-      "sha256": "76399b51365734d331ff74377476cdf696fc3b36c3ed800e19350aff5a883342",
-      "result": "PASS"
+      "sha256": "2e7d3583fe5170268c550766c2b948378e3f7387a0cefbdc6df09d6e6ab3b01d",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/concurrency.json",
-      "sha256": "90727ffd0b6fa101605f20208769fb29e15ff5c66a8385d9fb601da33c998849",
-      "result": "PASS_LOCAL"
+      "sha256": "f96911f4494ed212d303d520cd52396d368b2c958f0cac55da830e5d23d823ac",
+      "result": "PASS_LOCAL",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/container-findings-review.json",
-      "sha256": "e175b1ea9335124b69551b28079a140e8aa7d422c04c62afb6f71023eafe417e",
-      "result": "REVIEW"
+      "sha256": "fe64b53b9231449be41b8b70cd45121ce311ad0f987cce466316d85fc07c5661",
+      "result": "REVIEW",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/containers.json",
-      "sha256": "428a01a676dcc95eb47d8f9ffc121c12a1e8bfdadf51bb7a8ffbbf316c0a3430",
-      "result": "PASS_LOCAL"
+      "sha256": "6cab309043eb860223959cecc61c398fd2c3ec566a8827fd541e7db349bb9ec9",
+      "result": "PASS_LOCAL",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/corrective-01.json",
-      "sha256": "42e5b49aa9b9d9ed076446f64cd8cbedab0ac811924d942f72467fc329234cc9",
-      "result": "PASS_LOCAL_PENDING_EXACT_HEAD"
+      "sha256": "bb359955aec6c3422b7e7709b7efc49ba2a029cef5fba8d85614f3898f0a8c08",
+      "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/corrective-01a.json",
       "sha256": "0d49442e722dff44a3c15f70a9c66bd39cb925afc2d2c7aa2397b62c31d1d33c",
-      "result": "PASS_LOCAL_PENDING_EXACT_HEAD"
+      "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+      "historical_only": false
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/corrective-01b.json",
+      "sha256": "711e6c6b91e41bebcb9d0bbf2089fa046c2a37e628d879f0c753d234947a3a57",
+      "result": "BLOCKED_NEW_DEPENDENCY_FINDING",
+      "historical_only": true
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/corrective-01c.json",
+      "sha256": "ac9cd82ac22946c51e492ff673e54fe58f47e481818e96cebdfc0bd1340cf615",
+      "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/database.json",
-      "sha256": "9339d8ed4936e9ca4b12c1128745145b307cafa7918af2c1874b8e371dabce94",
-      "result": "PASS"
+      "sha256": "df9e3ef39649be710d15e905e960f032cd13d4f9a54babb628397004923478e3",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/development-history.json",
       "sha256": "368219be2be7688c4da19a7833527eaceb75dcf1f5d91d757385ee858409768c",
-      "result": "HISTORY_PRESERVED"
+      "result": "HISTORY_PRESERVED",
+      "historical_only": false
+    },
+    {
+      "path": ".nxs/evidence/NXS-P22/github-corrective-01a-failure.json",
+      "sha256": "ad942cddfc62fa11cdee7b36f0d3ad92db76e92ef291f9e79af187b11a27c9ad",
+      "result": "FAIL_SECURITY",
+      "historical_only": true
     },
     {
       "path": ".nxs/evidence/NXS-P22/ingestion.json",
-      "sha256": "7d9187bc790d113f7b6b5e90765ecefac6f885dab2d5738173f1762ebf88976b",
-      "result": "PASS"
+      "sha256": "b379cde38a886a7c6a46d68ae7a449ccdf45c9a695ce3ee0d0faeb2088c06c9f",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/integrity.json",
-      "sha256": "9b94c3ac8dbc96f2182b16ae64466bfd1fd79c34f543f41ff61c7fe2e446d631",
-      "result": "PASS"
+      "sha256": "8da61341143c85acc0eff678079aa7865baac85e2870f4b92753f7211e782328",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/local-certification.json",
-      "sha256": "8ee214fede9b992d1acece989146ba637792338e9a4cacf7fd81b750ba0dac00",
-      "result": "PASS_LOCAL"
+      "sha256": "dffd5bba3e088aebd397ea66d8bc203f0312a7c4bb5cce0548c2963526988033",
+      "result": "PASS_LOCAL",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/metadata-security.json",
-      "sha256": "8058fd4ef5e7c62ac54b389c35c3274e536e439f0896ba5976dfb292d8fd7f01",
-      "result": "PASS"
+      "sha256": "b70c233f8856483dfe80d989f245ef80b6fab13302099b298eb89296fb60f34d",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/migration.json",
-      "sha256": "bfe7101c56f6028935a87c605697bc2b14e265b827d571799ddd9847b83eaf33",
-      "result": "PASS"
+      "sha256": "0ef0f5a053d4b0e910c6c3d175f69a741c664e595039cff741265bb092ed0eeb",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/producer-inventory.json",
-      "sha256": "ef13a06aa0912f0ded03b9591d843c12bb0ac9afdb0257ec2f205ee10c2f3efb",
-      "result": "PASS"
+      "sha256": "0a4920df481ce581f2c75648c0d99b95c29fe0410a4769f2d8f9f7d5110663ec",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/query.json",
-      "sha256": "eb436a00e1a71fdd44d430e2aaf023d269385c224bd7f773b5baa5c8efb61435",
-      "result": "PASS"
+      "sha256": "a2fd0fd2e227b13afa1363ebfd4f1aef4cb0226d044493586d2b8506801a3427",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/resilience.json",
-      "sha256": "1507fd7549d293268033477f2693436e1d25b4a09b2d4452be5ec9169fa975f9",
-      "result": "PASS"
+      "sha256": "6727c8fe81624c378198a0857f68be70e497c0fa1bdca21c9eaa2a5f8db629eb",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/scope-decision-dual-authority.json",
       "sha256": "ac67668feeeec587967eb2a07fa5340988dee511c1107a7cbb6e4ac6b0514ed5",
-      "result": null
+      "result": null,
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/scope-decision-p22-sd01.json",
       "sha256": "48ccfcab5e6ff676ae51bfb6398877fc09c9d8e3678037ee7ad0ec7ae3adb7ef",
-      "result": null
+      "result": null,
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/security.json",
-      "sha256": "4cd4d59898707391813a3c4dd22a31a32c2959d0148f618bf9a22bdfb9df5a62",
-      "result": "PASS"
+      "sha256": "d0a57a749f3c67a44813ab20cbea81161d84407b93e8788dd7f061c497d1482c",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/source-integrity.json",
-      "sha256": "3e81ecc0a5b91a15a11ab1d8bc9b8b7b5295b58ddaaa48716b0deeccad60a713",
-      "result": "PASS"
+      "sha256": "0f0e2158f7fbdfab71a115ba633d1ff1a7ac650f9ab6353c224a6a5ce0018220",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/tenant-isolation.json",
-      "sha256": "bd67de5cf8cab4704462a44b3fcdf025492bd202724da115f8da8621fba3b0d3",
-      "result": "PASS"
+      "sha256": "313ea11de384c6d3022f4a1cae8503f9ea8ef05c1928d670f8f649420ae9f199",
+      "result": "PASS",
+      "historical_only": false
     },
     {
       "path": ".nxs/evidence/NXS-P22/tests.json",
-      "sha256": "d4a4a8733d4ebc312425da0d1eb198db4a302507aa795461f5af6ca9cbcdf7cb",
-      "result": "PASS"
+      "sha256": "97d817a5ff761cb88486c7f8d7045aa93132dd1323b488a9c1a673739de39e98",
+      "result": "PASS",
+      "historical_only": false
     }
   ],
-  "records_count": 25,
+  "records_count": 28,
   "required_acceptance": 56,
   "local_acceptance_pass": 54,
   "external_pending": [
@@ -159,5 +202,10 @@
   "implementation_candidate": null,
   "clean_room_pending": [],
   "historical_exact_head_receipt": "history-b201759/github-exact-head.json",
-  "failed_acceptance": []
+  "failed_acceptance": [],
+  "current_security_evidence": "corrective-01c.json",
+  "historical_security_blockers": [
+    "corrective-01b.json",
+    "github-corrective-01a-failure.json"
+  ]
 }

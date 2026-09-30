@@ -1,38 +1,38 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "result": "PASS",
-  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-01a-full.xml' make test-all",
+  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-01c-full.xml' make test-all",
   "exit_code": 0,
   "passed": 2901,
   "failed": 0,
   "errors": 0,
   "skipped": 0,
-  "runtime_seconds": 1241.457,
-  "started_at": "2026-09-30T09:30:17.126355-05:00",
-  "coverage_percent": 91.37652064481333,
-  "statement_coverage_percent": 93.81622928667947,
-  "branch_coverage_percent": 78.3130236100533,
+  "runtime_seconds": 1289.311,
+  "started_at": "2026-09-30T13:07:45.718923-05:00",
+  "coverage_percent": 91.32558278899742,
+  "statement_coverage_percent": 93.77711400327146,
+  "branch_coverage_percent": 78.1987814166032,
   "canonical_threshold": 90,
   "canonical_measure": "pytest-cov combined statement and branch opportunities; separate branch-only percentage is not the canonical threshold metric.",
   "audit_module_coverage": {
-    "covered_lines": 809,
+    "covered_lines": 810,
     "num_statements": 885,
-    "covered_branches": 165,
+    "covered_branches": 166,
     "num_branches": 228,
-    "percent_covered": 87.51123090745732
+    "percent_covered": 87.69092542677448
   },
   "audit_coverage_scope": "src/nexus_ai/audit/**, domain/audit/**, domain/platform_audit/**, api/audit.py measured within the same full-suite execution; not a separate focused run.",
   "xml": {
-    "path": "/tmp/p22-01a-full.xml",
-    "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+    "path": "/tmp/p22-01c-full.xml",
+    "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
   },
   "coverage": {
-    "path": "/tmp/p22-01a-coverage.json",
-    "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd"
+    "path": "/tmp/p22-01c-coverage.json",
+    "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70"
   },
   "history": "development-history.json",
   "lifecycle_certification": false,
@@ -87,8 +87,8 @@
   },
   "exit_code_note": "Actual completed command exit status 0 captured.",
   "log": {
-    "path": "/tmp/p22-01a-full.log",
-    "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+    "path": "/tmp/p22-01c-full.log",
+    "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
   },
   "corrective01a_previous_binding": {
     "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
@@ -101,7 +101,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

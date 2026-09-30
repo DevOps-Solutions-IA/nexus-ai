@@ -1,0 +1,464 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+  "authorization": "Master Orchestrator Corrective01C and retained Corrective01B",
+  "base_candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "dependency_changes": [
+    {
+      "name": "pyjwt",
+      "classification": "DIRECT_RUNTIME",
+      "before": "2.14.0",
+      "after": "2.15.0",
+      "advisories": [
+        "GHSA-42vr-xj54-vc7v",
+        "CVE-2026-101918"
+      ],
+      "resolver": "uv lock after authorized exact pyproject pin update"
+    },
+    {
+      "name": "urllib3",
+      "classification": "TRANSITIVE_RUNTIME_AND_TOOLING",
+      "before": "2.7.0",
+      "after": "2.8.0",
+      "advisories": [
+        "GHSA-8988-9cw3-xx77",
+        "GHSA-gh4c-6fx4-qh6g",
+        "GHSA-vxq7-64xx-v4gw"
+      ],
+      "resolver": "uv lock --upgrade-package urllib3",
+      "graph_evidence": "corrective-01b.json"
+    }
+  ],
+  "unrelated_dependency_drift": false,
+  "lock_metadata": "Editable nexus-ai package requirement specifier changes only from pyjwt==2.14.0 to ==2.15.0; no version change to application, pip-audit or other dependencies.",
+  "lock_diff": {
+    "path": "/tmp/p22-01c-lock.diff",
+    "sha256": "c559001f986847c794ec00c95297eb31d019d5f3f5462c8e12ab051de70ff846"
+  },
+  "uv_lock_check": "PASS",
+  "uv_sync_frozen_all_groups": "PASS",
+  "production_auth_delta": "NONE",
+  "production_sip_delta": "NONE",
+  "auth_review": {
+    "files": [
+      "src/nexus_ai/domain/auth/tokens.py",
+      "src/nexus_ai/domain/auth/keys.py"
+    ],
+    "invariants_preserved": [
+      "EdDSA signing and algorithms=['EdDSA'] verification",
+      "Required kid and explicit typ=access",
+      "Issuer/audience validation",
+      "Mandatory exp/iat/nbf with explicit injected-clock bounded-skew checks",
+      "Unknown kid/wrong key/alg=none/algorithm confusion fail closed",
+      "Redacted TokenValidationError mapping",
+      "Key rotation maintains explicit verification map"
+    ],
+    "targeted": {
+      "passed": 157,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 25.708,
+      "started_at": "2026-09-30T13:04:20.341851-05:00",
+      "result": "PASS",
+      "xml": {
+        "path": "/tmp/p22-01c-auth.xml",
+        "sha256": "00adb2e9694be979476b45208a9ba5c8524c2cb88d6bb919c9eb94eab3eda53f"
+      }
+    },
+    "malformed_jwk_regression": "Existing test preserved and explicitly executed under 2.15.0",
+    "nested_payload_probe": {
+      "path": "/tmp/p22-01c-jwt-payload-probe.log",
+      "sha256": "94f408e0faabf2c982bd2f204ec4a81bcd0e0f7d3a840cd068d256c095062f1b"
+    }
+  },
+  "security": {
+    "pip_audit": "PASS",
+    "exit_code": 0,
+    "whole_graph_findings": 0,
+    "fresh_cache": true,
+    "artifact": {
+      "path": "/tmp/p22-01c-audit.json",
+      "sha256": "dc8643c8798a4cfc8ad6e8879c3c799c8453989f5d71cf396ba6e0da12c93380"
+    },
+    "bandit": "PASS",
+    "gitleaks": "PASS",
+    "suppressed_advisories": []
+  },
+  "p13_final_environment": {
+    "stress_required": 20,
+    "stress_passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "iterations": [
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.67,
+        "started_at": "2026-09-30T13:04:49.507123-05:00",
+        "iteration": 1,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-1.xml",
+          "sha256": "874ece345ba2106da0c3c97cb0f4ec579483e548fbb8db7c1a52e2991ca0a1eb"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.638,
+        "started_at": "2026-09-30T13:04:53.510393-05:00",
+        "iteration": 2,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-2.xml",
+          "sha256": "c378e4f3e6c1c24694b674bcccdb46f7fbe6a4917c9f988482e6c0ee65a71f3d"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.618,
+        "started_at": "2026-09-30T13:04:57.527056-05:00",
+        "iteration": 3,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-3.xml",
+          "sha256": "b9718f12bda5cf84f679a4ed1ad34b3da80888a8900b6a226d59b876cf14ccec"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.637,
+        "started_at": "2026-09-30T13:05:01.545549-05:00",
+        "iteration": 4,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-4.xml",
+          "sha256": "aa36f86408862ce3f1c3607f736609cc3a4d3f4b4381305c8ca5c0d01f07e788"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.627,
+        "started_at": "2026-09-30T13:05:05.508642-05:00",
+        "iteration": 5,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-5.xml",
+          "sha256": "51fa4d0065a88d4cf05981a2bc642421ed8fc2f36899a22ecd91d79241e96ca6"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.828,
+        "started_at": "2026-09-30T13:05:09.427505-05:00",
+        "iteration": 6,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-6.xml",
+          "sha256": "18dd3af71df7952aedbead1a5c7544376ba340780122994c0e8edbe70b8187a6"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.66,
+        "started_at": "2026-09-30T13:05:13.624310-05:00",
+        "iteration": 7,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-7.xml",
+          "sha256": "8a774160decbcce73589336172f6074dfac849161033048b8e5ec6e387caea9c"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.613,
+        "started_at": "2026-09-30T13:05:17.618716-05:00",
+        "iteration": 8,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-8.xml",
+          "sha256": "1bcee5c6a68ceb12ce84b9558a29c2d1aeb9fc2cdec71cc0bafea71ac0f1cef5"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.617,
+        "started_at": "2026-09-30T13:05:21.703290-05:00",
+        "iteration": 9,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-9.xml",
+          "sha256": "f1b0df2aeb745323e2d4261dde8d5a4062347edcb4ebfa2683c83620702c4bc1"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.675,
+        "started_at": "2026-09-30T13:05:25.747683-05:00",
+        "iteration": 10,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-10.xml",
+          "sha256": "eacf2ee4877a8d430c571d93599dea08d78061c2dfc837745d43592d2811e6f3"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.68,
+        "started_at": "2026-09-30T13:05:29.729071-05:00",
+        "iteration": 11,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-11.xml",
+          "sha256": "4d136539441b4f473de530b5accad82d0732edf4fe7740217c0f853459e12f6f"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.683,
+        "started_at": "2026-09-30T13:05:33.727540-05:00",
+        "iteration": 12,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-12.xml",
+          "sha256": "b8061f47ded5e2e2d690d92260cbfc613a7ca01a1cacff1368c563766e788a09"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.672,
+        "started_at": "2026-09-30T13:05:37.768360-05:00",
+        "iteration": 13,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-13.xml",
+          "sha256": "7a06f1f961581cc3dcc193d385820e4be523043b57b2f857b281f9ec3c836c77"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.63,
+        "started_at": "2026-09-30T13:05:41.813398-05:00",
+        "iteration": 14,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-14.xml",
+          "sha256": "4b3fac01107a94c01679d7e6d39c2caf433eb97e466108dc7d6e872cdc12d445"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.681,
+        "started_at": "2026-09-30T13:05:45.833798-05:00",
+        "iteration": 15,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-15.xml",
+          "sha256": "72865c0811e5fbe1c7d0e550ceca5ba48325389bf1038eada7700929eb3f947c"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.703,
+        "started_at": "2026-09-30T13:05:49.834714-05:00",
+        "iteration": 16,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-16.xml",
+          "sha256": "5177bf489c5b64c6c5938aa54e947fc3235a7c238e54a042ffd4a02979ccedd4"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.672,
+        "started_at": "2026-09-30T13:05:53.922444-05:00",
+        "iteration": 17,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-17.xml",
+          "sha256": "2dc2bb0a44f5ddcc0b3dade7ab193a954f2d647697a16122d5e720ebb876a84d"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.634,
+        "started_at": "2026-09-30T13:05:57.947818-05:00",
+        "iteration": 18,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-18.xml",
+          "sha256": "ccf49e22445c57683f9e5414919c5d5bbc53a40aea9f39eebec172c423797d30"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.617,
+        "started_at": "2026-09-30T13:06:02.008666-05:00",
+        "iteration": 19,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-19.xml",
+          "sha256": "e066482614804f5ffd51375b628bee6ee3459450469a7948e622c8bb0a816077"
+        }
+      },
+      {
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "runtime_seconds": 1.972,
+        "started_at": "2026-09-30T13:06:06.086713-05:00",
+        "iteration": 20,
+        "artifact": {
+          "path": "/tmp/p22-01c-stress-20.xml",
+          "sha256": "d7fd6981211b7b461a4d5f199eb4b4e1a6625ac83d009a6c1ae52f9f9771be26"
+        }
+      }
+    ],
+    "related_surface": {
+      "passed": 22,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 31.858,
+      "started_at": "2026-09-30T13:06:10.446314-05:00",
+      "result": "PASS",
+      "xml": {
+        "path": "/tmp/p22-01c-surface.xml",
+        "sha256": "a96c2b8d37ad588aaf695c58d47fce25e61febd6e7c6b3799de644b9ddee2711"
+      }
+    }
+  },
+  "architecture_regression": {
+    "concurrency": "C01-C20 and P01-P10 reexecuted in complete suite",
+    "acceptance": "AC01-AC56 mapped; AC37/38 remain pending exact head",
+    "evidence": [
+      "concurrency.json",
+      "acceptance-map.json"
+    ]
+  },
+  "full_suite": {
+    "result": "PASS",
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1289.311,
+    "started_at": "2026-09-30T13:07:45.718923-05:00",
+    "tests": 2901,
+    "coverage_percent": 91.32558278899742,
+    "xml": "/tmp/p22-01c-full.xml",
+    "log": "/tmp/p22-01c-full.log",
+    "coverage_artifact": "/tmp/p22-01c-coverage.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
+  },
+  "clean_room": {
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1240.802,
+    "started_at": "2026-09-30T13:31:16.302847-05:00",
+    "result": "PASS",
+    "exit_code": 0,
+    "coverage_percent": 91.3495535446755,
+    "versions": {
+      "pyjwt": "2.15.0",
+      "urllib3": "2.8.0"
+    },
+    "log": {
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
+    },
+    "xml": {
+      "path": "/tmp/p22-01c-cleanroom-full.xml",
+      "sha256": "246b6992b6ff1cbf9085e820aa32fd3e7ff762058117ff217d055a026902ca98"
+    },
+    "versions_artifact": {
+      "path": "/tmp/p22-01c-cleanroom-versions.txt",
+      "sha256": "47aac7ad3d0368e9fa7828adb342c7075cd3c144119b159acdad131a96001fa9"
+    }
+  },
+  "containers": {
+    "evidence": "containers.json",
+    "rebuilt_both_architectures": true,
+    "HIGH": 0,
+    "CRITICAL": 0,
+    "medium_per_arch": 6,
+    "low_per_arch": 2,
+    "review": "container-findings-review.json"
+  },
+  "history": {
+    "before_audit": "corrective-01b.json",
+    "blocked_exact_head": "github-corrective-01a-failure.json",
+    "candidates": [
+      "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "bf34ec77d987ddef79781706ba786226a73510d4",
+      "d261a08559404ca29bcfcc06591bc1b212f16eab"
+    ],
+    "d261_status": [
+      "FUNCTIONAL PASS",
+      "SECURITY FAIL",
+      "SUPERSEDED AFTER DEPENDENCY CORRECTIVE"
+    ],
+    "runs": [
+      36735995908,
+      36736002517,
+      36735996001,
+      36736002403
+    ]
+  },
+  "hardening_obligation": {
+    "id": "NXS-HARDEN-SUPPLY-001",
+    "classification": "USER_DECISION",
+    "status": "RECORDED",
+    "rule": "Newly disclosed direct OR transitive runtime/tooling vulnerabilities invalidate prior current-candidate clearance until the resolved environment is recertified. Historical PASS is historical only. Exact-head security is time-sensitive.",
+    "global_program_implemented": false,
+    "concurrency_obligation": "NXS-HARDEN-CONCURRENCY-001 remains in corrective-01a.json"
+  },
+  "sip_timeout_reproduced": false,
+  "external_gates": {
+    "AC37": "PENDING_EXACT_HEAD",
+    "AC38": "PENDING_EXACT_HEAD"
+  },
+  "prohibited_operations_executed": []
+}

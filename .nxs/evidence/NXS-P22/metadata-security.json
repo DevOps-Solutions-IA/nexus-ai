@@ -240,13 +240,13 @@
     "head": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
     "branch": "feat/nxs-p22-audit",
     "working_tree": "DIRTY_CORRECTIVE_IMPLEMENTATION",
-    "frozen_source_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-    "digest_reference": "/tmp/p22-01a-source-before.json",
+    "frozen_source_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "digest_reference": "/tmp/p22-01c-source-before.json",
     "qualification": "Verified dirty Corrective01 source snapshot over parent HEAD b201759; HEAD is not a new corrective implementation commit. No exact-candidate CI, clean-room or lifecycle certification is inferred."
   },
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "corrective01_architecture": {
     "status": "VERIFIED",
     "domains": "16 fixed v2 domains platform:v2:00..0f plus preserved v1 legacy domain; independent head locks and domain-bound facts/digests; finite domain/fact CHECK prevents unenumerated rows.",
@@ -287,39 +287,39 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "elapsed_seconds_log": 1241.47,
-    "elapsed_seconds_xml": 1241.457,
+    "elapsed_seconds_log": 1289.32,
+    "elapsed_seconds_xml": 1289.311,
     "xml": {
-      "path": "/tmp/p22-01a-full.xml",
-      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+      "path": "/tmp/p22-01c-full.xml",
+      "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
     },
     "log": {
-      "path": "/tmp/p22-01a-full.log",
-      "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+      "path": "/tmp/p22-01c-full.log",
+      "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
     },
     "coverage": {
-      "path": "/tmp/p22-01a-coverage.json",
-      "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd",
+      "path": "/tmp/p22-01c-coverage.json",
+      "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70",
       "canonical_threshold_percent": 90,
-      "covered_lines": 26383,
+      "covered_lines": 26372,
       "num_statements": 28122,
-      "percent_covered": 91.37652064481333,
+      "percent_covered": 91.32558278899742,
       "percent_covered_display": "91",
-      "missing_lines": 1739,
+      "missing_lines": 1750,
       "excluded_lines": 413,
-      "percent_statements_covered": 93.81622928667947,
+      "percent_statements_covered": 93.77711400327146,
       "percent_statements_covered_display": "94",
       "num_branches": 5252,
-      "num_partial_branches": 995,
-      "covered_branches": 4113,
-      "missing_branches": 1139,
-      "percent_branches_covered": 78.3130236100533,
+      "num_partial_branches": 997,
+      "covered_branches": 4107,
+      "missing_branches": 1145,
+      "percent_branches_covered": 78.1987814166032,
       "percent_branches_covered_display": "78",
       "scope": "Combined canonical statement/branch coverage; no focused-package substitution."
     },
     "source_manifest": {
-      "path": "/tmp/p22-01a-source-before.json",
-      "sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+      "path": "/tmp/p22-01c-source-before.json",
+      "sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
       "independently_verified_source_files": 921
     },
     "source_unchanged_during_run": "Verified by root: source manifests before full suite, after full suite and after clean-room are byte-identical.",
@@ -328,32 +328,32 @@
       {
         "node_id": "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
         "result": "PASS",
-        "duration_seconds": 0.195
+        "duration_seconds": 0.199
       },
       {
         "node_id": "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation",
         "result": "PASS",
-        "duration_seconds": 0.189
+        "duration_seconds": 0.173
       },
       {
         "node_id": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]",
         "result": "PASS",
-        "duration_seconds": 0.035
+        "duration_seconds": 0.05
       },
       {
         "node_id": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
         "result": "PASS",
-        "duration_seconds": 0.036
+        "duration_seconds": 0.04
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
         "result": "PASS",
-        "duration_seconds": 0.413
+        "duration_seconds": 0.428
       },
       {
         "node_id": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
         "result": "PASS",
-        "duration_seconds": 0.471
+        "duration_seconds": 0.487
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
@@ -363,67 +363,67 @@
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
         "result": "PASS",
-        "duration_seconds": 0.098
+        "duration_seconds": 0.102
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
         "result": "PASS",
-        "duration_seconds": 0.118
+        "duration_seconds": 0.117
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_update_privilege_cannot_mutate_source",
         "result": "PASS",
-        "duration_seconds": 0.079
+        "duration_seconds": 0.078
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
         "result": "PASS",
-        "duration_seconds": 0.211
+        "duration_seconds": 0.219
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[forged]",
         "result": "PASS",
-        "duration_seconds": 0.109
+        "duration_seconds": 0.106
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v1:legacy]",
         "result": "PASS",
-        "duration_seconds": 0.106
+        "duration_seconds": 0.112
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v2:10]",
         "result": "PASS",
-        "duration_seconds": 0.106
+        "duration_seconds": 0.111
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
         "result": "PASS",
-        "duration_seconds": 0.112
+        "duration_seconds": 0.113
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
         "result": "PASS",
-        "duration_seconds": 0.15
+        "duration_seconds": 0.138
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
         "result": "PASS",
-        "duration_seconds": 0.17
+        "duration_seconds": 0.172
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
         "result": "PASS",
-        "duration_seconds": 0.096
+        "duration_seconds": 0.092
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata",
         "result": "PASS",
-        "duration_seconds": 0.143
+        "duration_seconds": 0.127
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
         "result": "PASS",
-        "duration_seconds": 0.267
+        "duration_seconds": 0.273
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
@@ -433,7 +433,7 @@
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
         "result": "PASS",
-        "duration_seconds": 0.038
+        "duration_seconds": 0.04
       },
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
@@ -448,7 +448,7 @@
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
         "result": "PASS",
-        "duration_seconds": 0.04
+        "duration_seconds": 0.037
       },
       {
         "node_id": "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
@@ -548,39 +548,39 @@
     "failures": 0,
     "errors": 0,
     "skipped": 0,
-    "elapsed_seconds_log": 1241.47,
-    "elapsed_seconds_xml": 1241.457,
+    "elapsed_seconds_log": 1289.32,
+    "elapsed_seconds_xml": 1289.311,
     "xml": {
-      "path": "/tmp/p22-01a-full.xml",
-      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+      "path": "/tmp/p22-01c-full.xml",
+      "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
     },
     "log": {
-      "path": "/tmp/p22-01a-full.log",
-      "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+      "path": "/tmp/p22-01c-full.log",
+      "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
     },
     "coverage": {
-      "path": "/tmp/p22-01a-coverage.json",
-      "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd",
+      "path": "/tmp/p22-01c-coverage.json",
+      "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70",
       "canonical_threshold_percent": 90,
-      "covered_lines": 26383,
+      "covered_lines": 26372,
       "num_statements": 28122,
-      "percent_covered": 91.37652064481333,
+      "percent_covered": 91.32558278899742,
       "percent_covered_display": "91",
-      "missing_lines": 1739,
+      "missing_lines": 1750,
       "excluded_lines": 413,
-      "percent_statements_covered": 93.81622928667947,
+      "percent_statements_covered": 93.77711400327146,
       "percent_statements_covered_display": "94",
       "num_branches": 5252,
-      "num_partial_branches": 995,
-      "covered_branches": 4113,
-      "missing_branches": 1139,
-      "percent_branches_covered": 78.3130236100533,
+      "num_partial_branches": 997,
+      "covered_branches": 4107,
+      "missing_branches": 1145,
+      "percent_branches_covered": 78.1987814166032,
       "percent_branches_covered_display": "78",
       "scope": "Combined canonical statement/branch coverage; no focused-package substitution."
     },
     "source_manifest": {
-      "path": "/tmp/p22-01a-source-before.json",
-      "sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+      "path": "/tmp/p22-01c-source-before.json",
+      "sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
       "independently_verified_source_files": 921
     },
     "source_unchanged_during_run": "Verified by root: source manifests before full suite, after full suite and after clean-room are byte-identical.",
@@ -589,32 +589,32 @@
       {
         "node_id": "tests/integration/test_agent_service.py::test_credential_rotation_rolls_back_when_audit_fails",
         "result": "PASS",
-        "duration_seconds": 0.195
+        "duration_seconds": 0.199
       },
       {
         "node_id": "tests/integration/test_agent_service.py::test_nontransactional_credential_vault_fails_before_mutation",
         "result": "PASS",
-        "duration_seconds": 0.189
+        "duration_seconds": 0.173
       },
       {
         "node_id": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]",
         "result": "PASS",
-        "duration_seconds": 0.035
+        "duration_seconds": 0.05
       },
       {
         "node_id": "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
         "result": "PASS",
-        "duration_seconds": 0.036
+        "duration_seconds": 0.04
       },
       {
         "node_id": "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
         "result": "PASS",
-        "duration_seconds": 0.413
+        "duration_seconds": 0.428
       },
       {
         "node_id": "tests/integration/test_messaging_api.py::test_inbound_webhook_route_verifies_signature",
         "result": "PASS",
-        "duration_seconds": 0.471
+        "duration_seconds": 0.487
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
@@ -624,67 +624,67 @@
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
         "result": "PASS",
-        "duration_seconds": 0.098
+        "duration_seconds": 0.102
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
         "result": "PASS",
-        "duration_seconds": 0.118
+        "duration_seconds": 0.117
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_claim_update_privilege_cannot_mutate_source",
         "result": "PASS",
-        "duration_seconds": 0.079
+        "duration_seconds": 0.078
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
         "result": "PASS",
-        "duration_seconds": 0.211
+        "duration_seconds": 0.219
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[forged]",
         "result": "PASS",
-        "duration_seconds": 0.109
+        "duration_seconds": 0.106
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v1:legacy]",
         "result": "PASS",
-        "duration_seconds": 0.106
+        "duration_seconds": 0.112
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_database_rejects_unknown_or_misbound_domain[platform:v2:10]",
         "result": "PASS",
-        "duration_seconds": 0.106
+        "duration_seconds": 0.111
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
         "result": "PASS",
-        "duration_seconds": 0.112
+        "duration_seconds": 0.113
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
         "result": "PASS",
-        "duration_seconds": 0.15
+        "duration_seconds": 0.138
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
         "result": "PASS",
-        "duration_seconds": 0.17
+        "duration_seconds": 0.172
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
         "result": "PASS",
-        "duration_seconds": 0.096
+        "duration_seconds": 0.092
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata",
         "result": "PASS",
-        "duration_seconds": 0.143
+        "duration_seconds": 0.127
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
         "result": "PASS",
-        "duration_seconds": 0.267
+        "duration_seconds": 0.273
       },
       {
         "node_id": "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
@@ -694,7 +694,7 @@
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_database_outage_never_acks_or_logs_untrusted_fields",
         "result": "PASS",
-        "duration_seconds": 0.038
+        "duration_seconds": 0.04
       },
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_malformed_subject_and_payload_never_logged",
@@ -709,7 +709,7 @@
       {
         "node_id": "tests/resilience/test_audit_delivery.py::test_terminal_storage_outage_delays_without_ack_or_term",
         "result": "PASS",
-        "duration_seconds": 0.04
+        "duration_seconds": 0.037
       },
       {
         "node_id": "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
@@ -816,7 +816,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

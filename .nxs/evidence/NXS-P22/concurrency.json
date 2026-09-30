@@ -2,9 +2,9 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
   "result": "PASS_LOCAL",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "dependencies": [
     "NXS-P04",
     "NXS-P20",
@@ -40,7 +40,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C02",
@@ -55,7 +55,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C03",
@@ -70,7 +70,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C04",
@@ -85,7 +85,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C05",
@@ -100,7 +100,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C06",
@@ -115,7 +115,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C07",
@@ -130,7 +130,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C08",
@@ -145,7 +145,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C09",
@@ -160,7 +160,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C10",
@@ -175,7 +175,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C11",
@@ -200,9 +200,9 @@
         "focused_security_passed": 29,
         "invariant": "audit_heads.id = organization_id",
         "history": "Failed reproduction and repair retained in development-history H14; no unresolved collision claim.",
-        "validation_source": "/tmp/p22-01a-full.xml"
+        "validation_source": "/tmp/p22-01c-full.xml"
       },
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C12",
@@ -217,7 +217,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C13",
@@ -232,7 +232,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C14",
@@ -247,7 +247,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C15",
@@ -263,7 +263,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C16",
@@ -279,7 +279,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C17",
@@ -295,7 +295,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C18",
@@ -310,7 +310,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C19",
@@ -325,7 +325,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "C20",
@@ -340,7 +340,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "case": "P01",
@@ -362,7 +362,7 @@
         "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked"
       ],
       "linearization_point": "Only derived-domain head locked. Commit publishes ledger row, domain head and receipt atomically; holding one head does not stop another domain.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -383,7 +383,7 @@
         "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous"
       ],
       "linearization_point": "32 sources across eight barrier-synchronized appenders serialize on one domain head row; verification proves contiguous sequence1..32.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -410,7 +410,7 @@
         "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain"
       ],
       "linearization_point": "Source SELECT FOR UPDATE SKIP LOCKED establishes exclusive in-transaction ownership; fresh receipt read closes READ COMMITTED selection race. Two workers rendezvous after actual append before either commits, holding disjoint source/head locks. NOWAIT busy-head rollback allows bounded other-source attempts.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": [
         "At most batch_size attempts per invocation. Hot shards serialize; NOWAIT busy-head rollback permits other source attempts, retrying busy sources in future invocations."
       ]
@@ -439,7 +439,7 @@
         "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt"
       ],
       "linearization_point": "Source row lock serializes same-source requests; committed unique source record plus receipt returns same record_id; recomputed semantic digest rejects changed committed source.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -462,7 +462,7 @@
         "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response"
       ],
       "linearization_point": "Exception after flush but before transaction commit rolls back all writes and releases row locks; subsequent worker recovers.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -485,7 +485,7 @@
         "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together"
       ],
       "linearization_point": "PostgreSQL transaction end or connection loss releases claim row lock. Another worker cannot acquire the held source, then can process after rollback.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": [
         "NOT_APPLICABLE: no persisted leases, lease deadline, expiry timer, lease epoch or stale-lease reclamation. Tests demonstrate transaction ownership/release, not simulated expiry."
       ]
@@ -510,7 +510,7 @@
         "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact"
       ],
       "linearization_point": "Rejected source receives terminal INVALID_INTENT receipt under its source lock without ledger/head write. Healthy other-domain source commits separately.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -535,7 +535,7 @@
         "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
       ],
       "linearization_point": "One REPEATABLE READ READ ONLY transaction establishes all requested domain high-water marks; concurrent append excluded, corruption in one requested domain rejects whole operation while unaffected domain verifies independently.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": [
         "At most17 requested domains and200 records per domain per call; complete requires each requested domain fully scanned; all_domains requires all17."
       ]
@@ -558,7 +558,7 @@
         "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked"
       ],
       "linearization_point": "Open tenant append transaction holds tenant head; platform append commits before tenant transaction releases lock.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     },
     {
@@ -579,7 +579,7 @@
         "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent"
       ],
       "linearization_point": "Open platform transaction locks one domain head; tenant append and distinct platform-domain append finish before that lock releases.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "limitations": []
     }
   ],
@@ -670,31 +670,31 @@
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "runtime_seconds": 1241.457,
-    "started_at": "2026-09-30T09:30:17.126355-05:00",
+    "runtime_seconds": 1289.311,
+    "started_at": "2026-09-30T13:07:45.718923-05:00",
     "tests": 2901,
-    "coverage_percent": 91.37652064481333,
-    "xml": "/tmp/p22-01a-full.xml",
-    "log": "/tmp/p22-01a-full.log",
-    "coverage_artifact": "/tmp/p22-01a-coverage.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811"
+    "coverage_percent": 91.32558278899742,
+    "xml": "/tmp/p22-01c-full.xml",
+    "log": "/tmp/p22-01c-full.log",
+    "coverage_artifact": "/tmp/p22-01c-coverage.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
   },
   "final_artifact_bindings": [
     {
-      "path": "/tmp/p22-01a-full.xml",
-      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+      "path": "/tmp/p22-01c-full.xml",
+      "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
     },
     {
-      "path": "/tmp/p22-01a-full.log",
-      "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+      "path": "/tmp/p22-01c-full.log",
+      "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
     },
     {
-      "path": "/tmp/p22-01a-coverage.json",
-      "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd"
+      "path": "/tmp/p22-01c-coverage.json",
+      "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70"
     },
     {
-      "path": "/tmp/p22-01a-source-before.json",
-      "sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811"
+      "path": "/tmp/p22-01c-source-before.json",
+      "sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
     }
   ],
   "platform_executed_nodes": [
@@ -756,7 +756,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

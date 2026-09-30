@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "result": "PASS",
   "algorithm": {
     "selection": "Sorted unique git ls-files --cached --others --exclude-standard -z paths.",
@@ -21,22 +21,22 @@
     "serialization": "JSON list, sorted object keys, separators comma/colon, UTF-8 plus trailing newline; SHA-256 of serialized bytes.",
     "timestamps_in_identity": false
   },
-  "before_full_manifest": "/tmp/p22-01a-source-before.json",
-  "after_full_manifest": "/tmp/p22-01a-source-after-full.json",
+  "before_full_manifest": "/tmp/p22-01c-source-before.json",
+  "after_full_manifest": "/tmp/p22-01c-source-after-full.json",
   "byte_identical": true,
-  "hash": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "hash": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
   "tests_artifact": {
-    "path": "/tmp/p22-01a-full.xml",
-    "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+    "path": "/tmp/p22-01c-full.xml",
+    "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
   },
   "evidence_mutations_excluded": true,
   "lock_mutations_excluded": true,
   "scope": "Corrective 01 source snapshot; historical candidate certification is preserved but not reused as current proof.",
-  "after_cleanroom_manifest": "/tmp/p22-01a-source-after-cleanroom.json",
+  "after_cleanroom_manifest": "/tmp/p22-01c-source-after-cleanroom.json",
   "cleanroom_byte_identical": true,
   "cleanroom_artifact": {
-    "path": "/tmp/p22-01a-cleanroom-full.xml",
-    "sha256": "d4d9195e2a36cc15548926d20177a46a8f11d208c3f12b5a8181554d692cf562"
+    "path": "/tmp/p22-01c-cleanroom-full.xml",
+    "sha256": "246b6992b6ff1cbf9085e820aa32fd3e7ff762058117ff217d055a026902ca98"
   },
   "historical_certification": {
     "status": "SUPERSEDED_BY_CORRECTIVE_01",
@@ -84,7 +84,7 @@
     }
   },
   "cleanroom_result": "PASS",
-  "note": "Full and clean-room source manifests byte-identical.",
+  "note": "Source manifests identical before/after full suite and fresh clean-room with PyJWT2.15.0 and urllib3 2.8.0.",
   "corrective01a_previous_binding": {
     "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
     "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
@@ -96,7 +96,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

@@ -1,0 +1,615 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "BLOCKED_NEW_DEPENDENCY_FINDING",
+  "authorization": "Master Orchestrator Corrective01B: urllib3-only security remediation",
+  "base_candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "recorded_at": "2026-09-30T17:08:22.477802+00:00",
+  "dependency_graph_before": {
+    "schema": {
+      "version": "preview"
+    },
+    "workspace_root": "/tmp/nxs-p22-audit",
+    "workspace": {
+      "path": "/tmp/nxs-p22-audit",
+      "id": "workspace+/tmp/nxs-p22-audit"
+    },
+    "roots": [
+      {
+        "id": "urllib3==2.7.0@registry+https://pypi.org/simple"
+      }
+    ],
+    "inverted": true,
+    "members": [
+      {
+        "name": "nexus-ai",
+        "path": "/tmp/nxs-p22-audit/",
+        "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+      }
+    ],
+    "resolution": {
+      "cachecontrol==0.14.4@registry+https://pypi.org/simple": {
+        "name": "cachecontrol",
+        "version": "0.14.4",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple"
+          }
+        ],
+        "optional_dependencies": [
+          {
+            "name": "filecache",
+            "id": "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/ef/79/c45f2d53efe6ada1110cf6f9fca095e4ff47a0454444aefdde6ac4789179/cachecontrol-0.14.4-py3-none-any.whl",
+            "hashes": {
+              "sha256": "b7ac014ff72ee199b5f8af1de29d60239954f223e948196fa3d84adaffc71d2b"
+            },
+            "size": 22247,
+            "upload_time": "2025-11-14T04:32:11.733Z",
+            "filename": "cachecontrol-0.14.4-py3-none-any.whl"
+          }
+        ]
+      },
+      "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple": {
+        "name": "cachecontrol",
+        "version": "0.14.4",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": {
+          "extra": "filecache"
+        },
+        "dependencies": [
+          {
+            "id": "pip-audit==2.9.0@registry+https://pypi.org/simple"
+          }
+        ]
+      },
+      "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/": {
+        "name": "nexus-ai",
+        "version": "0.1.0",
+        "source": {
+          "editable": "/tmp/nxs-p22-audit/"
+        },
+        "kind": {
+          "group": "dev"
+        },
+        "dependencies": []
+      },
+      "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/": {
+        "name": "nexus-ai",
+        "version": "0.1.0",
+        "source": {
+          "editable": "/tmp/nxs-p22-audit/"
+        },
+        "kind": "package",
+        "dependencies": [],
+        "dependency_groups": [
+          {
+            "name": "dev",
+            "id": "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ]
+      },
+      "opentelemetry-exporter-otlp-proto-http==1.44.0@registry+https://pypi.org/simple": {
+        "name": "opentelemetry-exporter-otlp-proto-http",
+        "version": "1.44.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/cd/d0/fdeb1a98d8d3a6205f5f297c51b4a9bfe65126ab60339669bbe3dd54c2e2/opentelemetry_exporter_otlp_proto_http-1.44.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "838592fce774c1c8bb7b9a0a7facbfa82e17be5a8a4e94cef10cb84ae026bae3"
+            },
+            "size": 21850,
+            "upload_time": "2026-07-16T15:25:20.006Z",
+            "filename": "opentelemetry_exporter_otlp_proto_http-1.44.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "pip-audit==2.9.0@registry+https://pypi.org/simple": {
+        "name": "pip-audit",
+        "version": "2.9.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/43/9e/f4dfd9d3dadb6d6dc9406f1111062f871e2e248ed7b584cca6020baf2ac1/pip_audit-2.9.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "348b16e60895749a0839875d7cc27ebd692e1584ebe5d5cb145941c8e25a80bd"
+            },
+            "size": 58634,
+            "upload_time": "2025-04-07T16:45:22.056Z",
+            "filename": "pip_audit-2.9.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "requests==2.34.2@registry+https://pypi.org/simple": {
+        "name": "requests",
+        "version": "2.34.2",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "cachecontrol==0.14.4@registry+https://pypi.org/simple"
+          },
+          {
+            "id": "opentelemetry-exporter-otlp-proto-http==1.44.0@registry+https://pypi.org/simple"
+          },
+          {
+            "id": "pip-audit==2.9.0@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl",
+            "hashes": {
+              "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"
+            },
+            "size": 73075,
+            "upload_time": "2026-05-14T19:25:26.443Z",
+            "filename": "requests-2.34.2-py3-none-any.whl"
+          }
+        ]
+      },
+      "urllib3==2.7.0@registry+https://pypi.org/simple": {
+        "name": "urllib3",
+        "version": "2.7.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "requests==2.34.2@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"
+            },
+            "size": 131087,
+            "upload_time": "2026-05-07T16:13:17.151Z",
+            "filename": "urllib3-2.7.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "workspace+/tmp/nxs-p22-audit": {
+        "kind": "workspace",
+        "path": "/tmp/nxs-p22-audit",
+        "dependencies": []
+      }
+    }
+  },
+  "dependency_graph_after": {
+    "schema": {
+      "version": "preview"
+    },
+    "workspace_root": "/tmp/nxs-p22-audit",
+    "workspace": {
+      "path": "/tmp/nxs-p22-audit",
+      "id": "workspace+/tmp/nxs-p22-audit"
+    },
+    "roots": [
+      {
+        "id": "urllib3==2.8.0@registry+https://pypi.org/simple"
+      }
+    ],
+    "inverted": true,
+    "members": [
+      {
+        "name": "nexus-ai",
+        "path": "/tmp/nxs-p22-audit/",
+        "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+      }
+    ],
+    "resolution": {
+      "cachecontrol==0.14.4@registry+https://pypi.org/simple": {
+        "name": "cachecontrol",
+        "version": "0.14.4",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple"
+          }
+        ],
+        "optional_dependencies": [
+          {
+            "name": "filecache",
+            "id": "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/ef/79/c45f2d53efe6ada1110cf6f9fca095e4ff47a0454444aefdde6ac4789179/cachecontrol-0.14.4-py3-none-any.whl",
+            "hashes": {
+              "sha256": "b7ac014ff72ee199b5f8af1de29d60239954f223e948196fa3d84adaffc71d2b"
+            },
+            "size": 22247,
+            "upload_time": "2025-11-14T04:32:11.733Z",
+            "filename": "cachecontrol-0.14.4-py3-none-any.whl"
+          }
+        ]
+      },
+      "cachecontrol[filecache]==0.14.4@registry+https://pypi.org/simple": {
+        "name": "cachecontrol",
+        "version": "0.14.4",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": {
+          "extra": "filecache"
+        },
+        "dependencies": [
+          {
+            "id": "pip-audit==2.9.0@registry+https://pypi.org/simple"
+          }
+        ]
+      },
+      "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/": {
+        "name": "nexus-ai",
+        "version": "0.1.0",
+        "source": {
+          "editable": "/tmp/nxs-p22-audit/"
+        },
+        "kind": {
+          "group": "dev"
+        },
+        "dependencies": []
+      },
+      "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/": {
+        "name": "nexus-ai",
+        "version": "0.1.0",
+        "source": {
+          "editable": "/tmp/nxs-p22-audit/"
+        },
+        "kind": "package",
+        "dependencies": [],
+        "dependency_groups": [
+          {
+            "name": "dev",
+            "id": "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ]
+      },
+      "opentelemetry-exporter-otlp-proto-http==1.44.0@registry+https://pypi.org/simple": {
+        "name": "opentelemetry-exporter-otlp-proto-http",
+        "version": "1.44.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/cd/d0/fdeb1a98d8d3a6205f5f297c51b4a9bfe65126ab60339669bbe3dd54c2e2/opentelemetry_exporter_otlp_proto_http-1.44.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "838592fce774c1c8bb7b9a0a7facbfa82e17be5a8a4e94cef10cb84ae026bae3"
+            },
+            "size": 21850,
+            "upload_time": "2026-07-16T15:25:20.006Z",
+            "filename": "opentelemetry_exporter_otlp_proto_http-1.44.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "pip-audit==2.9.0@registry+https://pypi.org/simple": {
+        "name": "pip-audit",
+        "version": "2.9.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "nexus-ai:dev==0.1.0@editable+/tmp/nxs-p22-audit/"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/43/9e/f4dfd9d3dadb6d6dc9406f1111062f871e2e248ed7b584cca6020baf2ac1/pip_audit-2.9.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "348b16e60895749a0839875d7cc27ebd692e1584ebe5d5cb145941c8e25a80bd"
+            },
+            "size": 58634,
+            "upload_time": "2025-04-07T16:45:22.056Z",
+            "filename": "pip_audit-2.9.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "requests==2.34.2@registry+https://pypi.org/simple": {
+        "name": "requests",
+        "version": "2.34.2",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "cachecontrol==0.14.4@registry+https://pypi.org/simple"
+          },
+          {
+            "id": "opentelemetry-exporter-otlp-proto-http==1.44.0@registry+https://pypi.org/simple"
+          },
+          {
+            "id": "pip-audit==2.9.0@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl",
+            "hashes": {
+              "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"
+            },
+            "size": 73075,
+            "upload_time": "2026-05-14T19:25:26.443Z",
+            "filename": "requests-2.34.2-py3-none-any.whl"
+          }
+        ]
+      },
+      "urllib3==2.8.0@registry+https://pypi.org/simple": {
+        "name": "urllib3",
+        "version": "2.8.0",
+        "source": {
+          "registry": {
+            "url": "https://pypi.org/simple"
+          }
+        },
+        "kind": "package",
+        "dependencies": [
+          {
+            "id": "requests==2.34.2@registry+https://pypi.org/simple"
+          }
+        ],
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl",
+            "hashes": {
+              "sha256": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"
+            },
+            "size": 135717,
+            "upload_time": "2026-09-15T19:29:34.577Z",
+            "filename": "urllib3-2.8.0-py3-none-any.whl"
+          }
+        ]
+      },
+      "workspace+/tmp/nxs-p22-audit": {
+        "kind": "workspace",
+        "path": "/tmp/nxs-p22-audit",
+        "dependencies": []
+      }
+    }
+  },
+  "resolver": {
+    "command": "uv lock --upgrade-package urllib3",
+    "result": "PASS",
+    "changed_packages": [
+      {
+        "name": "urllib3",
+        "before": "2.7.0",
+        "after": "2.8.0"
+      }
+    ],
+    "unrelated_package_drift": false,
+    "pyproject_modified": false,
+    "uv_lock_check": "PASS",
+    "uv_sync_frozen_all_groups": "PASS",
+    "artifact": {
+      "path": "/tmp/p22-01b-resolution.log",
+      "sha256": "9bb7c928cc36b971baf082e33cd952eb212af88bc67ea74c4f3997939b4dc20d"
+    }
+  },
+  "security": {
+    "result": "FAIL",
+    "pip_audit_exit_code": 1,
+    "fresh_cache_reproductions": 2,
+    "urllib3_findings": 0,
+    "current_findings": [
+      {
+        "name": "pyjwt",
+        "version": "2.14.0",
+        "vulnerabilities": [
+          {
+            "id": "GHSA-42vr-xj54-vc7v",
+            "fix_versions": [
+              "2.15.0"
+            ],
+            "aliases": [
+              "CVE-2026-101918"
+            ]
+          }
+        ]
+      }
+    ],
+    "artifacts": [
+      {
+        "path": "/tmp/p22-01b-audit.json",
+        "sha256": "d65e7c462866435015f7040ecc092c22df3d756bc5135288974a74e39bd47d8f"
+      },
+      {
+        "path": "/tmp/p22-01b-audit-confirm.json",
+        "sha256": "d65e7c462866435015f7040ecc092c22df3d756bc5135288974a74e39bd47d8f"
+      }
+    ],
+    "bandit": "PASS",
+    "gitleaks": "PASS",
+    "suppressed_advisories": []
+  },
+  "targeted": {
+    "result": "PASS",
+    "passed": 27,
+    "failed": 0,
+    "skipped": 0,
+    "xml": {
+      "path": "/tmp/p22-01b-targeted.xml",
+      "sha256": "a53b928cc1e63f9d47eafc3be72ebe989861ee2e8adb5b033e046c8ab20db59c"
+    },
+    "otlp_http_exporter_construction": "PASS against resolved urllib3 2.8.0; HTTPS endpoint configured, timeout=1; no live collector operation claimed",
+    "limitations": [
+      "Existing transport tests do not establish live external telemetry/TLS certification."
+    ]
+  },
+  "blocker": {
+    "package": "pyjwt",
+    "locked_version": "2.14.0",
+    "direct_exact_pin": "pyproject.toml:26",
+    "required_fixed_version_reported": "2.15.0",
+    "scope_decision_required": "Authorize separate PyJWT security corrective and regression validation; current contract forbids unrelated package upgrades.",
+    "dependency_graph": {
+      "schema": {
+        "version": "preview"
+      },
+      "workspace_root": "/tmp/nxs-p22-audit",
+      "workspace": {
+        "path": "/tmp/nxs-p22-audit",
+        "id": "workspace+/tmp/nxs-p22-audit"
+      },
+      "roots": [
+        {
+          "id": "pyjwt==2.14.0@registry+https://pypi.org/simple"
+        }
+      ],
+      "inverted": true,
+      "members": [
+        {
+          "name": "nexus-ai",
+          "path": "/tmp/nxs-p22-audit/",
+          "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+        }
+      ],
+      "resolution": {
+        "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/": {
+          "name": "nexus-ai",
+          "version": "0.1.0",
+          "source": {
+            "editable": "/tmp/nxs-p22-audit/"
+          },
+          "kind": "package",
+          "dependencies": []
+        },
+        "pyjwt==2.14.0@registry+https://pypi.org/simple": {
+          "name": "pyjwt",
+          "version": "2.14.0",
+          "source": {
+            "registry": {
+              "url": "https://pypi.org/simple"
+            }
+          },
+          "kind": "package",
+          "dependencies": [
+            {
+              "id": "nexus-ai==0.1.0@editable+/tmp/nxs-p22-audit/"
+            }
+          ],
+          "wheels": [
+            {
+              "url": "https://files.pythonhosted.org/packages/9c/97/672cb32ce0dfea44b740cb7b4f97038463b9cf7c0ead1aacf595572851d6/pyjwt-2.14.0-py3-none-any.whl",
+              "hashes": {
+                "sha256": "ad0cef71c756a56e74863c2919cf0985f72decbcfcb550ee2f422e7c62b5eedc"
+              },
+              "size": 32896,
+              "upload_time": "2026-09-11T13:11:53.409Z",
+              "filename": "pyjwt-2.14.0-py3-none-any.whl"
+            }
+          ]
+        },
+        "workspace+/tmp/nxs-p22-audit": {
+          "kind": "workspace",
+          "path": "/tmp/nxs-p22-audit",
+          "dependencies": []
+        }
+      }
+    }
+  },
+  "full_certification": "NOT_RUN: mandatory security-first gate failed; prior clean-room does not certify corrected lockfile",
+  "candidate_created": false,
+  "pushed": false,
+  "historical_candidates": [
+    "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "bf34ec77d987ddef79781706ba786226a73510d4",
+    "d261a08559404ca29bcfcc06591bc1b212f16eab"
+  ],
+  "historical_d261_status": [
+    "FUNCTIONALLY GREEN WHERE COMPLETED",
+    "SECURITY BLOCKED",
+    "SUPERSEDED AFTER DEPENDENCY CORRECTIVE ONCE NEW CANDIDATE EXISTS"
+  ],
+  "historical_runs": [
+    36735995908,
+    36736002517,
+    36735996001,
+    36736002403
+  ],
+  "hardening_obligation": {
+    "id": "NXS-HARDEN-SUPPLY-001",
+    "classification": "USER_DECISION",
+    "status": "RECORDED_FOR_CROSS_PHASE_HARDENING",
+    "rule": "Exact-head dependency security is time-sensitive and authoritative at candidate time. A newly published advisory before closure blocks certification even if code is unchanged and previous local/candidate scans passed.",
+    "global_program_implemented": false
+  },
+  "lifecycle": {
+    "status": "BUILDING",
+    "decision": "PENDING",
+    "requirement": "NXS-AUDIT-002",
+    "requirement_status": "IN_PROGRESS",
+    "implementation_commit": null,
+    "closure_commit": null,
+    "active_phase": "NXS-P22"
+  },
+  "prohibited_operations_executed": []
+}

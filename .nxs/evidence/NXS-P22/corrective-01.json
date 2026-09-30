@@ -217,9 +217,9 @@
     }
   ],
   "prohibited_operations_executed": [],
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "recovery_checkpoint_note": "Work preserved for clean-tree canonical stale-lock recovery after interrupted certification; not an implementation candidate; clean-room and exact-head gates remain pending.",
   "lock_recovery": {
     "checkpoint": "bf34ec77d987ddef79781706ba786226a73510d4",
@@ -239,7 +239,7 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   },
   "historical_blocker": {
@@ -251,5 +251,19 @@
     "push": false,
     "exact_head": "NOT_EXECUTED"
   },
-  "resolution": "Corrective01A authorized test-only synchronization; 20 consecutive PASS, complete surface PASS, full suite and clean-room PASS; see corrective-01a.json."
+  "resolution": "Corrective01A authorized test-only synchronization; 20 consecutive PASS, complete surface PASS, full suite and clean-room PASS; see corrective-01a.json.",
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "dependency_security_resolution": "See corrective-01c.json; 01B initial PyJWT blocker preserved."
 }

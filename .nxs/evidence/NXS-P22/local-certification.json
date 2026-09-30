@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "result": "PASS_LOCAL",
   "stage": "A",
   "lifecycle": {
@@ -21,17 +21,17 @@
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "runtime_seconds": 1241.457,
-    "started_at": "2026-09-30T09:30:17.126355-05:00",
+    "runtime_seconds": 1289.311,
+    "started_at": "2026-09-30T13:07:45.718923-05:00",
     "tests": 2901,
-    "coverage_percent": 91.37652064481333,
-    "xml": "/tmp/p22-01a-full.xml",
-    "log": "/tmp/p22-01a-full.log",
-    "coverage_artifact": "/tmp/p22-01a-coverage.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-    "evidence": "tests.json",
+    "coverage_percent": 91.32558278899742,
+    "xml": "/tmp/p22-01c-full.xml",
+    "log": "/tmp/p22-01c-full.log",
+    "coverage_artifact": "/tmp/p22-01c-coverage.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "command": "make test-all",
-    "exit_code": 0
+    "exit_code": 0,
+    "evidence": "tests.json"
   },
   "clean_room": {
     "result": "PASS",
@@ -41,20 +41,20 @@
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "runtime_seconds": 1249.225,
-    "started_at": "2026-09-30T09:53:32.210998-05:00",
-    "coverage_percent": 91.3195901000779,
+    "runtime_seconds": 1240.802,
+    "started_at": "2026-09-30T13:31:16.302847-05:00",
+    "coverage_percent": 91.3495535446755,
     "artifact": {
-      "path": "/tmp/p22-01a-cleanroom.log",
-      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
     },
     "xml": {
-      "path": "/tmp/p22-01a-cleanroom-full.xml",
-      "sha256": "d4d9195e2a36cc15548926d20177a46a8f11d208c3f12b5a8181554d692cf562"
+      "path": "/tmp/p22-01c-cleanroom-full.xml",
+      "sha256": "246b6992b6ff1cbf9085e820aa32fd3e7ff762058117ff217d055a026902ca98"
     },
     "coverage_artifact": {
-      "path": "/tmp/p22-01a-cleanroom-coverage.json",
-      "sha256": "6f381176e5f49402ce7b617f735bd33a3a0f0d4a871dc27515de77762ec21f4e"
+      "path": "/tmp/p22-01c-cleanroom-coverage.json",
+      "sha256": "72a9aad18ba7d61683bfef0bb18e719d3458b65118dca90511a17c57b135e31b"
     },
     "scope": [
       "Fresh frozen dependencies",
@@ -64,7 +64,15 @@
       "amd64/arm64 build",
       "Non-root/live/ready/shutdown",
       "Agent handoff regression"
-    ]
+    ],
+    "resolved_versions": {
+      "pyjwt": "2.15.0",
+      "urllib3": "2.8.0"
+    },
+    "versions_artifact": {
+      "path": "/tmp/p22-01c-cleanroom-versions.txt",
+      "sha256": "47aac7ad3d0368e9fa7828adb342c7075cd3c144119b159acdad131a96001fa9"
+    }
   },
   "local_gates": [
     {
@@ -72,7 +80,7 @@
       "command": "make nxs-validate-repo",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-01a-nxs-validate-repo.log",
+        "path": "/tmp/p22-01c-nxs-validate-repo.log",
         "sha256": "59c78d815d87ee643a9cedde1d7110cfb1409354c6fea2c5519c85cedaa0ed49"
       }
     },
@@ -81,7 +89,7 @@
       "command": "make nxs-preflight PHASE=NXS-P22",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-01a-nxs-preflight.log",
+        "path": "/tmp/p22-01c-nxs-preflight.log",
         "sha256": "5ca34dc2c5f6e2c1afa77dfc367b79f3a7e8f7261f76d51b6c133955c87b4d5d"
       }
     },
@@ -90,7 +98,7 @@
       "command": "make lint",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-01a-lint.log",
+        "path": "/tmp/p22-01c-lint.log",
         "sha256": "f2e41b99c9161f7b9ff1136cd266b6848af834681946745a88e3cf6888fdb0d0"
       }
     },
@@ -99,7 +107,7 @@
       "command": "make type",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-01a-type.log",
+        "path": "/tmp/p22-01c-type.log",
         "sha256": "a63af73d0a084072555e5bee8c0d4bf5c693ffefb92dfaf266e796863c95e5fa"
       }
     },
@@ -108,7 +116,7 @@
       "command": "make security",
       "result": "PASS",
       "artifact": {
-        "path": "/tmp/p22-01a-security.log",
+        "path": "/tmp/p22-01c-security.log",
         "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
       }
     },
@@ -118,7 +126,7 @@
       "result": "PASS",
       "findings": 0,
       "artifact": {
-        "path": "/tmp/p22-01a-gitleaks.json",
+        "path": "/tmp/p22-01c-gitleaks.json",
         "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
       }
     },
@@ -363,7 +371,7 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   },
   "historical_clean_room": {
@@ -500,5 +508,18 @@
     "candidate_created": false,
     "push": false,
     "exact_head": "NOT_EXECUTED"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
   }
 }

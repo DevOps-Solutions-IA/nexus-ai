@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "result": "FAIL_SECURITY",
+  "recorded_at": "2026-09-30T15:32:44.493812+00:00",
+  "AC37": "NOT_PASS",
+  "AC38": "FAIL",
+  "runs": [
+    {
+      "id": 36735995908,
+      "name": "NXS CI",
+      "event": "push",
+      "head_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36735995908",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 109957725609,
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957725892,
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957725936,
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957725976,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 109957726037,
+          "name": "integration",
+          "status": "in_progress",
+          "conclusion": null
+        }
+      ]
+    },
+    {
+      "id": 36736002517,
+      "name": "NXS CI",
+      "event": "pull_request",
+      "head_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36736002517",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 109957750333,
+          "name": "docker",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957750772,
+          "name": "integration",
+          "status": "in_progress",
+          "conclusion": null
+        },
+        {
+          "id": 109957750796,
+          "name": "state",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957750945,
+          "name": "multiarch",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957750949,
+          "name": "quality",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 36735996001,
+      "name": "NXS Security",
+      "event": "push",
+      "head_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36735996001",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 109957729245,
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957729952,
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "id": 36736002403,
+      "name": "NXS Security",
+      "event": "pull_request",
+      "head_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/DevOps-Solutions-IA/nexus-ai/actions/runs/36736002403",
+      "run_attempt": 1,
+      "jobs": [
+        {
+          "id": 109957748827,
+          "name": "image",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 109957749092,
+          "name": "source-and-dependencies",
+          "status": "completed",
+          "conclusion": "failure"
+        }
+      ]
+    }
+  ],
+  "local_reproduction": {
+    "command": "uv run pip-audit --cache-dir /tmp/p22-01a-audit-fresh --format json",
+    "exit_code": 1,
+    "artifact": "/tmp/p22-01a-dependency-live.json",
+    "sha256": "1b9df52de10f5fa0e253898b016cdd33619d9c12a9487e93061196016210115c",
+    "vulnerable_dependencies": [
+      {
+        "name": "urllib3",
+        "version": "2.7.0",
+        "vulns": [
+          {
+            "id": "GHSA-8988-9cw3-xx77",
+            "fix_versions": [
+              "2.8.0"
+            ],
+            "aliases": [
+              "CVE-2026-97687"
+            ]
+          },
+          {
+            "id": "GHSA-gh4c-6fx4-qh6g",
+            "fix_versions": [
+              "2.8.0"
+            ],
+            "aliases": [
+              "CVE-2026-97688"
+            ]
+          },
+          {
+            "id": "GHSA-vxq7-64xx-v4gw",
+            "fix_versions": [
+              "2.8.0"
+            ],
+            "aliases": [
+              "CVE-2026-97689"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "required_scope_change": "Dependency security corrective: urllib3 2.7.0 -> fixed 2.8.0; outside authorized test-synchronization-only change. No dependency modification performed.",
+  "earlier_local_security": "Historical PASS retained; fresh uncached audit and exact-head GitHub evidence supersede it as current security verdict.",
+  "prohibited_operations_executed": []
+}

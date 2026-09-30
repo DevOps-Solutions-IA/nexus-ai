@@ -2,9 +2,9 @@
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
   "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "dependencies": [
     "NXS-P04",
     "NXS-P20",
@@ -35,7 +35,7 @@
       "executed_nodes": [
         "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC02",
@@ -52,7 +52,7 @@
       "executed_nodes": [
         "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC03",
@@ -69,7 +69,7 @@
       "executed_nodes": [
         "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC04",
@@ -89,7 +89,7 @@
         "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification",
         "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC05",
@@ -108,7 +108,7 @@
         "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
         "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC06",
@@ -127,7 +127,7 @@
         "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session",
         "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC07",
@@ -155,7 +155,7 @@
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]",
         "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC08",
@@ -176,7 +176,7 @@
         "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
         "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC09",
@@ -203,7 +203,7 @@
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC10",
@@ -233,7 +233,7 @@
         "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
         "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC11",
@@ -266,7 +266,7 @@
         "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
         "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC12",
@@ -285,7 +285,7 @@
         "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
         "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC13",
@@ -304,7 +304,7 @@
         "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
         "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC14",
@@ -321,7 +321,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC15",
@@ -340,7 +340,7 @@
         "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
         "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC16",
@@ -357,7 +357,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC17",
@@ -376,7 +376,7 @@
         "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected",
         "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC18",
@@ -395,7 +395,7 @@
         "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
         "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC19",
@@ -414,7 +414,7 @@
         "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
         "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC20",
@@ -435,7 +435,7 @@
         "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[DELETE FROM audit_records WHERE organization_id=:organization AND sequence=2]",
         "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_heads SET digest=repeat('3',64) WHERE organization_id=:organization]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC21",
@@ -454,7 +454,7 @@
         "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
         "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC22",
@@ -471,7 +471,7 @@
       "executed_nodes": [
         "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC23",
@@ -494,7 +494,7 @@
         "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
         "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC24",
@@ -511,7 +511,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC25",
@@ -528,7 +528,7 @@
       "executed_nodes": [
         "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC26",
@@ -548,7 +548,7 @@
         "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
         "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC27",
@@ -566,7 +566,7 @@
         "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
         "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC28",
@@ -583,7 +583,7 @@
       "executed_nodes": [
         "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC29",
@@ -602,7 +602,7 @@
         "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
         "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC30",
@@ -621,7 +621,7 @@
         "tests/integration/test_audit_query.py::test_snapshot_pagination_excludes_concurrent_append",
         "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC31",
@@ -651,7 +651,7 @@
         "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
         "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC32",
@@ -678,7 +678,7 @@
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC33",
@@ -695,7 +695,7 @@
       "executed_nodes": [
         "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC34",
@@ -714,7 +714,7 @@
         "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
         "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC35",
@@ -733,7 +733,7 @@
       "executed_nodes": [
         "tests/integration/test_platform_audit_migration.py::test_platform_corrective_preserves_legacy_and_refuses_populated_downgrade"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC36",
@@ -798,7 +798,7 @@
         "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/adr/0103-audit-platform-authority.md]",
         "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/engineering/nxs-p22-audit-design.md]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC40",
@@ -815,7 +815,7 @@
       "executed_nodes": [
         "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC41",
@@ -835,7 +835,7 @@
         "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/engineering/nxs-p22-audit-design.md]",
         "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC42",
@@ -854,7 +854,7 @@
         "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
         "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC43",
@@ -871,7 +871,7 @@
       "executed_nodes": [
         "tests/contracts/test_audit_scope.py::test_audit_durable_capture_does_not_use_direct_global_publication"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC44",
@@ -903,7 +903,7 @@
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
         "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC45",
@@ -923,7 +923,7 @@
         "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
         "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC46",
@@ -942,7 +942,7 @@
         "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
         "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC47",
@@ -962,7 +962,7 @@
         "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
         "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC48",
@@ -981,7 +981,7 @@
         "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
         "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC49",
@@ -1001,7 +1001,7 @@
         "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
         "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
       ],
-      "validation_source": "/tmp/p22-01a-full.xml"
+      "validation_source": "/tmp/p22-01c-full.xml"
     },
     {
       "criterion": "AC50",
@@ -1020,7 +1020,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "Stage A only; no closure or universal coverage claim.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
         "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent"
@@ -1049,7 +1049,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "Legacy chain preserved; verification is domain-scoped or bounded across explicitly requested domains, not global sequence order.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
         "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
@@ -1076,7 +1076,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "At most batch_size source attempts per invocation; NOWAIT conflicts roll back and exclude attempted source for this invocation. Busy domains retry in future invocations; no external I/O or lease system.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
         "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
@@ -1102,7 +1102,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "Sentinel is sole production-certified registry entry. Second producer exists only inside test monkeypatch plus temporary distinct DB role; no general platform-administration certification.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/unit/test_platform_domain_contracts.py::test_registry_is_closed_and_describes_source_authority",
         "tests/integration/test_platform_domains.py::test_registry_extension_has_distinct_db_authority_and_metadata"
@@ -1129,7 +1129,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "Stage A only; no closure or universal coverage claim.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[unknown]",
         "tests/unit/test_platform_domain_contracts.py::test_unknown_producer_is_rejected[runtime]",
@@ -1156,7 +1156,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "No certified authenticated grant/revoke administration surface. Nullable caller-supplied granted_by_user_id is not authenticated actor provenance. Direct DBA, migration and fixture mutations are not certified production producers.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_seam_has_no_certified_production_caller",
         "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_attribution_is_not_promoted_to_audit_actor",
@@ -1179,7 +1179,7 @@
       "evidence_basis": "FROZEN_SOURCE_INSPECTION_AND_EXACT_PASSING_FULL_XML_NODES",
       "limitations": "Dependencies explicitly P04/P20/P21; NXS-SRE-001 validated and owned by P20.",
       "notes": "Verified on frozen uncommitted Corrective01 source by exact passing full-suite nodes and implementation inspection; no phase closure or exact-head workflow claim.",
-      "validation_source": "/tmp/p22-01a-full.xml",
+      "validation_source": "/tmp/p22-01c-full.xml",
       "executed_nodes": [
         "tests/contracts/test_audit_corrective_scope.py::test_p22_declares_sentinel_phase_and_validated_requirement_authority"
       ]
@@ -1271,31 +1271,31 @@
     "failed": 0,
     "errors": 0,
     "skipped": 0,
-    "runtime_seconds": 1241.457,
-    "started_at": "2026-09-30T09:30:17.126355-05:00",
+    "runtime_seconds": 1289.311,
+    "started_at": "2026-09-30T13:07:45.718923-05:00",
     "tests": 2901,
-    "coverage_percent": 91.37652064481333,
-    "xml": "/tmp/p22-01a-full.xml",
-    "log": "/tmp/p22-01a-full.log",
-    "coverage_artifact": "/tmp/p22-01a-coverage.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811"
+    "coverage_percent": 91.32558278899742,
+    "xml": "/tmp/p22-01c-full.xml",
+    "log": "/tmp/p22-01c-full.log",
+    "coverage_artifact": "/tmp/p22-01c-coverage.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
   },
   "final_artifact_bindings": [
     {
-      "path": "/tmp/p22-01a-full.xml",
-      "sha256": "d70daec3f313605f92e3ea45c96a96940a7d1a1069f510c5af1a1b3fdc1f8c8a"
+      "path": "/tmp/p22-01c-full.xml",
+      "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
     },
     {
-      "path": "/tmp/p22-01a-full.log",
-      "sha256": "be9a4b6c92568e0d25d38a1fc5c74174f987c95ede6e9c2d6830e3cd30504864"
+      "path": "/tmp/p22-01c-full.log",
+      "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
     },
     {
-      "path": "/tmp/p22-01a-coverage.json",
-      "sha256": "8c8d2e7f5637716bda444ba325713b737421d0009175f7aa9c5331f98a5821cd"
+      "path": "/tmp/p22-01c-coverage.json",
+      "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70"
     },
     {
-      "path": "/tmp/p22-01a-source-before.json",
-      "sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811"
+      "path": "/tmp/p22-01c-source-before.json",
+      "sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
     }
   ],
   "local_criteria_passed": 54,
@@ -1327,7 +1327,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

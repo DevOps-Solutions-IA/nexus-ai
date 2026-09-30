@@ -3,8 +3,8 @@
   "phase": "NXS-P22",
   "result": "REVIEW",
   "scope": "Independent MEDIUM/LOW applicability and residual-risk review, bound separately to final amd64 and arm64 image scans after exact inventory comparison; not lifecycle closure, deployment authorization, suppression or fix claim.",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
   "reviewed_scan": {
     "path": "/tmp/p22-trivy.json",
     "sha256": "8d2547b91c1b6afdf032d12f630f10eb1abe897e2734e76afde17a67bd927836",
@@ -250,12 +250,12 @@
   },
   "arm64_image_binding": {
     "status": "VERIFIED",
-    "image_id": "sha256:eeaebfbd1553ec486501325f0bfefcfb097c3fa216004cdf2503f86999bf37ea",
-    "artifact_name": "nexus-ai:p22-corrective-arm64",
+    "image_id": "sha256:4b757add4be3d556b17f76792693c97ec462d7cfffb345f543531ebd5f538949",
+    "artifact_name": "nexus-ai:p22-01c-arm64",
     "architecture": "arm64",
-    "build_load_artifact": "/tmp/p22-corrective-arm64.log",
-    "scan_path": "/tmp/p22-corrective-trivy-arm64.json",
-    "scan_sha256": "f054f12d2e3c34d94f5ce39212cf96e23a0130a4566ccba159ab4aa03612df81",
+    "build_load_artifact": "/tmp/p22-01c-arm64.log",
+    "scan_path": "/tmp/p22-01c-trivy-arm64.json",
+    "scan_sha256": "bb2ef09f2805e521cc54ac7fb8811c3984617cd5d9aa2d32dc8cdfedfbcac341",
     "counts": {
       "CRITICAL": 0,
       "HIGH": 0,
@@ -269,16 +269,17 @@
     "high_critical_gate": "PASS for this exact arm64 image and supplied scan only",
     "medium_low_gate": "REVIEW with all eight findings open; the same package/CVE review applies without suppression or installed fix claim",
     "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed.",
-    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path."
+    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path.",
+    "corrective01c_inventory_comparison": "All eight reviewed package/CVE/version/severity tuples unchanged in fresh corrected-dependency image; no HIGH/CRITICAL. Residual MEDIUM/LOW remain open, not suppressed."
   },
   "final_image_binding": {
     "status": "VERIFIED",
-    "image_id": "sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced",
-    "artifact_name": "nexus-ai:p22-corrective",
+    "image_id": "sha256:28b1e7259c8b98708f1262520c5ef7460e9046cf24b9e526095b575cfde2591a",
+    "artifact_name": "nexus-ai:p22-01c",
     "architecture": "amd64",
-    "build_load_artifact": "/tmp/p22-corrective-docker.log",
-    "scan_path": "/tmp/p22-corrective-trivy-amd64.json",
-    "scan_sha256": "6b00be3b4bf31f67c0a46bf634e124d07ec8930adfa4b0f996948ef4a7a83f47",
+    "build_load_artifact": "/tmp/p22-01c-docker.log",
+    "scan_path": "/tmp/p22-01c-trivy-amd64.json",
+    "scan_sha256": "edc7fee0c69d5c5cea5fcda65d64d3b8d22e948b39519ef220cd88554d94231d",
     "inventory_identical_to_reviewed_scan": true,
     "counts": {
       "CRITICAL": 0,
@@ -288,7 +289,8 @@
     },
     "high_critical_gate": "PASS for this exact image and supplied scan only",
     "medium_low_gate": "REVIEW with all findings open; no suppression or installed fix claim",
-    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path."
+    "corrective_inventory_comparison": "Exact CVE/package/installed-version/fixed-version/severity equality against all eight previously reviewed findings; corrective adds no archive/native API path.",
+    "corrective01c_inventory_comparison": "All eight reviewed package/CVE/version/severity tuples unchanged in fresh corrected-dependency image; no HIGH/CRITICAL. Residual MEDIUM/LOW remain open, not suppressed."
   },
   "historical_image_bindings": {
     "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
@@ -335,7 +337,7 @@
       "residual_risk": "No scan inventory difference was found. Both images retain the same vulnerable package versions. Static usage assessment is shared source evidence, not proof of equivalent exploitability across CPU architectures; no architecture-specific dynamic exploit testing was performed."
     }
   },
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "corrective01a_previous_binding": {
     "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
     "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
@@ -347,7 +349,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
     "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "REVIEW",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   }
 }

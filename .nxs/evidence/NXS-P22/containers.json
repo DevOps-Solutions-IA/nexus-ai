@@ -1,39 +1,39 @@
 {
   "schema_version": "1.0.0",
   "phase": "NXS-P22",
-  "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
-  "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
-  "source_binding": "Corrective01A snapshot over preservation checkpoint bf34ec77; only authorized P13 test synchronization changed after prior runtime certification. Full suite and clean-room independently rerun on this exact source manifest; evidence and lock metadata excluded. Not a claim that parent alone contains final corrective.",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
   "result": "PASS_LOCAL",
   "commands": [
     {
-      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-01a",
+      "command": "make docker-build IMAGE_TAG=nexus-ai:p22-01c",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-01a-docker.log",
-        "sha256": "0ef85a658aa7dacf5bef1ac0ceb49441c08cebd899c67097574c4307d7d12990"
+        "path": "/tmp/p22-01c-docker.log",
+        "sha256": "9075004defbc38349f76d89f7dcbd46af1ca18d91a429b8df2f91ae983b070c9"
       }
     },
     {
-      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-01a-multiarch",
+      "command": "make docker-buildx-multiarch IMAGE_TAG=nexus-ai:p22-01c-multiarch",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-01a-multiarch.log",
-        "sha256": "bc22535e63aa12c48398cb2553fbc13e4f220d4e9963c08d91c7251af3a56edc"
+        "path": "/tmp/p22-01c-multiarch.log",
+        "sha256": "1343e2b1fb7bd0fa2e65f4791851821cdfb4d2b846a2c1c538572739b7fb5b93"
       }
     },
     {
-      "command": "docker buildx build --platform linux/arm64 --load --tag nexus-ai:p22-corrective-arm64 .",
+      "command": "docker buildx build --platform linux/arm64 --load --tag nexus-ai:p22-01c-arm64 .",
       "exit_code": 0,
       "artifact": {
-        "path": "/tmp/p22-corrective-arm64.log",
-        "sha256": "ed11f5b3f9a80ba06fe6073d9af23e5621a4d01cfec01ba04c765f1a1ca39138"
+        "path": "/tmp/p22-01c-arm64.log",
+        "sha256": "aa5ad72da6b6fc3b2ce16d818283a456358419894b9025dbb083439435c0d090"
       }
     }
   ],
   "scans": {
     "amd64": {
-      "image_id": "sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced",
+      "image_id": "sha256:28b1e7259c8b98708f1262520c5ef7460e9046cf24b9e526095b575cfde2591a",
       "architecture": "amd64",
       "counts": {
         "CRITICAL": 0,
@@ -42,13 +42,12 @@
         "LOW": 2
       },
       "artifact": {
-        "path": "/tmp/p22-corrective-trivy-amd64.json",
-        "sha256": "6b00be3b4bf31f67c0a46bf634e124d07ec8930adfa4b0f996948ef4a7a83f47"
-      },
-      "inventory_identical": true
+        "path": "/tmp/p22-01c-trivy-amd64.json",
+        "sha256": "edc7fee0c69d5c5cea5fcda65d64d3b8d22e948b39519ef220cd88554d94231d"
+      }
     },
     "arm64": {
-      "image_id": "sha256:eeaebfbd1553ec486501325f0bfefcfb097c3fa216004cdf2503f86999bf37ea",
+      "image_id": "sha256:4b757add4be3d556b17f76792693c97ec462d7cfffb345f543531ebd5f538949",
       "architecture": "arm64",
       "counts": {
         "CRITICAL": 0,
@@ -57,10 +56,9 @@
         "LOW": 2
       },
       "artifact": {
-        "path": "/tmp/p22-corrective-trivy-arm64.json",
-        "sha256": "f054f12d2e3c34d94f5ce39212cf96e23a0130a4566ccba159ab4aa03612df81"
-      },
-      "inventory_identical": true
+        "path": "/tmp/p22-01c-trivy-arm64.json",
+        "sha256": "bb2ef09f2805e521cc54ac7fb8811c3984617cd5d9aa2d32dc8cdfedfbcac341"
+      }
     }
   },
   "scanner": "aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969",
@@ -75,32 +73,32 @@
   "non_root": {
     "result": "PASS",
     "artifact": {
-      "path": "/tmp/p22-01a-cleanroom.log",
-      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
     },
     "evidence": "local-certification.json"
   },
   "health_readiness": {
     "result": "PASS",
     "artifact": {
-      "path": "/tmp/p22-01a-cleanroom.log",
-      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
     },
     "evidence": "local-certification.json"
   },
   "graceful_shutdown": {
     "result": "PASS",
     "artifact": {
-      "path": "/tmp/p22-01a-cleanroom.log",
-      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
     },
     "evidence": "local-certification.json"
   },
   "clean_room": {
     "result": "PASS",
     "artifact": {
-      "path": "/tmp/p22-01a-cleanroom.log",
-      "sha256": "87ac76d07de2498f6db6df29a830153df0880f75f392c6ad9751b104728d2494"
+      "path": "/tmp/p22-01c-cleanroom.log",
+      "sha256": "0ea0674f5e60911867baaa176c3c675adfb48292273da1fb58b6e610d37b34ba"
     },
     "evidence": "local-certification.json"
   },
@@ -222,8 +220,20 @@
     "evidence": "corrective-01a.json",
     "tests": "tests.json",
     "local_certification": "local-certification.json",
-    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
     "exact_head": "PENDING_EXACT_HEAD"
   },
-  "corrective01a_image_identity": "amd64 rebuild ImageID equals previously scanned sha256:19cc54520afd7fdef32e4b18516202b0de5a142f3703b37631948f9f96562ced; test-only delta is outside production image. Both architectures rebuilt in clean-room."
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  }
 }
