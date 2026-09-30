@@ -14,6 +14,8 @@ from nexus_ai.agents.entities import (
     SubmitTurnRequest,
 )
 from nexus_ai.agents.service import AgentService
+from nexus_ai.audit.context import actor_scope, principal_actor, source_actor
+from nexus_ai.audit.producer import emit_audit, safe_identity
 from nexus_ai.core.errors import NxsError
 from nexus_ai.domain.auth.entities import Principal
 from nexus_ai.domain.humans.models import (
@@ -73,6 +75,7 @@ from nexus_ai.humans.errors import (
 from nexus_ai.humans.identity import downstream_key, opaque_token, semantic_digest, token_digest
 from nexus_ai.humans.state_machine import require_assignment_transition, require_work_transition
 from nexus_ai.infrastructure.database import Database
+from nexus_ai.infrastructure.tenant_session import TenantSession
 from nexus_ai.messaging.entities import (
     MessageContent,
     OutboundAddressInput,
@@ -102,7 +105,7 @@ class HumanOperationsService:
     ) -> HumanQueue:
         try:
             async with self._db.tenant_transaction(organization_id) as tenant:
-                return await HumanOperationsRepository(tenant).create_queue(
+                queue = await HumanOperationsRepository(tenant).create_queue(
                     {
                         "queue_key": request.queue_key,
                         "name": request.name,
@@ -114,6 +117,15 @@ class HumanOperationsService:
                         "revision": 1,
                     }
                 )
+                await emit_audit(
+                    tenant,
+                    producer="human",
+                    action="human.queue.created",
+                    target_type="human_queue",
+                    target_id=queue.id,
+                    actor=source_actor(organization_id, service="human-service"),
+                )
+                return queue
         except IntegrityError as exc:
             raise HumanConflictError("queue_key already exists in this Organization") from exc
 
@@ -143,7 +155,16 @@ class HumanOperationsService:
                 values["supported_channels"] = [
                     item.value for item in request.supported_channels or ()
                 ]
-            return await repo.update_queue(row, request.expected_revision, values)
+            queue = await repo.update_queue(row, request.expected_revision, values)
+            await emit_audit(
+                tenant,
+                producer="human",
+                action="human.queue.updated",
+                target_type="human_queue",
+                target_id=queue.id,
+                actor=source_actor(organization_id, service="human-service"),
+            )
+            return queue
 
     async def set_presence(
         self,
@@ -942,6 +963,21 @@ class HumanOperationsService:
         *,
         principal: Principal,
     ) -> ConversationOwnership:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            actor = await principal_actor(self._db, tenant, principal)
+        with actor_scope(organization_id, actor):
+            return await self._return_to_ai(
+                organization_id, assignment_id, request, principal=principal
+            )
+
+    async def _return_to_ai(
+        self,
+        organization_id: uuid.UUID,
+        assignment_id: uuid.UUID,
+        request: ReturnToAiRequest,
+        *,
+        principal: Principal,
+    ) -> ConversationOwnership:
         p13_key = downstream_key("p13-return", request.idempotency_key)
         return_fingerprint = semantic_digest(
             {
@@ -1234,6 +1270,15 @@ class HumanOperationsService:
             ):
                 row.state = HandoffState.AMBIGUOUS.value
                 row.error_code = code[:96]
+                await emit_audit(
+                    tenant,
+                    producer="human",
+                    action="human.handoff.ambiguous",
+                    target_type="human_handoff",
+                    target_id=row.id,
+                    outcome="AMBIGUOUS",
+                    actor=source_actor(organization_id, service="human-service"),
+                )
 
     async def send_message(
         self,
@@ -1303,6 +1348,14 @@ class HumanOperationsService:
                 )
                 tenant.session.add(authorization)
                 await tenant.session.flush()
+                await emit_audit(
+                    tenant,
+                    producer="human",
+                    action="human.message.authorized",
+                    target_type="human_authorization",
+                    target_id=authorization.id,
+                    actor=source_actor(organization_id, service="human-service"),
+                )
 
         try:
             message = await self._messaging.send(
@@ -1376,10 +1429,38 @@ class HumanOperationsService:
             row.error_code = error_code
             if state is ActionAuthorizationState.CONSUMED and work.first_response_at is None:
                 work.first_response_at = await repo.database_now()
+            await emit_audit(
+                tenant,
+                producer="human",
+                action="human.message.finalized",
+                target_type="human_authorization",
+                target_id=row.id,
+                outcome=(
+                    "FAILED"
+                    if state is ActionAuthorizationState.FAILED
+                    else "AMBIGUOUS"
+                    if state is ActionAuthorizationState.AMBIGUOUS
+                    else "SUCCESS"
+                ),
+                actor=source_actor(organization_id, service="human-service"),
+            )
             await tenant.session.flush()
             return _authorization(row)
 
     async def copilot(
+        self,
+        organization_id: uuid.UUID,
+        assignment_id: uuid.UUID,
+        request: CopilotRequest,
+        *,
+        principal: Principal,
+    ) -> CopilotSuggestion:
+        async with self._db.tenant_transaction(organization_id) as tenant:
+            actor = await principal_actor(self._db, tenant, principal)
+        with actor_scope(organization_id, actor):
+            return await self._copilot(organization_id, assignment_id, request, principal=principal)
+
+    async def _copilot(
         self,
         organization_id: uuid.UUID,
         assignment_id: uuid.UUID,
@@ -1481,6 +1562,20 @@ class HumanOperationsService:
         actor_user_id: uuid.UUID | None = None,
         correlation_id: str | None = None,
     ) -> None:
+        actor = source_actor(organization_id, service="human-service")
+        if actor.kind == "HUMAN" and actor_user_id is not None and actor.user_id != actor_user_id:
+            from nexus_ai.core.errors import PermissionDeniedError
+
+            raise PermissionDeniedError("Human operation actor does not match verified provenance.")
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="human",
+            action=event_type,
+            target_type="human_operations",
+            target_id=entity_id,
+            actor=actor,
+            correlation_id=safe_identity(correlation_id),
+        )
         await self._publisher.enqueue(
             session,
             EventEnvelope.create(

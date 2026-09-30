@@ -1,0 +1,1 @@
+"""Tenant audit ledger persistence."""

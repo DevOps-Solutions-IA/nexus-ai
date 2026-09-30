@@ -1,10 +1,10 @@
 {
-  "actor": null,
-  "branch": null,
-  "expires_at": null,
-  "phase": null,
-  "repository_commit": null,
+  "actor": "cdxm",
+  "branch": "feat/nxs-p22-audit",
+  "expires_at": "2026-09-30T22:57:16Z",
+  "phase": "NXS-P22",
+  "repository_commit": "d261a08559404ca29bcfcc06591bc1b212f16eab",
   "schema_version": "1.0.0",
-  "started_at": null,
-  "state": "RELEASED"
+  "started_at": "2026-09-30T18:57:16Z",
+  "state": "ACTIVE"
 }

@@ -1,0 +1,1084 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS",
+  "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+  "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+  "source_binding": {
+    "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+    "status": "VERIFIED_FINAL_XML_BINDING",
+    "source_manifest": "/tmp/p22-source-final2.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+    "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+    "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+    "xml": "/tmp/p22-full-final2.xml"
+  },
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "required": 49,
+  "mapped": 49,
+  "missing": [],
+  "criteria": [
+    {
+      "criterion": "AC01",
+      "description": "Existing mandatory requirement",
+      "result": "PASS",
+      "implementation": [
+        ".nxs/requirements.json"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC02",
+      "description": "Schema-valid manifest",
+      "result": "PASS",
+      "implementation": [
+        ".nxs/phases/NXS-P22.json"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC03",
+      "description": "Exact registered dependencies",
+      "result": "PASS",
+      "implementation": [
+        ".nxs/phase-registry.json"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC04",
+      "description": "PostgreSQL persistence",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py",
+        "src/nexus_ai/audit/platform/worker.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC05",
+      "description": "Forced tenant RLS",
+      "result": "PASS",
+      "implementation": [
+        "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC06",
+      "description": "Trusted tenant resolution",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/api/tenancy.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session",
+        "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session",
+        "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC07",
+      "description": "Trusted registered producer",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected",
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes0]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes1]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes2]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes3]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes4]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes5]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes6]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]",
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC08",
+      "description": "Trusted actor provenance",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/context.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/unit/test_audit_contracts.py::test_actor_and_metadata_fail_closed",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/integration/test_audit_producers.py::test_principal_requires_real_owned_live_session"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC09",
+      "description": "Finite action allowlist",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes0]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes1]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes2]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes3]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes4]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes5]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes6]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC10",
+      "description": "Bounded metadata",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload0]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload1]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload2]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload3]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload4]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload5]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload6]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload7]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload8]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload9]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC11",
+      "description": "Secret exclusion",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload0]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload1]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload2]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload3]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload4]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload5]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload6]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload7]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload8]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload9]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture",
+        "tests/resilience/test_audit_delivery.py::test_poison_is_sanitized_in_storage_and_publication"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC12",
+      "description": "No UPDATE of facts",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/domain/audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC13",
+      "description": "No DELETE of facts",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/domain/audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ledger.py::test_runtime_immutable_and_rls",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC14",
+      "description": "Append-only corrections",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC15",
+      "description": "Deterministic source identity",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC16",
+      "description": "Duplicate convergence",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC17",
+      "description": "Changed replay rejection",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected",
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected",
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC18",
+      "description": "Deterministic integrity",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded",
+        "tests/integration/test_audit_ledger.py::test_chain_replay_conflict_and_verification"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC19",
+      "description": "No chain fork",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+        "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+        "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC20",
+      "description": "Tamper detection",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET fact=jsonb_set(fact,'{intent,outcome}','\"FAILED\"') WHERE organization_id=:organization AND sequence=2]",
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET digest=repeat('1',64) WHERE organization_id=:organization AND sequence=2]",
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_records SET predecessor=repeat('2',64) WHERE organization_id=:organization AND sequence=2]",
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[DELETE FROM audit_records WHERE organization_id=:organization AND sequence=2]",
+        "tests/security/test_audit_integrity.py::test_verifier_detects_privileged_tamper_in_rolled_back_transaction[UPDATE audit_heads SET digest=repeat('3',64) WHERE organization_id=:organization]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC21",
+      "description": "Independent tenant chain isolation",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+        "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+        "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC22",
+      "description": "P04 tenant ingestion reuse",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC23",
+      "description": "Accurate transactional and remote-effect claims",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/tools/service.py",
+        "src/nexus_ai/sentinel/execution.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_producers.py::test_audit_insert_failure_rolls_back_customer",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[False]",
+        "tests/integration/test_audit_producers.py::test_tool_durable_attempt_and_receipt_failure_boundaries[True]",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC24",
+      "description": "Lost ACK convergence",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC25",
+      "description": "No audit recursion",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC26",
+      "description": "Human versus AI actor distinction",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/agents/service.py",
+        "src/nexus_ai/tools/service.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_agent_service.py::test_turn_runs_one_tool_then_a_final_answer",
+        "tests/integration/test_audit_producers.py::test_customer_http_actor_and_no_private_identity_capture"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC27",
+      "description": "Correlation and causation capture",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[True]",
+        "tests/integration/test_audit_ingestion.py::test_source_preserves_safe_request_correlation[False]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC28",
+      "description": "Explicit aware timestamps",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/unit/test_audit_contracts.py::test_intent_semantics_are_canonical_and_bounded"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC29",
+      "description": "Authenticated RBAC reads",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/api/audit.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+        "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+        "tests/integration/test_audit_query.py::test_member_denied_and_owner_revocation"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC30",
+      "description": "Bounded stable pagination",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_query.py::test_snapshot_pagination_excludes_concurrent_append",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_query.py::test_snapshot_pagination_excludes_concurrent_append",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC31",
+      "description": "No SQL filter language",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/api/audit.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_query.py::test_query_requires_live_owner_and_bounds",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload0]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload1]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload2]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload3]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload4]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload5]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload6]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload7]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload8]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload9]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload10]",
+        "tests/security/test_audit_integrity.py::test_metadata_injection_rejected[payload11]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC32",
+      "description": "Isolation attack resistance",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/domain/audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/security/test_audit_integrity.py::test_direct_foreign_insert_rls_denied",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes0]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes1]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes2]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes3]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes4]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes5]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes6]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]",
+        "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC33",
+      "description": "P21 decision authority preserved",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/compliance/service.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_compliance_controls.py::test_legal_hold_blocks_planning_and_stale_approval_after_release"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC34",
+      "description": "P04 decision authority preserved",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_ingestion.py::test_committed_source_and_finished_receipt_replay",
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC35",
+      "description": "Migration and schema validation",
+      "result": "PASS",
+      "implementation": [
+        "migrations/versions/20260929_0100-d22a0b1c2d3e_audit_ledger.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [],
+      "evidence_basis": "EXTERNAL_OR_COMMAND_GATE_REQUIRED",
+      "notes": "All eight disposable fresh/P21 downgrade/re-upgrade/schema commands exited zero; disposable database dropped.",
+      "executed_nodes": [],
+      "validation_source": "/tmp/p22-migration-result.json",
+      "executed_commands": 8
+    },
+    {
+      "criterion": "AC36",
+      "description": "Regression and coverage",
+      "result": "PASS",
+      "implementation": [
+        "pyproject.toml"
+      ],
+      "test_nodes": [],
+      "evidence_basis": "EXTERNAL_OR_COMMAND_GATE_REQUIRED",
+      "notes": "Complete suite: 2876 passed, no failures/errors/skips; combined coverage 91.35% >=90%.",
+      "executed_nodes": [],
+      "validation_source": "/tmp/p22-full-final2.xml and /tmp/p22-full-final2-coverage.json"
+    },
+    {
+      "criterion": "AC37",
+      "description": "Exact candidate GitHub CI",
+      "result": "PASS",
+      "implementation": [
+        ".github/workflows"
+      ],
+      "test_nodes": [],
+      "evidence_basis": "EXACT_HEAD_GITHUB_API_AND_JOB_LOGS",
+      "notes": "Push and PR workflows succeeded on the immutable candidate. Post-candidate receipt; no phase closure claim.",
+      "evidence_reference": "github-exact-head.json",
+      "candidate_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "run_ids": [
+        36640863418,
+        36640876336
+      ]
+    },
+    {
+      "criterion": "AC38",
+      "description": "Exact candidate GitHub Security",
+      "result": "PASS",
+      "implementation": [
+        ".github/workflows"
+      ],
+      "test_nodes": [],
+      "evidence_basis": "EXACT_HEAD_GITHUB_API_AND_JOB_LOGS",
+      "notes": "Push and PR workflows succeeded on the immutable candidate. Post-candidate receipt; no phase closure claim.",
+      "evidence_reference": "github-exact-head.json",
+      "candidate_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "run_ids": [
+        36640863458,
+        36640876428
+      ]
+    },
+    {
+      "criterion": "AC39",
+      "description": "Canonical versus branch documentation",
+      "result": "PASS",
+      "implementation": [
+        "README.md",
+        "docs/engineering/nxs-p22-audit-design.md"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/adr/0103-audit-platform-authority.md]",
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/engineering/nxs-p22-audit-design.md]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC40",
+      "description": "No premature certification claims",
+      "result": "PASS",
+      "implementation": [
+        ".nxs/phases/NXS-P22.json"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_admission_and_lifecycle_are_consistent"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC41",
+      "description": "Explicit producer coverage inventory",
+      "result": "PASS",
+      "implementation": [
+        "docs/engineering/nxs-p22-audit-design.md"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim",
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/adr/0103-audit-platform-authority.md]",
+        "tests/contracts/test_audit_scope.py::test_audit_docs_preserve_no_fictitious_tenant_or_global_transactional_claim[docs/engineering/nxs-p22-audit-design.md]",
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC42",
+      "description": "No global action attributed to login Organization",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/sentinel/control.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/unit/test_platform_audit_contracts.py::test_human_provenance_has_no_login_organization"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC43",
+      "description": "No direct GLOBAL publication claimed durable",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/platform/producer.py"
+      ],
+      "test_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_durable_capture_does_not_use_direct_global_publication"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/contracts/test_audit_scope.py::test_audit_durable_capture_does_not_use_direct_global_publication"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC44",
+      "description": "Disjoint TENANT and PLATFORM scopes",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/contracts.py",
+        "src/nexus_ai/audit/platform/contracts.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload0]",
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload1]",
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload2]",
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload3]",
+        "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload4]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes0]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes1]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes2]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes3]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes4]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes5]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes6]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes7]",
+        "tests/security/test_audit_integrity.py::test_untrusted_authority_fields_rejected[changes8]"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC45",
+      "description": "Dedicated least-privilege platform role",
+      "result": "PASS",
+      "implementation": [
+        "infrastructure/postgres/roles.sql",
+        "src/nexus_ai/audit/platform/database.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC46",
+      "description": "Durable platform recovery",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC47",
+      "description": "Independent append-only platform integrity",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/control.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+        "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC48",
+      "description": "Bounded explicit-platform-grant queries",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/audit/platform/control.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    },
+    {
+      "criterion": "AC49",
+      "description": "Authoritative Sentinel global facts",
+      "result": "PASS",
+      "implementation": [
+        "src/nexus_ai/sentinel/service.py",
+        "src/nexus_ai/sentinel/execution.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
+      ],
+      "evidence_basis": "EXISTING_TEST_NODES_AND_SOURCE_INSPECTION",
+      "notes": "PASS at bound dirty source snapshot; exact executed parameter cases listed. Does not imply phase closure or exact-head workflow certification.",
+      "executed_nodes": [
+        "tests/integration/test_audit_sentinel_producers.py::test_real_execution_and_approval_keep_platform_provenance",
+        "tests/integration/test_audit_sentinel_producers.py::test_kill_switch_and_audit_intent_share_rollback"
+      ],
+      "validation_source": "/tmp/p22-full-final2.xml"
+    }
+  ],
+  "limitations": [
+    "No universal producer coverage.",
+    "No regulatory/WORM or hostile-database-owner tamper-proof certification.",
+    "Local tests do not certify exact-head GitHub CI or Security.",
+    "P22 remains BUILDING/PENDING until governed gates and authorized closure."
+  ],
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "digest_artifact": "/tmp/p22-tested-source-hash.txt",
+        "status": "PENDING_FINAL_XML_BINDING",
+        "note": "Digest supplied by root for tested source set; this draft does not independently assert hash scope or final XML equality. Evidence JSON document hashes are separate from runtime source-set hash."
+      }
+    }
+  ],
+  "final_full_suite": {
+    "result": "PASS",
+    "tests": 2876,
+    "passed": 2876,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "duration_seconds_log": 1248.35,
+    "duration_seconds_junit": 1248.336,
+    "coverage_percent": 91.3468479307026,
+    "coverage_display": "91.35%",
+    "coverage_threshold": 90,
+    "xml": "/tmp/p22-full-final2.xml",
+    "log": "/tmp/p22-full-final2.log",
+    "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+    "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-full-final2.xml",
+      "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+    },
+    {
+      "path": "/tmp/p22-full-final2.log",
+      "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+    },
+    {
+      "path": "/tmp/p22-full-final2-coverage.json",
+      "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+    },
+    {
+      "path": "/tmp/p22-source-final2.json",
+      "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+    },
+    {
+      "path": "/tmp/p22-security-final2.log",
+      "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+    },
+    {
+      "path": "/tmp/p22-migration-result.json",
+      "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+    },
+    {
+      "path": "/tmp/p22-webhook-provenance.log",
+      "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+    },
+    {
+      "path": "/tmp/p22-events-cli-corrective.log",
+      "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+    }
+  ],
+  "local_criteria_passed": 47,
+  "exact_head_criteria_pending": [],
+  "implementation_candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "exact_head_receipt": "github-exact-head.json"
+}

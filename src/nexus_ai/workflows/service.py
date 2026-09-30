@@ -11,6 +11,8 @@ from sqlalchemy.exc import IntegrityError
 
 from nexus_ai.agents.entities import AgentChannel, StartAgentSessionRequest, SubmitTurnRequest
 from nexus_ai.agents.service import AgentService
+from nexus_ai.audit.context import source_actor
+from nexus_ai.audit.producer import emit_audit, safe_identity
 from nexus_ai.cells.errors import CellUnavailableError, PlacementFencedError, PlacementRequiredError
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import NxsError
@@ -19,6 +21,7 @@ from nexus_ai.domain.workflows.repository import WorkflowRepository, _definition
 from nexus_ai.events.envelope import EventEnvelope
 from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
+from nexus_ai.infrastructure.tenant_session import TenantSession
 from nexus_ai.tools.entities import ToolInvocation
 from nexus_ai.tools.registry import ToolRegistry
 from nexus_ai.tools.service import ToolEngine
@@ -121,9 +124,18 @@ class WorkflowService:
                 raise WorkflowInvalidStateError("an archived workflow cannot be edited")
             if row.revision != request.expected_revision:
                 raise WorkflowConflictError("workflow revision changed; reload before editing")
-            return await repo.update_definition(
+            definition = await repo.update_definition(
                 row, name=request.name, description=request.description, steps=request.steps
             )
+            await emit_audit(
+                tenant,
+                producer="workflow",
+                action="workflow.definition.updated",
+                target_type="workflow_definition",
+                target_id=definition.id,
+                actor=source_actor(organization_id, service="workflow-service"),
+            )
+            return definition
 
     async def publish(
         self, organization_id: uuid.UUID, definition_id: uuid.UUID
@@ -513,6 +525,16 @@ class WorkflowService:
             payload=payload,
         )
         await self._publisher.enqueue(session, envelope)
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="workflow",
+            action=event_type,
+            target_type=aggregate_type,
+            target_id=aggregate_id,
+            source_id=envelope.event_id,
+            correlation_id=safe_identity(envelope.correlation_id),
+            actor=source_actor(organization_id, service="workflow-service"),
+        )
 
     @staticmethod
     def _fingerprint(value: dict[str, object]) -> str:

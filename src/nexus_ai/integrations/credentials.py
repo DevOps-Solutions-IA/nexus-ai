@@ -21,11 +21,12 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 from uuid import UUID
 
 from cryptography.fernet import Fernet, InvalidToken, MultiFernet
 
+from nexus_ai.infrastructure.tenant_session import TenantSession
 from nexus_ai.integrations.errors import IntegrationCredentialUnavailableError
 
 
@@ -121,6 +122,13 @@ class EncryptedSecretStore(Protocol):
     async def delete(self, organization_id: UUID, ref: str) -> bool: ...
 
 
+@runtime_checkable
+class TransactionalVaultClient(Protocol):
+    async def store_secret_in(
+        self, tenant: TenantSession, ref: str, material: SecretMaterial
+    ) -> None: ...
+
+
 def build_fernet(keys: list[str]) -> MultiFernet:
     """Build a MultiFernet from one or more url-safe base64 32-byte keys (first encrypts,
     all decrypt — supports rotation)."""
@@ -184,6 +192,16 @@ class LocalEncryptedVault:
             ref,
             EncryptedSecret(material.credential_type, self._encode(material)),
         )
+
+    async def store_secret_in(
+        self, tenant: TenantSession, ref: str, material: SecretMaterial
+    ) -> None:
+        put_in = getattr(self._store, "put_in", None)
+        if put_in is None:
+            raise IntegrationCredentialUnavailableError(
+                "vault store lacks transactional persistence"
+            )
+        await put_in(tenant, ref, EncryptedSecret(material.credential_type, self._encode(material)))
 
     async def delete_secret(self, organization_id: UUID, ref: str) -> None:
         await self._store.delete(organization_id, ref)

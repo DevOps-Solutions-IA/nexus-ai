@@ -234,10 +234,11 @@
       "decision": "PENDING",
       "dependencies": [
         "NXS-P04",
+        "NXS-P20",
         "NXS-P21"
       ],
       "id": "NXS-P22",
-      "status": "PLANNED",
+      "status": "BUILDING",
       "title": "Audit Platform"
     },
     {

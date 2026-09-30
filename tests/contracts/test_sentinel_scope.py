@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 import pytest
+from audit_lifecycle import assert_audit_lifecycle_consistent
 
 
 def test_foundation_does_not_import_tenant_execution_or_network_dispatch():
@@ -62,7 +63,7 @@ def test_p20_lifecycle_state_is_consistent():
         assert manifest["implementation_commit"] is None
         assert manifest["closure_commit"] is None
     if closed:
-        assert state["active_phase"] in {None, "NXS-P21"}
+        assert state["active_phase"] in {None, "NXS-P21", "NXS-P22"}
     else:
         assert state["active_phase"] == "NXS-P20"
     requirement = next(item for item in requirements if item["id"] == "NXS-SRE-001")
@@ -73,8 +74,13 @@ def test_p20_lifecycle_state_is_consistent():
             assert closed
             assert phase["status"] in {"BUILDING", "VALIDATING"}
             assert phase["decision"] == "PENDING"
-        if int(phase["id"].split("P")[-1]) >= 22:
+        if phase["id"] == "NXS-P22" and phase["status"] != "PLANNED":
+            assert closed
+            assert_audit_lifecycle_consistent()
+        elif int(phase["id"].split("P")[-1]) >= 22:
             assert phase["status"] == "PLANNED" and phase["decision"] == "PENDING"
+    if state["active_phase"] == "NXS-P22":
+        assert_audit_lifecycle_consistent()
 
 
 @pytest.mark.parametrize(

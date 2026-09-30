@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "decision": "P22-SD01",
+  "authority": "USER_DECISION: Master Orchestrator scope authorization",
+  "status": "SUPERSEDED",
+  "superseded_by": "Master Orchestrator dual-scope audit authority decision",
+  "historical_only": true,
+  "tenant_owned_audit_only": true,
+  "sentinel_tenant_owned_business_actions": "NOT_APPLICABLE",
+  "sentinel_global_observation_diagnostic_audit": "DEFERRED",
+  "sentinel_global_privileged_approvals": "DEFERRED",
+  "sentinel_global_privileged_executions": "DEFERRED",
+  "sentinel_kill_switch_mutation": "DEFERRED",
+  "sentinel_global_risk_policy_mutation": "DEFERRED",
+  "global_ledger_authorized": false,
+  "fake_organization_authorized": false,
+  "operator_login_organization_attribution_authorized": false,
+  "universal_coverage_claim_authorized": false,
+  "future_design": {
+    "title": "Privileged platform-global audit authority",
+    "planning_visibility": ["NXS-P27", "NXS-P30"],
+    "requirements": ["Sentinel privileged approvals", "Sentinel privileged executions", "kill-switch mutation", "global risk-policy mutation", "global actor/operator provenance", "durable platform-global ingestion", "append-only platform ledger authority", "independent access-control model", "global integrity/tamper-evidence semantics", "retention authority", "no fictitious Organization", "no cross-tenant exposure"]
+  },
+  "p04_global_publication": "Direct confirmed publication; not tenant transactional-outbox atomicity or certified durable Sentinel audit capture.",
+  "acceptance_additions": ["AC41", "AC42", "AC43"]
+}

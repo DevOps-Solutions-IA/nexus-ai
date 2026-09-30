@@ -5,12 +5,14 @@ from dataclasses import dataclass
 from datetime import timedelta
 from itertools import islice
 from types import MappingProxyType
-from uuid import UUID, uuid7
+from uuid import NAMESPACE_URL, UUID, uuid5, uuid7
 
 from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from nexus_ai.audit.platform.contracts import PlatformAuditActor, PlatformAuditMetadata
+from nexus_ai.audit.platform.producer import emit_platform_audit
 from nexus_ai.domain.sentinel.models import (
     SentinelActionProposal,
     SentinelApproval,
@@ -179,6 +181,15 @@ class SentinelStore:
                 .where(SentinelSignalReceipt.id == receipt_id)
                 .values(status="CORRELATED", incident_id=incident_id)
             )
+            await emit_platform_audit(
+                session,
+                action="sentinel.signal.observed",
+                target_type="signal",
+                target_id=receipt_id,
+                source_id=receipt_id,
+                actor=PlatformAuditActor(kind="SERVICE", service="sentinel-adapter"),
+                metadata=PlatformAuditMetadata(related_id=incident_id),
+            )
             return receipt_id, incident_id
 
     async def resolve_from_receipt(
@@ -207,6 +218,14 @@ class SentinelStore:
             incident.state = "RESOLVED"
             incident.resolution_source = "TRUSTED_RECOVERY"
             incident.revision += 1
+            await emit_platform_audit(
+                session,
+                action="sentinel.incident.transitioned",
+                target_type="incident",
+                target_id=incident_id,
+                actor=PlatformAuditActor(kind="SERVICE", service="sentinel-store"),
+                metadata=PlatformAuditMetadata(state="RESOLVED", version=incident.revision),
+            )
             return incident.revision
 
     async def transition(
@@ -216,6 +235,7 @@ class SentinelStore:
         state: IncidentState,
         *,
         resolution_source: str | None = None,
+        actor: PlatformAuditActor | None = None,
     ) -> int:
         async with self.database.transaction() as session:
             incident = await self._incident(session, incident_id)
@@ -227,6 +247,14 @@ class SentinelStore:
             incident.revision += 1
             if resolution_source is not None:
                 incident.resolution_source = resolution_source
+            await emit_platform_audit(
+                session,
+                action="sentinel.incident.transitioned",
+                target_type="incident",
+                target_id=incident_id,
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-store"),
+                metadata=PlatformAuditMetadata(state=state, version=incident.revision),
+            )
             return incident.revision
 
     async def add_finding(self, finding: Finding) -> UUID:
@@ -263,6 +291,15 @@ class SentinelStore:
                     payload=finding.model_dump(mode="json"),
                 )
             )
+            await emit_platform_audit(
+                session,
+                action="sentinel.finding.recorded",
+                target_type="finding",
+                target_id=identity,
+                source_id=identity,
+                actor=PlatformAuditActor(kind="SERVICE", service="sentinel-store"),
+                metadata=PlatformAuditMetadata(related_id=finding.incident_id),
+            )
             return identity
 
     async def register_runbook(self, book: Runbook) -> UUID:
@@ -298,6 +335,15 @@ class SentinelStore:
                 if existing is None or existing.semantic_digest != semantic_digest:
                     raise SentinelConflict("immutable_runbook_conflict")
                 return existing.id
+            await emit_platform_audit(
+                session,
+                action="sentinel.runbook.registered",
+                target_type="runbook",
+                target_id=identity,
+                source_id=identity,
+                actor=PlatformAuditActor(kind="SERVICE", service="sentinel-policy"),
+                metadata=PlatformAuditMetadata(version=book.revision),
+            )
             return identity
 
     async def propose(self, proposal: Proposal) -> UUID:
@@ -333,6 +379,15 @@ class SentinelStore:
                     state="PROPOSED",
                     expires_at=proposal.expires_at,
                 )
+            )
+            await emit_platform_audit(
+                session,
+                action="sentinel.proposal.recorded",
+                target_type="proposal",
+                target_id=identity,
+                source_id=identity,
+                actor=PlatformAuditActor(kind="SERVICE", service="sentinel-store"),
+                metadata=PlatformAuditMetadata(related_id=proposal.incident_id),
             )
             return identity
 
@@ -382,6 +437,17 @@ class SentinelStore:
                 ):
                     raise SentinelConflict("approval_identity_conflict")
                 return existing.id
+            await emit_platform_audit(
+                session,
+                action="sentinel.approval.recorded",
+                target_type="approval",
+                target_id=identity,
+                source_id=identity,
+                actor=PlatformAuditActor(kind="HUMAN", user_id=approval.approver_principal),
+                metadata=PlatformAuditMetadata(
+                    state=approval.decision, related_id=approval.proposal_id
+                ),
+            )
             return identity
 
     async def eligible(self, proposal_id: UUID, *, target_generation: int | None) -> bool:
@@ -423,7 +489,9 @@ class SentinelStore:
                 and self.settings.mutable_actions_enabled,
             )
 
-    async def set_mutable_actions(self, expected_revision: int, *, enabled: bool) -> int:
+    async def set_mutable_actions(
+        self, expected_revision: int, *, enabled: bool, actor: PlatformAuditActor | None = None
+    ) -> int:
         async with self.database.transaction() as session:
             revision = await session.scalar(
                 update(SentinelControlState)
@@ -440,6 +508,14 @@ class SentinelStore:
             )
             if revision is None:
                 raise SentinelConflict("policy_revision_conflict")
+            await emit_platform_audit(
+                session,
+                action="sentinel.kill_switch.changed",
+                target_type="control",
+                target_id=uuid5(NAMESPACE_URL, "nexus-ai:sentinel:control:1"),
+                actor=actor or PlatformAuditActor(kind="SERVICE", service="sentinel-policy"),
+                metadata=PlatformAuditMetadata(enabled=enabled, version=revision),
+            )
             return revision
 
     async def list_incidents(self, *, after: UUID | None = None, limit: int = 50) -> list[UUID]:

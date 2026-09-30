@@ -9,6 +9,10 @@
 
 DO $$
 BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nexus_audit_platform') THEN
+    CREATE ROLE nexus_audit_platform LOGIN PASSWORD 'local-audit-platform-only'
+      NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
+  END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'nexus_migration') THEN
     CREATE ROLE nexus_migration LOGIN PASSWORD 'local-migration-only'
       NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS NOREPLICATION;
@@ -34,6 +38,9 @@ GRANT CREATE, USAGE ON SCHEMA public TO nexus_migration;
 GRANT USAGE ON SCHEMA public TO nexus_runtime;
 GRANT CONNECT ON DATABASE nexus_local TO nexus_sip_locator;
 GRANT CONNECT ON DATABASE nexus_local TO nexus_sentinel;
+GRANT CONNECT ON DATABASE nexus_local TO nexus_audit_platform;
+GRANT USAGE ON SCHEMA public TO nexus_audit_platform;
+REVOKE CREATE ON SCHEMA public FROM nexus_audit_platform;
 GRANT USAGE ON SCHEMA public TO nexus_sentinel;
 REVOKE CREATE ON SCHEMA public FROM nexus_sentinel;
 GRANT USAGE ON SCHEMA public TO nexus_sip_locator;

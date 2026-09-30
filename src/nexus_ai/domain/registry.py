@@ -16,6 +16,7 @@ from nexus_ai.domain.agents.models import (
     AiModelSecretRecord,
     AiModelUsageRecord,
 )
+from nexus_ai.domain.audit.models import AuditHead, AuditRecord
 from nexus_ai.domain.auth.models import (
     MembershipRecord,
     PermissionRecord,
@@ -95,6 +96,12 @@ from nexus_ai.domain.messaging.models import (
 )
 from nexus_ai.domain.organizations.models import OrganizationRecord
 from nexus_ai.domain.otp.models import OtpChallengeRecord
+from nexus_ai.domain.platform_audit.models import (
+    PlatformAuditHead,
+    PlatformAuditIntentRecord,
+    PlatformAuditReceipt,
+    PlatformAuditRecord,
+)
 from nexus_ai.domain.provisioning.models import (
     DashboardConfigurationRecord,
     OrganizationSettingsRecord,
@@ -176,6 +183,8 @@ __all__ = [
     "AiModelProviderAccountRecord",
     "AiModelSecretRecord",
     "AiModelUsageRecord",
+    "AuditHead",
+    "AuditRecord",
     "CampaignAudienceSnapshotRecord",
     "CampaignContactPreferenceRecord",
     "CampaignPolicyEpochRecord",
@@ -233,6 +242,10 @@ __all__ = [
     "OtpChallengeRecord",
     "PermissionRecord",
     "PlacementMutationRecord",
+    "PlatformAuditHead",
+    "PlatformAuditIntentRecord",
+    "PlatformAuditReceipt",
+    "PlatformAuditRecord",
     "PlatformGrantRecord",
     "ProvisioningRequestRecord",
     "RefreshSessionRecord",

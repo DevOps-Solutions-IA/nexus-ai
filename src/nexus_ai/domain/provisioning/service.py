@@ -30,6 +30,8 @@ from uuid import UUID
 
 from sqlalchemy import text
 
+from nexus_ai.audit.contracts import AuditActor
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import current_context
 from nexus_ai.core.errors import (
@@ -320,6 +322,15 @@ class OrganizationProvisioner:
         # The outbox insert shares Phase 2's transaction: a failure to enqueue rolls
         # the WHOLE provisioning back (audit requirement).
         await self._publisher.enqueue(session, envelope)
+        await emit_audit(
+            TenantSession(organization.id, session),
+            producer="organization",
+            action="organization.provisioned",
+            target_type="organization",
+            target_id=organization.id,
+            source_id=envelope.event_id,
+            actor=AuditActor(kind="HUMAN", user_id=created_by_user_id),
+        )
 
     # -- idempotent replay / conflict / resume ------------------------------------
 

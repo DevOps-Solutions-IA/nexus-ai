@@ -1796,13 +1796,15 @@
     {
       "category": "AUDIT",
       "dependencies": [
-        "NXS-TENANT-001"
+        "NXS-TENANT-001",
+        "NXS-EVENT-003",
+        "NXS-SRE-001"
       ],
-      "description": "Security-sensitive tenant, human and AI actions produce tamper-evident auditable records.",
+      "description": "Security-sensitive human, AI-agent, service and system actions produce durable append-only, tamper-evident audit facts under explicit TENANT or PLATFORM authority. TENANT records require trusted Organization ownership, forced RLS, nexus_runtime and tenant RBAC/P04 transactional-outbox integration. PLATFORM records have null organization_id, dedicated least-privilege persistence, registered platform actor/source identities, durable ingestion, independent integrity and bounded platform query authorization; authoritative Sentinel privileged actions are included without changing nexus_sentinel authority or inventing an Organization. Actor, action, target, source, time, outcome and correlation derive from trusted server sources; metadata is typed and bounded. Deterministic replay rejects semantic conflicts; runtime cannot silently rewrite or delete history. Unsupported producers remain explicit and no unproven universal coverage is claimed. The dual-scope decision supersedes P22-SD01. Business events, audit facts, security/application logs and compliance evidence remain distinct. No statutory or regulatory certification is claimed.",
       "id": "NXS-AUDIT-002",
       "implementation_evidence": [],
       "mandatory": true,
-      "status": "PLANNED",
+      "status": "IN_PROGRESS",
       "target_phase": "NXS-P22",
       "title": "Immutable platform audit",
       "validation_evidence": []

@@ -18,11 +18,15 @@ _TENANT_PROBE = "platform.tenant_probe.emitted"
 
 
 def _spec(
-    handler: Any, *, name: str | None = None, max_attempts: int | None = None
+    handler: Any,
+    *,
+    name: str | None = None,
+    max_attempts: int | None = None,
+    subject_filter: str = "nxs.test.tenant.platform.tenant_probe.emitted",
 ) -> ConsumerSpec:
     return ConsumerSpec(
         name=name or f"c-{uuid.uuid4().hex[:10]}",
-        subject_filter="nxs.test.tenant.>",
+        subject_filter=subject_filter,
         handler=handler,
         event_types=frozenset({_TENANT_PROBE}),
         max_delivery_attempts=max_attempts,
@@ -211,7 +215,9 @@ async def test_unknown_event_type_is_quarantined(
     async def handler(ctx: EventContext) -> None:  # pragma: no cover - never reached
         raise AssertionError("handler must not run for an unknown type")
 
-    consumer = event_platform.register_consumer(_spec(handler))
+    consumer = event_platform.register_consumer(
+        _spec(handler, subject_filter="nxs.test.tenant.mystery.happened")
+    )
     envelope = make_tenant_event(org.id, event_type="platform.tenant_probe.emitted")
     rogue = envelope.model_copy(update={"event_type": "mystery.happened"})
     subject = "nxs.test.tenant.mystery.happened"

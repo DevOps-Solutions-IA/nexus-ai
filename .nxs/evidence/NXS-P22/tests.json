@@ -1,0 +1,120 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
+  "result": "PASS",
+  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-01c-full.xml' make test-all",
+  "exit_code": 0,
+  "passed": 2901,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "runtime_seconds": 1289.311,
+  "started_at": "2026-09-30T13:07:45.718923-05:00",
+  "coverage_percent": 91.32558278899742,
+  "statement_coverage_percent": 93.77711400327146,
+  "branch_coverage_percent": 78.1987814166032,
+  "canonical_threshold": 90,
+  "canonical_measure": "pytest-cov combined statement and branch opportunities; separate branch-only percentage is not the canonical threshold metric.",
+  "audit_module_coverage": {
+    "covered_lines": 810,
+    "num_statements": 885,
+    "covered_branches": 166,
+    "num_branches": 228,
+    "percent_covered": 87.69092542677448
+  },
+  "audit_coverage_scope": "src/nexus_ai/audit/**, domain/audit/**, domain/platform_audit/**, api/audit.py measured within the same full-suite execution; not a separate focused run.",
+  "xml": {
+    "path": "/tmp/p22-01c-full.xml",
+    "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
+  },
+  "coverage": {
+    "path": "/tmp/p22-01c-coverage.json",
+    "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70"
+  },
+  "history": "development-history.json",
+  "lifecycle_certification": false,
+  "limitations": [
+    "Exact-head GitHub and clean-room certification are recorded separately."
+  ],
+  "historical_certification": {
+    "status": "SUPERSEDED_BY_CORRECTIVE_01",
+    "candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "record": {
+      "schema_version": "1.0.0",
+      "phase": "NXS-P22",
+      "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+      "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+      "source_binding": "Uncommitted implementation snapshot over the recorded canonical start commit; not a claim that the parent commit alone contains the implementation.",
+      "result": "PASS",
+      "command": "PYTEST_ADDOPTS='--junitxml=/tmp/p22-full-final2.xml' make test-all",
+      "exit_code": 0,
+      "passed": 2876,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1248.336,
+      "started_at": "2026-09-29T16:48:57.057174-05:00",
+      "coverage_percent": 91.3468479307026,
+      "statement_coverage_percent": 93.78611685810088,
+      "branch_coverage_percent": 78.23168392788646,
+      "canonical_threshold": 90,
+      "canonical_measure": "pytest-cov combined statement and branch opportunities; separate branch-only percentage is not the canonical threshold metric.",
+      "audit_module_coverage": {
+        "covered_lines": 730,
+        "num_statements": 797,
+        "covered_branches": 137,
+        "num_branches": 190,
+        "percent_covered": 87.8419452887538
+      },
+      "audit_coverage_scope": "src/nexus_ai/audit/**, domain/audit/**, domain/platform_audit/**, api/audit.py measured within the same full-suite execution; not a separate focused run.",
+      "xml": {
+        "path": "/tmp/p22-full-final2.xml",
+        "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+      },
+      "coverage": {
+        "path": "/tmp/p22-full-final2-coverage.json",
+        "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+      },
+      "history": "development-history.json",
+      "lifecycle_certification": false,
+      "limitations": [
+        "Exact-head GitHub and clean-room certification are recorded separately."
+      ]
+    }
+  },
+  "exit_code_note": "Actual completed command exit status 0 captured.",
+  "log": {
+    "path": "/tmp/p22-01c-full.log",
+    "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "PASS"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  }
+}

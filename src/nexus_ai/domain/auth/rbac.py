@@ -102,6 +102,8 @@ class PermissionKey(StrEnum):
     COMPLIANCE_MANAGE_REQUEST = "compliance:manage_request"
     COMPLIANCE_APPROVE = "compliance:approve"
     COMPLIANCE_EXECUTE = "compliance:execute"
+    AUDIT_READ = "audit:read"
+    AUDIT_VERIFY = "audit:verify"
 
 
 class RoleKey(StrEnum):

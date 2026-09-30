@@ -1,0 +1,269 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+  "superseded_candidate": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+  "authorization": "Master Orchestrator implementation audit Corrective 01",
+  "lifecycle": {
+    "status": "BUILDING",
+    "decision": "PENDING",
+    "implementation_commit": null,
+    "closure_commit": null
+  },
+  "historical_exact_head": "history-b201759/github-exact-head.json",
+  "corrections": {
+    "A": {
+      "before": "Every PLATFORM append locked singleton platform_audit_heads.id=1.",
+      "after": "Sixteen deterministic version-2 integrity domains, immutable legacy domain, per-source transactional claims with SKIP LOCKED and NOWAIT per-domain heads.",
+      "partition": "SHA256(registered producer + ':' + trusted canonical target UUID).digest()[0] % 16",
+      "ordering": "Per-domain only; no global ordering across domains.",
+      "recovery": "Claim+append+head+receipt transaction commits atomically; rollback releases claim. No persistent lease or process-global mutex.",
+      "bounds": "Batch size bounds attempts and exclusions; hot workloads can exhaust budget without claiming unbounded queue fairness."
+    },
+    "B": {
+      "before": "PLATFORM producer contract was literal sentinel.",
+      "after": "Closed source-registered ProducerSpecification with subsystem, DB role, action/target vocabulary, actor services/HUMAN policy, strict metadata model and same-transaction durability.",
+      "certified_producers": [
+        "sentinel"
+      ],
+      "extension_proof": "Isolated test-only second producer with distinct PostgreSQL role and metadata schema; not a product coverage claim."
+    },
+    "dependencies": {
+      "before": [
+        "NXS-P04",
+        "NXS-P21"
+      ],
+      "after": [
+        "NXS-P04",
+        "NXS-P20",
+        "NXS-P21"
+      ],
+      "reason": "Generic dependencies_ready evaluates phase edges only; NXS-SRE-001 requirement dependency does not substitute for direct P20 phase authority."
+    }
+  },
+  "grant_administration": {
+    "certified_runtime_administrative_surface": false,
+    "runtime_callable_seam": "OrganizationProvisioner.grant_create_capability -> PlatformGrantRepository.grant",
+    "shipped_callers": "Tests only; no certified production API/CLI/startup administration caller.",
+    "seam_capability": "organization:create",
+    "repository_capabilities": "Closed database platform_grants vocabulary including audit:platform:read and audit:platform:verify.",
+    "runtime_db_authority": {
+      "role": "nexus_runtime",
+      "select": true,
+      "insert": true,
+      "update": true,
+      "delete": false
+    },
+    "grantor_provenance": "granted_by_user_id is nullable caller-supplied FK metadata, not authenticated audit actor.",
+    "manual_authority": "Migration owner/DBA and test fixtures are outside certified application audit guarantees.",
+    "future_requirement": "A genuine authenticated admin authority must register a distinct producer and durable same-transaction source journal; no weak API invented and no generic runtime PLATFORM insertion granted.",
+    "evidence": [
+      "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_seam_has_no_certified_production_caller",
+      "tests/contracts/test_audit_corrective_scope.py::test_platform_grant_attribution_is_not_promoted_to_audit_actor",
+      "tests/integration/test_audit_grant_inventory.py::test_platform_grant_mutation_acl_inventory"
+    ]
+  },
+  "migration": {
+    "revision": "d22c0b1c2d3e",
+    "historical_migrations_changed": false,
+    "legacy": "Existing version-1 fact/digest bytes and replay identity preserved.",
+    "downgrade": "Supported with legacy history and empty v2 domains; populated v2 refuses destructive collapse.",
+    "tests": [
+      "tests/integration/test_platform_audit_migration.py::test_platform_corrective_preserves_legacy_and_refuses_populated_downgrade"
+    ]
+  },
+  "history": [
+    {
+      "artifact": "/tmp/p22-corrective-dependency-red.log",
+      "classification": "EXPECTED_RED",
+      "result": "1 failed: missing direct P20 dependency"
+    },
+    {
+      "artifact": "/tmp/p22-corrective-migration-test.log",
+      "classification": "DEVELOPMENT_FAILURE",
+      "result": "1 failed: unique constraint naming drift in additive migration/model; corrected explicit model name"
+    },
+    {
+      "artifact": "/tmp/p22-corrective-lint-initial.log",
+      "classification": "DEVELOPMENT_FAILURE",
+      "result": "3 line-length errors; corrected without behavior changes"
+    },
+    {
+      "classification": "INDEPENDENT_REVIEW_CORRECTION",
+      "result": "Finite domain DB constraint added to prevent invisible unknown-domain records; NOWAIT avoids waiting on busy domain within bounded attempts."
+    },
+    {
+      "result": "FAIL",
+      "exit_code": 2,
+      "passed": 2900,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0,
+      "runtime_seconds": 1437.658,
+      "started_at": "2026-09-29T20:13:31.396717-05:00",
+      "log": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.log",
+        "sha256": "12b88feff3ef301ed1ad194f0684c7a4418a5ebed545e0021a4b7851257f6c3b"
+      },
+      "xml": {
+        "path": "/tmp/p22-corrective-cleanroom-attempt-1.xml",
+        "sha256": "47a628aa2d426e5d33bf233df3bd39a3b2933ec191ab0803871f33ce8ecaa570"
+      },
+      "test": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "diagnosis": "Existing P13 test assumes first tool dispatched after asyncio.sleep(0.15); actual seen=[] before cancellation. No P13/tool/test source delta.",
+      "classification": "TIMING_HYPOTHESIS_SUPPORTED_BY_UNCHANGED_FOCUSED_RERUNS",
+      "unchanged_focused_reruns": [
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-1.xml",
+            "sha256": "e87a1d91c26acbcea80cbdb913fdaea71ab10e6434d7528b4d3a0e8c720aafc7"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-2.xml",
+            "sha256": "4cd79289a927aa3456201446692b753429e2e8626203ec7b94ed295547062f1a"
+          }
+        },
+        {
+          "result": "PASS",
+          "passed": 1,
+          "xml": {
+            "path": "/tmp/p22-corrective-cancel-rerun-3.xml",
+            "sha256": "49c6901f7f8008a22cfdb1cecfe9399a597d4aeaf00c0aa7c23eb960a6167487"
+          }
+        }
+      ]
+    },
+    {
+      "classification": "VERIFIED_FAILURE",
+      "result": "FAIL",
+      "command": "make clean-room",
+      "attempt": 2,
+      "passed": 2900,
+      "failed": 1,
+      "skipped": 0,
+      "exit_code": 2,
+      "failure": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+      "diagnosis": "Timeout waiting five seconds for INVITE at test line421; no SIP runtime/test changes in corrective. Focused unchanged rerun pending.",
+      "artifacts": [
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2.log",
+          "sha256": "17d0f85966baff2250701394985aeb2f0fe81553cb717cb70df6d10cea94b16d"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2.xml",
+          "sha256": "ed3070fe1f254531fc184918975b363136b4186e1fc0f99bd06951d85290fa39"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-2-coverage.json",
+          "sha256": "1a2736fcfb3750229ed2982d7d5c1c62c984f58b6eae68f484b75912a5f9d5ab"
+        }
+      ],
+      "focused_unchanged_rerun": {
+        "result": "PASS",
+        "passed": 1,
+        "artifact": {
+          "path": "/tmp/p22-corrective-sip-rerun.xml",
+          "sha256": "6cdfb80b716b0ec77802a25220ca66bdcc3db47046aa59822b34e310595901d1"
+        }
+      }
+    },
+    {
+      "result": "FAIL",
+      "attempt": 3,
+      "command": "make clean-room",
+      "exit_code": 2,
+      "tests": 2901,
+      "failed": 1,
+      "skipped": 0,
+      "runtime_seconds": 1284.767,
+      "passed": 2900,
+      "coverage_percent": 91.30760472223886,
+      "artifacts": [
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.xml",
+          "sha256": "a5338e7476c674dd43e4f21a97ccd181673eefed6764bee61c190b1ae6e2cbb6"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3.log",
+          "sha256": "8696f79216c4c6fbdfa7b2bf850dadc3daf62506602176f2c77c5467ed202384"
+        },
+        {
+          "path": "/tmp/p22-corrective-cleanroom-attempt-3-coverage.json",
+          "sha256": "586ba745892e537d511983289d0d833fbc5e6cec1700bed40d3507a0bb21606f"
+        }
+      ],
+      "failure": "tests/concurrency/test_agent_cross_worker_cancellation.py::test_already_dispatched_tool_completes_but_nothing_further_dispatches",
+      "observed": "seen=[] instead of ['/c/d1']; cancellation begins after fixed asyncio.sleep(0.15), without synchronizing actual first dispatch.",
+      "source_unchanged": true,
+      "scope": "Existing P13 test, unchanged from b201759; modifying its synchronization is outside the requested PLATFORM corrective.",
+      "focused_followup": {
+        "result": "PASS",
+        "tests": 7,
+        "failed": 0,
+        "skipped": 0,
+        "runtime_seconds": 15.101,
+        "artifact": {
+          "path": "/tmp/p22-corrective-cancel-covered.xml",
+          "sha256": "2d4e1de4192ca9a1cc0f3ee17af689a9d71544f443497d71e3fb8befda4b66ae"
+        },
+        "note": "Diagnostic coverage run uses --cov-fail-under=0 because it covers only seven P13 tests; not canonical regression certification."
+      }
+    }
+  ],
+  "prohibited_operations_executed": [],
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
+  "recovery_checkpoint_note": "Work preserved for clean-tree canonical stale-lock recovery after interrupted certification; not an implementation candidate; clean-room and exact-head gates remain pending.",
+  "lock_recovery": {
+    "checkpoint": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "canonical_recover": "PASS",
+    "canonical_acquire": "PASS",
+    "expires_at": "2026-09-30T17:16:54Z",
+    "implementation_candidate": false
+  },
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": "Uncommitted corrective source snapshot over superseded candidate b201759; parent SHA alone does not contain corrective implementation. Evidence and canonical lock changes excluded from source-set hash.",
+    "result": "BLOCKED_CERTIFICATION"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "historical_blocker": {
+    "classification": "SCOPE_CHANGE_REQUIRED",
+    "result": "BLOCKED",
+    "reason": "Mandatory clean-room fails repeatedly at pre-existing sleep-based P13 dispatch synchronization. No threshold lowered, tests skipped, sleep extended, or unrelated P13 source changed.",
+    "required_decision": "Authorize a narrowly scoped deterministic synchronization corrective to the P13 test, then repeat complete certification.",
+    "candidate_created": false,
+    "push": false,
+    "exact_head": "NOT_EXECUTED"
+  },
+  "resolution": "Corrective01A authorized test-only synchronization; 20 consecutive PASS, complete surface PASS, full suite and clean-room PASS; see corrective-01a.json.",
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL_PENDING_EXACT_HEAD",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "dependency_security_resolution": "See corrective-01c.json; 01B initial PyJWT blocker preserved."
+}

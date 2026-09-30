@@ -26,6 +26,8 @@ import uuid
 from collections.abc import Callable
 from uuid import UUID
 
+from nexus_ai.audit.contracts import AuditActor
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.core.config import Settings
 from nexus_ai.core.errors import (
     AuthenticationFailedError,
@@ -226,6 +228,14 @@ class AuthService:
                 expires_at=now
                 + dt.timedelta(seconds=self._settings.auth.refresh_token_ttl_seconds),
             )
+            await emit_audit(
+                tenant,
+                producer="auth",
+                action="auth.session.created",
+                target_type="session",
+                target_id=session_id,
+                actor=AuditActor(kind="HUMAN", user_id=user_id),
+            )
         access_token = self._tokens.issue_access_token(
             subject=user_id, organization_id=organization_id, session_id=session_id, now=now
         )
@@ -265,6 +275,14 @@ class AuthService:
                 previous = await sessions.by_previous_token_hash(parts.token_hash)
                 if previous is not None:
                     await sessions.revoke(previous.id)
+                    await emit_audit(
+                        tenant,
+                        producer="auth",
+                        action="auth.session.revoked",
+                        target_type="session",
+                        target_id=previous.id,
+                        actor=AuditActor(kind="SYSTEM", service="auth-session-guard"),
+                    )
                     await self._logger.awarning(
                         "auth_refresh_reuse_detected", session_id=str(previous.id)
                     )
@@ -275,6 +293,14 @@ class AuthService:
                 user = await UserRepository(tenant.session).by_id(row.user_id)
                 if user is None or user.status is not UserStatus.ACTIVE:
                     await sessions.revoke(row.id)
+                    await emit_audit(
+                        tenant,
+                        producer="auth",
+                        action="auth.session.revoked",
+                        target_type="session",
+                        target_id=row.id,
+                        actor=AuditActor(kind="SYSTEM", service="auth-session-guard"),
+                    )
                     failure = AuthenticationFailedError("The session could not be refreshed.")
                 else:
                     membership = await MembershipRepository(tenant).for_user_in_organization(
@@ -291,12 +317,28 @@ class AuthService:
                             now=now,
                         )
                         if rotated:
+                            await emit_audit(
+                                tenant,
+                                producer="auth",
+                                action="auth.session.refreshed",
+                                target_type="session",
+                                target_id=row.id,
+                                actor=AuditActor(kind="HUMAN", user_id=row.user_id),
+                            )
                             issued_user_id = row.user_id
                             issued_session_id = row.id
                             issued_refresh_token = next_refresh_token
                         else:
                             # Lost a rotation race: reuse. Revoke the family.
                             await sessions.revoke(row.id)
+                            await emit_audit(
+                                tenant,
+                                producer="auth",
+                                action="auth.session.revoked",
+                                target_type="session",
+                                target_id=row.id,
+                                actor=AuditActor(kind="SYSTEM", service="auth-session-guard"),
+                            )
                             await self._logger.awarning(
                                 "auth_refresh_reuse_detected", session_id=str(row.id)
                             )
@@ -343,6 +385,14 @@ class AuthService:
                 row = await sessions.by_previous_token_hash(parts.token_hash)
             if row is not None and row.revoked_at is None:
                 await sessions.revoke(row.id)
+                await emit_audit(
+                    tenant,
+                    producer="auth",
+                    action="auth.session.revoked",
+                    target_type="session",
+                    target_id=row.id,
+                    actor=AuditActor(kind="SYSTEM", service="auth-session-guard"),
+                )
                 await self._logger.ainfo("auth_session_revoked", session_id=str(row.id))
 
     # -- authenticated projections ---------------------------------------------------

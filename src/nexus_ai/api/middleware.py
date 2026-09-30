@@ -15,6 +15,7 @@ import structlog
 from starlette.datastructures import Headers, MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
+from nexus_ai.audit.context import audit_request_scope
 from nexus_ai.core.config import Settings
 from nexus_ai.core.context import request_context
 from nexus_ai.core.identifiers import sanitize
@@ -60,6 +61,7 @@ class RequestContextMiddleware:
         started = time.perf_counter()
         structlog.contextvars.clear_contextvars()
         with (
+            audit_request_scope(),
             request_context(
                 request_id=request_id, correlation_id=correlation_id, trace_id=trace_id
             ),

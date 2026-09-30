@@ -10,8 +10,11 @@ import uuid
 from typing import Any
 
 import pytest
+from sqlalchemy import select
 
+from nexus_ai.audit.contracts import AuditIntent
 from nexus_ai.domain.auth.rbac import RoleKey
+from nexus_ai.domain.events.models import EventOutboxRecord
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -183,6 +186,17 @@ async def test_account_and_message_lifecycle_through_http(api: Any) -> None:
 
 
 async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
+    async def customer_facts() -> list[AuditIntent]:
+        database = api.client.nexus_app.state.lifespan.resources.database
+        async with database.tenant_transaction(api.organization.id) as tenant:
+            rows = await tenant.session.scalars(
+                select(EventOutboxRecord).where(
+                    EventOutboxRecord.event_type == AuditIntent.EVENT_TYPE,
+                    EventOutboxRecord.envelope["payload"]["producer"].astext == "customer",
+                )
+            )
+            return [AuditIntent.model_validate(row.envelope["payload"]) for row in rows]
+
     created = await api.post(
         "/messaging/accounts",
         {
@@ -216,6 +230,19 @@ async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
     )
     assert ok.status_code == 202, ok.text
     assert ok.json()["received"] == 1
+    facts = await customer_facts()
+    assert {fact.action for fact in facts} == {"customers.created", "conversations.opened"}
+    assert len(facts) == 2
+    for fact in facts:
+        assert fact.organization_id == api.organization.id
+        assert fact.actor.kind == "SERVICE"
+        assert fact.actor.service == "customer-channel"
+        assert fact.actor.user_id is None
+        assert fact.actor.initiating_user_id is None
+
+    rejected_body = json.dumps(
+        {"from": "+14155550143", "to": "+14155550100", "message_id": "in-2", "text": "bad"}
+    ).encode()
 
     bad = await api.client.post(
         f"/api/v1/webhooks/messaging/generic_http/{token}",
@@ -224,12 +251,13 @@ async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
             "X-Messaging-Timestamp": timestamp,
             "Content-Type": "application/json",
         },
-        content=body,
+        content=rejected_body,
     )
     assert bad.status_code == 401
+    assert {fact.source_id for fact in await customer_facts()} == {fact.source_id for fact in facts}
 
     stale = str(int(time.time()) - 4000)
-    stale_sig = hmac.new(b"whsec", f"{stale}.".encode() + body, hashlib.sha256).hexdigest()
+    stale_sig = hmac.new(b"whsec", f"{stale}.".encode() + rejected_body, hashlib.sha256).hexdigest()
     replay = await api.client.post(
         f"/api/v1/webhooks/messaging/generic_http/{token}",
         headers={
@@ -237,9 +265,10 @@ async def test_inbound_webhook_route_verifies_signature(api: Any) -> None:
             "X-Messaging-Timestamp": stale,
             "Content-Type": "application/json",
         },
-        content=body,
+        content=rejected_body,
     )
     assert replay.status_code == 409, replay.text  # NXS_MSG_REPLAY_REJECTED
+    assert {fact.source_id for fact in await customer_facts()} == {fact.source_id for fact in facts}
 
 
 async def test_member_can_send_but_not_manage_accounts(

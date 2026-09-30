@@ -8,6 +8,8 @@ from typing import Any
 
 from sqlalchemy.exc import IntegrityError
 
+from nexus_ai.audit.context import source_actor
+from nexus_ai.audit.producer import emit_audit
 from nexus_ai.campaigns import events as campaign_events  # noqa: F401 - register payloads
 from nexus_ai.campaigns.entities import (
     Campaign,
@@ -40,6 +42,7 @@ from nexus_ai.domain.messaging.repository import MessagingAccountRepository
 from nexus_ai.events.envelope import EventEnvelope
 from nexus_ai.events.publisher import EventPublisher
 from nexus_ai.infrastructure.database import Database
+from nexus_ai.infrastructure.tenant_session import TenantSession
 from nexus_ai.messaging.entities import OutboundAddressInput, SendMessageRequest
 from nexus_ai.messaging.service import MessagingService
 from nexus_ai.scheduler.entities import CreateScheduleRequest, ScheduleType
@@ -117,7 +120,16 @@ class CampaignService:
                 raise CampaignNotFoundError()
             if row.revision != request.expected_revision:
                 raise CampaignConflictError("campaign revision changed; reload before editing")
-            return await repo.update_campaign(row, name=request.name, draft=request.draft)
+            campaign = await repo.update_campaign(row, name=request.name, draft=request.draft)
+            await emit_audit(
+                tenant,
+                producer="campaign",
+                action="campaign.updated",
+                target_type="campaign",
+                target_id=campaign.id,
+                actor=source_actor(organization_id, service="campaign-service"),
+            )
+            return campaign
 
     async def prepare_campaign(
         self, organization_id: uuid.UUID, campaign_id: uuid.UUID
@@ -488,7 +500,7 @@ class CampaignService:
         self, organization_id: uuid.UUID, request: ContactPreferenceRequest
     ) -> int:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            return await CampaignRepository(tenant).set_preference(
+            revision = await CampaignRepository(tenant).set_preference(
                 customer_id=request.customer_id,
                 identity_id=request.identity_id,
                 channel=request.channel.value,
@@ -497,10 +509,28 @@ class CampaignService:
                 do_not_contact=request.do_not_contact,
                 evidence_ref=request.evidence_ref,
             )
+            await emit_audit(
+                tenant,
+                producer="campaign",
+                action="campaign.contact_preference.changed",
+                target_type="customer",
+                target_id=request.customer_id,
+                actor=source_actor(organization_id, service="campaign-service"),
+            )
+            return revision
 
     async def add_suppression(self, organization_id: uuid.UUID, request: SuppressionRequest) -> int:
         async with self._db.tenant_transaction(organization_id) as tenant:
-            return await CampaignRepository(tenant).add_suppression(request)
+            revision = await CampaignRepository(tenant).add_suppression(request)
+            await emit_audit(
+                tenant,
+                producer="campaign",
+                action="campaign.suppression.added",
+                target_type="organization",
+                target_id=organization_id,
+                actor=source_actor(organization_id, service="campaign-service"),
+            )
+            return revision
 
     async def pause_campaign(self, organization_id: uuid.UUID, campaign_id: uuid.UUID) -> Campaign:
         return await self._transition(
@@ -596,6 +626,14 @@ class CampaignService:
         *,
         count: int | None = None,
     ) -> None:
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="campaign",
+            action=event_type,
+            target_type="campaign",
+            target_id=campaign.id,
+            actor=source_actor(organization_id, service="campaign-service"),
+        )
         await self._publisher.enqueue(
             session,
             EventEnvelope.create(
@@ -622,6 +660,14 @@ class CampaignService:
         event_type: str,
         claim: RecipientClaim,
     ) -> None:
+        await emit_audit(
+            TenantSession(organization_id, session),
+            producer="campaign",
+            action=event_type,
+            target_type="campaign_recipient",
+            target_id=claim.recipient.id,
+            actor=source_actor(organization_id, service="campaign-service"),
+        )
         await self._publisher.enqueue(
             session,
             EventEnvelope.create(

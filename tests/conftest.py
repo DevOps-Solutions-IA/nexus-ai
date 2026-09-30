@@ -956,57 +956,28 @@ class _NoCache:
 
 
 @pytest.fixture
-def make_tool_principal(tenant_database: Any) -> Callable[..., Any]:
-    """Seed an ACTIVE user + ACTIVE owner membership + org_owner role assignment in an
-    Organization and return a :class:`Principal` for it (no HTTP / token round-trip)."""
-    import datetime as _dt
-    import uuid as _uuid
-
-    from sqlalchemy import text as _text
-
+def make_tool_principal(
+    auth_client: Any, make_auth_user: Any, login_helper: Any
+) -> Callable[..., Any]:
+    """Return an authenticated principal with persisted live session authority."""
     from nexus_ai.domain.auth.entities import Principal
-    from nexus_ai.domain.auth.rbac import ROLE_IDS, RoleKey
+    from nexus_ai.domain.auth.rbac import RoleKey
 
     async def _make(organization: Any, *, role: RoleKey = RoleKey.ORG_OWNER) -> Any:
-        user_id = _uuid.uuid7()
-        now = _dt.datetime.now(_dt.UTC)
-        async with tenant_database.transaction() as session:
-            await session.execute(
-                _text(
-                    "INSERT INTO users (id, email, email_verified, display_name, status, "
-                    "version, created_at, updated_at) VALUES (:id, :email, true, 'Tool Tester', "
-                    "'ACTIVE', 1, now(), now())"
-                ),
-                {"id": user_id, "email": f"tool-{user_id.hex[:12]}@example.com"},
-            )
-        async with tenant_database.tenant_transaction(organization.id) as tenant:
-            await tenant.session.execute(
-                _text(
-                    "INSERT INTO memberships (id, organization_id, user_id, status, "
-                    "created_at, updated_at) VALUES (:id, :org, :user, 'ACTIVE', now(), now())"
-                ),
-                {"id": _uuid.uuid7(), "org": organization.id, "user": user_id},
-            )
-            await tenant.session.execute(
-                _text(
-                    "INSERT INTO role_assignments (id, organization_id, user_id, role_id, "
-                    "status, created_at, updated_at) VALUES (:id, :org, :user, :role, 'ACTIVE', "
-                    "now(), now())"
-                ),
-                {
-                    "id": _uuid.uuid7(),
-                    "org": organization.id,
-                    "user": user_id,
-                    "role": ROLE_IDS[role],
-                },
-            )
+        email, password, _user = await make_auth_user(
+            organization=organization, role=role, email_verified=True
+        )
+        tokens = await login_helper(email, password, organization.id)
+        claims = _auth_resources(auth_client).token_service.verify_access_token(
+            tokens["access_token"]
+        )
         return Principal(
-            user_id=user_id,
-            session_id=_uuid.uuid7(),
-            organization_id=organization.id,
-            token_id=_uuid.uuid7(),
-            issued_at=now,
-            expires_at=now + _dt.timedelta(hours=1),
+            user_id=claims.subject,
+            session_id=claims.session_id,
+            organization_id=claims.organization_id,
+            token_id=claims.jti,
+            issued_at=claims.issued_at,
+            expires_at=claims.expires_at,
         )
 
     return _make

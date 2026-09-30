@@ -23,10 +23,15 @@ async def test_many_relay_workers_publish_each_row_once(
     make_tenant_event: Any,
 ) -> None:
     org = await make_organization()
+    async with tenant_database.transaction() as session:
+        initial = await event_platform.outbox.pending_count(session)
     total = 40
+    probe_ids = set()
     for _ in range(total):
         async with tenant_database.tenant_transaction(org.id) as ts:
-            await event_platform.publisher.enqueue(ts.session, make_tenant_event(org.id))
+            envelope = make_tenant_event(org.id)
+            probe_ids.add(envelope.event_id)
+            await event_platform.publisher.enqueue(ts.session, envelope)
 
     workers = [
         OutboxRelay(
@@ -45,10 +50,21 @@ async def test_many_relay_workers_publish_each_row_once(
         rows = (
             await session.execute(text("SELECT status, count(*) FROM event_outbox GROUP BY status"))
         ).all()
+        published_ids = set(
+            (
+                await session.execute(
+                    text(
+                        "SELECT id FROM event_outbox WHERE status = 'PUBLISHED' "
+                        "AND event_type = 'platform.tenant_probe.emitted'"
+                    )
+                )
+            ).scalars()
+        )
     by_status = {r[0]: r[1] for r in rows}
-    assert by_status.get("PUBLISHED") == total
+    assert by_status == {"PUBLISHED": initial + total}
     assert by_status.get("PENDING", 0) == 0
     assert by_status.get("PUBLISHING", 0) == 0
+    assert published_ids == probe_ids
     # The outbox guarantees each ROW is marked PUBLISHED exactly once even though six
     # workers raced over the same population (FOR UPDATE SKIP LOCKED + leases).
 
@@ -71,7 +87,7 @@ async def test_concurrent_duplicate_deliveries_resolve_to_one_effect(
     consumer = event_platform.register_consumer(
         ConsumerSpec(
             name=f"dup-{uuid.uuid4().hex[:8]}",
-            subject_filter="nxs.test.tenant.>",
+            subject_filter="nxs.test.tenant.platform.tenant_probe.emitted",
             handler=handler,
             event_types=frozenset({"platform.tenant_probe.emitted"}),
         )
@@ -108,7 +124,7 @@ async def test_tenant_scope_isolation_across_concurrent_handlers(
     consumer = event_platform.register_consumer(
         ConsumerSpec(
             name=f"iso-{uuid.uuid4().hex[:8]}",
-            subject_filter="nxs.test.tenant.>",
+            subject_filter="nxs.test.tenant.platform.tenant_probe.emitted",
             handler=handler,
             event_types=frozenset({"platform.tenant_probe.emitted"}),
         )

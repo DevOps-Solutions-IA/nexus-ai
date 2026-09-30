@@ -37,7 +37,8 @@ async def _bootstrap(dsn: str) -> None:
         roles = await connection.fetch(
             "SELECT rolname, rolsuper, rolbypassrls, rolcreaterole, rolcreatedb, rolreplication "
             "FROM pg_roles WHERE rolname IN "
-            "('nexus_migration', 'nexus_runtime', 'nexus_sip_locator', 'nexus_sentinel') "
+            "('nexus_migration', 'nexus_runtime', 'nexus_sip_locator', 'nexus_sentinel', "
+            "'nexus_audit_platform') "
             "ORDER BY rolname"
         )
     finally:
@@ -46,7 +47,7 @@ async def _bootstrap(dsn: str) -> None:
         print(
             f"role {role['rolname']}: superuser={role['rolsuper']} bypassrls={role['rolbypassrls']}"
         )
-    if len(roles) != 4:
+    if len(roles) != 5:
         raise SystemExit("bootstrap did not create the required roles")
     if any(
         role["rolsuper"]

@@ -1,0 +1,775 @@
+{
+  "schema_version": "1.0.0",
+  "phase": "NXS-P22",
+  "result": "PASS_LOCAL",
+  "source_sha": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+  "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+  "source_binding": "Uncommitted security corrective snapshot over d261a085; only PyJWT pin/lock and urllib3 transitive lock changed outside evidence/lock. Parent alone does not contain remediation. All current full-suite and clean-room evidence bound to frozen corrected dependency environment.",
+  "dependencies": [
+    "NXS-P04",
+    "NXS-P20",
+    "NXS-P21"
+  ],
+  "scope_decision": {
+    "current": "scope-decision-dual-authority.json",
+    "superseded": "P22-SD01",
+    "historical": "scope-decision-p22-sd01.json"
+  },
+  "certification_claim": false,
+  "required": 30,
+  "mapped": 30,
+  "focused_result": "PASS",
+  "focused_xml": "/tmp/p22-concurrency-final.xml",
+  "focused_tests": 20,
+  "focused_failures": 0,
+  "focused_errors": 0,
+  "focused_skipped": 0,
+  "focused_snapshot_binding": "HISTORICAL_FOCUSED_RUN_NOT_FINAL_BINDING",
+  "note": "C01-C20 preserved and rebound to current full XML. P01-P10 added with exact passing nodes and transaction/lock linearization. Original focused20 is historical; no lease expiry claimed.",
+  "cases": [
+    {
+      "case": "C01",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c01_same_organization_concurrent_append"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C02",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c02_other_organization_does_not_wait_on_head"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C03",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c03_duplicate_delivery_converges"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C04",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c04_concurrent_duplicate_receipts"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C05",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c05_same_identity_changed_content_rejected"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C06",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c06_crash_after_insert_rolls_back_receipt_and_fact"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C07",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c07_commit_then_lost_ack_replay"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C08",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c08_chain_assignment_many_contenders"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C09",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c09_stale_predecessor_cannot_be_supplied"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C10",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c10_verifier_sees_consistent_committed_snapshot"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C11",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c11_foreign_tenant_cannot_change_integrity_head"
+      ],
+      "additional_integrity_regression": {
+        "test_node": "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id",
+        "executed_nodes": [
+          "tests/security/test_audit_integrity.py::test_own_tenant_cannot_reserve_another_tenants_head_id"
+        ],
+        "result": "PASS",
+        "focused_artifact": "/tmp/p22-head-collision-green.log",
+        "focused_security_passed": 29,
+        "invariant": "audit_heads.id = organization_id",
+        "history": "Failed reproduction and repair retained in development-history H14; no unresolved collision claim.",
+        "validation_source": "/tmp/p22-01c-full.xml"
+      },
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C12",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c12_foreign_record_id_not_visible"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C13",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c13_snapshot_cursor_excludes_new_appends"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C14",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c14_correction_waits_for_original_commit_without_rewriting"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C15",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c15_source_mutation_and_intent_rollback"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C16",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c16_uncommitted_intent_not_consumable"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C17",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/producer.py",
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c17_revocation_does_not_rewrite_occurred_fact"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C18",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c18_same_actor_and_source_id_across_organizations"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C19",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/consumer.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c19_poison_terminal_preserves_no_success"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "C20",
+      "test_node": "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit",
+      "result": "PASS_LOCAL",
+      "focused_result": "PASS",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/repository.py"
+      ],
+      "limitations": [],
+      "executed_nodes": [
+        "tests/concurrency/test_audit_races.py::test_c20_ledger_append_does_not_reemit_audit"
+      ],
+      "validation_source": "/tmp/p22-01c-full.xml"
+    },
+    {
+      "case": "P01",
+      "description": "Independent platform integrity domains",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL_AND_PURE_DOMAIN_CONTRACT",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
+        "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked"
+      ],
+      "executed_nodes": [
+        "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards",
+        "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked"
+      ],
+      "linearization_point": "Only derived-domain head locked. Commit publishes ledger row, domain head and receipt atomically; holding one head does not stop another domain.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P02",
+      "description": "Same-domain contention preserves contiguous chain",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous"
+      ],
+      "linearization_point": "32 sources across eight barrier-synchronized appenders serialize on one domain head row; verification proves contiguous sequence1..32.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P03",
+      "description": "Concurrent workers make useful progress under disjoint transactional claims",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
+        "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
+        "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+        "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
+        "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
+        "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+        "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain"
+      ],
+      "linearization_point": "Source SELECT FOR UPDATE SKIP LOCKED establishes exclusive in-transaction ownership; fresh receipt read closes READ COMMITTED selection race. Two workers rendezvous after actual append before either commits, holding disjoint source/head locks. NOWAIT busy-head rollback allows bounded other-source attempts.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": [
+        "At most batch_size attempts per invocation. Hot shards serialize; NOWAIT busy-head rollback permits other source attempts, retrying busy sources in future invocations."
+      ]
+    },
+    {
+      "case": "P04",
+      "description": "Duplicate and lost-response replay converges with conflict detection",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+        "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+        "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt"
+      ],
+      "linearization_point": "Source row lock serializes same-source requests; committed unique source record plus receipt returns same record_id; recomputed semantic digest rejects changed committed source.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P05",
+      "description": "Crash before commit rolls back claim, ledger, head and receipt",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
+        "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response"
+      ],
+      "linearization_point": "Exception after flush but before transaction commit rolls back all writes and releases row locks; subsequent worker recovers.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P06",
+      "description": "No lease model: transaction-scoped claim ownership and rollback release",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+        "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+        "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together"
+      ],
+      "linearization_point": "PostgreSQL transaction end or connection loss releases claim row lock. Another worker cannot acquire the held source, then can process after rollback.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": [
+        "NOT_APPLICABLE: no persisted leases, lease deadline, expiry timer, lease epoch or stale-lease reclamation. Tests demonstrate transaction ownership/release, not simulated expiry."
+      ]
+    },
+    {
+      "case": "P07",
+      "description": "Poison source cannot prevent healthy fact in another domain",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
+        "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
+        "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact"
+      ],
+      "linearization_point": "Rejected source receives terminal INVALID_INTENT receipt under its source lock without ledger/head write. Healthy other-domain source commits separately.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P08",
+      "description": "Multi-domain verifier binds integrity and one stable snapshot",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+        "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
+        "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+        "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
+      ],
+      "linearization_point": "One REPEATABLE READ READ ONLY transaction establishes all requested domain high-water marks; concurrent append excluded, corruption in one requested domain rejects whole operation while unaffected domain verifies independently.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": [
+        "At most17 requested domains and200 records per domain per call; complete requires each requested domain fully scanned; all_domains requires all17."
+      ]
+    },
+    {
+      "case": "P09",
+      "description": "Locked tenant head permits independent platform append",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked"
+      ],
+      "linearization_point": "Open tenant append transaction holds tenant head; platform append commits before tenant transaction releases lock.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    },
+    {
+      "case": "P10",
+      "description": "Locked platform head permits tenant and other-platform-domain append",
+      "result": "PASS_LOCAL",
+      "authority": "REAL_POSTGRESQL",
+      "implementation": [
+        "src/nexus_ai/audit/platform/worker.py",
+        "src/nexus_ai/audit/platform/contracts.py",
+        "src/nexus_ai/audit/platform/control.py",
+        "src/nexus_ai/domain/platform_audit/models.py"
+      ],
+      "test_nodes": [
+        "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent"
+      ],
+      "executed_nodes": [
+        "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent"
+      ],
+      "linearization_point": "Open platform transaction locks one domain head; tenant append and distinct platform-domain append finish before that lock releases.",
+      "validation_source": "/tmp/p22-01c-full.xml",
+      "limitations": []
+    }
+  ],
+  "platform_additional_nodes": [
+    "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+    "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+    "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append"
+  ],
+  "additional_result": "PASS_LOCAL",
+  "historical_source_bindings": [
+    {
+      "source_set_sha256": "e990c0e225a314dc8bfbee373976b5b5068d4511951ea1a1eecac53cd721ff4b",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "digest_artifact": "/tmp/p22-tested-source-hash.txt",
+        "status": "PENDING_FINAL_XML_BINDING",
+        "note": "Digest supplied by root for tested source set; this draft does not independently assert hash scope or final XML equality. Evidence JSON document hashes are separate from runtime source-set hash."
+      }
+    },
+    {
+      "status": "SUPERSEDED_BY_CORRECTIVE01_LOCAL_FULL_RUN",
+      "source_binding": {
+        "kind": "DIRTY_IMPLEMENTATION_SNAPSHOT",
+        "status": "VERIFIED_FINAL_XML_BINDING",
+        "source_manifest": "/tmp/p22-source-final2.json",
+        "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd",
+        "source_sha": "2ac2ff84df240f680a280c8b5244d0c7a34feaf8",
+        "verification": "Root verified source manifest unchanged before/after full run; HEAD unchanged. Reviewer parsed exact executed JUnit results. Evidence documents are outside runtime snapshot binding.",
+        "xml": "/tmp/p22-full-final2.xml"
+      },
+      "final_full_suite": {
+        "result": "PASS",
+        "tests": 2876,
+        "passed": 2876,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "duration_seconds_log": 1248.35,
+        "duration_seconds_junit": 1248.336,
+        "coverage_percent": 91.3468479307026,
+        "coverage_display": "91.35%",
+        "coverage_threshold": 90,
+        "xml": "/tmp/p22-full-final2.xml",
+        "log": "/tmp/p22-full-final2.log",
+        "coverage_artifact": "/tmp/p22-full-final2-coverage.json",
+        "source_set_sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+      },
+      "final_artifact_bindings": [
+        {
+          "path": "/tmp/p22-full-final2.xml",
+          "sha256": "fa9f772910ef1f2f8b812aa88be29fdaa9a650dbcdb00db97a893b1c50d7b6be"
+        },
+        {
+          "path": "/tmp/p22-full-final2.log",
+          "sha256": "1376f614c163ef831cd7f1d060cb86165c52cf0b819fd260b2965715bf9bda63"
+        },
+        {
+          "path": "/tmp/p22-full-final2-coverage.json",
+          "sha256": "8a0f9caefbbd369c5e038b29e6d91decb10f5198196d4de711ec71c2262ef256"
+        },
+        {
+          "path": "/tmp/p22-source-final2.json",
+          "sha256": "05052ba8d0c488bd26e7491f9446b3ec97205688d8ca5f0606db25e73a4ec5bd"
+        },
+        {
+          "path": "/tmp/p22-security-final2.log",
+          "sha256": "d853db07150a23c6c311d7df78c0455ed5b2bb7d6579859eff24b32759f56bd8"
+        },
+        {
+          "path": "/tmp/p22-migration-result.json",
+          "sha256": "b6242c7c552c86eda16148c57c4cff377ce5e4a445431aa258fb957efe308307"
+        },
+        {
+          "path": "/tmp/p22-webhook-provenance.log",
+          "sha256": "74da3d979f53be9c610c6a25ab85ee0dbaec046ca25562075334b54f443ebfbc"
+        },
+        {
+          "path": "/tmp/p22-events-cli-corrective.log",
+          "sha256": "cf53e67197feba9d3322596f003998e1f430c5acbc5169e1e6fdaf57a0922d09"
+        }
+      ]
+    }
+  ],
+  "final_full_suite": {
+    "result": "PASS",
+    "passed": 2901,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1289.311,
+    "started_at": "2026-09-30T13:07:45.718923-05:00",
+    "tests": 2901,
+    "coverage_percent": 91.32558278899742,
+    "xml": "/tmp/p22-01c-full.xml",
+    "log": "/tmp/p22-01c-full.log",
+    "coverage_artifact": "/tmp/p22-01c-coverage.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
+  },
+  "final_artifact_bindings": [
+    {
+      "path": "/tmp/p22-01c-full.xml",
+      "sha256": "23ba742ad95d2265fd19e779a63f9b958f648ca692222c360c4fd961acede94c"
+    },
+    {
+      "path": "/tmp/p22-01c-full.log",
+      "sha256": "5bf1cb6d8850534085f5ff32bb5aed7141b8695940256b03b1352fc8911bd2f5"
+    },
+    {
+      "path": "/tmp/p22-01c-coverage.json",
+      "sha256": "7464399e561bc3e7cb1c671376e5114c4c766c9c923788c84e23ce317dbcea70"
+    },
+    {
+      "path": "/tmp/p22-01c-source-before.json",
+      "sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a"
+    }
+  ],
+  "platform_executed_nodes": [
+    "tests/integration/test_platform_audit.py::test_actual_role_attributes_and_no_tenant_acl",
+    "tests/integration/test_platform_audit.py::test_changed_committed_source_cannot_hide_behind_receipt",
+    "tests/integration/test_platform_audit.py::test_committed_source_replay_conflict_and_scope",
+    "tests/integration/test_platform_audit.py::test_concurrent_appends_and_duplicates_converge",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload0]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload1]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload2]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload3]",
+    "tests/integration/test_platform_audit.py::test_database_rejects_missing_or_wrong_scope[payload4]",
+    "tests/integration/test_platform_audit.py::test_independent_platform_append_while_tenant_head_locked",
+    "tests/integration/test_platform_audit.py::test_invalid_receipt_and_outer_scope_fail_database",
+    "tests/integration/test_platform_audit.py::test_live_platform_grants_and_revocation",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[DELETE FROM platform_audit_records WHERE sequence=2]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET predecessor=repeat('f',64) WHERE sequence=2]",
+    "tests/integration/test_platform_audit.py::test_privileged_corruption_detected_in_page_or_anchor[UPDATE platform_audit_records SET semantic_digest=repeat('f',64) WHERE sequence=1]",
+    "tests/integration/test_platform_audit.py::test_role_privileges_and_immutable_triggers",
+    "tests/integration/test_platform_audit.py::test_snapshot_verification_excludes_concurrent_append",
+    "tests/integration/test_platform_audit.py::test_source_transaction_rollback_and_committed_visibility",
+    "tests/integration/test_platform_audit.py::test_stable_bounded_pagination_and_partial_verification",
+    "tests/integration/test_platform_audit.py::test_terminal_poison_does_not_block_next_fact",
+    "tests/integration/test_platform_audit.py::test_worker_crash_before_commit_and_lost_response",
+    "tests/integration/test_platform_domains.py::test_busy_domain_does_not_block_claiming_healthy_domain",
+    "tests/integration/test_platform_domains.py::test_claim_append_receipt_and_head_rollback_together",
+    "tests/integration/test_platform_domains.py::test_claim_skips_locked_source_and_rollback_releases_claim",
+    "tests/integration/test_platform_domains.py::test_concurrent_claimers_commit_each_source_once",
+    "tests/integration/test_platform_domains.py::test_independent_domains_progress_while_one_head_is_locked",
+    "tests/integration/test_platform_domains.py::test_locked_platform_head_leaves_tenant_and_other_domain_independent",
+    "tests/integration/test_platform_domains.py::test_multi_domain_snapshot_and_corruption_are_isolated",
+    "tests/integration/test_platform_domains.py::test_poison_source_in_one_domain_leaves_other_domain_healthy",
+    "tests/integration/test_platform_domains.py::test_same_domain_contention_remains_contiguous",
+    "tests/integration/test_platform_domains.py::test_two_workers_hold_disjoint_claims_and_heads_concurrently",
+    "tests/unit/test_platform_domain_contracts.py::test_fixed_domains_are_deterministic_and_cover_all_shards"
+  ],
+  "platform_executed_case_count": 32,
+  "platform_result": "PASS_LOCAL",
+  "required_tenant_cases": 20,
+  "required_platform_cases": 10,
+  "corrective01a_previous_binding": {
+    "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+    "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+    "source_binding": {
+      "kind": "DIRTY_CORRECTIVE_IMPLEMENTATION_SNAPSHOT",
+      "status": "VERIFIED_LOCAL_FULL_XML_BINDING",
+      "source_manifest": "/tmp/p22-corrective-source-final.json",
+      "source_set_sha256": "2df3ab9e9c4aaf8fff91ce7a8b22bfc27f6d745aa89ed10e705a957a81258c99",
+      "parent_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "source_sha": "b201759a41bf1ad8ae4a83b5c1ad92ec035c779e",
+      "candidate_sha": null,
+      "verification": "Parent identifies frozen corrective source; this evidence independently verifies manifest artifact SHA256 and exact passing JUnit nodes. Parent SHA identifies immutable base, not a committed corrective candidate. Evidence-only updates are outside frozen source manifest.",
+      "xml": "/tmp/p22-corrective-full.xml"
+    },
+    "result": "PASS_LOCAL"
+  },
+  "corrective01a_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01a.json",
+    "tests": "tests.json",
+    "local_certification": "local-certification.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  },
+  "corrective01c_previous_binding": {
+    "candidate": "d261a08559404ca29bcfcc06591bc1b212f16eab",
+    "source_sha": "bf34ec77d987ddef79781706ba786226a73510d4",
+    "source_set_sha256": "1d8ee8bcd47bd62899f52f8dbe420db60ed144ea508b2e632f397b7fca053811",
+    "result": "PASS_LOCAL",
+    "interpretation": "Historical functional result; exact-head dependency security FAILED. Superseded by freshly certified environment, not relabeled PASS."
+  },
+  "corrective01c_verification": {
+    "result": "PASS_LOCAL",
+    "evidence": "corrective-01c.json",
+    "source_set_sha256": "e4a8c4a577f8b0d7f84278a1697cfb92c48072879ee691f8a9a9fa678a53457a",
+    "exact_head": "PENDING_EXACT_HEAD"
+  }
+}

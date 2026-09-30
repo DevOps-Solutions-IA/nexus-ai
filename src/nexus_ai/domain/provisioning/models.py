@@ -94,7 +94,8 @@ class PlatformGrantRecord(Base):
     __table_args__ = (
         CheckConstraint(
             "capability IN ('organization:create','cell:control','sip_edge:control',"
-            "'sentinel:read','sentinel:triage','sentinel:approve','sentinel:control')",
+            "'sentinel:read','sentinel:triage','sentinel:approve','sentinel:control',"
+            "'audit:platform:read','audit:platform:verify')",
             name="capability_known",
         ),
     )

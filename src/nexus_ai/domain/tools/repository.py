@@ -207,10 +207,11 @@ class ToolExecutionRepository:
         correlation_id: str | None,
         idempotency_key: str | None,
         caller_user_id: UUID | None,
-    ) -> None:
+    ) -> UUID:
+        receipt_id = uuid.uuid7()
         self._session.add(
             ToolExecutionRecord(
-                id=uuid.uuid7(),
+                id=receipt_id,
                 organization_id=self._tenant.organization_id,
                 tool_id=tool_id,
                 tool_key=tool_key,
@@ -230,6 +231,7 @@ class ToolExecutionRepository:
             )
         )
         await self._session.flush()
+        return receipt_id
 
 
 class ToolIdempotencyRepository:
