@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "entries": [
+    {
+      "classification": "PROACTIVE_LIFECYCLE_CONTRACT_REVIEW",
+      "result": "SOURCE_CORRECTED_BEFORE_CANDIDATE",
+      "description": "The new future-roadmap contract originally asserted permanent PLANNED status. Review removed that lifecycle freeze and strengthened the test to require all 18 exact mandatory requirement IDs under their designated owners. Legitimate future lifecycle advancement remains governed by canonical validation.",
+      "historical_full_regression": "tests-pre-contract-review.json",
+      "clean_room_attempt": "INTERRUPTED_FOR_TEST_CONTRACT_CORRECTION; exit 143, no certification claim",
+      "resolution": "Fresh test-all and clean-room on the final source; no product runtime changes."
+    },
+    {
+      "classification": "BASELINE_DEPENDENCY_SECURITY_BLOCKER",
+      "result": "FAIL",
+      "affected_packages": ["PyJWT 2.13.0", "urllib3 2.7.0"],
+      "vulnerabilities": 16,
+      "resolution": "Master Orchestrator H0-00 authorization; narrow dependency update and fresh independent security verification.",
+      "evidence": "h0-00-security-sync.json"
+    },
+    {
+      "classification": "DEVELOPMENT_SCHEMA_CORRECTION",
+      "result": "FAIL",
+      "description": "Initial evidence-reference pattern rejected legitimate .nxs/ owning-phase evidence paths in the resolution test.",
+      "resolution": "Allow the canonical .nxs/ prefix while preserving bounded repository-relative paths and manifest-bound evidence checks.",
+      "successful_rerun": "governance.json:focused_tests"
+    },
+    {
+      "classification": "INTERRUPTED_AFTER_SOURCE_FINALIZATION",
+      "result": "NOT_CERTIFICATION",
+      "description": "An early full regression was deliberately stopped after the final owning-readiness commit binding was added. The process had already imported the earlier implementation, so its partial run was not reused as certification.",
+      "resolution": "Restart complete test-all on a fresh H0-only PostgreSQL volume using the final source.",
+      "historical_log": "/tmp/h0-full-interrupted.log"
+    },
+    {
+      "classification": "FOCUSED_REVIEW_COVERAGE_SCOPE",
+      "result": "NOT_FULL_COVERAGE_CERTIFICATION",
+      "description": "A read-only auth patch review initially invoked canonical coverage on a narrow test selection and exited because focused coverage was below 90%. Its diagnostic rerun used --no-cov. Full regression retains the unchanged canonical threshold and includes all production modules.",
+      "review_result": "No concrete surviving auth bypass or auth compatibility regression found."
+    }
+  ],
+  "historical_failures_relabelled_as_pass": false,
+  "p22_candidate": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+  "p22_pr": 50,
+  "p22_lifecycle_operations": [],
+  "scope_limitations": [
+    "H0-02 branch protection and rulesets remain unchanged.",
+    "Future recovery, supply-chain, concurrency and SIP product obligations remain OPEN under their durable owning phases.",
+    "No product phase readiness or deployment is asserted by H0."
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "source_set_sha256": "341d6839b4eaecca5597e1ee7bb25fcb15a2470eb699d94e65121765b64318a5",
+  "result": "PASS_LOCAL",
+  "artifacts": [
+    {
+      "path": ".nxs/evidence/NXS-H0-01/baseline.json",
+      "sha256": "ae0ec047b67ec532ae81152ee9c7e83c2f54455735ca422d6e5e0de9b212544b"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/development-history.json",
+      "sha256": "7a5d3fa9dbd8a3f37b927ae3f7b7ebe3d978fbba3f31c454dfd4d7c0bad02034"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/governance.json",
+      "sha256": "bfd7b434a1f182f17bff3b248d6d58392f1a14b2a6a18222e438d8f025aabbae"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/h0-00-security-sync.json",
+      "sha256": "fa80e0d5859833a4deb620e1a773e5a2510d0fa8ce33ac7949db19cbba379f0f"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/local-certification.json",
+      "sha256": "ee015792c3db5b21b30024789b886dbb31aa23dbdd0a73627e6f2d9af0a601b2"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/source-integrity.json",
+      "sha256": "aa1c5b36e76fdf3970ac2abb72c015e0af46f3416e7e8633a1fdb2936385957e"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/tests-pre-contract-review.json",
+      "sha256": "773109ee122467913adc64bc0dccecb9a8aa965b619c855cb3dd869e34403d3e"
+    },
+    {
+      "path": ".nxs/evidence/NXS-H0-01/tests.json",
+      "sha256": "69b3a7668f8dea7c0c5f8771e1d93505046a7f2f123b24f5e210e2a05ebc5fd5"
+    }
+  ],
+  "exact_head_receipt": "Publish on the draft H0 PR after exact candidate-head NXS CI and NXS Security complete; never reuse baseline workflow runs for the new candidate."
+}

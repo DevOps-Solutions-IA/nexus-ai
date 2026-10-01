@@ -318,6 +318,7 @@
       "branch": "feat/nxs-p30-backend-certification",
       "decision": "PENDING",
       "dependencies": [
+        "NXS-P22",
         "NXS-P27",
         "NXS-P29"
       ],

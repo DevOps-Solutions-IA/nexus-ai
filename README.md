@@ -6,6 +6,11 @@ The platform is being built phase by phase with explicit architectural contracts
 
 ## Current status
 
+H0-01 governance hardening is in progress on `chore/nxs-h0-governance-hardening`
+(Issue #51), pending external audit and merge. It adds sequential admission and future
+certification obligations; it does not implement P23-P32 or change canonical product
+readiness. P22's separate Stage A candidate remains frozen on PR #50.
+
 Canonical backend progress on `main`:
 
 | Phase | Capability | Status |

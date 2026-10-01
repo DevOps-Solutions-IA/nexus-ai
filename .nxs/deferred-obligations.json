@@ -1,0 +1,183 @@
+{
+  "$schema": "./deferred-obligations.schema.json",
+  "schema_version": "1.0.0",
+  "certification_policies": [
+    {
+      "id": "NXS-P30",
+      "required_ancestors": [
+        "NXS-P22"
+      ],
+      "rationale": "Backend Certification requires the completed audit authority and every production-blocking obligation resolved by its owning phase."
+    }
+  ],
+  "obligations": [
+    {
+      "id": "NXS-DEFER-AGENT-001",
+      "source_phase": "NXS-P13",
+      "owner_phase": "NXS-P25",
+      "category": "RECOVERY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Recover orphaned RUNNING agent turns without permanent session unavailability.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Real PostgreSQL lease takeover and stale-worker fencing; reconcile ambiguous effects without fresh redispatch identity.",
+      "source_references": [
+        "docs/engineering/branch-contract.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-DEFER-WORKFLOW-001",
+      "source_phase": "NXS-P14",
+      "owner_phase": "NXS-P25",
+      "category": "RECOVERY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Recover orphaned workflow claims and reconcile ambiguous tool or agent effects through owning authorities.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Deterministic crash, claim takeover and ambiguity tests across replicas, preserving P08/P13 authority.",
+      "source_references": [
+        "docs/engineering/nxs-p14-workflow-engine-design.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-DEFER-SCHEDULER-001",
+      "source_phase": "NXS-P15",
+      "owner_phase": "NXS-P25",
+      "category": "RECOVERY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Recover stale scheduler claims and reconcile dispatch outcomes through P14 idempotency.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Prove stale-owner rejection, bounded recovery and one logical workflow start after ambiguous dispatch.",
+      "source_references": [
+        "docs/engineering/nxs-p15-scheduler-design.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-DEFER-HUMAN-001",
+      "source_phase": "NXS-P17",
+      "owner_phase": "NXS-P25",
+      "category": "RECOVERY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Recover expired assignment leases and reconcile downstream human-agent operations.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Prove no stale owner can mutate and no ambiguous send is blindly repeated after takeover.",
+      "source_references": [
+        "docs/engineering/nxs-p17-human-agent-operations-design.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-DEFER-SENTINEL-001",
+      "source_phase": "NXS-P20",
+      "owner_phase": "NXS-P25",
+      "category": "RECOVERY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Reconcile Sentinel AMBIGUOUS execution outcomes without automatic redispatch under new identity.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Prove explicit downstream evidence, stable idempotency and generation fencing under crash/recovery.",
+      "source_references": [
+        "docs/engineering/nxs-p20-sentinel-design.md"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-HARDEN-CONCURRENCY-001",
+      "source_phase": "NXS-P22",
+      "owner_phase": "NXS-P27",
+      "category": "CONCURRENCY",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Audit cross-phase concurrency tests: fixed sleeps cannot prove happens-before ordering.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Use committed state, durable permits, leases/fences or observable external entry barriers; retain regression evidence across P00-P22.",
+      "source_references": [
+        "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-HARDEN-SUPPLY-001",
+      "source_phase": "NXS-P22",
+      "owner_phase": "NXS-P27",
+      "category": "SUPPLY_CHAIN",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Dependency security is time-sensitive: new direct or transitive advisories invalidate current clearance.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Prove frozen dependency integrity, fresh candidate scans and blocking treatment of newly disclosed findings; historical PASS remains historical.",
+      "source_references": [
+        "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51"
+      ],
+      "resolution": null
+    },
+    {
+      "id": "NXS-HARDEN-SIP-001",
+      "source_phase": "NXS-P19",
+      "owner_phase": "NXS-P27",
+      "category": "RESILIENCE",
+      "severity": "HIGH",
+      "certification_impact": "PRODUCTION_BLOCKING",
+      "description": "Repeated SIP integration timing instability requires root-cause diagnosis; cause remains unproven.",
+      "status": "OPEN",
+      "status_history": [
+        "OPEN"
+      ],
+      "blocks_phases": [
+        "NXS-P30"
+      ],
+      "proof_expectation": "Preserve failures, reproduce under representative load and synchronize observable boundaries without weaker assertions or arbitrary timeout increases.",
+      "source_references": [
+        "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51"
+      ],
+      "resolution": null
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "source_set_sha256": "341d6839b4eaecca5597e1ee7bb25fcb15a2470eb699d94e65121765b64318a5",
+  "authority": "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51",
+  "source_references": [
+    "scripts/nxs_control/core.py",
+    "scripts/nxs_control/obligations.py",
+    "scripts/nxs_start/__main__.py",
+    "scripts/nxs_state/__main__.py",
+    "scripts/nxs_close/__main__.py",
+    ".nxs/deferred-obligations.schema.json",
+    ".nxs/deferred-obligations.json",
+    ".nxs/requirements.json",
+    ".nxs/phase-registry.json"
+  ],
+  "admission": {
+    "result": "PASS",
+    "normal_rule": "Requested phase must equal next_eligible_phase(), with requested/expected diagnostics before mutation.",
+    "continuation": "Already-active BUILDING continuation is idempotent only after a valid guard.",
+    "corrective_reopen": "Canonical READY -> VALIDATING ownership and continuation remain supported.",
+    "test": "tests/unit/test_governance_hardening.py",
+    "historical_lifecycle_tests": ["tests/unit/test_control_core.py", "tests/unit/test_control_cli.py", "tests/unit/test_lifecycle.py"]
+  },
+  "deferred_obligations": {
+    "result": "PASS",
+    "registry": ".nxs/deferred-obligations.json",
+    "schema": ".nxs/deferred-obligations.schema.json",
+    "count": 8,
+    "all_current_statuses": "OPEN",
+    "production_blocking_phase": "NXS-P30",
+    "owners": {
+      "NXS-P25": ["NXS-DEFER-AGENT-001", "NXS-DEFER-WORKFLOW-001", "NXS-DEFER-SCHEDULER-001", "NXS-DEFER-HUMAN-001", "NXS-DEFER-SENTINEL-001"],
+      "NXS-P27": ["NXS-HARDEN-CONCURRENCY-001", "NXS-HARDEN-SUPPLY-001", "NXS-HARDEN-SIP-001"]
+    },
+    "validation": ["unique IDs", "known source/owner/blocking phases", "legal status history", "resolution prohibited on open entries", "owner READY/GO", "owning implementation exists in Git and matches manifest/readiness", "resolution evidence exists and is manifest-bound", "production blockers block declared certification phases", "owners precede certification", "unresolved blockers reject certification READY/GO"],
+    "historical_readiness_invalidated": false,
+    "future_obligations_resolved_by_h0": false
+  },
+  "future_requirements": {
+    "result": "PASS",
+    "added_count": 18,
+    "all_statuses": "PLANNED",
+    "all_mandatory": true,
+    "ids_by_owner": {
+      "NXS-P23": ["NXS-METER-001", "NXS-COST-001"],
+      "NXS-P25": ["NXS-WF-002", "NXS-SCHED-002", "NXS-HUMAN-002", "NXS-SRE-002", "NXS-RES-003"],
+      "NXS-P27": ["NXS-SEC-004", "NXS-SUPPLY-001"],
+      "NXS-P28": ["NXS-CAP-002", "NXS-CAP-003"],
+      "NXS-P29": ["NXS-CHAOS-001", "NXS-FAILOVER-001"],
+      "NXS-P30": ["NXS-CERT-001", "NXS-CERT-002"],
+      "NXS-P31": ["NXS-RELEASE-001"],
+      "NXS-P32": ["NXS-DEPLOY-001", "NXS-DEPLOY-002"]
+    },
+    "id_collisions": [],
+    "existing_requirement_semantic_changes": [],
+    "serialization_only_changes": "Two existing escaped Unicode descriptions render their unchanged em dashes literally.",
+    "future_product_implementation": "NONE"
+  },
+  "dependency_graph": {
+    "result": "PASS",
+    "p30_dependencies": ["NXS-P22", "NXS-P27", "NXS-P29"],
+    "certification_policy": ".nxs/deferred-obligations.json:certification_policies",
+    "generic_algorithms_hardcode_phase_ids": false,
+    "negative_tests": ["later dependency-qualified phase start rejected", "explicit CLI phase skip rejected", "unknown phases rejected", "duplicate obligations rejected", "illegal resolution rejected", "removed P22 ancestor rejected", "dependency cycle rejected", "P30 guard/start/close/READY blocked before mutation"]
+  },
+  "focused_tests": [
+    {"command": "uv run pytest tests/unit/test_control_core.py tests/unit/test_control_cli.py -q --no-cov --junitxml=/tmp/h0-required-control.xml", "passed": 25, "failed": 0, "skipped": 0, "runtime_seconds": 3.114, "result": "PASS"},
+    {"command": "uv run pytest tests/unit -k 'control or lifecycle' -q --no-cov --junitxml=/tmp/h0-required-lifecycle.xml", "passed": 92, "deselected": 1186, "failed": 0, "skipped": 0, "runtime_seconds": 11.197, "result": "PASS"},
+    {"selection": "control core/CLI, generic lifecycle, governance hardening and JWT dependency regression", "junit_artifact": "/tmp/h0-final-focused.xml", "passed": 77, "failed": 0, "skipped": 0, "runtime_seconds": 12.164, "result": "PASS"}
+  ],
+  "doctrine": ["AGENTS.md", "docs/engineering/control-system.md", "docs/engineering/h0-governance-hardening.md"],
+  "limitations": ["H0 defines future obligations, not future product behavior.", "Tests use disposable lifecycle repositories; no actual product phase was started, reopened or closed.", "Resolution readers need owning implementation commit objects available in Git."]
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "source_set_sha256": "341d6839b4eaecca5597e1ee7bb25fcb15a2470eb699d94e65121765b64318a5",
+  "result": "PASS",
+  "checks": [
+    {
+      "command": "make nxs-validate-repo",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make lint",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make type",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv lock --check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "uv sync --frozen --all-groups",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make db-bootstrap",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make migrate-check",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make nxs-schema-guard",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make test-all",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make security",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "make clean-room",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0,
+      "result": "PASS"
+    }
+  ],
+  "clean_room": {
+    "command": "COMPOSE_PROJECT_NAME=nxs-h0-01 PYTEST_ADDOPTS='--junitxml=/tmp/h0-cleanroom.xml' make clean-room",
+    "result": "PASS",
+    "exit_code": 0,
+    "frozen_environment": "PyJWT 2.15.0 and urllib3 2.8.0; no unrelated dependency version changes",
+    "passed": 2728,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1108.964,
+    "coverage_percent": 91.44559247882341,
+    "branch_coverage_percent": 78.64747634069401,
+    "canonical_threshold": 90,
+    "full_suite_artifacts": "Captured separately before the final handoff test overwrote the shared JUnit path",
+    "agent_handoff": {
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "runtime_seconds": 0.013
+    },
+    "capabilities": [
+      "fresh frozen dependency install",
+      "fresh H0 PostgreSQL volume",
+      "non-bypass role bootstrap",
+      "migration upgrade/check",
+      "schema guard",
+      "pinned SIP/ARI fixture construction",
+      "complete current suite",
+      "production Docker build",
+      "amd64/arm64 multiarch build",
+      "non-root assertion",
+      "liveness/readiness",
+      "graceful shutdown",
+      "agent handoff"
+    ],
+    "fresh_git_checkout": false,
+    "source_scope": "Frozen existing main-based working tree; repository canonical clean-room script recreates dependencies and infrastructure, not Git history"
+  },
+  "image": {
+    "id": "sha256:86b12f870feed9ba3153dd927891982eec57886faeff06c86baabf0700af8364",
+    "architecture": "amd64",
+    "user": "65532:65532",
+    "multiarch": "PASS build; not falsely represented as arm64 production deployment"
+  },
+  "security": {
+    "fresh_cache_command": "uv run pip-audit --cache-dir /tmp/nxs-h0-candidate-audit-cache --format json",
+    "pip_audit_exit_code": 0,
+    "known_dependency_vulnerabilities": 0,
+    "bandit": "PASS canonical make security",
+    "gitleaks": "PASS history and working tree using v8.28.0",
+    "first_party_audit_limitation": "pip-audit skips local nexus-ai because it is not published on PyPI; first-party code is separately covered by SAST, tests and review."
+  },
+  "scope": {
+    "production_business_runtime_delta": [],
+    "migration_delta": [],
+    "p22_test_delta": [],
+    "workflow_delta": [],
+    "product_lifecycle_delta": [],
+    "branch_protection_ruleset_delta": [],
+    "p22_pr": 50,
+    "p22_head": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+    "p22_state": "OPEN"
+  },
+  "infrastructure_isolation": "Only nxs-h0-01 disposable volumes reset; original nexus-ai-local volumes preserved and existing infrastructure restarted after H0 clean-room cleanup.",
+  "candidate_github_certification": "PENDING_EXACT_HEAD; reported in the draft PR receipt after candidate publication."
+}

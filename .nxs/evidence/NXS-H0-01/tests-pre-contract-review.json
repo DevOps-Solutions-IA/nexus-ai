@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "source_set_sha256": "e5968e344aab024cdb96717884c1c38dd5daa55688def7ffe9d02088ed446363",
+  "result": "PASS",
+  "certification_status": "HISTORICAL_SOURCE_SUPERSEDED_BY_LIFECYCLE_CONTRACT_REVIEW",
+  "command": "PYTEST_ADDOPTS='--junitxml=/tmp/h0-full.xml' make test-all",
+  "compose_project": "nxs-h0-01",
+  "database": "Fresh H0-only PostgreSQL volume; bootstrap and migrations; non-bypass nexus_runtime test authority.",
+  "exit_code": 0,
+  "passed": 2728,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 0,
+  "runtime_seconds": 1171.937,
+  "coverage_percent": 91.42387290949145,
+  "canonical_coverage_threshold": 90,
+  "coverage": {
+    "covered_lines": 25480,
+    "num_statements": 27157,
+    "missing_lines": 1677,
+    "covered_branches": 3985,
+    "num_branches": 5072,
+    "missing_branches": 1087,
+    "branch_coverage_percent": 78.5686119873817,
+    "interpretation": "Canonical combined statement/branch measurement; branch-only percentage is separately reported, not conflated with combined coverage.",
+    "threshold_or_exclusion_changes": "NONE"
+  },
+  "validation_source": "pytest JUnit /tmp/h0-full.xml and coverage JSON /tmp/h0-full-coverage.json",
+  "historical_attempt": "development-history.json:INTERRUPTED_AFTER_SOURCE_FINALIZATION",
+  "clean_room_certification": "Recorded separately in local-certification.json after the independent clean-room run."
+}
