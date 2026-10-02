@@ -12,7 +12,7 @@ COPY alembic.ini ./
 RUN uv sync --frozen --no-dev
 RUN ln -sf /usr/bin/python /opt/venv/bin/python && ln -sf /usr/bin/python /opt/venv/bin/python3 && ln -sf /usr/bin/python /opt/venv/bin/python3.14
 
-FROM cgr.dev/chainguard/python:latest@sha256:7e7c7716d8eebd4756a0237b8a1a3857344d45bc21b7a052a334ffafc2928119
+FROM cgr.dev/chainguard/python:latest
 WORKDIR /app
 COPY --from=builder --chown=65532:65532 /opt/venv /opt/venv
 COPY --from=builder --chown=65532:65532 /build/src/nexus_ai /app/nexus_ai
