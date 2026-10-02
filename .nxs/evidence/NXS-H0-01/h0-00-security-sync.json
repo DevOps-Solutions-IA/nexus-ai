@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-00",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "authorization": "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51#issuecomment-5922414915",
+  "result": "PASS",
+  "baseline_audit": {
+    "result": "FAIL",
+    "vulnerability_count": 16,
+    "affected_packages": 2,
+    "artifact_sha256": "4e1c79742a64cc975a13879905e60c20524ad3f089a45c5d6f59afd4716cac2f",
+    "pyjwt": {
+      "version": "2.13.0",
+      "advisories": ["GHSA-w6j9-cwv2-h6wq", "GHSA-2gx3-rcp4-g85q", "GHSA-w2cx-738m-mc7w", "GHSA-hxm8-2xgr-2p9m", "GHSA-9v7f-9g4p-ffgj", "GHSA-ffc3-869f-jxw9", "GHSA-r6x4-923q-g947", "GHSA-p4g4-x82p-q773", "GHSA-8wjv-2p76-3863", "GHSA-9j54-fg26-wv3r", "GHSA-jwrc-g2q2-pq5p", "GHSA-42vr-xj54-vc7v", "GHSA-gvp8-978c-rx2q"]
+    },
+    "urllib3": {
+      "version": "2.7.0",
+      "advisories": ["GHSA-8988-9cw3-xx77", "GHSA-gh4c-6fx4-qh6g", "GHSA-vxq7-64xx-v4gw"]
+    },
+    "interpretation": "Historical security failure, not current clearance. Authorization states CVE-2026-103001 affects PyJWT >=2.11.0 <=2.13.0; PyJWT 2.15.0 is outside that range."
+  },
+  "resolution": {
+    "command": "uv lock --upgrade-package pyjwt --upgrade-package urllib3",
+    "version_changes": {
+      "pyjwt": ["2.13.0", "2.15.0"],
+      "urllib3": ["2.7.0", "2.8.0"]
+    },
+    "unrelated_package_version_changes": [],
+    "pyproject_sha256": "604450e68f882ce83d5847bb463c439794cf593d6c576f5b4dc48ba7eda27e22",
+    "lock_sha256": "6cee31f323d5826f363245dbe12c526bce6dcb28bf192583daa812d494995443",
+    "dependency_graph_command": "uv tree --invert --package urllib3; uv tree --invert --package pyjwt",
+    "dependency_paths_before_and_after": [
+      ["nexus-ai", "pyjwt"],
+      ["nexus-ai", "opentelemetry-exporter-otlp-proto-http", "requests", "urllib3"],
+      ["nexus-ai[dev]", "pip-audit", "requests", "urllib3"],
+      ["nexus-ai[dev]", "pip-audit", "cachecontrol", "requests", "urllib3"]
+    ]
+  },
+  "executed_security_checks": [
+    {"command": "uv lock --check", "exit_code": 0, "result": "PASS"},
+    {"command": "uv sync --frozen --all-groups", "exit_code": 0, "result": "PASS"},
+    {"command": "uv run pip-audit --cache-dir /tmp/nxs-h0-fixed-audit-cache --format json", "exit_code": 0, "known_vulnerabilities": 0, "result": "PASS"},
+    {"command": "uv run pip-audit --cache-dir /tmp/nxs-h0-final-audit-cache --format json", "exit_code": 0, "known_vulnerabilities": 0, "result": "PASS"},
+    {"command": "uv run bandit -q -lll -c pyproject.toml -r src scripts", "exit_code": 0, "result": "PASS"},
+    {"command": "gitleaks dir . --redact --no-banner", "exit_code": 0, "result": "PASS"},
+    {"command": "make security", "exit_code": 0, "result": "PASS"},
+    {"command": "/tmp/nxs-h0-tools/gitleaks git --redact --no-banner --exit-code 1 --config .gitleaks.toml", "tool_source_version": "v8.28.0", "exit_code": 0, "result": "PASS"},
+    {"command": "/tmp/nxs-h0-tools/gitleaks dir . --redact --no-banner --exit-code 1 --config .gitleaks.toml", "tool_source_version": "v8.28.0", "exit_code": 0, "result": "PASS"}
+  ],
+  "auth_regression": {
+    "command": "uv run pytest tests/security/test_jwt_dependency_regression.py tests/unit/test_auth_tokens.py tests/unit/test_auth_keys.py tests/security/test_auth_security.py -q --no-cov --junitxml=/tmp/h0-auth.xml",
+    "result": "PASS",
+    "passed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "runtime_seconds": 0.177,
+    "new_tests": "tests/security/test_jwt_dependency_regression.py",
+    "production_auth_delta": "NONE",
+    "jwk_scope": "Public PyJWT API regression only; Nexus authentication has no JWK/JWKS production path.",
+    "coverage_scope": "Focused diagnostics use --no-cov; full canonical coverage is certified separately without exclusions or threshold changes."
+  },
+  "p22_preservation": {
+    "candidate": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+    "pr": 50,
+    "runtime_schema_test_delta": "NONE",
+    "lifecycle_operations": []
+  }
+}

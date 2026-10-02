@@ -107,16 +107,16 @@ def start(phase_id: str, actor: str, *, root: Path | None = None) -> dict[str, A
 
     state_path = root / ".nxs/project-state.json"
     state = load_json(state_path)
+    guard = evaluate_guard(root, phase_id)
+    if guard.result != "PASS":
+        raise ControlError(f"guard blocks start ({guard.code}): " + "; ".join(guard.reasons))
+
     if (
         state["active_phase"] == phase_id
         and phase["status"] == "BUILDING"
         and state["current_phase"]["id"] == phase_id
     ):
         return {"phase": phase_id, "status": "BUILDING", "note": "already active"}
-
-    guard = evaluate_guard(root, phase_id)
-    if guard.result != "PASS":
-        raise ControlError(f"guard blocks start ({guard.code}): " + "; ".join(guard.reasons))
 
     if not actor.strip():
         raise ControlError("an actor is required to start a phase")

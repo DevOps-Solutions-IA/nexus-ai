@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "issue": "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51",
+  "security_authorization_comment": "https://github.com/DevOps-Solutions-IA/nexus-ai/issues/51#issuecomment-5922414915",
+  "branch": "chore/nxs-h0-governance-hardening",
+  "canonical_main": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "verified_baseline_workflows": [
+    {"name": "NXS CI", "id": 36496301497, "event": "push", "conclusion": "success", "head_sha": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e"},
+    {"name": "NXS Security", "id": 36496301483, "event": "push", "conclusion": "success", "head_sha": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e"}
+  ],
+  "product_lifecycle": {
+    "p00_through_p21": "READY / GO",
+    "p22_and_later": "PLANNED / PENDING on canonical main-based H0 branch",
+    "active_phase": null,
+    "execution_lock": "RELEASED",
+    "next_allowed_execution": "NXS-P22 / DEPENDENCIES_READY",
+    "mutated_by_h0": false
+  },
+  "separate_p22_feature_work": {
+    "candidate": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+    "pr": 50,
+    "pr_state": "OPEN",
+    "inspection": "Read-only GitHub PR head verification",
+    "mutation": "NONE"
+  },
+  "authorization_limits": [
+    "Governance/control-system and explicitly authorized H0-00 dependency regression only",
+    "No P22 runtime/schema/test changes or lifecycle operations",
+    "No branch protection/ruleset mutation",
+    "No future product implementation",
+    "No merge, P23 start or deployment",
+    "Draft PR and external Master Orchestrator audit required"
+  ]
+}

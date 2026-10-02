@@ -112,6 +112,7 @@ def validate_all_schemas(root: Path) -> None:
         ("phase-registry.json", "phase-registry.schema.json"),
         ("readiness.json", "readiness.schema.json"),
         ("execution-lock.json", "execution-lock.schema.json"),
+        ("deferred-obligations.json", "deferred-obligations.schema.json"),
     ]
     for document, schema in pairs:
         validate_document(nxs / document, nxs / schema)
@@ -172,6 +173,9 @@ def validate_invariants(root: Path) -> None:
         for dependency in cast(list[str], requirement["dependencies"]):
             if dependency not in requirements:
                 raise ControlError(f"{requirement_id} references unknown requirement {dependency}")
+    from scripts.nxs_control.obligations import validate_obligations
+
+    validate_obligations(root, phases)
     manifests = {path.stem: load_json(path) for path in (nxs / "phases").glob("NXS-P*.json")}
     for phase_id, manifest in manifests.items():
         registry_phase = phases.get(phase_id)
@@ -239,6 +243,17 @@ def evaluate_guard(root: Path, phase_id: str, branch: str | None = None) -> Guar
         active_phase = state["active_phase"]
         if active_phase not in (None, phase_id):
             reasons.append(f"conflicting active phase {active_phase}")
+        if active_phase is None:
+            expected = next_eligible_phase(root)
+            if phase_id != expected:
+                reasons.append(
+                    f"requested phase {phase_id}; expected next eligible phase {expected}"
+                )
+        from scripts.nxs_control.obligations import unresolved_blockers
+
+        blockers = unresolved_blockers(root, phase_id)
+        if blockers:
+            reasons.append(f"unresolved certification obligations: {', '.join(blockers)}")
         lock = load_json(nxs / "execution-lock.json")
         if lock["state"] == "ACTIVE" and lock["phase"] != phase_id:
             reasons.append(f"execution lock is held by {lock['phase']}")

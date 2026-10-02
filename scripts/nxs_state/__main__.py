@@ -17,6 +17,7 @@ from scripts.nxs_control.core import (
     validate_invariants,
     write_json,
 )
+from scripts.nxs_control.obligations import require_closure_obligations
 
 
 def _apply_reopen(root: Path, phase_id: str, state: dict[str, Any]) -> None:
@@ -44,6 +45,8 @@ def transition(phase_id: str, target: str, *, root: Path | None = None) -> None:
     current = cast(str, phase["status"])
     if not transition_allowed(current, target):
         raise ControlError(f"invalid transition {current} -> {target}")
+    if target == "READY":
+        require_closure_obligations(root, phase_id)
     is_reopen = (current, target) == REOPEN_TRANSITION
     decision = (
         "GO" if target == "READY" else "NO_GO" if target in {"FAILED", "BLOCKED"} else "PENDING"

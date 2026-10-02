@@ -17,6 +17,7 @@ from scripts.nxs_control.core import (
     validate_invariants,
     write_json,
 )
+from scripts.nxs_control.obligations import require_closure_obligations
 from scripts.nxs_guard.lock import release_if_held
 
 
@@ -36,6 +37,7 @@ def close(
 ) -> dict[str, Any]:
     root = root or repository_root()
     validate_invariants(root)
+    require_closure_obligations(root, phase_id)
     guard = evaluate_guard(root, phase_id)
     if guard.result != "PASS":
         raise ControlError("guard does not pass: " + "; ".join(guard.reasons))

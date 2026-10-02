@@ -690,7 +690,7 @@
       "dependencies": [
         "NXS-PLATFORM-002"
       ],
-      "description": "No Organization can read, write, mutate, cache, execute against or inherit another Organization's context \u2014 enforced in PostgreSQL by forced Row-Level Security and a non-bypass runtime role, not by application WHERE clauses \u2014 across data and compute, under raw SQL, connection-pool reuse, concurrency, rollback and spoofed identifiers.",
+      "description": "No Organization can read, write, mutate, cache, execute against or inherit another Organization's context — enforced in PostgreSQL by forced Row-Level Security and a non-bypass runtime role, not by application WHERE clauses — across data and compute, under raw SQL, connection-pool reuse, concurrency, rollback and spoofed identifiers.",
       "id": "NXS-TENANT-001",
       "implementation_evidence": [
         "migrations/versions/20260907_0612-ea956f004f7a_organizations_core.py",
@@ -790,7 +790,7 @@
         "NXS-TENANT-003",
         "NXS-MIGRATE-001"
       ],
-      "description": "The Organization aggregate \u2014 server-generated immutable UUIDv7 identity, normalized reserved-safe organization_key, validated profile fields, timezone-aware timestamps and optimistic-concurrency version \u2014 is persisted through the first real domain migration.",
+      "description": "The Organization aggregate — server-generated immutable UUIDv7 identity, normalized reserved-safe organization_key, validated profile fields, timezone-aware timestamps and optimistic-concurrency version — is persisted through the first real domain migration.",
       "id": "NXS-ORG-002",
       "implementation_evidence": [
         "src/nexus_ai/domain/organizations/entities.py",
@@ -2015,6 +2015,276 @@
       "status": "PLANNED",
       "target_phase": "NXS-P25",
       "title": "Orphaned agent-turn crash recovery (execution-lease reaping)",
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-METER-001",
+      "category": "METERING",
+      "title": "Durable usage metering",
+      "description": "Durable tenant-scoped usage receipts from registered subsystem authorities, bounded and idempotent across retries and ambiguous outcomes.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P23",
+      "dependencies": [
+        "NXS-TENANT-001",
+        "NXS-EVENT-003"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-COST-001",
+      "category": "COST",
+      "title": "Deterministic/versioned cost attribution",
+      "description": "Immutable versioned rate definitions and deterministic currency/unit-aware cost attribution bind durable usage to exact revisions without model authority.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P23",
+      "dependencies": [
+        "NXS-METER-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-WF-002",
+      "category": "RESILIENCE",
+      "title": "Orphaned workflow recovery and ambiguous-effect reconciliation",
+      "description": "Bounded PostgreSQL-authoritative orphan recovery and stale-worker fencing reconcile ambiguous P08/P13 effects through owning subsystems without fresh automatic operation identities.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "dependencies": [
+        "NXS-WF-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-SCHED-002",
+      "category": "RESILIENCE",
+      "title": "Stale scheduler claim recovery / ambiguous dispatch reconciliation",
+      "description": "Bounded stale scheduler claim recovery and ambiguous P14 dispatch reconciliation preserve owner/token fencing and one logical workflow-start identity.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "dependencies": [
+        "NXS-SCHED-001",
+        "NXS-WF-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-HUMAN-002",
+      "category": "RESILIENCE",
+      "title": "Stale assignment/lease recovery and downstream reconciliation",
+      "description": "Recover orphaned human assignments with capacity/ownership fencing, privileged authorization and downstream reconciliation; no duplicate ambiguous send or unauthorized takeover.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "dependencies": [
+        "NXS-HUMAN-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-SRE-002",
+      "category": "RESILIENCE",
+      "title": "Sentinel ambiguous execution reconciliation",
+      "description": "Authorized reconciliation of Sentinel ambiguous execution preserves P20 risk, approval, lease/generation and downstream boundaries; no automatic new-identity retry.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "dependencies": [
+        "NXS-SRE-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-RES-003",
+      "category": "RESILIENCE",
+      "title": "Cross-subsystem recovery authority",
+      "description": "Registered bounded cross-subsystem recovery coordinates P13/P14/P15/P17/P20 authority, evidence and fencing without shell/SQL/provider bypass or duplicate effects.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P25",
+      "dependencies": [
+        "NXS-AGENT-002",
+        "NXS-WF-002",
+        "NXS-SCHED-002",
+        "NXS-HUMAN-002",
+        "NXS-SRE-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-SEC-004",
+      "category": "SECURITY",
+      "title": "Production security hardening",
+      "description": "Certify tenant/platform isolation, RBAC, credentials, resource bounds and semantic concurrency synchronization across P00-P22. Diagnose SIP timing instability without weaker gates and resolve owned obligations with executable evidence.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P27",
+      "dependencies": [
+        "NXS-SEC-002",
+        "NXS-AUTH-006",
+        "NXS-SRE-001",
+        "NXS-AUDIT-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-SUPPLY-001",
+      "category": "SECURITY",
+      "title": "Software supply-chain integrity",
+      "description": "Prove pinned reproducible dependency/image provenance, secret scanning and fresh candidate vulnerability certification. New direct/transitive disclosures invalidate prior clearance and block closure; never suppress to manufacture green.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P27",
+      "dependencies": [
+        "NXS-CICD-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-CAP-002",
+      "category": "CAPACITY",
+      "title": "System capacity envelope",
+      "description": "Certify declared workload/hardware envelopes across cells, tenants, channels, agents and platform services with measured latency/throughput and finite resource budgets.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P28",
+      "dependencies": [
+        "NXS-CAP-001",
+        "NXS-OBS-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-CAP-003",
+      "category": "CAPACITY",
+      "title": "Backpressure/saturation behavior",
+      "description": "Prove bounded admission, queues and rejection/degradation under overload, preventing tenant starvation and unbounded fanout; measure recovery after saturation.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P28",
+      "dependencies": [
+        "NXS-CAP-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-CHAOS-001",
+      "category": "CERTIFICATION",
+      "title": "Controlled fault-injection certification",
+      "description": "Disposable-environment fault injection proves documented safety, degradation, authority fencing and bounded recovery without destructive production testing.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P29",
+      "dependencies": [
+        "NXS-RES-003",
+        "NXS-CAP-003"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-FAILOVER-001",
+      "category": "CERTIFICATION",
+      "title": "Failover/recovery certification",
+      "description": "Certify failure/restoration against declared objectives with split-brain, lease, stale-owner, ambiguity and backup/restore proofs; no blind effect replay.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P29",
+      "dependencies": [
+        "NXS-CHAOS-001",
+        "NXS-DR-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-CERT-001",
+      "category": "CERTIFICATION",
+      "title": "Backend production-readiness certification",
+      "description": "Bind cross-phase regression, security, audit, capacity and recovery evidence to an immutable backend candidate. P22 READY/GO is mandatory; this does not authorize deployment or statutory certification.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P30",
+      "dependencies": [
+        "NXS-AUDIT-002",
+        "NXS-SEC-004",
+        "NXS-SUPPLY-001",
+        "NXS-FAILOVER-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-CERT-002",
+      "category": "CERTIFICATION",
+      "title": "No unresolved production blockers",
+      "description": "Backend Certification cannot reach READY/GO while production blockers remain unresolved. Every resolution binds completed owning-phase implementation and proof in the deferred-obligations authority.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P30",
+      "dependencies": [
+        "NXS-CERT-001",
+        "NXS-AGENT-002",
+        "NXS-RES-003"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-RELEASE-001",
+      "category": "RELEASE",
+      "title": "Reproducible immutable backend release",
+      "description": "Release a reproducible immutable artifact bound to certified P30 implementation, provenance, checksums, pinned artifacts and rollback documentation under explicit authorization.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P31",
+      "dependencies": [
+        "NXS-CERT-001",
+        "NXS-CERT-002"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-DEPLOY-001",
+      "category": "DEPLOYMENT",
+      "title": "Governed production deployment",
+      "description": "Deploy only a certified immutable P31 release under explicit human authorization, least privilege, validated configuration and staged safety checks.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P32",
+      "dependencies": [
+        "NXS-RELEASE-001"
+      ],
+      "implementation_evidence": [],
+      "validation_evidence": []
+    },
+    {
+      "id": "NXS-DEPLOY-002",
+      "category": "DEPLOYMENT",
+      "title": "Post-deployment verification and rollback",
+      "description": "Prove readiness/security/tenant isolation after authorized deployment and documented rollback criteria; preserve failed attempts and actual verification evidence.",
+      "mandatory": true,
+      "status": "PLANNED",
+      "target_phase": "NXS-P32",
+      "dependencies": [
+        "NXS-DEPLOY-001"
+      ],
+      "implementation_evidence": [],
       "validation_evidence": []
     }
   ],

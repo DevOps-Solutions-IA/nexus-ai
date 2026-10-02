@@ -1,0 +1,209 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "certification_policies",
+    "obligations"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "certification_policies": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "required_ancestors",
+          "rationale"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/phase"
+          },
+          "required_ancestors": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/phase"
+            }
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 20
+          }
+        }
+      }
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/obligation"
+      }
+    }
+  },
+  "$defs": {
+    "phase": {
+      "type": "string",
+      "pattern": "^NXS-P[0-9]{2}$"
+    },
+    "status": {
+      "enum": [
+        "OPEN",
+        "IN_PROGRESS",
+        "RESOLVED"
+      ]
+    },
+    "obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_phase",
+        "owner_phase",
+        "category",
+        "severity",
+        "certification_impact",
+        "description",
+        "status",
+        "status_history",
+        "blocks_phases",
+        "proof_expectation",
+        "source_references",
+        "resolution"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^NXS-[A-Z]+(?:-[A-Z]+)*-[0-9]{3}$"
+        },
+        "source_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "owner_phase": {
+          "$ref": "#/$defs/phase"
+        },
+        "category": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z_]+$"
+        },
+        "severity": {
+          "enum": [
+            "CRITICAL",
+            "HIGH",
+            "MEDIUM",
+            "LOW"
+          ]
+        },
+        "certification_impact": {
+          "enum": [
+            "PRODUCTION_BLOCKING",
+            "TRACKED"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 4000
+        },
+        "status": {
+          "$ref": "#/$defs/status"
+        },
+        "status_history": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/status"
+          }
+        },
+        "blocks_phases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/phase"
+          }
+        },
+        "proof_expectation": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 4000
+        },
+        "source_references": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "resolution": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "implementation_commit",
+                "evidence"
+              ],
+              "properties": {
+                "implementation_commit": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                },
+                "evidence": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string",
+                  "pattern": "^(?:\\.nxs/)?(?:[A-Za-z0-9_-]+/)*[A-Za-z0-9_.-]+$"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "RESOLVED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "resolution": {
+                "type": "object"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "resolution": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

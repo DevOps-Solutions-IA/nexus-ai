@@ -14,6 +14,20 @@ The README must describe only capabilities and maturity that are supported by ca
 
 A materially stale README is a documentation defect. Prefer updating it in the same governed change when the phase closure or architecture change makes the new status known; otherwise create a dedicated documentation PR before the project advances far enough for repository-facing status to become misleading. README synchronization does not bypass normal merge authorization, CI/security checks, semantic review, or exact-main verification.
 
+## Architecture quality and durable deferrals
+
+Prefer long-term correctness, durability, security, scalability, recoverability and
+explicit authority boundaries over short-term convenience. Never weaken a gate,
+assertion, security policy or coverage threshold merely to manufacture green status.
+Every accepted deferral needs a concrete owning phase and a durable record in
+`.nxs/deferred-obligations.json`, including impact, blocking phases, source references
+and proof expected for resolution. Historical readiness is preserved; unresolved
+production blockers prevent future Backend Certification through machine-readable
+certification policy. A resolved obligation must bind its completed owner's actual
+implementation and evidence. Fixed-duration sleeps cannot prove happens-before in
+concurrency tests; use observable semantic boundaries. Dependency security is
+time-sensitive and must be checked against the candidate's resolved environment.
+
 ## Before implementation
 
 1. Read this file.

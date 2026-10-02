@@ -1,0 +1,85 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-01",
+  "baseline_commit": "d23f124f0a1a94d0cefe37e0fc8e5f9f17ea2b6e",
+  "full_source_file_count": 881,
+  "source_set_sha256": "341d6839b4eaecca5597e1ee7bb25fcb15a2470eb699d94e65121765b64318a5",
+  "algorithm": "Sorted unique git ls-files -c -o --exclude-standard paths; exclude .nxs/evidence/ and .coverage artifacts; SHA-256 each file, then SHA-256 UTF-8 compact sorted-key JSON of path/sha256 entries",
+  "changed_source_files": [
+    {
+      "path": ".nxs/deferred-obligations.json",
+      "sha256": "f6fdd9afeef212772c63136e6a4c542cd418abff5942a39b24ee9ca7a4bb3dce"
+    },
+    {
+      "path": ".nxs/deferred-obligations.schema.json",
+      "sha256": "9d00901a54f7cc541635e529a91a3940d6d04f5db9eab0d55785e95a749e9551"
+    },
+    {
+      "path": ".nxs/phase-registry.json",
+      "sha256": "9600500c8ffca02481f95e3ee8b4665fc173752cc72256edd33a288c3fc11291"
+    },
+    {
+      "path": ".nxs/requirements.json",
+      "sha256": "cb3e391560473b9c12c8056f647f8013e42ebdd6d5fecd5d1fd9f1d10ef490b3"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "907b667defb80b5d51f4d8ea71666b920bd9c2bbf54726aa6d209a9b560d0a05"
+    },
+    {
+      "path": "README.md",
+      "sha256": "45f64fb0076c609657e9472d72f02e64082515093151e89f4d95188ca04708b0"
+    },
+    {
+      "path": "docs/engineering/control-system.md",
+      "sha256": "d33f10c4dd49b63d06dc8b982675ba91a4e9a7e2d59f7673708e7536362fae05"
+    },
+    {
+      "path": "docs/engineering/h0-governance-hardening.md",
+      "sha256": "2c546150693944e0d28867a3a85c53f9678416707aee076f4ff5f263057a1320"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "604450e68f882ce83d5847bb463c439794cf593d6c576f5b4dc48ba7eda27e22"
+    },
+    {
+      "path": "scripts/nxs_close/__main__.py",
+      "sha256": "a7dfd629cca2bab96ce8c6262f85be0e138059f426fd9cbf2e7c39177a228bf7"
+    },
+    {
+      "path": "scripts/nxs_control/core.py",
+      "sha256": "b313ca1afe7bfe8c0918b8be247a7a5f75b9d33561ddd55e699bf1c82f797cc5"
+    },
+    {
+      "path": "scripts/nxs_control/obligations.py",
+      "sha256": "9cd863a8b3ef551df02377e2082505b679a5883853f7b1a5775eb5659f19269b"
+    },
+    {
+      "path": "scripts/nxs_start/__main__.py",
+      "sha256": "0ab799dd46a17098176898279702cb0f388864e3621ee19f3a55032bc3720956"
+    },
+    {
+      "path": "scripts/nxs_state/__main__.py",
+      "sha256": "13041257e73570a61affe488d973711012d8af3935f5f73ed74398f57d559478"
+    },
+    {
+      "path": "tests/security/test_jwt_dependency_regression.py",
+      "sha256": "d5d8439974d709a84b922700e2f775ed6a8959559a5b5e2325c72a667fb81d4f"
+    },
+    {
+      "path": "tests/unit/test_governance_hardening.py",
+      "sha256": "0f941b5d5d91c21d061d557272c86eb9753ed324e5b6e6bde41b49c569020b1b"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "6cee31f323d5826f363245dbe12c526bce6dcb28bf192583daa812d494995443"
+    }
+  ],
+  "production_business_runtime_delta": [],
+  "database_migration_delta": [],
+  "p22_test_delta": [],
+  "workflow_delta": [],
+  "product_lifecycle_files_delta": [],
+  "p22_frozen_candidate": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+  "candidate_binding": "Immutable Git candidate and exact-head workflow receipt are published on the H0 draft PR after commit; no self-referential commit SHA is invented here."
+}
