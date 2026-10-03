@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-02",
+  "verified_branch": "main",
+  "observed_main_sha": "f11c6c39cc6fe83dab7f8b494d61f0e37336946b",
+  "branch_protection": {
+    "enabled": true,
+    "required_status_checks": {
+      "strict": true,
+      "contexts": [
+        "state",
+        "quality",
+        "integration",
+        "docker",
+        "multiarch",
+        "source-and-dependencies",
+        "image"
+      ]
+    },
+    "require_pull_request": true,
+    "required_approving_reviews": 0,
+    "require_conversation_resolution": true,
+    "block_force_pushes": true,
+    "block_deletions": true,
+    "enforce_admins": false,
+    "require_linear_history": false,
+    "require_signed_commits": false
+  },
+  "repository_rulesets": [],
+  "verification_result": "PASS",
+  "note": "Live branch protection was applied with gh CLI under repository-admin authorization. Administrative bypass remains reserved for documented emergency recovery; normal workflow must not use bypass."
+}
