@@ -113,6 +113,7 @@ def validate_all_schemas(root: Path) -> None:
         ("readiness.json", "readiness.schema.json"),
         ("execution-lock.json", "execution-lock.schema.json"),
         ("deferred-obligations.json", "deferred-obligations.schema.json"),
+        ("github-governance-policy.json", "github-governance-policy.schema.json"),
     ]
     for document, schema in pairs:
         validate_document(nxs / document, nxs / schema)

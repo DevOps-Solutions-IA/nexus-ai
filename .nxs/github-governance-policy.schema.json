@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "target_branch",
+    "review_model",
+    "expected_enforcement",
+    "ownership",
+    "verification",
+    "rationale"
+  ],
+  "properties": {
+    "$schema": {"type": "string"},
+    "schema_version": {"const": "1.0.0"},
+    "target_branch": {"const": "main"},
+    "review_model": {"const": "SINGLE_MAINTAINER_TRANSITIONAL"},
+    "expected_enforcement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "require_pull_request",
+        "required_approving_reviews",
+        "dismiss_stale_approvals",
+        "require_conversation_resolution",
+        "strict_status_checks",
+        "required_status_checks",
+        "block_force_pushes",
+        "block_deletions",
+        "require_linear_history",
+        "require_signed_commits",
+        "bypass_policy"
+      ],
+      "properties": {
+        "require_pull_request": {"const": true},
+        "required_approving_reviews": {"type": "integer", "minimum": 0, "maximum": 6},
+        "dismiss_stale_approvals": {"type": "boolean"},
+        "require_conversation_resolution": {"const": true},
+        "strict_status_checks": {"const": true},
+        "required_status_checks": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "state",
+              "quality",
+              "integration",
+              "docker",
+              "multiarch",
+              "source-and-dependencies",
+              "image"
+            ]
+          }
+        },
+        "block_force_pushes": {"const": true},
+        "block_deletions": {"const": true},
+        "require_linear_history": {"const": false},
+        "require_signed_commits": {"const": false},
+        "bypass_policy": {"const": "ADMIN_EMERGENCY_ONLY"}
+      }
+    },
+    "ownership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["codeowners_required", "owner"],
+      "properties": {
+        "codeowners_required": {"const": true},
+        "owner": {"type": "string", "pattern": "^@[A-Za-z0-9-]+$"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["live_application_required", "status", "failure_semantics"],
+      "properties": {
+        "live_application_required": {"const": true},
+        "status": {"enum": ["PENDING_LIVE_APPLICATION", "VERIFIED", "MISMATCH", "UNKNOWN"]},
+        "failure_semantics": {"const": "UNKNOWN_OR_MISMATCH_BLOCKS_H0_02_COMPLETION"}
+      }
+    },
+    "rationale": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvals", "linear_history", "signed_commits", "bypass"],
+      "properties": {
+        "approvals": {"type": "string", "minLength": 20},
+        "linear_history": {"type": "string", "minLength": 20},
+        "signed_commits": {"type": "string", "minLength": 20},
+        "bypass": {"type": "string", "minLength": 20}
+      }
+    }
+  }
+}

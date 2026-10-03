@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-02",
+  "baseline_main": "f11c6c39cc6fe83dab7f8b494d61f0e37336946b",
+  "observed_live_state": {
+    "main_protected": false,
+    "rulesets": [],
+    "codeowners_present": false
+  },
+  "result": "GAP_CONFIRMED",
+  "qualification": "Repository-content candidate may define expected enforcement, but H0-02 completion requires live GitHub settings to be applied and verified."
+}
