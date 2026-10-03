@@ -1,5 +1,7 @@
 """Deterministic repository-content checks for H0-02 GitHub governance."""
 
+from __future__ import annotations
+
 from pathlib import Path
 
 from scripts.nxs_control.core import load_json, validate_all_schemas
