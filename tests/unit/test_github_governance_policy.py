@@ -6,7 +6,6 @@ from pathlib import Path
 
 from scripts.nxs_control.core import load_json, validate_all_schemas
 
-
 ROOT = Path(__file__).parents[2]
 
 
