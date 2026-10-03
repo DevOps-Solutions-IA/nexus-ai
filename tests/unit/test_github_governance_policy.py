@@ -14,6 +14,7 @@ def test_github_governance_policy_is_schema_valid_and_registered() -> None:
     policy = load_json(ROOT / ".nxs/github-governance-policy.json")
     assert policy["target_branch"] == "main"
     assert policy["verification"]["live_application_required"] is True
+    assert policy["verification"]["status"] == "VERIFIED"
 
 
 def test_github_governance_required_checks_are_exact_and_fail_closed() -> None:
