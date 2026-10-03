@@ -49,6 +49,15 @@ recovery impossible. A break-glass action must be explicitly authorized, documen
 reason and exact refs, followed by exact-main NXS CI/Security, and must never be used to
 avoid a failing test, security finding, review requirement, or phase gate.
 
+## Historical governance record
+
+The original P00 governance note recorded that the repository was private and that the
+available GitHub plan returned HTTP 403 for private-repository branch protection. That was
+a historical platform limitation, not a waiver of the intended policy. The repository is
+now public, so H0-02 re-evaluates and applies the control-plane target against the current
+GitHub capabilities. Do not use the old 403 as evidence that protection is still
+unavailable.
+
 ## Live verification
 
 The desired settings are encoded in `.nxs/github-governance-policy.json`. H0-02 is not
