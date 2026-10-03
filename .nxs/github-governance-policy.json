@@ -30,7 +30,7 @@
   },
   "verification": {
     "live_application_required": true,
-    "status": "PENDING_LIVE_APPLICATION",
+    "status": "VERIFIED",
     "failure_semantics": "UNKNOWN_OR_MISMATCH_BLOCKS_H0_02_COMPLETION"
   },
   "rationale": {
