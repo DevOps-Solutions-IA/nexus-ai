@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-03",
+  "issue": 58,
+  "branch": "chore/nxs-h0-sip-determinism",
+  "baseline_main_sha": "b605fcad98cba09cf44a9d12769803f3e7142e38",
+  "admission": {
+    "h0_02_canonical_pass": true,
+    "nxs_ci_run": 37315001835,
+    "nxs_security_run": 37315002027
+  },
+  "scope": {
+    "runtime_modified": false,
+    "p22_stage_b_touched": false,
+    "p23_touched": false,
+    "deployment_touched": false
+  },
+  "timeout_inventory": {
+    "total": 61,
+    "files": {
+      "tests/integration/test_sip_admission_races.py": 1,
+      "tests/integration/test_sip_admission_recovery.py": 2,
+      "tests/integration/test_sip_asterisk_wire.py": 3,
+      "tests/integration/test_sip_did_locator.py": 1,
+      "tests/integration/test_sip_edge_authentication.py": 1,
+      "tests/integration/test_sip_egress_permits.py": 1,
+      "tests/integration/test_sip_egress_wire.py": 7,
+      "tests/integration/test_sip_inbound_routes.py": 1,
+      "tests/integration/test_sip_migration.py": 1,
+      "tests/integration/test_sip_native_configuration.py": 1,
+      "tests/integration/test_sip_permit_expiry.py": 1,
+      "tests/integration/test_sip_route_matrix.py": 3,
+      "tests/integration/test_sip_stream_transports.py": 9,
+      "tests/integration/test_sip_target_constraints.py": 2,
+      "tests/integration/test_sip_wire.py": 27
+    },
+    "notable_bounds": {
+      "asyncio.timeout(5)": 30,
+      "asyncio.timeout(10)": 12,
+      "asyncio.timeout(2)": 7,
+      "asyncio.timeout(30)": 3,
+      "asyncio.timeout(15)": 2,
+      "asyncio.timeout(120)": 1,
+      "httpx timeout=5": 2,
+      "wait_for consume_committed timeout=5": 1,
+      "wait_for result_committed timeout=3": 1
+    },
+    "note": "Counts are static inventory only. Each wait still requires semantic classification; no timeout increase is authorized."
+  },
+  "readiness_findings": [
+    {
+      "component": "resolver/Uvicorn",
+      "status": "STRUCTURAL_GAP_CONFIRMED",
+      "evidence": [
+        "test_sip_egress_wire.py, test_sip_stream_transports.py and test_sip_wire.py create uvicorn.Server.serve() tasks and do not await server.started before starting downstream SIP traffic.",
+        "Pinned repository Uvicorn version is 0.35.0; Server.started is False initially."
+      ],
+      "causal_status": "NOT_YET_PROVEN_AS_SOLE_ROOT_CAUSE"
+    },
+    {
+      "component": "Kamailio",
+      "status": "PROCESS_INIT_SIGNAL_ONLY",
+      "evidence": [
+        "start_edge waits for log marker nxs_edge_ready.",
+        "infrastructure/kamailio/edge.py emits nxs_edge_ready directly from Edge.child_init().",
+        "The marker does not validate resolver HTTPS/TLS, route resolution, target connectivity, or end-to-end packet forwarding."
+      ],
+      "causal_status": "FUNCTIONAL_READINESS_WEAKER_THAN_TEST_ASSUMPTION"
+    },
+    {
+      "component": "Asterisk",
+      "status": "PROCESS_READINESS_SIGNAL_PRESENT",
+      "evidence": [
+        "egress harness waits for Asterisk Ready with a bounded 30 second watchdog."
+      ]
+    }
+  ],
+  "reproduction": {
+    "environment": "authorized local WSL, clean disposable PostgreSQL/Valkey/NATS stack on alternate ports; repository exact baseline; existing pinned SIP fixture images",
+    "historical_case": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+    "first_matrix": {
+      "runs": 5,
+      "pass": 4,
+      "fail": 1,
+      "failure": "TimeoutError from a hard-coded 5 second SIP wait; same test then passed unchanged"
+    },
+    "warm_followup": {
+      "runs": 10,
+      "pass": 10,
+      "fail": 0
+    },
+    "second_historical_case": {
+      "test": "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-True]",
+      "runs": 5,
+      "pass": 5,
+      "fail": 0
+    },
+    "interpretation": "Cold-start/QEMU/functional-readiness variance remains a live hypothesis. The resolver/Kamailio readiness gaps are real, but sole causality for both historical incidents is not yet proven."
+  },
+  "governance": {
+    "corrective_authorized": false,
+    "no_gate_weakening": true,
+    "no_skip_xfail": true,
+    "no_retry_masking": true,
+    "no_arbitrary_timeout_increase": true,
+    "nxs_harden_sip_001_status": "OPEN"
+  }
+}
