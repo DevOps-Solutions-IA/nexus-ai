@@ -1,0 +1,23 @@
+# NXS repository ownership. Keep this file intentionally explicit.
+* @devopssolutionsia
+
+/.github/ @devopssolutionsia
+/.nxs/ @devopssolutionsia
+
+/scripts/nxs_close/ @devopssolutionsia
+/scripts/nxs_control/ @devopssolutionsia
+/scripts/nxs_gate/ @devopssolutionsia
+/scripts/nxs_guard/ @devopssolutionsia
+/scripts/nxs_schema_guard/ @devopssolutionsia
+/scripts/nxs_start/ @devopssolutionsia
+/scripts/nxs_state/ @devopssolutionsia
+/scripts/nxs_validate/ @devopssolutionsia
+
+/migrations/ @devopssolutionsia
+/infrastructure/ @devopssolutionsia
+
+/src/nexus_ai/domain/auth/ @devopssolutionsia
+/src/nexus_ai/audit/ @devopssolutionsia
+/src/nexus_ai/sentinel/ @devopssolutionsia
+/src/nexus_ai/sip_edge/ @devopssolutionsia
+/src/nexus_ai/telephony/ @devopssolutionsia

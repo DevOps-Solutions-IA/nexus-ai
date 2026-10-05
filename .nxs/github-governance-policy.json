@@ -1,0 +1,42 @@
+{
+  "$schema": "./github-governance-policy.schema.json",
+  "schema_version": "1.0.0",
+  "target_branch": "main",
+  "review_model": "SINGLE_MAINTAINER_TRANSITIONAL",
+  "expected_enforcement": {
+    "require_pull_request": true,
+    "required_approving_reviews": 0,
+    "dismiss_stale_approvals": false,
+    "require_conversation_resolution": true,
+    "strict_status_checks": true,
+    "required_status_checks": [
+      "state",
+      "quality",
+      "integration",
+      "docker",
+      "multiarch",
+      "source-and-dependencies",
+      "image"
+    ],
+    "block_force_pushes": true,
+    "block_deletions": true,
+    "require_linear_history": false,
+    "require_signed_commits": false,
+    "bypass_policy": "ADMIN_EMERGENCY_ONLY"
+  },
+  "ownership": {
+    "codeowners_required": true,
+    "owner": "@devopssolutionsia"
+  },
+  "verification": {
+    "live_application_required": true,
+    "status": "VERIFIED",
+    "failure_semantics": "UNKNOWN_OR_MISMATCH_BLOCKS_H0_02_COMPLETION"
+  },
+  "rationale": {
+    "approvals": "Zero required approvals avoids an impossible self-approval requirement while the repository has one trusted maintainer. Increase after a distinct trusted reviewer exists.",
+    "linear_history": "Merge commits are part of canonical NXS governance and closure evidence.",
+    "signed_commits": "Current feature-branch commits are not uniformly signed; signing enforcement requires a separately certified migration.",
+    "bypass": "Administrative bypass exists only for documented break-glass recovery and must not be used by the normal workflow."
+  }
+}
