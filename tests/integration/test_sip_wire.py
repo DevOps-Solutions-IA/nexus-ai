@@ -25,6 +25,7 @@ from nexus_ai.sip_edge.peer_registry import PeerRegistry
 from nexus_ai.sip_edge.peers import PeerPolicy, PeerProfile
 from nexus_ai.sip_edge.security import EdgeCredential
 from nexus_ai.sip_edge.targets import TargetNetworkPolicy, TargetRegistry
+from tests.integration.sip_readiness import wait_resolver_ready
 from tests.integration.sip_tls import edge_tls_mounts, resolver_certificate
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
 from tests.integration.test_sip_did_locator import provision
@@ -358,7 +359,6 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             ssl_keyfile=str(key_path),
         )
     )
-    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
     configuration = tmp_path / "edge.json"
     configuration.write_text(
         json.dumps(
@@ -388,7 +388,12 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
     confidential_marker = secrets.token_hex(32)
     loop = asyncio.get_running_loop()
     config_directory = await asyncio.to_thread(Path("infrastructure/kamailio").resolve)
+    edge_started = False
+    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
     try:
+        await wait_resolver_ready(
+            server, server_task, gateway, http_listener.getsockname()[1], certificate_path
+        )
         await docker(
             "run",
             "-d",
@@ -418,6 +423,7 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             "-f",
             "/etc/nxs/kamailio.cfg",
         )
+        edge_started = True
         container = json.loads(await docker("inspect", name))[0]
         destination = (container["NetworkSettings"]["IPAddress"], 5060)
         call_id = uuid4().hex
@@ -1032,28 +1038,33 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
     finally:
         release_response.set()
         print("bounded resolver outcomes", resolver_results)
-        edge_output = await docker("logs", name)
-        print(edge_output)
-        await docker("stop", "--time", "5", name)
-        stopped = json.loads(await docker("inspect", name))[0]["State"]
-        assert stopped["ExitCode"] == 0 and stopped["OOMKilled"] is False
-        await docker("rm", "-f", name)
-        if second_configuration.exists():
-            await docker("stop", "--time", "5", second_name)
-            stopped = json.loads(await docker("inspect", second_name))[0]["State"]
-            assert stopped["ExitCode"] == 0 and stopped["OOMKilled"] is False
-            await docker("rm", "-f", second_name)
-        server.should_exit = True
+        edge_output = ""
         try:
-            await server_task
+            if edge_started:
+                edge_output = await docker("logs", name)
+                print(edge_output)
+                await docker("stop", "--time", "5", name)
+                stopped = json.loads(await docker("inspect", name))[0]["State"]
+                assert stopped["ExitCode"] == 0 and stopped["OOMKilled"] is False
+                await docker("rm", "-f", name)
+                if second_configuration.exists():
+                    await docker("stop", "--time", "5", second_name)
+                    stopped = json.loads(await docker("inspect", second_name))[0]["State"]
+                    assert stopped["ExitCode"] == 0 and stopped["OOMKilled"] is False
+                    await docker("rm", "-f", second_name)
         finally:
-            uas.close()
-            replacement_uas.close()
-            other_cell_uas.close()
-            caller.close()
-            http_listener.close()
-            configuration.unlink(missing_ok=True)
-            second_configuration.unlink(missing_ok=True)
-        assert confidential_marker not in edge_output
-        assert number.e164 not in edge_output
-        assert "nxs_edge_denied status=" in edge_output
+            server.should_exit = True
+            try:
+                await server_task
+            finally:
+                uas.close()
+                replacement_uas.close()
+                other_cell_uas.close()
+                caller.close()
+                http_listener.close()
+                configuration.unlink(missing_ok=True)
+                second_configuration.unlink(missing_ok=True)
+        if edge_started:
+            assert confidential_marker not in edge_output
+            assert number.e164 not in edge_output
+            assert "nxs_edge_denied status=" in edge_output

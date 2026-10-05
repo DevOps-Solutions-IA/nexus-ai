@@ -34,12 +34,19 @@ from nexus_ai.telephony.entities import (
     RegisterPhoneNumberRequest,
 )
 from nexus_ai.telephony.service import TelephonyService
+from tests.integration.sip_readiness import wait_resolver_ready
 from tests.integration.sip_tls import SipPKI, resolver_certificate
 from tests.integration.test_sip_asterisk_wire import AriTransport, write_configuration
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
 from tests.integration.test_sip_stream_transports import StreamUAS, values
 from tests.integration.test_sip_target_constraints import target_control as target_control
 from tests.integration.test_sip_wire import docker, isolated_sender, start_edge, udp_socket
+
+# Reuse this harness's existing 10s outbound wire-observation budget below.
+# consume_committed is the DB-commit boundary, not a 5s production SLA (P19
+# authorizes none; ADR-0100). Ten seconds remains below the 30s permit TTL;
+# the resolver's shared 1.8s deadline and all other waits remain unchanged.
+EGRESS_OBSERVATION_WATCHDOG_SECONDS = 10
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -165,7 +172,6 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
             ssl_keyfile=str(resolver_key),
         )
     )
-    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
     edge_config = tmp_path / "edge.json"
     edge_config.write_text(
         json.dumps(
@@ -201,7 +207,11 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
         write_configuration, asterisk_config, subnet + ".2", 5060, password
     )
     started: list[str] = []
+    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
     try:
+        await wait_resolver_ready(
+            server, server_task, gateway, http_listener.getsockname()[1], resolver_cert
+        )
         started.append(edge_name)
         await start_edge(
             edge_name,
@@ -314,7 +324,9 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
             )
             call = await service.create_call(organization.id, None, request)
             if lose_consume_response:
-                await asyncio.wait_for(consume_committed.wait(), timeout=5)
+                await asyncio.wait_for(
+                    consume_committed.wait(), timeout=EGRESS_OBSERVATION_WATCHDOG_SECONDS
+                )
                 with pytest.raises(TimeoutError):
                     async with asyncio.timeout(2):
                         if upstream_transport == "UDP":
@@ -432,17 +444,21 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
             assert token.get_secret_value() not in await docker("logs", edge_name)
     finally:
         release_response.set()
-        for name in reversed(started):
-            print(await docker("logs", name))
-            await docker("rm", "-f", name)
-        server.should_exit = True
-        await server_task
-        http_listener.close()
-        uas.close()
-        stream_server.close()
-        await stream_server.wait_closed()
-        await stream_uas.close()
-        await docker("network", "rm", network)
-        edge_config.unlink(missing_ok=True)
-        for path in asterisk_config.iterdir():
-            path.unlink()
+        try:
+            for name in reversed(started):
+                print(await docker("logs", name))
+                await docker("rm", "-f", name)
+        finally:
+            server.should_exit = True
+            try:
+                await server_task
+            finally:
+                http_listener.close()
+                uas.close()
+                stream_server.close()
+                await stream_server.wait_closed()
+                await stream_uas.close()
+                await docker("network", "rm", network)
+                edge_config.unlink(missing_ok=True)
+                for path in asterisk_config.iterdir():
+                    path.unlink()

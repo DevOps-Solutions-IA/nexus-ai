@@ -26,6 +26,7 @@ from nexus_ai.sip_edge.peer_registry import PeerRegistry
 from nexus_ai.sip_edge.peers import PeerPolicy, PeerProfile
 from nexus_ai.sip_edge.security import EdgeCredential
 from nexus_ai.sip_edge.targets import TargetNetworkPolicy, TargetRegistry
+from tests.integration.sip_readiness import wait_resolver_ready
 from tests.integration.sip_tls import SipPKI, resolver_certificate
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
 from tests.integration.test_sip_did_locator import provision
@@ -265,12 +266,15 @@ async def test_real_stream_dialog_and_two_edge_authority(
             ssl_keyfile=str(key_path),
         )
     )
-    serving = asyncio.create_task(server.serve(sockets=[listener]))
     names: list[str] = []
     clients: list[asyncio.StreamWriter] = []
     scheme = "sips" if transport == "TLS" else "sip"
     target_contact = f"{scheme}:target@{gateway}:{target_port};transport={transport.lower()}"
+    serving = asyncio.create_task(server.serve(sockets=[listener]))
     try:
+        await wait_resolver_ready(
+            server, serving, gateway, listener.getsockname()[1], certificate_path
+        )
         for index, credential in enumerate(credentials):
             configuration = tmp_path / f"edge-{index}.json"
             configuration.write_text(
@@ -374,6 +378,35 @@ async def test_real_stream_dialog_and_two_edge_authority(
                     + "".join(f"Route: {route}\r\n" for route in routes)
                     + "Content-Length: 0\r\n\r\n"
                 ).encode()
+
+            # OPTIONS is edge-local and creates no resolver/dialog authority.
+            # Use this very connection before starting the INVITE deadline.
+            # Invalid client identities must retain their original denial path.
+            if attack not in {
+                "untrusted_peer",
+                "wrong_client_pin",
+                "untrusted_client_ca",
+                "missing_client_certificate",
+                "expired_client",
+            }:
+                readiness_id = uuid4().hex
+                writer.write(
+                    request(
+                        "OPTIONS",
+                        1,
+                        f"{scheme}:127.0.0.1;transport={transport.lower()}",
+                        [],
+                        established=False,
+                        identity=readiness_id,
+                        initial_branch="z9hG4bK" + uuid4().hex,
+                    )
+                )
+                await writer.drain()
+                readiness = await read_sip(reader)
+                assert readiness.startswith(b"SIP/2.0 200")
+                assert values(readiness, "Call-ID") == [readiness_id]
+                assert values(readiness, "CSeq") == ["1 OPTIONS"]
+                assert uas.received.empty()
 
             invite = request(
                 "INVITE",
@@ -648,4 +681,7 @@ async def test_real_stream_dialog_and_two_edge_authority(
         await uas.close()
         await caller_uas.close()
         server.should_exit = True
-        await serving
+        try:
+            await serving
+        finally:
+            listener.close()
