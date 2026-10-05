@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-03",
+  "recorded_at": "2026-10-05T13:36:30Z",
+  "baseline_main": "b605fcad98cba09cf44a9d12769803f3e7142e38",
+  "trigger": {
+    "source": "PR #50 exact-head CI attempt 1",
+    "candidate": "890ff6caf6b3d23357a0e3f586476f0c8d0613c3",
+    "test": "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-True]",
+    "historical_classification": "TRANSIENT_OBSERVATION_CAUSE_NOT_PROVEN",
+    "historical_symptom": "Timeout while waiting for the committed resolver consume path; same-SHA rerun later passed."
+  },
+  "confirmed_gap": {
+    "uvicorn_servers_without_readiness_barrier": 3,
+    "locations": [
+      "tests/integration/test_sip_egress_wire.py",
+      "tests/integration/test_sip_stream_transports.py",
+      "tests/integration/test_sip_wire.py"
+    ],
+    "behavior": "Each harness scheduled uvicorn.Server.serve() and immediately started dependent SIP edge activity without waiting for server.started."
+  },
+  "causality": "NOT_PROVEN",
+  "scope": {
+    "allowed": [
+      "integration test harness readiness coordination",
+      "regression tests for readiness coordination"
+    ],
+    "excluded": [
+      "production SIP runtime behavior",
+      "SIP protocol semantics",
+      "existing protocol/network timeout increases",
+      "P22 implementation candidate mutation",
+      "phase lifecycle transitions"
+    ]
+  },
+  "result": "READINESS_GAP_CONFIRMED_CAUSALITY_NOT_PROVEN"
+}

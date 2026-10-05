@@ -29,6 +29,7 @@ from tests.integration.sip_tls import edge_tls_mounts, resolver_certificate
 from tests.integration.test_sip_did_locator import discovery_database as discovery_database
 from tests.integration.test_sip_did_locator import provision
 from tests.integration.test_sip_target_constraints import target_control as target_control
+from tests.integration.uvicorn_ready import start_uvicorn_server
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -358,7 +359,7 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
             ssl_keyfile=str(key_path),
         )
     )
-    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
+    server_task = await start_uvicorn_server(server, sockets=[http_listener])
     configuration = tmp_path / "edge.json"
     configuration.write_text(
         json.dumps(

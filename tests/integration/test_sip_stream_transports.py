@@ -31,6 +31,7 @@ from tests.integration.test_sip_did_locator import discovery_database as discove
 from tests.integration.test_sip_did_locator import provision
 from tests.integration.test_sip_target_constraints import target_control as target_control
 from tests.integration.test_sip_wire import docker, start_edge
+from tests.integration.uvicorn_ready import start_uvicorn_server
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -265,7 +266,7 @@ async def test_real_stream_dialog_and_two_edge_authority(
             ssl_keyfile=str(key_path),
         )
     )
-    serving = asyncio.create_task(server.serve(sockets=[listener]))
+    serving = await start_uvicorn_server(server, sockets=[listener])
     names: list[str] = []
     clients: list[asyncio.StreamWriter] = []
     scheme = "sips" if transport == "TLS" else "sip"

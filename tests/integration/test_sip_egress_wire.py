@@ -40,6 +40,7 @@ from tests.integration.test_sip_did_locator import discovery_database as discove
 from tests.integration.test_sip_stream_transports import StreamUAS, values
 from tests.integration.test_sip_target_constraints import target_control as target_control
 from tests.integration.test_sip_wire import docker, isolated_sender, start_edge, udp_socket
+from tests.integration.uvicorn_ready import start_uvicorn_server
 
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
@@ -165,7 +166,7 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
             ssl_keyfile=str(resolver_key),
         )
     )
-    server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
+    server_task = await start_uvicorn_server(server, sockets=[http_listener])
     edge_config = tmp_path / "edge.json"
     edge_config.write_text(
         json.dumps(
