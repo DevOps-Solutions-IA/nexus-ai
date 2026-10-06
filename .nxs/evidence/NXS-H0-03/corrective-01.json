@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "work_package": "NXS-H0-03",
+  "issue": 58,
+  "branch": "chore/nxs-h0-sip-determinism",
+  "baseline_main_sha": "b605fcad98cba09cf44a9d12769803f3e7142e38",
+  "parent_candidate_sha": "de6997880e66d3b32b14d4d91da2d28cd01f087b",
+  "historical_remote_evidence": {
+    "nxs_security_run": {
+      "id": 37338903750,
+      "conclusion": "success"
+    },
+    "nxs_ci_run": {
+      "id": 37338903974,
+      "conclusion": "failure",
+      "failed_job": "integration",
+      "failed_test": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-tls-False]",
+      "classification": "HARNESS_CORRECTIVE_DEFECT",
+      "cause": "The readiness probe required hostname-verified TLS even though this negative test deliberately provisions a resolver certificate for a different IP identity."
+    }
+  },
+  "corrective": {
+    "runtime_behavior_changed": false,
+    "production_files_changed": false,
+    "arbitrary_timeout_increase": false,
+    "consume_committed_timeout_seconds": 5,
+    "changes": [
+      "Normal resolver readiness still requires Uvicorn started plus CA- and hostname-verified TLS/HTTP and a fail-closed 403 route response.",
+      "The deliberate resolver hostname-mismatch negative test uses an explicit readiness mode that disables hostname matching only for the readiness probe while retaining CA-chain verification, TLS listener/HTTP route proof, and the original SIP identity failure.",
+      "Unit coverage distinguishes verified identity, hostname mismatch, untrusted CA, and bounded server-start watchdog behavior.",
+      "The prior 10 second consume_committed harness timeout is reverted to the original 5 seconds because no evidence justified increasing it."
+    ]
+  },
+  "local_verification": {
+    "ruff": "PASS",
+    "git_diff_check": "PASS",
+    "unit_readiness": {
+      "test": "tests/unit/test_sip_harness_readiness.py",
+      "result": "9 passed"
+    },
+    "negative_tls_wire": {
+      "test": "tests/integration/test_sip_wire.py::test_real_kamailio_invite_and_forged_route_zero_send[amd64-tls-False]",
+      "result": "PASS"
+    },
+    "historical_egress_tls": {
+      "test": "tests/integration/test_sip_egress_wire.py::test_real_p11_ari_edge_permit_is_consumed_and_stripped[TLS-True]",
+      "result": "PASS"
+    },
+    "historical_stream_arm64": {
+      "test": "tests/integration/test_sip_stream_transports.py::test_real_stream_dialog_and_two_edge_authority[TCP-cancel-arm64]",
+      "result": "PASS in final focused verification; intermittent historical failure remains under investigation"
+    }
+  },
+  "remaining_findings": [
+    "Resolver/Uvicorn readiness gap is real but is not proven to be the sole cause of historical SIP flakes.",
+    "Kamailio nxs_edge_ready is a process-init marker rather than end-to-end functional readiness.",
+    "A traced successful route showed /internal/sip/inbound=200 and /internal/sip/issue=200 well inside the five-second issue window, followed by rapid target arrival.",
+    "Other traced failures occurred at later SIP dialogue observations, so a single startup cause remains unproven."
+  ],
+  "governance": {
+    "nxs_harden_sip_001_status": "OPEN",
+    "h0_03_complete": false,
+    "p22_stage_b_touched": false,
+    "p23_touched": false,
+    "deployment_touched": false
+  }
+}

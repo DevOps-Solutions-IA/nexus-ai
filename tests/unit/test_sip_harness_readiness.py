@@ -3,7 +3,10 @@
 import asyncio
 import socket
 from pathlib import Path
+from typing import Literal
+from unittest.mock import AsyncMock
 
+import httpx
 import pytest
 import uvicorn
 from fastapi import FastAPI
@@ -15,9 +18,24 @@ from tests.integration.sip_tls import resolver_certificate
 pytestmark = pytest.mark.anyio
 
 
-@pytest.mark.parametrize("trusted", [True, False])
-async def test_resolver_readiness_requires_verified_listener(tmp_path: Path, trusted: bool) -> None:
-    certificate, key = resolver_certificate(tmp_path, "127.0.0.1")
+@pytest.mark.parametrize(
+    ("trusted", "hostname", "mode", "ready"),
+    [
+        (True, "127.0.0.1", "verified_identity", True),
+        (False, "127.0.0.1", "verified_identity", False),
+        (True, "127.0.0.2", "verified_identity", False),
+        (True, "127.0.0.2", "tls_identity_mismatch", True),
+        (False, "127.0.0.2", "tls_identity_mismatch", False),
+    ],
+)
+async def test_resolver_readiness_requires_verified_listener(
+    tmp_path: Path,
+    trusted: bool,
+    hostname: str,
+    mode: Literal["verified_identity", "tls_identity_mismatch"],
+    ready: bool,
+) -> None:
+    certificate, key = resolver_certificate(tmp_path, hostname)
     foreign = tmp_path / "foreign"
     foreign.mkdir()
     other_certificate, _ = resolver_certificate(foreign, "127.0.0.1")
@@ -46,13 +64,16 @@ async def test_resolver_readiness_requires_verified_listener(tmp_path: Path, tru
     port = listener.getsockname()[1]
     serving = asyncio.create_task(server.serve(sockets=[listener]))
     try:
-        if trusted:
-            await wait_resolver_ready(server, serving, "127.0.0.1", port, certificate)
+        trust_certificate = certificate if trusted else other_certificate
+        if ready:
+            await wait_resolver_ready(
+                server, serving, "127.0.0.1", port, trust_certificate, mode=mode
+            )
             assert server.started and accepted.is_set() and not serving.done()
         else:
             with pytest.raises(TimeoutError):
                 await wait_resolver_ready(
-                    server, serving, "127.0.0.1", port, other_certificate, timeout=0.5
+                    server, serving, "127.0.0.1", port, trust_certificate, mode=mode, timeout=0.5
                 )
             assert not accepted.is_set()
     finally:
@@ -76,14 +97,24 @@ async def test_resolver_readiness_fails_on_server_exit(tmp_path: Path, crash: bo
     assert serving.done()
 
 
-async def test_resolver_started_flag_has_bounded_watchdog(tmp_path: Path) -> None:
+@pytest.mark.parametrize("mode", ["verified_identity", "tls_identity_mismatch"])
+async def test_resolver_started_flag_has_bounded_watchdog(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mode: Literal["verified_identity", "tls_identity_mismatch"],
+) -> None:
     certificate, _ = resolver_certificate(tmp_path, "127.0.0.1")
     server = uvicorn.Server(uvicorn.Config(FastAPI(), interface="asgi3"))
+    post = AsyncMock(side_effect=AssertionError("HTTP probe preceded server.started"))
+    monkeypatch.setattr(httpx.AsyncClient, "post", post)
     serving = asyncio.create_task(asyncio.Event().wait())
     try:
         with pytest.raises(TimeoutError):
-            await wait_resolver_ready(server, serving, "127.0.0.1", 1, certificate, timeout=0.1)
+            await wait_resolver_ready(
+                server, serving, "127.0.0.1", 1, certificate, mode=mode, timeout=0.1
+            )
         assert not serving.done()
+        post.assert_not_awaited()
     finally:
         serving.cancel()
         await asyncio.gather(serving, return_exceptions=True)

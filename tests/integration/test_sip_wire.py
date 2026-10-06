@@ -392,7 +392,12 @@ async def test_real_kamailio_invite_and_forged_route_zero_send(
     server_task = asyncio.create_task(server.serve(sockets=[http_listener]))
     try:
         await wait_resolver_ready(
-            server, server_task, gateway, http_listener.getsockname()[1], certificate_path
+            server,
+            server_task,
+            gateway,
+            http_listener.getsockname()[1],
+            certificate_path,
+            mode="tls_identity_mismatch" if failure_mode == "tls" else "verified_identity",
         )
         await docker(
             "run",

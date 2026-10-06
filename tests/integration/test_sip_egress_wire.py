@@ -42,12 +42,6 @@ from tests.integration.test_sip_stream_transports import StreamUAS, values
 from tests.integration.test_sip_target_constraints import target_control as target_control
 from tests.integration.test_sip_wire import docker, isolated_sender, start_edge, udp_socket
 
-# Reuse this harness's existing 10s outbound wire-observation budget below.
-# consume_committed is the DB-commit boundary, not a 5s production SLA (P19
-# authorizes none; ADR-0100). Ten seconds remains below the 30s permit TTL;
-# the resolver's shared 1.8s deadline and all other waits remain unchanged.
-EGRESS_OBSERVATION_WATCHDOG_SECONDS = 10
-
 pytestmark = [pytest.mark.anyio, pytest.mark.integration]
 
 
@@ -324,9 +318,7 @@ async def test_real_p11_ari_edge_permit_is_consumed_and_stripped(
             )
             call = await service.create_call(organization.id, None, request)
             if lose_consume_response:
-                await asyncio.wait_for(
-                    consume_committed.wait(), timeout=EGRESS_OBSERVATION_WATCHDOG_SECONDS
-                )
+                await asyncio.wait_for(consume_committed.wait(), timeout=5)
                 with pytest.raises(TimeoutError):
                     async with asyncio.timeout(2):
                         if upstream_transport == "UDP":
