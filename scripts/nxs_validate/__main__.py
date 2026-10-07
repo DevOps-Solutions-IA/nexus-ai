@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 from scripts.nxs_control.core import ControlError, repository_root, validate_invariants
+from scripts.nxs_docs.__main__ import synchronize
 
 REQUIRED = (
     "AGENTS.md",
@@ -50,6 +51,7 @@ def main() -> int:
         root = repository_root()
         validate_files(root)
         validate_invariants(root)
+        synchronize(root)
     except ControlError as exc:
         print(json.dumps({"validator": "NXS_REPOSITORY", "result": "FAIL", "reason": str(exc)}))
         return 1
