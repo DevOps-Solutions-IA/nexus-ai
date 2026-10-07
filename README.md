@@ -4,66 +4,66 @@ Nexus AI is a production-first, multi-tenant, omnichannel enterprise AI platform
 
 The platform is being built phase by phase with explicit architectural contracts, deterministic state, evidence-driven quality gates and mandatory human authorization before merges to `main` or production deployment.
 
-## Current status
+## Estado de las fases en esta revisión
 
-H0-01 governance hardening is in progress on `chore/nxs-h0-governance-hardening`
-(Issue #51), pending external audit and merge. It adds sequential admission and future
-certification obligations; it does not implement P23-P32 or change canonical product
-readiness. P22's separate Stage A candidate remains frozen on PR #50.
+<!-- NXS:DOC_STATUS_START -->
+> Generado desde `.nxs/phase-registry.json` y `.nxs/project-state.json`. **Representa el estado de esta revisión**, no necesariamente de `main` cuando se consulta una PR. No acredita merge ni certificación externa.
 
-Canonical backend progress on `main`:
+**Fases READY/GO:** 22 de 33. **Próxima fase permitida:** `NXS-P22` (`DEPENDENCIES_READY`).
 
-| Phase | Capability | Status |
+| Fase | Capacidad | Estado |
 |---|---|---|
-| NXS-P00 | Engineering Control System | READY / GO |
-| NXS-P01 | Backend Core | READY / GO |
-| NXS-P02 | Multi-tenancy and Organizations | READY / GO |
-| NXS-P03 | Security and Authentication | READY / GO |
-| NXS-P04 | Data and Event Platform | READY / GO |
-| NXS-P05 | Provisioner and Dashboard Schema | READY / GO |
-| NXS-P06 | Customer Identity and Conversations | READY / GO |
-| NXS-P07 | Integration Hub | READY / GO |
-| NXS-P08 | Tool Engine | READY / GO |
-| NXS-P09 | Messaging Channels | READY / GO |
-| NXS-P10 | OTP Services | READY / GO |
-| NXS-P11 | Telephony Foundation | READY / GO |
-| NXS-P12 | ElevenLabs Voice | CONTRACT-CERTIFIED |
-| NXS-P13 | AI Agent Runtime | READY / GO |
-| NXS-P14 | Workflow Engine | READY / GO |
-| NXS-P15 | Scheduler | READY / GO |
-| NXS-P16 | Campaigns | READY / GO |
-| NXS-P17 | Human Agent Operations | READY / GO |
-| NXS-P18 | Horizontal Cell Scaling | READY / GO |
-| NXS-P19 | SIP Edge Scaling | READY / GO |
-| NXS-P20 | NXS Sentinel | READY / GO |
-| NXS-P21 | Compliance Controls | READY / GO |
+| `NXS-P00` | Engineering Control System | `READY / GO` |
+| `NXS-P01` | Backend Core | `READY / GO` |
+| `NXS-P02` | Multi-tenancy and Organizations | `READY / GO` |
+| `NXS-P03` | Security and Authentication | `READY / GO` |
+| `NXS-P04` | Data and Event Platform | `READY / GO` |
+| `NXS-P05` | Provisioner and Dashboard Schema | `READY / GO` |
+| `NXS-P06` | Customer Identity and Conversations | `READY / GO` |
+| `NXS-P07` | Integration Hub | `READY / GO` |
+| `NXS-P08` | Tool Engine | `READY / GO` |
+| `NXS-P09` | Messaging Channels | `READY / GO` |
+| `NXS-P10` | OTP Services | `READY / GO` |
+| `NXS-P11` | Telephony Foundation | `READY / GO` |
+| `NXS-P12` | ElevenLabs Voice | `READY / GO` |
+| `NXS-P13` | AI Agent Runtime | `READY / GO` |
+| `NXS-P14` | Workflow Engine | `READY / GO` |
+| `NXS-P15` | Scheduler | `READY / GO` |
+| `NXS-P16` | Campaigns | `READY / GO` |
+| `NXS-P17` | Human Agent Operations | `READY / GO` |
+| `NXS-P18` | Horizontal Cell Scaling | `READY / GO` |
+| `NXS-P19` | SIP Edge Scaling | `READY / GO` |
+| `NXS-P20` | NXS Sentinel | `READY / GO` |
+| `NXS-P21` | Compliance Controls | `READY / GO` |
+| `NXS-P22` | Audit Platform | `PLANNED / PENDING` |
+| `NXS-P23` | Metering and Cost | `PLANNED / PENDING` |
+| `NXS-P24` | Observability | `PLANNED / PENDING` |
+| `NXS-P25` | Resilience | `PLANNED / PENDING` |
+| `NXS-P26` | Backup and Disaster Recovery | `PLANNED / PENDING` |
+| `NXS-P27` | Security Hardening | `PLANNED / PENDING` |
+| `NXS-P28` | Capacity Certification | `PLANNED / PENDING` |
+| `NXS-P29` | Chaos and Failover Certification | `PLANNED / PENDING` |
+| `NXS-P30` | Backend Certification | `PLANNED / PENDING` |
+| `NXS-P31` | GitHub Release | `PLANNED / PENDING` |
+| `NXS-P32` | Production Deployment | `PLANNED / PENDING` |
 
-P12 is contract-certified against the platform abstraction and test suite; live-provider certification remains a separate milestone.
+**Límite:** READY/GO de una fase no certifica capacidad, proveedores reales, failover ni despliegue.
+<!-- NXS:DOC_STATUS_END -->
 
-The canonical source of truth for execution state is `.nxs/`, not this README. Always verify the current phase registry and project state before implementation.
+Los cambios que existen sólo en ramas o pull requests, incluidos correctivos
+de SIP y candidatos de auditoría, no equivalen a capacidades integradas a
+`main`. Para verificar su estado actual deben consultarse las PR, los checks del
+SHA exacto y los registros de evidencia; una ejecución de CI verde no sustituye
+la auditoría o la autorización humana.
 
-Canonical main is completed through P21 at merge commit
-`53149934906d0d243cb3f593efc8a5bbf74bd793` (PR #48). P18 remains READY/GO and provides PostgreSQL-authoritative
-Cell placement and transactional admission into existing agent, human, workflow,
-scheduler, campaign and messaging boundaries. P19 is now canonical READY/GO on
-`main`, binding implementation `860d9a129adad75d0e4d7f8470c8a9d9f224a5be` and audited closure
-`c7e73f0887cde0beb7ee71439b185ed6b1fa44a8`. External implementation and closure audits passed, including
-UDP/TCP/TLS and pre-ARI admission recovery, before the authorized merge. P20 Sentinel
-is canonical READY / GO on main after PR #46. Post-merge NXS CI (36343873102) and
-NXS Security (36343873074) passed against that exact merge SHA. P21 had not started
-at the P20 merge. P21 is now canonical READY/GO on `main` after PR #48, binding audited
-implementation `856bd14efe9f5394cd59fe882e89719d4bd428cf` and closure head
-`4cf786bcbaedfad7c4e3b6f72624e2e434f2bc02`. Post-merge NXS CI (`36425699593`, attempt 2)
-and NXS Security (`36425699366`) passed against exact main merge SHA
-`53149934906d0d243cb3f593efc8a5bbf74bd793`. P22 has not started, and production
-deployment has not occurred.
-See [P18](docs/engineering/nxs-p18-cell-scaling-design.md) and
-[the P19 governance contract](docs/engineering/nxs-p19-sip-edge-scaling-design.md).
-The [P19 runtime guide](docs/engineering/nxs-p19-runtime.md) describes the explicit
-rollout, real SIP/ARI fixtures and security limitations. Canonical evidence under
-`.nxs/evidence/NXS-P19/` distinguishes historical development failures, local proofs
-and exact-head external gates.
-No production deployment, capacity certification or automatic failover is claimed.
+La voz de P12 tiene **certificación contractual** de la abstracción y pruebas;
+la certificación en vivo de proveedores sigue siendo una meta separada.
+La referencia de infraestructura SIP de P19 está integrada como código,
+pero ello no certifica el despliegue de infraestructura real, su capacidad
+ni el failover. Véanse
+[la arquitectura P19](docs/engineering/nxs-p19-sip-edge-scaling-design.md),
+[el runtime P19](docs/engineering/nxs-p19-runtime.md) y
+[el control de estado](docs/engineering/control-system.md).
 
 ## Architecture
 
@@ -210,9 +210,9 @@ Primary backend stack:
 - Docker / Docker Compose
 - Asterisk 22 LTS
 
-Later-stage infrastructure deployment includes Kamailio, Nomad and a distributed
-Cell fleet. P18's placement/admission foundation is implemented on canonical main;
-this does not certify or authorize fleet deployment.
+P19 contains Kamailio/SIP Edge implementation and disposable protocol fixtures;
+the rollout of actual SIP infrastructure, Nomad and a distributed Cell fleet is
+separate and requires capacity, security and deployment authorization.
 
 The frontend will be developed after backend certification and is expected to use Next.js.
 
@@ -329,11 +329,18 @@ P32 Production Deployment
 
 Frontend development follows backend certification.
 
-## Project maturity
+## Madurez y límites de certificación
 
-Nexus AI is under active development and is not production-deployed. Canonical `main` is completed through NXS-P21 READY/GO at `53149934906d0d243cb3f593efc8a5bbf74bd793` after PR #48 and successful exact-main NXS CI/Security. P21 binds audited implementation `856bd14efe9f5394cd59fe882e89719d4bd428cf`; P22 has not started. Historical implementation, closure and corrective evidence remains preserved. P18/P19/P20/P21 correctness certification does not certify capacity, automatic failover, cross-Cell relocation or deployment. P21 does not claim legal or regulatory certification. Cell architecture does not establish production readiness.
+El estado de implementación se obtiene de la tabla generada desde `.nxs/`
+en la sección anterior. Las fases registradas READY/GO acreditan sus propias
+pruebas y decisiones gobernadas; no implican que esté autorizado desplegar
+a producción. La capacidad, el failover, la recuperación, la cadena de suministro,
+la operación de proveedores externos y el release dependen de certificaciones
+y autorizaciones independientes posteriores.
 
-Do not infer production readiness, provider certification, capacity certification, failover certification or deployment status from the presence of code alone. Those claims are granted only by their corresponding NXS phases and evidence.
+Los resultados históricos pertenecen a sus commits y evidencias originales.
+Un PR no mergeado sigue siendo un candidato, incluso si todos sus checks
+son verdes. Ningún cierre de fase o despliegue puede inferirse de este README.
 
 ## Vendor
 

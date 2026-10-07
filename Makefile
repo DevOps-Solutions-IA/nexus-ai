@@ -10,7 +10,7 @@ define require_phase
 	@test -n "$(PHASE)" || { echo "PHASE is required, e.g. 'make $@ PHASE=NXS-P01'"; exit 2; }
 endef
 
-.PHONY: help bootstrap up down logs format lint type test test-integration security \
+.PHONY: nxs-docs-check nxs-docs-sync help bootstrap up down logs format lint type test test-integration security \
         test-all db-bootstrap nxs-schema-guard nxs-preflight nxs-validate-repo nxs-start \
         nxs-gate nxs-close nxs-phase nxs-lock-status nxs-lock-acquire nxs-lock-release \
         nxs-lock-recover docker-build docker-buildx-multiarch migrate migrate-check \
@@ -79,6 +79,12 @@ migrate:
 migrate-check:
 	$(DB_ENV) uv run alembic upgrade head
 	$(DB_ENV) uv run alembic check
+
+nxs-docs-check:
+	uv run python -m scripts.nxs_docs
+
+nxs-docs-sync:
+	uv run python -m scripts.nxs_docs --write
 
 nxs-schema-guard:
 	$(DB_ENV) uv run python -m scripts.nxs_schema_guard
