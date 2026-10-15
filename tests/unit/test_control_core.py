@@ -274,3 +274,49 @@ def test_guard_reports_stale_same_phase_lock(control_repo: Path) -> None:
     write(lock_path, lock)
     result = evaluate_guard(control_repo, "NXS-P00", "feat/nxs-p00-engineering-control-system")
     assert any("stale" in reason for reason in result.reasons)
+
+
+@pytest.mark.parametrize(
+    "status",
+    ["PLANNED", "READY_TO_EXECUTE", "BUILDING", "VALIDATING", "READY", "FAILED", "BLOCKED"],
+)
+@pytest.mark.parametrize("decision", ["PENDING", "GO", "NO_GO"])
+def test_aligned_phase_decision_matrix(control_repo: Path, status: str, decision: str) -> None:
+    set_phase(control_repo, "NXS-P00", status, decision)
+    manifest_path = control_repo / ".nxs/phases/NXS-P00.json"
+    manifest = load_json(manifest_path)
+    manifest.update(status=status, decision=decision)
+    write(manifest_path, manifest)
+    state_path = control_repo / ".nxs/project-state.json"
+    state = load_json(state_path)
+    state["current_phase"].update(status=status, decision=decision)
+    state["completed_phases"] = ["NXS-P00"] if status == "READY" else []
+    state["active_phase"] = None if status == "READY" else "NXS-P00"
+    write(state_path, state)
+    if status == "READY":
+        add_ready_evidence(control_repo, "NXS-P00")
+    if status == "READY" and decision != "GO":
+        with pytest.raises(ControlError, match="READY requires GO"):
+            validate_invariants(control_repo)
+    elif status != "READY" and decision == "GO":
+        with pytest.raises(ControlError, match=f"{status} cannot have GO"):
+            validate_invariants(control_repo)
+        guard = evaluate_guard(control_repo, "NXS-P00", "feat/nxs-p00-engineering-control-system")
+        assert guard.result == "BLOCK"
+        assert guard.code == "MALFORMED_STATE"
+        assert f"{status} cannot have GO" in guard.reasons[0]
+    else:
+        validate_invariants(control_repo)
+
+
+def test_non_current_future_phase_cannot_have_go(control_repo: Path) -> None:
+    set_phase(control_repo, "NXS-P32", "BUILDING", "GO")
+    with pytest.raises(ControlError, match="NXS-P32 BUILDING cannot have GO"):
+        validate_invariants(control_repo)
+
+
+def test_current_repository_go_decisions_remain_valid() -> None:
+    root = Path(__file__).parents[2]
+    validate_invariants(root)
+    for phase in load_json(root / ".nxs/phase-registry.json")["phases"]:
+        assert (phase["decision"] == "GO") == (phase["status"] == "READY")

@@ -166,7 +166,7 @@ def validate_invariants(root: Path) -> None:
                     raise ControlError(
                         f"{phase_id} READY requires dependency {dependency} READY/GO"
                     )
-        if phase["status"] in {"FAILED", "BLOCKED"} and phase["decision"] == "GO":
+        if phase["status"] != "READY" and phase["decision"] == "GO":
             raise ControlError(f"{phase_id} {phase['status']} cannot have GO")
     for requirement_id, requirement in requirements.items():
         if requirement["target_phase"] not in phases:

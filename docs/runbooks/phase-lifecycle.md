@@ -5,6 +5,11 @@ is computed from `.nxs/phase-registry.json` and dependency state — a phase is 
 when it is not READY, not blocked, has every dependency at READY/GO and does not conflict
 with a different active phase; ties break by registry order.
 
+A `GO` decision is valid only for `READY`, which also requires passing readiness
+evidence and READY/GO dependencies. Non-READY phases cannot declare `GO` even when
+registry, manifest and project state agree. This invariant does not replace the
+execution guard, external approval or the canonical closure process.
+
 ## Start or continue a phase
 
 Read `AGENTS.md` and every canonical NXS file, fetch Git state, confirm the registered
