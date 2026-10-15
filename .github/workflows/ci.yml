@@ -28,6 +28,8 @@ jobs:
         run: |
           uv lock --check
           uv run python -m scripts.nxs_validate
+      - name: Documentation parity (mandatory)
+        run: uv run python -m scripts.nxs_docs
       - name: Phase-neutral execution guard
         run: |
           phase="$(uv run python -m scripts.nxs_guard current-phase || true)"

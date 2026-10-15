@@ -6,13 +6,40 @@ This file is the mandatory universal entrypoint for Codex, Claude Code, DeepSeek
 
 Do not trust conversational memory. GitHub, Git history, and machine-readable NXS state are authoritative, in that order. Never infer a READY state or fabricate evidence.
 
-## Documentation synchronization rule
+## Documentation synchronization — mandatory, fail-closed
 
-`README.md` must evolve with the canonical product state. At the closure of every material phase, architecture-boundary change, certification change, release-status change, or other user-visible capability change, the acting agent must evaluate whether the README is now materially stale and update it when required.
+`README.md` and `infrastructure/README.md` **must remain synchronized** with
+canonical machine-readable NXS state on **every pull request, phase transition,
+release change and merge**. This is a blocking engineering invariant, not a
+best-effort writing task.
 
-The README must describe only capabilities and maturity that are supported by canonical `main` and NXS evidence. Work that exists only on a feature/governance branch must be labeled as in progress, planned, or pending merge; it must never be presented as canonically implemented. Machine-readable `.nxs/` state remains authoritative when README prose and execution state differ.
+Both README files contain exactly one guarded `NXS:DOC_STATUS` section.
+Its contents are deterministically generated from
+`.nxs/phase-registry.json` and `.nxs/project-state.json`.
+The required `state` GitHub check invokes `scripts.nxs_validate`,
+which fails closed when the blocks are missing, altered or stale.
+It also has a distinct documentation check step in CI.
 
-A materially stale README is a documentation defect. Prefer updating it in the same governed change when the phase closure or architecture change makes the new status known; otherwise create a dedicated documentation PR before the project advances far enough for repository-facing status to become misleading. README synchronization does not bypass normal merge authorization, CI/security checks, semantic review, or exact-main verification.
+**Required agent commands before delivery:**
+
+```bash
+uv run python -m scripts.nxs_docs --write
+uv run python -m scripts.nxs_docs
+make nxs-validate-repo
+```
+
+On phase/requirement changes, regenerate both documents **in the same
+governed change**. Do not manually edit between guarded markers or
+suppress the validator. Text outside the generated blocks must not claim
+current status contradicted by NXS state; permanent historic narrative
+must be explicitly dated or labeled historical.
+
+Documentation on a feature/PR branch reports **that revision's state**,
+not canonical `main` until the PR is merged and exact-main gates pass.
+Never conflate successful CI, a feature candidate, contractual provider
+tests or installed fixtures with actual production deployment.
+Manual semantic audit and human-approved merge remain mandatory.
+Any missed documentation parity is a blocker, not a deferrable cosmetic edit.
 
 ## Architecture quality and durable deferrals
 
